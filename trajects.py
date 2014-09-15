@@ -7,7 +7,7 @@ import matplotlib.pyplot as plt
 ###################################
 # Class definition
 ###################################
-class trajectory(object):
+class Trajectory(object):
     '''General class for trajectory definitions.
 
     Parent class should hold general parameters relating to trajectory
@@ -29,16 +29,17 @@ class trajectory(object):
         self.t = np.linspace(0, time, ns)
 
 
-class circ(trajectory):
+class circ(Trajectory):
     """ Single circle trajectory
     """
+    pass
 
 
-def _test():
-    """For running doctest
-    """
-    import doctest
-    doctest.testmod()
+# def _test():
+#     """For running doctest
+#     """
+#     import doctest
+#     doctest.testmod()
 
-if __name__ == "__main__":
-    _test()
+# if __name__ == "__main__":
+#     _test()
