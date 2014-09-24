@@ -25,6 +25,19 @@ class TestTrajectory(unittest.TestCase):
     def test_valid_times(self):
         """Make sure the times are valid.
         """
+        self.assertGreaterEqual(len(self.traj.t), 1)
+
         self.assertTrue(np.all(np.logical_and(self.traj.t >= 0.0,
                                               self.traj.t <=
-                                              np.float(self.time))))
+                                              np.float(self.time))),
+                        "Invalid time array.")
+
+
+class TestCirc(unittest.TestCase):
+
+    def setUp(self):
+        pass
+
+
+if __name__ == '__main__':
+    unittest.main()

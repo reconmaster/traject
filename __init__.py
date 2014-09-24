@@ -64,11 +64,20 @@ coordinate transform of rotating +90 degrees around the x-axis.
 
 :Version: 2014.09.05
 
+Requirements
+============
+* `Numpy 1.8.2 <http://www.numpy.org>`_
+* `Transformations.py 2013.06.29 <http://www.lfd.uci.edu/~gohlke/>`_
+
 Examples
 ========
 Add some doctests here
 
 """
+
+__version__ = '2014.09.05'
+__docformat__ = 'restructuredtext en'
+__all__ = []
 
 
 def setup_package():

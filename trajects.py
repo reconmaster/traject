@@ -8,12 +8,12 @@ import matplotlib.pyplot as plt
 # Class definition
 ###################################
 class Trajectory(object):
-    '''General class for trajectory definitions.
+    """General class for trajectory definitions.
 
     Parent class should hold general parameters relating to trajectory
     parameterization. This can include the frame vector array and
     anything else that is used in all of the trajectories.
-    '''
+    """
 
     def __init__(self, time, ns):
         """ Initialize the trajectory class.
@@ -29,7 +29,7 @@ class Trajectory(object):
         self.t = np.linspace(0, time, ns)
 
 
-class circ(Trajectory):
+class Circ(Trajectory):
     """ Single circle trajectory
     """
     pass
