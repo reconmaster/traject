@@ -56,6 +56,26 @@ all of the global DICOM coordinates have the patient in the HFS
 position. This means going from DICOM to IEC only involves a
 coordinate transform of rotating +90 degrees around the x-axis.
 
+As for all of the calculations handled internally in this library, the
+IEC standard is used. This is primarily used to prevent confusion in
+designing trajectories for Developer Mode.
+
+TODO
+====
+.. todo:: Use the velocity limits in the TrueBeam manual to generate
+          points that are comparabe to what can be achieved with the
+          linac. Currently not the highest priortiy since the number
+          of views probably has a larger impact on the sampling
+          properties than view distribution.
+
+.. todo:: When using the information from the TrueBeam manual
+          a `point-in-polygon
+          <http://www.toptal.com/python/computational-geometry-in-python-from-theory-to-implementation>`_
+          algorithm should be used to ensure that the components are
+          moving within their allowed limits. For now this is done
+          manually when selecting the parameters that can be specified
+          for the trajectory.
+
 :Author:
   Andrew Davis
 

@@ -32,11 +32,25 @@ class TestTrajectory(unittest.TestCase):
                                               np.float(self.time))),
                         "Invalid time array.")
 
+    def test_valid_vectors(self):
+        """Ensure that the position vectors are physical
+        """
+        pass
+
 
 class TestCirc(unittest.TestCase):
 
     def setUp(self):
-        pass
+        # pseudo random seed
+        self.seed = int(np.random.randint(2**31-1))
+        np.random.seed(self.seed)
+        print('Random seed for the tests:', self.seed)
+
+        # time in seconds (less than 2 min)
+        self.time = np.random.randint(120)
+        self.views = np.random.randint(600)
+
+        self.traj = Circle(self.time, self.views, )
 
 
 if __name__ == '__main__':
