@@ -33,9 +33,9 @@ class TestCoords(unittest.TestCase):
         self.assertGreaterEqual(len(self.iec._vrt), 1)
 
         # veryify correct mapping
-        np.testing.assert_array_equal(self.iec.r[:, 0], self.iec._lat)
-        np.testing.assert_array_equal(self.iec.r[:, 1], self.iec._lng)
-        np.testing.assert_array_equal(self.iec.r[:, 2], self.iec._vrt)
+        np.testing.assert_array_equal(self.iec.get_traj()[:, 0], self.iec._lat)
+        np.testing.assert_array_equal(self.iec.get_traj()[:, 1], self.iec._lng)
+        np.testing.assert_array_equal(self.iec.get_traj()[:, 2], self.iec._vrt)
 
     def test_valid_dicom(self):
         """Check dicom initialization
@@ -48,9 +48,12 @@ class TestCoords(unittest.TestCase):
         self.assertGreaterEqual(len(self.dicom._vrt), 1)
 
         # verify correct mapping
-        np.testing.assert_array_equal(self.dicom.r[:, 0], self.dicom._lat)
-        np.testing.assert_array_equal(self.dicom.r[:, 1], -1*self.dicom._vrt)
-        np.testing.assert_array_equal(self.dicom.r[:, 2], self.dicom._lng)
+        np.testing.assert_array_equal(self.dicom.get_traj()[:, 0],
+                                      self.dicom._lat)
+        np.testing.assert_array_equal(self.dicom.get_traj()[:, 1],
+                                      -1*self.dicom._vrt)
+        np.testing.assert_array_equal(self.dicom.get_traj()[:, 2],
+                                      self.dicom._lng)
 
     def test_trans_dicom_to_iec(self):
         """Check coordinate system transform from DICOM to IEC.
@@ -58,7 +61,8 @@ class TestCoords(unittest.TestCase):
         self.dicom.change_basis("iec")
 
         self.assertEqual(self.dicom.get_basis(), "iec")
-        np.testing.assert_array_equal(self.iec.r, self.dicom.r)
+        np.testing.assert_array_equal(self.iec.get_traj(),
+                                      self.dicom.get_traj())
 
     def test_trans_iec_to_dicom(self):
         """Check coordinate system transform from IEC to DICOM.
@@ -66,7 +70,8 @@ class TestCoords(unittest.TestCase):
         self.iec.change_basis("dicom")
 
         self.assertEqual(self.iec.get_basis(), "dicom")
-        np.testing.assert_array_equal(self.dicom.r, self.iec.r)
+        np.testing.assert_array_equal(self.dicom.get_traj(),
+                                      self.iec.get_traj())
 
 
 if __name__ == '__main__':
