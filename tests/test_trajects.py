@@ -34,8 +34,14 @@ class TestTrajectory(unittest.TestCase):
 
     def test_valid_vectors(self):
         """Ensure that the position vectors are physical
+
+        .. todo:: Modify these to check with the polygon positioning
+                  restraints.
+
         """
-        pass
+        # check source, source radius is fixed unlike detector such as
+        # if you want to use dynamic magnification
+        self.assertGreater(self.traj.r_src, 0)
 
 
 class TestCirc(unittest.TestCase):

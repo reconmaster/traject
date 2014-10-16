@@ -3,6 +3,9 @@
 import numpy as np
 import matplotlib.pyplot as plt
 
+import coords
+import system_config
+
 
 ###################################
 # Class definition
@@ -23,18 +26,32 @@ class Trajectory(object):
               from rotation or translation.
     """
 
-    def __init__(self, time, ns):
+    def __init__(self, time, ns, r_src=100.0, sys='TrueBeam'):
         """ Initialize the trajectory class.
         Keyword Arguments:
-        time -- Time of trajectory in seconds.
-        ns   -- Number of samples in the trajectory.
+        time  -- Time of trajectory in seconds.
+        ns    -- Number of samples in the trajectory.
+        r_src -- (default 100.0) Source radius (fixed).
+        sys   -- (default 'TrueBeam') Imaging system.
         """
 
         self.time = time
         self.ns = ns
 
+        self.sys = sys
+
+        # a valid system configuration is needed to ensure that the
+        # correct velocities are used to populate the trajectory
+        if sys == 'TrueBeam':
+            self.conf = system_config.TrueBeam()
+        else:
+            raise Exception("This system configuration has not been define.")
+
         # time is the independent parameter
         self.t = np.linspace(0, time, ns)
+
+        # store the trajectory coordinates
+        self.source = []
 
 
 class Circ(Trajectory):
