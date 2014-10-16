@@ -37,6 +37,20 @@ class TestTrajectory(unittest.TestCase):
         """
         pass
 
+    def test_read_fvecs(self):
+        """Ensure a frame vector file is read correctly.
+
+        .. todo:: I think I need some sort of mocking going on here.
+        """
+        # # need to fix this so it mocks function?
+        # self.read_fvecs('filename.csv')
+
+        # self.assertEqual(self.r_src.ndim, 3)
+
+        # # make sure there are more entries than just the initialization
+        # self.assertGreater(self.r_src.size, 3)
+        pass
+
 
 class TestCirc(unittest.TestCase):
 

@@ -3,6 +3,8 @@
 import numpy as np
 import matplotlib.pyplot as plt
 
+import coords
+
 
 ###################################
 # Class definition
@@ -35,6 +37,40 @@ class Trajectory(object):
 
         # time is the independent parameter
         self.t = np.linspace(0, time, ns)
+
+        # source
+        self.r_src = coords.Coords()
+
+        # frame vectors
+        # TODO populate this from the trajectory if necessary
+        self.fvecs = []
+
+    def read_fvecs(self, filename, header=1, basis='iec'):
+        """Read external fvecs file and populate the trajectory
+        Keyword Arguments:
+        filename -- csv file with the frame vectors
+        header   -- (default 1) number of lines to skip for the header
+        basis    -- (default 'iec') basis the frame vectors are in
+        """
+        self.fvecs = np.genfromtxt(filename, delimiter=',',
+                                   skip_header=header)
+
+        # this part isn't right, it already assumes a basis when I
+        # read in the frame vectors
+        if basis == 'iec':
+            self.r_src = coords.Coords(self.fvecs[:, 0], self.fvecs[:,
+                                                                    1],
+                                       self.fvecs[:,
+                                                  2],
+                                       basis)
+        elif basis == 'dicom':
+            self.r_src = coords.Coords(self.fvecs[:, 0], self.fvecs[:,
+                                                                    2],
+                                       self.fvecs[:,
+                                                  1],
+                                       basis)
+        else:
+            raise Exception('Unsupported basis.')
 
 
 class Circ(Trajectory):

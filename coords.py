@@ -22,6 +22,9 @@ class Coords(object):
         self._lng = lng
         self._vrt = vrt
 
+        # array holding the trajectory vectory
+        self.r = []
+
         self._basis = basis
         self.map_coords()
 
@@ -62,3 +65,11 @@ class Coords(object):
         else:
             self._basis = basis
             self.map_coords()
+
+    def get_traj(self):
+        """Access function to get the trajectory.
+
+        :return r: Trajectory vector in selected basis.
+
+        """
+        return self.r
