@@ -6,6 +6,8 @@ import matplotlib.pyplot as plt
 import coords
 import system_config
 
+import plots
+
 
 ###################################
 # Class definition
@@ -57,6 +59,9 @@ class Trajectory(object):
         # TODO populate this from the trajectory if necessary
         self.fvecs = []
 
+        # plots
+        self.vis_traj = None
+
     def read_fvecs(self, filename, header=1, basis='iec'):
         """Read external fvecs file and populate the trajectory
         Keyword Arguments:
@@ -81,6 +86,48 @@ class Trajectory(object):
                                        self.fvecs[:,
                                                   1],
                                        basis)
+        else:
+            raise Exception('Unsupported basis.')
+
+    def visualize(self, label, r_traj, txt_width=470, frac_width=1):
+        """
+        Keyword Arguments:
+        label      -- name of plot
+        r_traj     -- trajectory to plot
+        txt_width  -- (default 470) width in pts of document
+        frac_width -- (default 1) fraction of page width
+        """
+        from mpl_toolkits.mplot3d import Axes3D
+        from matplotlib import colors
+
+        if self.vis_traj is None:
+            self.vis_traj = plots.Plot(txt_width, frac_width)
+
+        self.vis_traj.new_figure(label)
+
+        ax = self.vis_traj.figs[label].add_subplot(111, projection='3d')
+
+        r = r_traj.get_traj()
+        basis = r_traj.get_basis()
+
+        # ax.plot(r[:, 0], r[:, 1], r[:, 2])
+
+        # view number provides the color map for now
+        # TODO use time or velocity to map color
+        N = r.shape[0]
+        cn = colors.Normalize(0, N)
+        for j in xrange(N-1):
+            ax.plot(r[j:j+2, 0], r[j:j+2, 1], r[j:j+2, 2],
+                    color=plt.cm.cool(cn(j)))
+
+        if basis == 'iec':
+            plt.xlabel('Lateral')
+            plt.ylabel('Longitudinal')
+            ax.set_zlabel('Vertical')
+        elif basis == 'dicom':
+            plt.xlabel('Lateral')
+            plt.ylabel('Vertical')
+            ax.set_zlabel('Longitudinal')
         else:
             raise Exception('Unsupported basis.')
 
