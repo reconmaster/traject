@@ -82,7 +82,7 @@ TODO
 :Organization:
   University of Chicago
 
-:Version: 2014.09.05
+:Version: 2014.11.05
 
 Requirements
 ============
@@ -95,7 +95,7 @@ Add some doctests here
 
 """
 
-__version__ = '2014.09.05'
+__version__ = '2014.11.05'
 __docformat__ = 'restructuredtext en'
 __all__ = []
 

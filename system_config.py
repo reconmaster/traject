@@ -6,6 +6,32 @@
 import numpy as np
 
 
+class ControlPoint(object):
+    """Control points to define the trajectory
+
+    The control points set all of the position information for the
+    system. This is initially designed for the TrueBeam, but it could
+    be abstracted if some other system needs additional or different
+    control points.
+
+    The design for this is based on using the same control points as
+    Developer Mode to create a simulated trajectory. Ideally it will
+    be able to use the control points for simulation to create an xml
+    script that can be used with the TrueBeam.
+    """
+    def __init__(self, **kwargs):
+        """Populate control point object with values.
+
+        Need some sort of template with some sort of validation. I
+        like the configobj setup. Maybe XML is better here since
+        already need XML interface with the beamxml files.
+        """
+        super(ControlPoint, self).__init__()
+
+        for kw in kwargs.keys:
+            self.kw = kwargs[kw]
+
+
 class SysConfig(object):
     """Class contains parameters for a given CBCT system.
 
@@ -34,6 +60,11 @@ class TrueBeam(SysConfig):
     .. todo:: Measure the veclocities of the c-arms to get a more
               accurate representation of the trajectories in
               simulation.
+
+    .. todo:: It may be better to have these values stored in a
+              metadata file like xml? That way these could be the
+              upper limits on the velocity if you wanted to reduce
+              the transform velocity.
 
     Units
     =====

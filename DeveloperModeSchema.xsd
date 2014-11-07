@@ -1,0 +1,27 @@
+<?xml version="1.0" encoding="utf-8"?>
+<xs:schema xmlns:VMSHET="xsd.os.varian.com/HET" xmlns:xs="http://www.w3.org/2001/XMLSchema">
+
+  <xs:include schemaLocation="ResearchBeam.xsd" />
+
+  <xs:simpleType name="ResearchBeamVersion">
+    <xs:restriction	base="xs:string">
+      <xs:enumeration	value="1.0"/>
+    </xs:restriction>
+  </xs:simpleType>
+  
+  <xs:simpleType name="Scale">
+    <xs:restriction base="xs:string">
+      <xs:enumeration value="IECContinuous" />
+    </xs:restriction>
+  </xs:simpleType>
+
+  <xs:element name="VarianResearchBeam">
+    <xs:complexType>
+      <xs:sequence>
+        <xs:element ref="SetBeam" minOccurs="1" maxOccurs="1" />
+      </xs:sequence>
+      <xs:attribute name="SchemaVersion" type="ResearchBeamVersion" use="required"/>
+      <xs:attribute name="Scale" type="Scale" use="optional"/>      
+    </xs:complexType>
+  </xs:element>
+</xs:schema>

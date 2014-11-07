@@ -1,0 +1,165 @@
+* Summary
+General software for managing trajectories and the interface with
+TrueBeam's Developer Mode. Most of the functionality of the code,
+classes, and methods are tracked within the docstrings of the
+code. This file is mainly to keep track of the overall code design and
+ideas that remain to be implemented.
+* TODO UML
+As the object oriented nature of this project would benefit from good
+design, I will use this to both learn how to implement UML using the
+4+1 design method.
+** TODO Use Cases
+- Heart of the design that affects all other aspects of the
+  software. This is the level that describes the requirements
+  of the end user.
+- Priority is assigned to determine which parts of the code that
+  should be developed first.
+
+*** Requirements
+Here the requirements are broken into major categories and assigned
+priority. A given contains the positions of both the source and
+detector center. Additionally, adding a set of frame vectors to the
+trajectory should also allow for detector tilt.
+
+**** TODO [#A] A. Parametric trajectory
+The code shall generate a list of the view locations for different
+scanning trajectories.
+
+***** TODO [#A] A.1 Create a trajectory
+- The package shall allow the user to generate a scanning trajectory
+  based on a series of control points.
+
+- The trajectory should be defined as a continuous piecewise function
+  of time.
+
+- These rate of change for the components of these sections should be
+  calculated from the limiting velocities of the physical system.
+
+***** TODO [#A] A.2 Generate view locations
+- Given the continuous piecewise function of the trajectory, the
+  package shall sample trajectory positions based on the specified
+  frame rate.
+
+- At these sampled time points, the package should generate a frame
+  vector for the source and detector.
+
+***** TODO [#B] A.3 Load a trajectory
+- Given a list of frame vectors, the package should be able to
+  initialize an instance of the trajectory object.
+
+**** TODO [#B] B. Trajectory visualization
+***** TODO [#B] B.1 Plot source trajectory
+- For a given trajectory, the package should be able to generate a 3D
+  plot of the source position in space.
+
+- It should also be able to generate plots along each basis of the
+  trajectories position and velocity as a function of time. This
+  should also include the angular information in addition to the
+  spatial coordinates.
+
+***** TODO [#C] B.2 Plot detector trajectory
+- The package should have the exact same plotting capability for the
+  detector center as the source.
+
+- The package should also be able to plot the detector tilt along it's
+  three degrees of freedom.
+
+**** TODO [#B] C. BeamXML interface
+***** TODO [#B] C.1 Generate a beamxml file for a given trajectory
+- The package shall be able to populate a beamxml file as a series of
+  control points for imaging.
+
+***** TODO [#C] C.2 Generate a trajectory from a beamxml file
+- The package should be able to populate a trajectory based on the
+  control in the beamxml file.
+
+***** TODO [#C] C.3 Use beamxml schema to manage xml interface
+- The package should be able to read Varian's xsd file and use it to
+  manage the interface between the trajectory object and the xml file
+  both in read and writing that file.
+
+*** TODO Descriptions
+#+NAME: uc_create_trajectory
+|--------------------------+------------------------------------------+-----------------------------------------------------------------|
+|                          | <40>                                     |                                                                 |
+| Use case name            | Create trajectory                        |                                                                 |
+|--------------------------+------------------------------------------+-----------------------------------------------------------------|
+| Use case description     | Generates a trajectory of interest.      |                                                                 |
+|--------------------------+------------------------------------------+-----------------------------------------------------------------|
+| Related Requirements     | A.1                                      |                                                                 |
+|--------------------------+------------------------------------------+-----------------------------------------------------------------|
+| Goal in Context          | The code is designed for studying source and detector trajectories which this use case creates |                                                                 |
+|--------------------------+------------------------------------------+-----------------------------------------------------------------|
+| Preconditions            | A list of control points must be given that describe the trajectory. |                                                                 |
+|--------------------------+------------------------------------------+-----------------------------------------------------------------|
+| Successful End Condition | A trajectory object should be created.   |                                                                 |
+|--------------------------+------------------------------------------+-----------------------------------------------------------------|
+| Failed End Condition     | No trajectory is created and user is alerted |                                                                 |
+|--------------------------+------------------------------------------+-----------------------------------------------------------------|
+| Primary Actors           | User                                     |                                                                 |
+|--------------------------+------------------------------------------+-----------------------------------------------------------------|
+|                          | Secondary Actors                         | Load frame vectors                                              |
+|                          |                                          | Load beamxml                                                    |
+|--------------------------+------------------------------------------+-----------------------------------------------------------------|
+|                          | Trigger                                  | Initialize new trajectory object                                |
+|--------------------------+------------------------------------------+-----------------------------------------------------------------|
+| Included Cases           | Create coordinate system.                |                                                                 |
+|--------------------------+------------------------------------------+-----------------------------------------------------------------|
+| Main Flow                | Step                                     | Action                                                          |
+|--------------------------+------------------------------------------+-----------------------------------------------------------------|
+|                          | 1.                                       | Load control points                                             |
+|                          | 2.                                       | Create symbolic piecewise function based on limiting velocities |
+|                          | 3.                                       | Calculate frame vectors                                         |
+|--------------------------+------------------------------------------+-----------------------------------------------------------------|
+| Extension                | Step                                     | Branching Action                                                |
+|--------------------------+------------------------------------------+-----------------------------------------------------------------|
+|                          | 3.1                                      | Populate frame vectors with detector tilt if specified.         |
+|--------------------------+------------------------------------------+-----------------------------------------------------------------|
+#+TBLFM:
+
+#+NAME: uc_plot_trajectory
+|--------------------------+------------------------------------------+-------------------------------------------------|
+|                          | <40>                                     |                                                 |
+| Use case name            | Plot trajectory                          |                                                 |
+|--------------------------+------------------------------------------+-------------------------------------------------|
+| Use case description     | Creates a plot of a given trajectory     |                                                 |
+|--------------------------+------------------------------------------+-------------------------------------------------|
+| Related Requirements     | B.1                                      |                                                 |
+|--------------------------+------------------------------------------+-------------------------------------------------|
+| Goal in Context          | Visualize the trajectory of the trajectory object |                                                 |
+|--------------------------+------------------------------------------+-------------------------------------------------|
+| Preconditions            | Trajectory must be successfully created  |                                                 |
+|--------------------------+------------------------------------------+-------------------------------------------------|
+| Successful End Condition | Plot object should be created            |                                                 |
+|--------------------------+------------------------------------------+-------------------------------------------------|
+| Failed End Condition     | No plot should be generated and the user should be alerted |                                                 |
+|--------------------------+------------------------------------------+-------------------------------------------------|
+| Primary Actors           | User                                     |                                                 |
+|--------------------------+------------------------------------------+-------------------------------------------------|
+|                          | Secondary Actors                         | None                                            |
+|--------------------------+------------------------------------------+-------------------------------------------------|
+|                          | Trigger                                  | User requests a trajectory plot                 |
+|--------------------------+------------------------------------------+-------------------------------------------------|
+| Included Cases           | None                                     |                                                 |
+|--------------------------+------------------------------------------+-------------------------------------------------|
+| Main Flow                | Step                                     | Action                                          |
+|--------------------------+------------------------------------------+-------------------------------------------------|
+|                          | 1.                                       | Initialize the plotting environment             |
+|                          | 2.                                       | Plot the trajectory in the 3D coordinate system |
+|--------------------------+------------------------------------------+-------------------------------------------------|
+| Extension                | Step                                     | Branching Action                                |
+|--------------------------+------------------------------------------+-------------------------------------------------|
+|                          | 1.1                                      | Generate 2D plot of selected components         |
+|                          | 2.1                                      | Write plot to file.                             |
+|--------------------------+------------------------------------------+-------------------------------------------------|
+
+*** UML
+#+begin_src plantuml :file use_cases.png
+  @startuml
+  User -> (Create trajectory)
+  User -> (Plot trajectory)
+  @enduml
+#+end_src
+
+#+RESULTS:
+[[file:use_cases.png]]
