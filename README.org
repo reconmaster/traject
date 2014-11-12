@@ -14,6 +14,7 @@ design, I will use this to both learn how to implement UML using the
   of the end user.
 - Priority is assigned to determine which parts of the code that
   should be developed first.
+- The use cases should define what the system should do.
 
 *** Requirements
 Here the requirements are broken into major categories and assigned
@@ -153,8 +154,10 @@ scanning trajectories.
 |                          | 2.1                                      | Write plot to file.                             |
 |--------------------------+------------------------------------------+-------------------------------------------------|
 
-*** UML
-#+begin_src plantuml :file use_cases.png
+*** UML Use Case Overview
+The use case overview should actually not contain any use cases, it
+should merely show how the system is designed.
+#+begin_src plantuml :file uml/use_cases.png
   @startuml
   User -> (Create trajectory)
   User -> (Plot trajectory)
@@ -162,4 +165,32 @@ scanning trajectories.
 #+end_src
 
 #+RESULTS:
-[[file:use_cases.png]]
+[[file:uml/use_cases.png]]
+
+** Process View
+The process view shows how the system accomplishes the requirements
+laid out by the use cases. This is where the actual UML diagrams
+showing the use case interaction should go.
+
+*** TODO UML Diagram
+- [ ] Create UML activity diagrams for each use case
+
+**** create trajectory
+
+#+begin_src plantuml :file uml/activity_create_trajectory.png
+  @startuml
+  start
+  :Input control points;
+
+  :Use system config velocities to create
+  symbolic vector function of time;
+
+  :Sample position information from these
+  functions based on frame rate;
+
+  stop
+  @enduml
+#+end_src
+
+#+RESULTS:
+[[file:uml/activity_create_trajectory.png]]

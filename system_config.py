@@ -43,6 +43,8 @@ class SysConfig(object):
         self.geo_lims = {}
         # limits on the velocity
         self.vel_lims = {}
+        # initial configuration
+        self.init_cfg = {}
 
 
 class TrueBeam(SysConfig):
@@ -97,3 +99,19 @@ class TrueBeam(SysConfig):
         # frame rates
         self.frame_rate = {'dynamic_gain_fluoro': 11.0,
                            'dyanmic_gain_low_framerate_fluoro': 7.0}
+
+        # typical initial configuration
+        self.init_cfg = {'ang': 360.,
+                         'kv_det_lat': 0.,
+                         'kv_det_vrt': -50.,
+                         'kv_det_lng': 0.,
+                         'kv_src_lat': 0.,  # fixed position
+                         'kv_src_vrt': 100.,
+                         'kv_src_lng': 0.,
+                         'mv_det_lat': 0.,
+                         'mv_det_vrt': -50.,
+                         'mv_det_lng': 0.,
+                         'couch_rtn': 180.,
+                         'couch_lat': 100.,
+                         'couch_vrt': 100.,
+                         'couch_lng': 100.}
