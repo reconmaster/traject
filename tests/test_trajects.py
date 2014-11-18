@@ -11,16 +11,13 @@ class TestTrajectory(unittest.TestCase):
     def setUp(self):
         """Setup trajectory class.
         """
-        # pseudo random seed
-        self.seed = int(np.random.randint(2**31-1))
-        np.random.seed(self.seed)
-        print('Random seed for the tests:', self.seed)
 
-        # time in seconds (less than 5 mins)
-        self.time = np.random.randint(300)
-        self.views = np.random.randint(1700)
+        # Default consfiguraion is the TrueBeam
+        self.traj = Trajectory()
 
-        self.traj = Trajectory(self.time, self.views)
+        # Here compose trajectory of all the different components to
+        # verify they are being initialized
+        self.traj.add_cp({'ang':180})
 
     def test_valid_times(self):
         """Make sure the times are valid.
@@ -39,9 +36,9 @@ class TestTrajectory(unittest.TestCase):
                   restraints.
 
         """
-        # check source, source radius is fixed unlike detector such as
-        # if you want to use dynamic magnification
+        # check source, source radius is fixed unlike detector
         self.assertGreater(self.traj.r_src, 0)
+        self.assertGreater(self.traj.r_det, 0)
 
     def test_read_fvecs(self):
         """Ensure a frame vector file is read correctly.
@@ -56,21 +53,6 @@ class TestTrajectory(unittest.TestCase):
         # # make sure there are more entries than just the initialization
         # self.assertGreater(self.r_src.size, 3)
         pass
-
-
-class TestCirc(unittest.TestCase):
-
-    def setUp(self):
-        # pseudo random seed
-        self.seed = int(np.random.randint(2**31-1))
-        np.random.seed(self.seed)
-        print('Random seed for the tests:', self.seed)
-
-        # time in seconds (less than 2 min)
-        self.time = np.random.randint(120)
-        self.views = np.random.randint(600)
-
-        self.traj = Circle(self.time, self.views, )
 
 
 if __name__ == '__main__':

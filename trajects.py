@@ -1,8 +1,14 @@
-# trajects.py
+"""Module for modelling CBCT trajectories.
+
+Module design is based on the idea of control points used in Varian's
+Developer Mode. A variety of plotting and import/export functions are
+included to interface with the Developer Mode scans on TrueBeam
+"""
 
 import numpy as np
 import matplotlib.pyplot as plt
 
+import control_points
 import coords
 import system_config
 
@@ -28,18 +34,36 @@ class Trajectory(object):
               from rotation or translation.
     """
 
-    def __init__(self, time, ns, r_src=100.0, sys='TrueBeam'):
+    def __init__(self, sys='TrueBeam'):
         """ Initialize the trajectory class.
+
+        Units should stay be consistent for all dimensions. The
+        default is cm though it could be changed if necessary.
+
+        The trajectory will be built from a set of control points. The
+        number of views will then be determined by the frame rate
+        which is also in the system configuration file.
+
+        Currently only the system configuration is the only
+        parameter. Once the total trajectory is built, the time will be
+        represented based on the velocities in the system
+        configuration. There will also need to be some additional
+        error checking to make sure that the positions that are
+        specified are allowed.
+
+        From the actual trajectory that can be imaged with the
+        physical system, the trajectory can be downsampled much in the
+        same way the few-view studies will be done with the real
+        data. That way the simulations and the real data downsampling
+        will both work in the same way in the reconstruction.
+
+        .. todo:: If allowing different units, add flags.
+
         Keyword Arguments:
-        time  -- Time of trajectory in seconds.
-        ns    -- Number of samples in the trajectory.
-        r_src -- (default 100.0) Source radius (fixed).
         sys   -- (default 'TrueBeam') Imaging system.
         """
 
-        self.time = time
-        self.ns = ns
-
+        # Setup the system configuration
         self.sys = sys
 
         # a valid system configuration is needed to ensure that the
@@ -47,13 +71,22 @@ class Trajectory(object):
         if sys == 'TrueBeam':
             self.conf = system_config.TrueBeam()
         else:
-            raise Exception("This system configuration has not been define.")
+            raise Exception("This system configuration has not been defined.")
 
-        # time is the independent parameter
-        self.t = np.linspace(0, time, ns)
+        # control point object
+        self.cpts = control_points.ControlPoints(self.conf)
+
+        # position is paramaterized by time
+        #
+        # TODO this needs to be populated based on the velocities from
+        # the system configuration
+        self.t = []
 
         # source
         self.r_src = coords.Coords()
+
+        # det
+        self.r_det = coords.Coords()
 
         # frame vectors
         # TODO populate this from the trajectory if necessary
@@ -61,6 +94,17 @@ class Trajectory(object):
 
         # plots
         self.vis_traj = None
+
+    def add_cp(self, cp):
+        """Add a control point to the trajectory
+
+        Uses the control point structure in the system configuration
+        to add a new control point in the trajectory
+
+        Keyword Arguments:
+        cp -- Control point dictionary with values to be modified.
+        """
+        self.cpts.add_cp(cp)
 
     def read_fvecs(self, filename, header=1, basis='iec'):
         """Read external fvecs file and populate the trajectory
@@ -130,13 +174,6 @@ class Trajectory(object):
             ax.set_zlabel('Longitudinal')
         else:
             raise Exception('Unsupported basis.')
-
-
-class Circ(Trajectory):
-    """ Single circle trajectory
-    """
-    pass
-
 
 # def _test():
 #     """For running doctest
