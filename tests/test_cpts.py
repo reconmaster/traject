@@ -36,7 +36,19 @@ class TestControlPoints(unittest.TestCase):
 
         self.cpts.add_cp(new_cp)
 
-        self.assertEqual(self.cpts.get_pts()[-1]['ang'], new_cp['ang'])
+        self.assertEqual(self.cpts.get_pts()[-1]['ang'],
+                         new_cp['ang'])
+
+        self.assertEqual(self.cpts.get_pts()[0]['ang'],
+                         self.cpts.sys_config.init_cfg['ang'])
+
+    def test_gen_sym_funcs(self):
+        """Tests for creating symbolic functions
+        """
+
+        self.cpts.gen_sym_funcs()
+
+        self.assertEqual(self.cpts.dof, len(self.cpts.get_pts()[0]))
 
 
 if __name__ == '__main__':
