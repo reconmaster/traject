@@ -69,7 +69,8 @@ class ControlPoints(object):
     def add_cp(self, cp):
         """Add a new control point
         Keyword Arguments:
-        cp --
+
+        cp -- Control point
         """
         # copy previous control point and then set the values
         # specified in the new control point

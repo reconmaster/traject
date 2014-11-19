@@ -17,7 +17,14 @@ class TestTrajectory(unittest.TestCase):
 
         # Here compose trajectory of all the different components to
         # verify they are being initialized
-        self.traj.add_cp({'ang':180})
+        self.traj.add_cp({'ang': 180})
+        self.traj.add_cp({'det_lng': -5.0, 'src_lng': -5.0})
+
+    def test_sym_pos_funcs(self):
+        """Verify the endpoints of the symbolic functions are correct
+        """
+        # self.assertEqual(, )
+        pass
 
     def test_valid_times(self):
         """Make sure the times are valid.

@@ -106,6 +106,12 @@ class Trajectory(object):
         """
         self.cpts.add_cp(cp)
 
+    def generate_views(self):
+        """Function for generating sampled positions for the trajectory
+
+        """
+        pass
+
     def read_fvecs(self, filename, header=1, basis='iec'):
         """Read external fvecs file and populate the trajectory
         Keyword Arguments:
