@@ -80,8 +80,8 @@ class TrueBeam(SysConfig):
         super(TrueBeam, self).__init__()
 
         # geometry limits
-        self.geo_lims = {'gantry_rtn_min': 0,
-                         'gantry_rtn_max': 360}
+        self.geo_lims = {'ang_min': 0,
+                         'ang_max': 360}
 
         # Here are the polygons that should be used to verify that the
         # poistion. Currently unbounded.
@@ -91,10 +91,17 @@ class TrueBeam(SysConfig):
 
         # velocity limits, I can't find the c-arm velocities in the
         # manual so I am assuming the couch motion
-        self.vel_lims = {'gantry_rtn': 6.00, 'couch_vrt': 2.00,
-                         'couch_lat': 4.00, 'couch_lng': 8.00,
-                         'couch_rtn': 3.00, 'kv_det': 3.5, 'kv_src':
-                         3.5}
+        self.vel_lims = {'ang': 6.00,
+                         'couch_vrt': 2.00,
+                         'couch_lat': 4.00,
+                         'couch_lng': 8.00,
+                         'couch_rtn': 3.00,
+                         'kv_det_vrt': 3.5,
+                         'kv_det_lng': 3.5,
+                         'kv_det_lat': 3.5,
+                         'kv_src_vrt': 3.5,
+                         'kv_src_lng': 3.5,
+                         'kv_src_lat': 3.5}
 
         # frame rates
         self.frame_rate = {'dynamic_gain_fluoro': 11.0,

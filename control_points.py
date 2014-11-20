@@ -55,6 +55,14 @@ class ControlPoints(object):
         # initialize the array of control points
         self.cpts = [self.sys_config.init_cfg]
 
+        # dictionary for time and velocity steps for control points
+        # that change
+        self.time_steps = {}
+        self.vel_steps = {}
+
+        # max time to each control point
+        self.max_t = None
+
         # create disctionary of symbolic position functions
         self.sym_funcs = {}
 
@@ -76,9 +84,14 @@ class ControlPoints(object):
 
     def add_cp(self, cp):
         """Add a new control point
-        Keyword Arguments:
 
+        ..todo:: Add function call before appending the control point
+        to make sure that it is within the range specifiec by the
+        system configuration.
+
+        Keyword Arguments:
         cp -- Control point
+
         """
         # copy previous control point and then set the values
         # specified in the new control point
@@ -101,20 +114,51 @@ class ControlPoints(object):
         for key in self.cpts[0].iterkeys():
             compressed_dict[key] = [x.get(key) for x in self.cpts]
 
-        # now run through values and only generate symbolic functions
-        # if the control points change
+        # now run through values and only calculate time if the
+        # control points change
         for key, value in compressed_dict.iteritems():
             if value[1:] == value[:-1]:
                 pass            # values are the same do nothing
             else:
-                self.calc_sym_fun(key, value)
+                (self.time_steps[key],
+                 self.vel_steps[key]) = self.calc_time_steps(key,
+                                                             value)
 
-    def calc_sym_fun(self, key, value):
-        """Function for calculating the symbolic piecewise function
+        # return self.time_steps
+
+        # use the calculated times to create dictionary of piecewise
+        # functions
+        t_array = np.array([j for j in self.time_steps.itervalues()])
+
+        # find the maximum time where all of the control point
+        # conditions are satisfied
+        self.max_t = np.max(t_array, axis=1)
+
+        # finally build the piecewise functions
+        for key, value in self.time_steps.iteritems():
+            self.sym_funcs[key] = self.write_sym_func(key, value,
+                                                      compressed_dict[key])
+
+    def calc_time_steps(self, key, value):
+        """Calculate time steps for paramters that change
+
+        Returns a list of times at which the values are
+        reached. The piecewise function should be left open ended so
+        that the maximum time here is used to calculate the total
+        scan time.
+
+        Also returns a list of velocities during those time steps.
+
         Keyword Arguments:
         key   -- parameter that changes
         value -- list of control point values for that parameter
         """
+        # list of time points for piecewise function
+        t = []
+
+        # list of velocities for piecewise function
+        v = []
+
         for j in np.arange(1, len(value)):
             # first check velocity direction
             if value[j] > value[j-1]:
@@ -124,31 +168,39 @@ class ControlPoints(object):
             else:
                 sign = 0        # no change
 
-            # now calculate the time for the piecewise function
+            # now create array of time points for piecewise function
+            vel = self.sys_config.vel_lims[key] * sign
 
+            v.append(vel)
 
-        # # get the number of degress of freedom
-        # self.dof = len(self.cpts[0])
+            # as this is already a value we know to change, velocity
+            # of zero means the
+            if vel == 0:
+                t.append(0.)
+            else:
+                t.append(float(value[j]-value[j-1])/vel)
 
-        # self.num_pts = len(self.cpts)
+        return t, v
 
-        # eval_strings = np.zeros((int(self.dof), int(self.num_pts)),
-        #                         dtype=object)
+    def write_sym_func(self, key, times, cpts):
+        """Generate sympy piecewise function
 
-        # # fill first column key values
-        # i = 0
-        # for key in self.cpts[0].iterkeys():
-        #     eval_strings[i][0] = key
+        Use the max times and the times for the individiual time steps
+        to create the required piecewise function.
 
-        # for j in xrange(len(self.cpts)):
-        #     i=0
+        Keyword Arguments:
+        key   -- Name of control point
+        times -- Time steps for this control point
+        cpts  -- Control point values
+        """
 
-        #     for key, val in self.cpts[j].iteritems():
-        #         # now use previous control point to calculate time and
-        #         # velocity for each piece
-        #         if j = 0:
-        #             pass
-        #         else:
-        #             [
+        # string to be converted into piecewise function command
+        func_str = ""
 
-        # print eval_strings
+        for j in xrange(len(times)):
+            if self.vel_steps[key] == 0:
+                pass
+            else:
+                # Use some sort of calculation here to populate the
+                # steps with the time parameter
+                pass
