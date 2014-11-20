@@ -56,7 +56,7 @@ class ControlPoints(object):
         self.cpts = [self.sys_config.init_cfg]
 
         # create disctionary of symbolic position functions
-        self.sym_funcs = None
+        self.sym_funcs = {}
 
         self.t = sp.symbols('t')
 
@@ -96,7 +96,35 @@ class ControlPoints(object):
 
         """
         # create compressed dictionary of values
-        # for [x.get('key') for x in list]?
+        compressed_dict = {}
+
+        for key in self.cpts[0].iterkeys():
+            compressed_dict[key] = [x.get(key) for x in self.cpts]
+
+        # now run through values and only generate symbolic functions
+        # if the control points change
+        for key, value in compressed_dict.iteritems():
+            if value[1:] == value[:-1]:
+                pass            # values are the same do nothing
+            else:
+                self.calc_sym_fun(key, value)
+
+    def calc_sym_fun(self, key, value):
+        """Function for calculating the symbolic piecewise function
+        Keyword Arguments:
+        key   -- parameter that changes
+        value -- list of control point values for that parameter
+        """
+        for j in np.arange(1, len(value)):
+            # first check velocity direction
+            if value[j] > value[j-1]:
+                sign = 1        # positive velocity
+            elif value[j] < value[j-1]:
+                sign = -1       # negative velocity
+            else:
+                sign = 0        # no change
+
+            # now calculate the time for the piecewise function
 
 
         # # get the number of degress of freedom

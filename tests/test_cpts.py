@@ -48,8 +48,6 @@ class TestControlPoints(unittest.TestCase):
 
         self.cpts.gen_sym_funcs()
 
-        self.assertEqual(self.cpts.dof, len(self.cpts.get_pts()[0]))
-
 
 if __name__ == '__main__':
     unittest.main()
