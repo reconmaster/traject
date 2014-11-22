@@ -38,9 +38,7 @@ couch_vrt -- Vertical
 couch_lng -- Longitudinal
 
 """
-
 import numpy as np
-import sympy as sp
 
 
 class ControlPoints(object):
@@ -66,7 +64,7 @@ class ControlPoints(object):
         # create disctionary of symbolic position functions
         self.sym_funcs = {}
 
-        self.t = sp.symbols('t')
+        # self.t = sp.symbols('t')
 
     def get_pts(self):
         """Return the control point array
@@ -132,12 +130,12 @@ class ControlPoints(object):
 
         # find the maximum time where all of the control point
         # conditions are satisfied
-        self.max_t = np.max(t_array, axis=1)
+        self.max_t = np.max(t_array, axis=0)
 
         # finally build the piecewise functions
-        for key, value in self.time_steps.iteritems():
-            self.sym_funcs[key] = self.write_sym_func(key, value,
-                                                      compressed_dict[key])
+        for key in self.time_steps.iterkeys():
+            self.sym_funcs[key] = self.\
+                write_sym_func(key, compressed_dict[key])
 
     def calc_time_steps(self, key, value):
         """Calculate time steps for paramters that change
@@ -182,25 +180,74 @@ class ControlPoints(object):
 
         return t, v
 
-    def write_sym_func(self, key, times, cpts):
+    def write_sym_func(self, key, cpts):
         """Generate sympy piecewise function
 
         Use the max times and the times for the individiual time steps
         to create the required piecewise function.
 
+        # TODO: may need to do something along the lines of
+        # http://kitchingroup.cheme.cmu.edu/pycse/pycse.html#sec-3-8
+
         Keyword Arguments:
         key   -- Name of control point
-        times -- Time steps for this control point
         cpts  -- Control point values
+
         """
+        import sympy
+        from sympy.parsing.sympy_parser import parse_expr
+
+        t = sympy.symbols("t")
+
+        times = self.time_steps[key]
+
+        def add_piece(self, cp0, t0, t1, vel, end=False):
+            """Construct string piece to add to function string
+
+            Keyword Arguments:
+            cp0 -- initial control point
+            t0  -- initial time
+            t1  -- final time
+            vel -- velocity
+            end -- (default False) set as true if last piece
+            """
+            if not end:
+                piece = "(" + str(cp0) + " + t*(" + str(vel) +\
+                    "), " + str(t0) + " <= t < " + str(t1) + "), "
+            else:  # last control point
+                piece = "(" + str(cp0) + " + t*(" + str(vel) +\
+                    "), " + str(t0) + " <= t))"
+
+            return piece
 
         # string to be converted into piecewise function command
-        func_str = ""
+        func_str = "Piecewise("
 
-        for j in xrange(len(times)):
-            if self.vel_steps[key] == 0:
-                pass
+        for j in np.arange(len(self.max_t)):
+            # calculate the previous time set
+            t0 = np.sum(self.max_t[:j])
+
+            # check if last control point
+            if j+1 == len(self.max_t):
+                end = True
             else:
-                # Use some sort of calculation here to populate the
-                # steps with the time parameter
-                pass
+                end = False
+
+            if times[j] == 0.:  # no change
+                func_str = func_str + add_piece(func_str, cpts[j], t0,
+                                                t0+self.max_t[j], 0., end)
+            else:               # there is a velocity change
+                func_str = func_str + add_piece(func_str, cpts[j], t0,
+                                                t0+times[j],
+                                                self.vel_steps[key][j],
+                                                end)
+                if times[j] < self.max_t[j]:
+                    func_str = func_str + add_piece(func_str, cpts[j],
+                                                    t0+times[j],
+                                                    t0+self.max_t[j],
+                                                    self.vel_steps[key][j],
+                                                    end)
+
+        return func_str
+        #parse_expr(func_str)
+        #print func_str
