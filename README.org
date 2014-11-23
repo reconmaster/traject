@@ -66,9 +66,11 @@ scanning trajectories.
   three degrees of freedom.
 
 **** TODO [#B] C. BeamXML interface
-***** TODO [#B] C.1 Generate a beamxml file for a given trajectory
+***** TODO [#A] C.1 Generate a beamxml file for a given trajectory
 - The package shall be able to populate a beamxml file as a series of
   control points for imaging.
+
+- [[http://lxml.de/][lxml]] seems like the best way for doing this right now
 
 ***** TODO [#C] C.2 Generate a trajectory from a beamxml file
 - The package should be able to populate a trajectory based on the
@@ -78,6 +80,12 @@ scanning trajectories.
 - The package should be able to read Varian's xsd file and use it to
   manage the interface between the trajectory object and the xml file
   both in read and writing that file.
+
+- It looks like [[http://pythonhosted.org/generateDS/][generateDS]] can create a python class for the
+  DeveloperMode from the schema. Unfortunately, I do not have a good
+  understanding of how the lxml interface works. I am going to try a
+  simpler method with the lxml class just to get some working xml
+  files for now.
 
 *** TODO Descriptions
 #+NAME: uc_create_trajectory
