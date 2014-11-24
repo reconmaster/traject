@@ -70,7 +70,8 @@ scanning trajectories.
 - The package shall be able to populate a beamxml file as a series of
   control points for imaging.
 
-- [[http://lxml.de/][lxml]] seems like the best way for doing this right now
+- [ ] For detector offsets, make sure the collimator blades are
+  correctly moved in the xml file as well.
 
 ***** TODO [#C] C.2 Generate a trajectory from a beamxml file
 - The package should be able to populate a trajectory based on the

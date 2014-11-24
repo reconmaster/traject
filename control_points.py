@@ -69,7 +69,20 @@ class ControlPoints(object):
     def get_pts(self):
         """Return the control point array
         """
-        return self.cpts
+        # create compressed dictionary of values if they change
+        compressed_dict = {}
+
+        for key in self.cpts[0].iterkeys():
+            tmp = [x.get(key) for x in self.cpts]
+
+            if tmp[1:] == tmp[:-1]:
+                # values are the same leave out
+                pass
+            else:
+                compressed_dict[key] = tmp
+
+        return compressed_dict
+        #return self.cpts
 
     def set_init_cp(self, init_cp):
         """Overide the default initial control point
@@ -79,6 +92,15 @@ class ControlPoints(object):
         """
         for key, val in init_cp.iteritems():
             self.cpts[0][key] = val
+
+    def get_init_cp(self):
+        """Get the intial control point parameters
+
+        This is especially useful for configuring the intial control
+        point for the beamxml files
+        """
+        return self.cpts[0]
+
 
     def add_cp(self, cp):
         """Add a new control point
@@ -107,16 +129,16 @@ class ControlPoints(object):
 
         """
         # create compressed dictionary of values
-        compressed_dict = {}
+        compressed_dict = self.get_pts()
 
-        for key in self.cpts[0].iterkeys():
-            compressed_dict[key] = [x.get(key) for x in self.cpts]
+        # for key in self.cpts[0].iterkeys():
+        #     compressed_dict[key] = [x.get(key) for x in self.cpts]
 
         # now run through values and only calculate time if the
         # control points change
         for key, value in compressed_dict.iteritems():
             if value[1:] == value[:-1]:
-                pass            # values are the same do nothing
+                pass
             else:
                 (self.time_steps[key],
                  self.vel_steps[key]) = self.calc_time_steps(key,

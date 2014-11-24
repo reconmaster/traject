@@ -112,7 +112,6 @@ class TrueBeam(SysConfig):
                          'kv_det_lat': 0.,
                          'kv_det_vrt': -50.,
                          'kv_det_lng': 0.,
-                         'kv_src_lat': 0.,  # fixed position
                          'kv_src_vrt': 100.,
                          'kv_src_lng': 0.,
                          'mv_det_lat': 0.,
