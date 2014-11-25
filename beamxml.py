@@ -15,7 +15,7 @@ class BeamXML(object):
 
     """
 
-    def __init__(self, xml_file, template='lo_fps.xml'):
+    def __init__(self, xml_file, template=None):
         super(BeamXML, self).__init__()
         """Create a BeamXML instance
 
@@ -32,7 +32,10 @@ class BeamXML(object):
             dirname(os.path.abspath(__file__)) + "/"
 
         # populate the beamxml object from the template
-        self.scan = dm.parse(self.package_directory + template)
+        if template is None:
+            self.scan = dm.parse(self.package_directory + 'lo_fps.xml')
+        else:
+            self.scan = dm.parse(template)
 
         self.outfile = xml_file
 
@@ -54,8 +57,7 @@ class BeamXML(object):
         with open(self.outfile, 'w') as f:
             self.scan.export(f, 0)
 
-        print("""Are you using and offset detector or not? Check collimator blades in
-template xml file!""")
+        print("Make sure you checked the collimator blades.")
 
         print("BeamXML file written to {}.".format(self.outfile))
 
@@ -96,20 +98,13 @@ template xml file!""")
             self.scan.SetBeam.ControlPoints.\
                 add_Cp(dm.CpType())
 
-            # now add imaging points if necessary
-            if i+1 == num_pts:
-                # last imaging point exists, just match to the control
-                # point number
-                self.scan.SetBeam.ImagingParameters.ImagingPoints.\
-                    ImagingPoint[i].set_Cp(i)
-            else:
-                # add imaging point
-                self.scan.SetBeam.ImagingParameters.ImagingPoints.\
-                    insert_ImagingPoint_at(i, dm.ImagingPointType())
-
-                # set corresponding control point number
-                self.scan.SetBeam.ImagingParameters.ImagingPoints.\
-                    ImagingPoint[i].set_Cp(i)
+            # currently the last position does not have the
+            # AcquisitionStop.AcquisitionId(value=1) set.
+            # TODO: Check if this is necessary on the scan
+            self.scan.SetBeam.ImagingParameters.ImagingPoints.\
+                add_ImagingPoint(dm.ImagingPointType(Cp=i,
+                                                     Kvd=dm.ArmPositionsType(Positions=dm.PositionsType3()),
+                                                     Kvs=dm.ArmPositionsType(Positions=dm.PositionsType3())))
 
         # use first control point to initialize starting values of the
         # configuration
@@ -159,7 +154,7 @@ template xml file!""")
 
         for key, value in cpts.iteritems():
 
-            for i in np.arange(len(value)):
+            for i in np.arange(1, len(value)):
 
                 if key == 'ang':
                     self.scan.SetBeam.ControlPoints.Cp[i].\
@@ -179,7 +174,7 @@ template xml file!""")
                 # rest of the value[i]s go into ImagingPoint
                 elif key == 'kv_det_lat':
                     self.scan.SetBeam.ImagingParameters.ImagingPoints.\
-                        ImagingPoint[0].Kvd.Positions.set_Lat(value)
+                        ImagingPoint[i].Kvd.Positions.set_Lat(value[i])
                 elif key == 'kv_det_vrt':
                     self.scan.SetBeam.ImagingParameters.ImagingPoints.\
                         ImagingPoint[i].Kvd.Positions.set_Vrt(value[i])

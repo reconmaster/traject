@@ -70,13 +70,6 @@
                         </Positions>
                     </Kvs>
                 </ImagingPoint>
-                <ImagingPoint>
-                  <Cp>1.000000e+00</Cp>
-                  <AcquisitionStop>     <!--Last point needs this-->
-                        <AcquisitionId>1</AcquisitionId>
-                        <AcquisitionSpecs/>
-                    </AcquisitionStop>
-                </ImagingPoint>
             </ImagingPoints>
             <ImagingTolerances/>
         </ImagingParameters>

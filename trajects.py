@@ -106,6 +106,14 @@ class Trajectory(object):
         """
         self.cpts.add_cp(cp)
 
+    def set_init_cp(self, cp):
+        """Wrapper for setting initial control point
+
+        Keyword Arguments:
+        cp -- Initial control point settings
+        """
+        self.cpts.set_init_cp(cp)
+
     def generate_views(self):
         """Function for generating sampled positions for the trajectory
 
