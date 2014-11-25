@@ -82,6 +82,12 @@ class BeamXML(object):
                   best to set in the XML for now as a different
                   template.
 
+        .. todo:: It may be worthwhile to move the other scan settings
+                  to a more manageable config file setup so that the
+                  template can be used to validate proposed
+                  trajectories. Im not sure if this class from the
+                  schema is necessarily as robust.
+
         Keyword Arguments:
         trj -- Trajectory to be converted to xml file
         """
@@ -105,6 +111,12 @@ class BeamXML(object):
                 add_ImagingPoint(dm.ImagingPointType(Cp=i,
                                                      Kvd=dm.ArmPositionsType(Positions=dm.PositionsType3()),
                                                      Kvs=dm.ArmPositionsType(Positions=dm.PositionsType3())))
+
+        # set the acquisition stop for the last imaging point
+        # TODO: may be worth having multiple acquisitions in a scan?
+        # Think of possible benefits
+        self.scan.SetBeam.ImagingParameters.ImagingPoints.ImagingPoint[-1].\
+            set_AcquisitionStop([dm.Acquisition(AcquisitionId=1)])
 
         # use first control point to initialize starting values of the
         # configuration

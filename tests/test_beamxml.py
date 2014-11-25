@@ -60,9 +60,9 @@ class TestBeamXML(unittest.TestCase):
                          ImagingPoints.ImagingPoint[2].Kvd.Positions.
                          get_Lng(), -5.)
 
-        # self.assertEqual(self.bxml.scan.SetBeam.ImagingParameters.
-        #                  ImagingPoints.ImagingPoint[2].AcquisitionStop.
-        #                  AcquisitionId, 1.)
+        self.assertEqual(self.bxml.scan.SetBeam.ImagingParameters.
+                         ImagingPoints.ImagingPoint[2].AcquisitionStop[0].
+                         get_AcquisitionId(), 1.)
 
         # write test xml file for verification
         #self.bxml.write_xml()
