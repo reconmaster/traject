@@ -2508,7 +2508,7 @@ class MlcType(GeneratedsSuper):
 class ImagingParametersType(GeneratedsSuper):
     subclass = None
     superclass = None
-    def __init__(self, DuringTreatment=None, OutsideTreatment=None, CustomTargetPermission=False, ImagingVelTable=None, LatchBEL=True, LatchKVBEL=True, ImagingPoints=None, ImagingTolerances=None, GatingParameters=None):
+    def __init__(self, DuringTreatment=None, OutsideTreatment=None, CustomTargetPermission=None, ImagingVelTable=None, LatchBEL=True, LatchKVBEL=True, ImagingPoints=None, ImagingTolerances=None, GatingParameters=None):
         self.original_tagname_ = None
         self.DuringTreatment = DuringTreatment
         self.OutsideTreatment = OutsideTreatment

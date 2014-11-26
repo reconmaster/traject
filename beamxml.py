@@ -96,27 +96,56 @@ class BeamXML(object):
 
         num_pts = [len(v) for v in cpts.itervalues()][0]
 
-        # first make sure the number of control points and imaging
-        # points match the numpber of control points in the trajectory
+        # first make sure the number of control points match the
+        # numpber of control points in the trajectory, the number of
+        # imaging points doesn't have to match
         for i in np.arange(1, num_pts):
 
             # one less control point in the template
-            self.scan.SetBeam.ControlPoints.\
-                add_Cp(dm.CpType())
+            self.scan.SetBeam.ControlPoints.add_Cp(dm.CpType())
 
-            # currently the last position does not have the
-            # AcquisitionStop.AcquisitionId(value=1) set.
-            # TODO: Check if this is necessary on the scan
-            self.scan.SetBeam.ImagingParameters.ImagingPoints.\
-                add_ImagingPoint(dm.ImagingPointType(Cp=i,
-                                                     Kvd=dm.ArmPositionsType(Positions=dm.PositionsType3()),
-                                                     Kvs=dm.ArmPositionsType(Positions=dm.PositionsType3())))
+            # if any of the image parameters change then set the arms
+            # and control point
+            if (cpts['kv_det_lat'][i] != cpts['kv_det_lat'][i-1] or
+                cpts['kv_det_vrt'][i] != cpts['kv_det_vrt'][i-1] or
+                cpts['kv_det_lng'][i] != cpts['kv_det_lng'][i-1] or
+                cpts['kv_det_pitch'][i] != cpts['kv_det_pitch'][i-1] or
+                cpts['kv_src_vrt'][i] != cpts['kv_src_vrt'][i-1] or
+                cpts['kv_src_lng'][i] != cpts['kv_src_lng'][i-1] or
+                cpts['kv_src_pitch'][i] != cpts['kv_src_pitch'][i-1]):
+
+                self.scan.SetBeam.ImagingParameters.ImagingPoints.\
+                    add_ImagingPoint(dm.ImagingPointType(Cp=i,
+                                                         Kvd=dm.ArmPositionsType(Positions=dm.PositionsType3()),
+                                                         Kvs=dm.ArmPositionsType(Positions=dm.PositionsType3())))
+
+                # now popoulate the imaging point with the parameters
+                # all of which are needed
+                self.scan.SetBeam.ImagingParameters.ImagingPoints.\
+                    ImagingPoint[i].Kvd.Positions.set_Lat(cpts['kv_det_lat'][i])
+                self.scan.SetBeam.ImagingParameters.ImagingPoints.\
+                    ImagingPoint[i].Kvd.Positions.set_Vrt(cpts['kv_det_vrt'][i])
+                self.scan.SetBeam.ImagingParameters.ImagingPoints.\
+                    ImagingPoint[i].Kvd.Positions.set_Lng(cpts['kv_det_lng'][i])
+                self.scan.SetBeam.ImagingParameters.ImagingPoints.\
+                    ImagingPoint[i].Kvd.Positions.set_Pitch(cpts['kv_det_pitch'][i])
+                self.scan.SetBeam.ImagingParameters.ImagingPoints.\
+                    ImagingPoint[i].Kvs.Positions.set_Lat(cpts['kv_src_lat'][i])
+                self.scan.SetBeam.ImagingParameters.ImagingPoints.\
+                    ImagingPoint[i].Kvs.Positions.set_Vrt(cpts['kv_src_vrt'][i])
+                self.scan.SetBeam.ImagingParameters.ImagingPoints.\
+                    ImagingPoint[i].Kvs.Positions.set_Lng(cpts['kv_src_lng'][i])
+                self.scan.SetBeam.ImagingParameters.ImagingPoints.\
+                    ImagingPoint[i].Kvs.Positions.set_Pitch(cpts['kv_src_pitch'][i])
 
         # set the acquisition stop for the last imaging point
         # TODO: may be worth having multiple acquisitions in a scan?
         # Think of possible benefits
+        self.scan.SetBeam.ImagingParameters.ImagingPoints.\
+            add_ImagingPoint(dm.ImagingPointType(Cp=num_pts - 1))
+
         self.scan.SetBeam.ImagingParameters.ImagingPoints.ImagingPoint[-1].\
-            set_AcquisitionStop([dm.Acquisition(AcquisitionId=1)])
+            set_AcquisitionStop([dm.Acquisition(AcquisitionId=1, AcquisitionSpecs=dm.AcquisitionSpecsType())])
 
         # use first control point to initialize starting values of the
         # configuration
@@ -133,12 +162,12 @@ class BeamXML(object):
             elif key == 'couch_rtn':
                 self.scan.SetBeam.ControlPoints.Cp[0].\
                     set_CouchRtn(value)
-            # elif key == 'couch_lat':
-            #     self.scan.SetBeam.ControlPoints.Cp[0].\
-            #         set_CouchLat(value)
-            # elif key == 'couch_vrt':
-            #     self.scan.SetBeam.ControlPoints.Cp[0].\
-            #         set_CouchVrt(value)
+            elif key == 'couch_lat':
+                self.scan.SetBeam.ControlPoints.Cp[0].\
+                    set_CouchLat(value)
+            elif key == 'couch_vrt':
+                self.scan.SetBeam.ControlPoints.Cp[0].\
+                    set_CouchVrt(value)
             elif key == 'couch_lng':
                 self.scan.SetBeam.ControlPoints.Cp[0].\
                     set_CouchLng(value)
@@ -152,52 +181,47 @@ class BeamXML(object):
             elif key == 'kv_det_lng':
                 self.scan.SetBeam.ImagingParameters.ImagingPoints.\
                     ImagingPoint[0].Kvd.Positions.set_Lng(value)
+            elif key == 'kv_det_pitch':
+                self.scan.SetBeam.ImagingParameters.ImagingPoints.\
+                    ImagingPoint[0].Kvd.Positions.set_Pitch(value)
+            elif key == 'kv_src_lat':
+                self.scan.SetBeam.ImagingParameters.ImagingPoints.\
+                    ImagingPoint[0].Kvs.Positions.set_Lat(value)
             elif key == 'kv_src_vrt':
                 self.scan.SetBeam.ImagingParameters.ImagingPoints.\
                     ImagingPoint[0].Kvs.Positions.set_Vrt(value)
             elif key == 'kv_src_lng':
                 self.scan.SetBeam.ImagingParameters.ImagingPoints.\
                     ImagingPoint[0].Kvs.Positions.set_Lng(value)
+            elif key == 'kv_src_pitch':
+                self.scan.SetBeam.ImagingParameters.ImagingPoints.\
+                    ImagingPoint[0].Kvs.Positions.set_Pitch(value)
             else:
                 print("{} not supported yet.".format(key))
 
         # now set the values for any of the control point parameters
         # that change in the trajectory
-
         for key, value in cpts.iteritems():
 
-            for i in np.arange(1, len(value)):
+            # control point values only need to be set if they
+            # change
+            if value[1:] == value[:-1]:
+                pass
+            else:
+                for i in np.arange(1, len(value)):
 
-                if key == 'ang':
-                    self.scan.SetBeam.ControlPoints.Cp[i].\
-                        set_GantryRtn(value[i])
-                elif key == 'couch_rtn':
-                    self.scan.SetBeam.ControlPoints.Cp[i].\
-                        set_CouchRtn(value[i])
-                # elif key == 'couch_lat':
-                #     self.scan.SetBeam.ControlPoints.Cp[i].\
-                #         set_CouchLat(value[i])
-                # elif key == 'couch_vrt':
-                #     self.scan.SetBeam.ControlPoints.Cp[i].\
-                #         set_CouchVrt(value[i])
-                elif key == 'couch_lng':
-                    self.scan.SetBeam.ControlPoints.Cp[i].\
-                        set_CouchLng(value[i])
-                # rest of the value[i]s go into ImagingPoint
-                elif key == 'kv_det_lat':
-                    self.scan.SetBeam.ImagingParameters.ImagingPoints.\
-                        ImagingPoint[i].Kvd.Positions.set_Lat(value[i])
-                elif key == 'kv_det_vrt':
-                    self.scan.SetBeam.ImagingParameters.ImagingPoints.\
-                        ImagingPoint[i].Kvd.Positions.set_Vrt(value[i])
-                elif key == 'kv_det_lng':
-                    self.scan.SetBeam.ImagingParameters.ImagingPoints.\
-                        ImagingPoint[i].Kvd.Positions.set_Lng(value[i])
-                elif key == 'kv_src_vrt':
-                    self.scan.SetBeam.ImagingParameters.ImagingPoints.\
-                        ImagingPoint[i].Kvs.Positions.set_Vrt(value[i])
-                elif key == 'kv_src_lng':
-                    self.scan.SetBeam.ImagingParameters.ImagingPoints.\
-                        ImagingPoint[i].Kvs.Positions.set_Lng(value[i])
-                else:
-                    print("{} not supported yet.".format(key))
+                    if key == 'ang':
+                        self.scan.SetBeam.ControlPoints.Cp[i].\
+                            set_GantryRtn(value[i])
+                    elif key == 'couch_rtn':
+                        self.scan.SetBeam.ControlPoints.Cp[i].\
+                            set_CouchRtn(value[i])
+                    elif key == 'couch_lat':
+                        self.scan.SetBeam.ControlPoints.Cp[i].\
+                            set_CouchLat(value[i])
+                    elif key == 'couch_vrt':
+                        self.scan.SetBeam.ControlPoints.Cp[i].\
+                            set_CouchVrt(value[i])
+                    elif key == 'couch_lng':
+                        self.scan.SetBeam.ControlPoints.Cp[i].\
+                            set_CouchLng(value[i])

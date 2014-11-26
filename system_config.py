@@ -108,16 +108,23 @@ class TrueBeam(SysConfig):
                            'dyanmic_gain_low_framerate_fluoro': 7.0}
 
         # typical initial configuration
+
+        # couch lng retracted (50 cm)
+        # couch lng max extension (160 cm)
+        # can't use couch_vrt in beamxml (set to 15. cm in control)
         self.init_cfg = {'ang': 360.,
                          'kv_det_lat': 0.,
                          'kv_det_vrt': -50.,
                          'kv_det_lng': 0.,
+                         'kv_det_pitch': 0.0,
+                         'kv_src_lat': 0.,  # doesn't change
                          'kv_src_vrt': 100.,
                          'kv_src_lng': 0.,
+                         'kv_src_pitch': 0.0,
                          'mv_det_lat': 0.,
                          'mv_det_vrt': -50.,
                          'mv_det_lng': 0.,
                          'couch_rtn': 180.,
                          'couch_lat': 100.,
-                         'couch_vrt': 100.,
-                         'couch_lng': 100.}
+                         'couch_vrt': 15.,
+                         'couch_lng': 50.}

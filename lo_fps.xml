@@ -19,7 +19,6 @@
             <OutsideTreatment>
                 <MaxMu>0.000000e+00</MaxMu>
             </OutsideTreatment>
-            <CustomTargetPermission>false</CustomTargetPermission>
             <LatchBEL>true</LatchBEL>
             <LatchKVBEL>true</LatchKVBEL>
             <ImagingPoints>

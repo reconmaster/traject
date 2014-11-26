@@ -32,12 +32,6 @@ class TestBeamXML(unittest.TestCase):
     def test_set_control_points(self):
         """Test converting control points
         """
-        # make sure number of control points matches the number
-        # imaging points
-        self.assertEqual(len(self.bxml.scan.SetBeam.ControlPoints.Cp),
-                         len(self.bxml.scan.SetBeam.ImagingParameters
-                             .ImagingPoints.ImagingPoint))
-
         # check that the correct values were set
         self.assertEqual(self.bxml.scan.SetBeam.
                          ControlPoints.Cp[0].get_GantryRtn(), 364.)
@@ -59,10 +53,6 @@ class TestBeamXML(unittest.TestCase):
         self.assertEqual(self.bxml.scan.SetBeam.ImagingParameters.
                          ImagingPoints.ImagingPoint[2].Kvd.Positions.
                          get_Lng(), -5.)
-
-        self.assertEqual(self.bxml.scan.SetBeam.ImagingParameters.
-                         ImagingPoints.ImagingPoint[2].AcquisitionStop[0].
-                         get_AcquisitionId(), 1.)
 
         # write test xml file for verification
         #self.bxml.write_xml()

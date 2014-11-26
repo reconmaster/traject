@@ -73,16 +73,9 @@ class ControlPoints(object):
         compressed_dict = {}
 
         for key in self.cpts[0].iterkeys():
-            tmp = [x.get(key) for x in self.cpts]
-
-            if tmp[1:] == tmp[:-1]:
-                # values are the same leave out
-                pass
-            else:
-                compressed_dict[key] = tmp
+            compressed_dict[key] = [x.get(key) for x in self.cpts]
 
         return compressed_dict
-        #return self.cpts
 
     def set_init_cp(self, init_cp):
         """Overide the default initial control point
