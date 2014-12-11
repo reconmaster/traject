@@ -125,6 +125,6 @@ class TrueBeam(SysConfig):
                          'mv_det_vrt': -50.,
                          'mv_det_lng': 0.,
                          'couch_rtn': 180.,
-                         'couch_lat': 1000.,
-                         'couch_vrt': 15.,
+                         'couch_lat': -900.,
+                         'couch_vrt': -885.,
                          'couch_lng': 50.}

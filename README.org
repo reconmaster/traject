@@ -18,23 +18,26 @@ design, I will use this to both learn how to implement UML using the
 
 *** Requirements
 Here the requirements are broken into major categories and assigned
-priority. A given contains the positions of both the source and
-detector center. Additionally, adding a set of frame vectors to the
-trajectory should also allow for detector tilt.
+priority.
 
-**** TODO [#A] A. Parametric trajectory
+**** [#A] A. Parametric trajectory
 The code shall generate a list of the view locations for different
 scanning trajectories.
 
-***** TODO [#A] A.1 Create a trajectory
+***** DONE [#A] A.1 Create a trajectory
+CLOSED: [2014-12-04 Thu 00:56]
 - The package shall allow the user to generate a scanning trajectory
   based on a series of control points.
 
-- The trajectory should be defined as a continuous piecewise function
-  of time.
+- [ ] The trajectory should be defined as a continuous piecewise
+  function of time.
 
 - These rate of change for the components of these sections should be
   calculated from the limiting velocities of the physical system.
+
+****** TODO Fix piecewise code
+- [ ] Currently bug in SymPy code for evaluating multiple piecewise
+  conditions. In discussion with SymPy team to rectify this.
 
 ***** TODO [#A] A.2 Generate view locations
 - Given the continuous piecewise function of the trajectory, the
@@ -44,12 +47,18 @@ scanning trajectories.
 - At these sampled time points, the package should generate a frame
   vector for the source and detector.
 
-***** TODO [#B] A.3 Load a trajectory
+***** DONE [#B] A.3 Load a trajectory
+CLOSED: [2014-12-04 Thu 00:58]
 - Given a list of frame vectors, the package should be able to
   initialize an instance of the trajectory object.
 
-**** TODO [#B] B. Trajectory visualization
-***** TODO [#B] B.1 Plot source trajectory
+***** TODO [#C] Wish list
+- [ ] Direct frame vector access from within the reconstruction scripts
+  would be useful...
+
+**** [#B] B. Trajectory visualization
+***** DONE [#B] B.1 Plot source trajectory
+CLOSED: [2014-12-04 Thu 01:00]
 - For a given trajectory, the package should be able to generate a 3D
   plot of the source position in space.
 
@@ -58,35 +67,43 @@ scanning trajectories.
   should also include the angular information in addition to the
   spatial coordinates.
 
-***** TODO [#C] B.2 Plot detector trajectory
+***** DONE [#C] B.2 Plot detector trajectory
+CLOSED: [2014-12-04 Thu 01:00]
 - The package should have the exact same plotting capability for the
   detector center as the source.
 
-- The package should also be able to plot the detector tilt along it's
-  three degrees of freedom.
+***** TODO [#B]  Wish list
+- [ ] The package should also be able to plot the detector tilt along
+  it's three degrees of freedom.
 
-**** TODO [#B] C. BeamXML interface
-***** TODO [#A] C.1 Generate a beamxml file for a given trajectory
+- [ ] Need to determine best way to represent relative motion around
+  imaging isocenter in reconstruction. Currently only experimented
+  with couch longitudinal translation and this relative translation is
+  implemented as source and detector motion in the reconstruction.
+
+**** [#B] C. BeamXML interface
+***** DONE [#A] C.1 Generate a beamxml file for a given trajectory
+CLOSED: [2014-12-04 Thu 00:54]
 - The package shall be able to populate a beamxml file as a series of
   control points for imaging.
 
-- [ ] For detector offsets, make sure the collimator blades are
-  correctly moved in the xml file as well.
-
-***** TODO [#C] C.2 Generate a trajectory from a beamxml file
+***** DONE [#C] C.2 Generate a trajectory from a beamxml file
+CLOSED: [2014-12-04 Thu 00:55]
 - The package should be able to populate a trajectory based on the
   control in the beamxml file.
 
-***** TODO [#C] C.3 Use beamxml schema to manage xml interface
-- The package should be able to read Varian's xsd file and use it to
-  manage the interface between the trajectory object and the xml file
-  both in read and writing that file.
+***** DONE [#C] C.3 Use beamxml schema to manage xml interface
+CLOSED: [2014-12-04 Thu 00:55]
 
-- It looks like [[http://pythonhosted.org/generateDS/][generateDS]] can create a python class for the
-  DeveloperMode from the schema. Unfortunately, I do not have a good
-  understanding of how the lxml interface works. I am going to try a
-  simpler method with the lxml class just to get some working xml
-  files for now.
+***** TODO [#C] Wish list
+- [ ] For detector offsets, make sure the collimator blades are
+  correctly moved in the xml file as well.
+
+  + This is currently implemented via different initial configuration
+    templates. This needs to be dynamically calculated.
+
+  + Dynamic blade motion will be necessary if shifting detector offset
+    within the trajectory.
 
 *** TODO Descriptions
 #+NAME: uc_create_trajectory
@@ -163,7 +180,7 @@ scanning trajectories.
 |                          | 2.1                                      | Write plot to file.                             |
 |--------------------------+------------------------------------------+-------------------------------------------------|
 
-*** UML Use Case Overview
+*** UML Use Case Overview                                        :noexport:
 The use case overview should actually not contain any use cases, it
 should merely show how the system is designed.
 #+begin_src plantuml :file uml/use_cases.png
@@ -176,7 +193,7 @@ should merely show how the system is designed.
 #+RESULTS:
 [[file:uml/use_cases.png]]
 
-** Process View
+** Process View                                                   :noexport:
 The process view shows how the system accomplishes the requirements
 laid out by the use cases. This is where the actual UML diagrams
 showing the use case interaction should go.

@@ -118,7 +118,8 @@ class Trajectory(object):
         """Function for generating sampled positions for the trajectory
 
         """
-        pass
+        # first get the piecewise function
+        self.cpts.gen_sym_funcs()
 
     def read_fvecs(self, filename, header=1, basis='iec'):
         """Read external fvecs file and populate the trajectory
@@ -156,7 +157,8 @@ class Trajectory(object):
         frac_width -- (default 1) fraction of page width
         """
         from mpl_toolkits.mplot3d import Axes3D
-        from matplotlib import colors
+
+        import matplotlib as mpl
 
         if self.vis_traj is None:
             self.vis_traj = plots.Plot(txt_width, frac_width)
@@ -173,10 +175,10 @@ class Trajectory(object):
         # view number provides the color map for now
         # TODO use time or velocity to map color
         N = r.shape[0]
-        cn = colors.Normalize(0, N)
+        cn = mpl.colors.Normalize(0, N)
         for j in xrange(N-1):
             ax.plot(r[j:j+2, 0], r[j:j+2, 1], r[j:j+2, 2],
-                    color=plt.cm.cool(cn(j)))
+                    color=plt.cm.cool(cn(j)), linewidth=3.0)
 
         if basis == 'iec':
             plt.xlabel('Lateral')
@@ -188,6 +190,13 @@ class Trajectory(object):
             ax.set_zlabel('Longitudinal')
         else:
             raise Exception('Unsupported basis.')
+
+        cm = plt.get_cmap('cool')
+        cNorm = mpl.colors.Normalize(vmin=0, vmax=N)
+        scalarMap = mpl.cm.ScalarMappable(norm=cNorm, cmap=cm)
+        scalarMap.set_array(np.arange(N))
+        cb = self.vis_traj.figs[label].colorbar(scalarMap)
+        cb.set_label('View number')
 
 # def _test():
 #     """For running doctest

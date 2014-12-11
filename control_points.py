@@ -1,4 +1,4 @@
-"""Class for managing control points.
+"""class for managing control points.
 
 General idea is a class for maintaining a numpy array of control
 points that are dictionary objects. The entries of the dictionary
@@ -216,7 +216,7 @@ class ControlPoints(object):
 
         times = self.time_steps[key]
 
-        def add_piece(self, cp0, t0, t1, vel, end=False):
+        def add_piece(self, cp0, t0, t1, vel, end = False):
             """Construct string piece to add to function string
 
             Keyword Arguments:
@@ -227,16 +227,19 @@ class ControlPoints(object):
             end -- (default False) set as true if last piece
             """
             if not end:
-                piece = "(" + str(cp0) + " + t*(" + str(vel) +\
-                    "), " + str(t0) + " <= t < " + str(t1) + "), "
+                piece = "(N(" + str(cp0) + " + t*(" + str(vel) +\
+                    ")), And(" + str(t0) + " < t, t < " + str(t1) + ")), "
             else:  # last control point
-                piece = "(" + str(cp0) + " + t*(" + str(vel) +\
-                    "), " + str(t0) + " <= t))"
+                piece = "(N(" + str(cp0) + " + t*(" + str(vel) +\
+                    ")), And(" + str(t0) + " < t, t < " + str(t1) + ")))"
+
+                # piece = "(" + str(cp0) + " + t*(" + str(vel) +\
+                #     "), " + str(t0) + " <= t))"
 
             return piece
 
         # string to be converted into piecewise function command
-        func_str = "Piecewise("
+        func_str = "sympy.Piecewise("
 
         for j in np.arange(len(self.max_t)):
             # calculate the previous time set
@@ -259,8 +262,8 @@ class ControlPoints(object):
                 if times[j] < self.max_t[j]:
                     func_str = func_str + add_piece(func_str, cpts[j],
                                                     t0+times[j],
-                                                    t0+self.max_t[j],
-                                                    self.vel_steps[key][j],
+                                                    t0+self.max_t[j], 0.,
+                                                    #self.vel_steps[key][j],
                                                     end)
 
         return func_str

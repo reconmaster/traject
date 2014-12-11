@@ -2,3 +2,7 @@
 *#*
 *.png
 /scratch/
+/.DS_Store
+/README.html
+/README.pdf
+/auto/
