@@ -1,7 +1,7 @@
 # coords.py
 
 import numpy as np
-import transformations
+# import transformations
 
 
 class Coords(object):

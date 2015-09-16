@@ -96,6 +96,9 @@ class BeamXML(object):
 
         num_pts = [len(v) for v in cpts.itervalues()][0]
 
+        # index for imaging points that change
+        img_index = 0
+
         # first make sure the number of control points match the
         # numpber of control points in the trajectory, the number of
         # imaging points doesn't have to match
@@ -104,7 +107,7 @@ class BeamXML(object):
             # one less control point in the template
             self.scan.SetBeam.ControlPoints.add_Cp(dm.CpType())
 
-            # if any of the image parameters change then set the arms
+            # if any of the imager parameters change then set the arms
             # and control point
             if (cpts['kv_det_lat'][i] != cpts['kv_det_lat'][i-1] or
                 cpts['kv_det_vrt'][i] != cpts['kv_det_vrt'][i-1] or
@@ -114,6 +117,8 @@ class BeamXML(object):
                 cpts['kv_src_lng'][i] != cpts['kv_src_lng'][i-1] or
                 cpts['kv_src_pitch'][i] != cpts['kv_src_pitch'][i-1]):
 
+                img_index += 1
+
                 self.scan.SetBeam.ImagingParameters.ImagingPoints.\
                     add_ImagingPoint(dm.ImagingPointType(Cp=i,
                                                          Kvd=dm.ArmPositionsType(Positions=dm.PositionsType3()),
@@ -122,21 +127,21 @@ class BeamXML(object):
                 # now popoulate the imaging point with the parameters
                 # all of which are needed
                 self.scan.SetBeam.ImagingParameters.ImagingPoints.\
-                    ImagingPoint[i].Kvd.Positions.set_Lat(cpts['kv_det_lat'][i])
+                    ImagingPoint[img_index].Kvd.Positions.set_Lat(cpts['kv_det_lat'][i])
                 self.scan.SetBeam.ImagingParameters.ImagingPoints.\
-                    ImagingPoint[i].Kvd.Positions.set_Vrt(cpts['kv_det_vrt'][i])
+                    ImagingPoint[img_index].Kvd.Positions.set_Vrt(cpts['kv_det_vrt'][i])
                 self.scan.SetBeam.ImagingParameters.ImagingPoints.\
-                    ImagingPoint[i].Kvd.Positions.set_Lng(cpts['kv_det_lng'][i])
+                    ImagingPoint[img_index].Kvd.Positions.set_Lng(cpts['kv_det_lng'][i])
                 self.scan.SetBeam.ImagingParameters.ImagingPoints.\
-                    ImagingPoint[i].Kvd.Positions.set_Pitch(cpts['kv_det_pitch'][i])
+                    ImagingPoint[img_index].Kvd.Positions.set_Pitch(cpts['kv_det_pitch'][i])
                 self.scan.SetBeam.ImagingParameters.ImagingPoints.\
-                    ImagingPoint[i].Kvs.Positions.set_Lat(cpts['kv_src_lat'][i])
+                    ImagingPoint[img_index].Kvs.Positions.set_Lat(cpts['kv_src_lat'][i])
                 self.scan.SetBeam.ImagingParameters.ImagingPoints.\
-                    ImagingPoint[i].Kvs.Positions.set_Vrt(cpts['kv_src_vrt'][i])
+                    ImagingPoint[img_index].Kvs.Positions.set_Vrt(cpts['kv_src_vrt'][i])
                 self.scan.SetBeam.ImagingParameters.ImagingPoints.\
-                    ImagingPoint[i].Kvs.Positions.set_Lng(cpts['kv_src_lng'][i])
+                    ImagingPoint[img_index].Kvs.Positions.set_Lng(cpts['kv_src_lng'][i])
                 self.scan.SetBeam.ImagingParameters.ImagingPoints.\
-                    ImagingPoint[i].Kvs.Positions.set_Pitch(cpts['kv_src_pitch'][i])
+                    ImagingPoint[img_index].Kvs.Positions.set_Pitch(cpts['kv_src_pitch'][i])
 
         # set the acquisition stop for the last imaging point
         # TODO: may be worth having multiple acquisitions in a scan?

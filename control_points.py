@@ -94,7 +94,6 @@ class ControlPoints(object):
         """
         return self.cpts[0]
 
-
     def add_cp(self, cp):
         """Add a new control point
 
@@ -216,7 +215,7 @@ class ControlPoints(object):
 
         times = self.time_steps[key]
 
-        def add_piece(self, cp0, t0, t1, vel, end = False):
+        def add_piece(self, cp0, t0, t1, vel, end=False):
             """Construct string piece to add to function string
 
             Keyword Arguments:
@@ -263,9 +262,9 @@ class ControlPoints(object):
                     func_str = func_str + add_piece(func_str, cpts[j],
                                                     t0+times[j],
                                                     t0+self.max_t[j], 0.,
-                                                    #self.vel_steps[key][j],
+                                                    # self.vel_steps[key][j],
                                                     end)
 
         return func_str
-        #parse_expr(func_str)
-        #print func_str
+        # parse_expr(func_str)
+        # print func_str
