@@ -2,7 +2,7 @@
 # -*- coding: utf-8 -*-
 
 #
-# Generated Sun Nov 23 10:37:22 2014 by generateDS.py version 2.13a.
+# Generated Thu Oct 13 15:29:04 2016 by generateDS.py version 2.23a.
 #
 # Command line options:
 #   ('--export', 'write')
@@ -13,71 +13,40 @@
 #   DeveloperModeSchema.xsd
 #
 # Command line:
-#   /home/amdavis/.local/bin/generateDS.py --export="write" -o "developer_mode.py" -s "developer_modes_subs.py" DeveloperModeSchema.xsd
+#   /home/amdavis/.virtualenvs/traject/bin/generateDS.py --export="write" -o "developer_mode.py" -s "developer_modes_subs.py" DeveloperModeSchema.xsd
 #
 # Current working directory (os.getcwd()):
 #   traject
 #
 
 import sys
-import getopt
 import re as re_
 import base64
 import datetime as datetime_
-
-etree_ = None
-Verbose_import_ = False
-(
-    XMLParser_import_none, XMLParser_import_lxml,
-    XMLParser_import_elementtree
-) = range(3)
-XMLParser_import_library = None
+import warnings as warnings_
 try:
-    # lxml
     from lxml import etree as etree_
-    XMLParser_import_library = XMLParser_import_lxml
-    if Verbose_import_:
-        print("running with lxml.etree")
 except ImportError:
-    try:
-        # cElementTree from Python 2.5+
-        import xml.etree.cElementTree as etree_
-        XMLParser_import_library = XMLParser_import_elementtree
-        if Verbose_import_:
-            print("running with cElementTree on Python 2.5+")
-    except ImportError:
-        try:
-            # ElementTree from Python 2.5+
-            import xml.etree.ElementTree as etree_
-            XMLParser_import_library = XMLParser_import_elementtree
-            if Verbose_import_:
-                print("running with ElementTree on Python 2.5+")
-        except ImportError:
-            try:
-                # normal cElementTree install
-                import cElementTree as etree_
-                XMLParser_import_library = XMLParser_import_elementtree
-                if Verbose_import_:
-                    print("running with cElementTree")
-            except ImportError:
-                try:
-                    # normal ElementTree install
-                    import elementtree.ElementTree as etree_
-                    XMLParser_import_library = XMLParser_import_elementtree
-                    if Verbose_import_:
-                        print("running with ElementTree")
-                except ImportError:
-                    raise ImportError(
-                        "Failed to import ElementTree from any known place")
+    from xml.etree import ElementTree as etree_
 
 
-def parsexml_(*args, **kwargs):
-    if (XMLParser_import_library == XMLParser_import_lxml and
-            'parser' not in kwargs):
+Validate_simpletypes_ = True
+if sys.version_info.major == 2:
+    BaseStrType_ = basestring
+else:
+    BaseStrType_ = str
+
+
+def parsexml_(infile, parser=None, **kwargs):
+    if parser is None:
         # Use the lxml ElementTree compatible parser so that, e.g.,
         #   we ignore comments.
-        kwargs['parser'] = etree_.ETCompatXMLParser()
-    doc = etree_.parse(*args, **kwargs)
+        try:
+            parser = etree_.ETCompatXMLParser()
+        except AttributeError:
+            # fallback to xml.etree
+            parser = etree_.XMLParser()
+    doc = etree_.parse(infile, parser=parser, **kwargs)
     return doc
 
 #
@@ -89,7 +58,7 @@ def parsexml_(*args, **kwargs):
 
 try:
     from generatedssuper import GeneratedsSuper
-except ImportError, exp:
+except ImportError as exp:
 
     class GeneratedsSuper(object):
         tzoff_pattern = re_.compile(r'(\+|-)((0\d|1[0-3]):[0-5]\d|14:00)$')
@@ -105,64 +74,68 @@ except ImportError, exp:
                 return None
         def gds_format_string(self, input_data, input_name=''):
             return input_data
-        def gds_validate_string(self, input_data, node, input_name=''):
+        def gds_validate_string(self, input_data, node=None, input_name=''):
             if not input_data:
                 return ''
             else:
                 return input_data
         def gds_format_base64(self, input_data, input_name=''):
             return base64.b64encode(input_data)
-        def gds_validate_base64(self, input_data, node, input_name=''):
+        def gds_validate_base64(self, input_data, node=None, input_name=''):
             return input_data
         def gds_format_integer(self, input_data, input_name=''):
             return '%d' % input_data
-        def gds_validate_integer(self, input_data, node, input_name=''):
+        def gds_validate_integer(self, input_data, node=None, input_name=''):
             return input_data
         def gds_format_integer_list(self, input_data, input_name=''):
-            return '%s' % input_data
-        def gds_validate_integer_list(self, input_data, node, input_name=''):
+            return '%s' % ' '.join(input_data)
+        def gds_validate_integer_list(
+                self, input_data, node=None, input_name=''):
             values = input_data.split()
             for value in values:
                 try:
-                    float(value)
+                    int(value)
                 except (TypeError, ValueError):
                     raise_parse_error(node, 'Requires sequence of integers')
-            return input_data
+            return values
         def gds_format_float(self, input_data, input_name=''):
             return ('%.15f' % input_data).rstrip('0')
-        def gds_validate_float(self, input_data, node, input_name=''):
+        def gds_validate_float(self, input_data, node=None, input_name=''):
             return input_data
         def gds_format_float_list(self, input_data, input_name=''):
-            return '%s' % input_data
-        def gds_validate_float_list(self, input_data, node, input_name=''):
+            return '%s' % ' '.join(input_data)
+        def gds_validate_float_list(
+                self, input_data, node=None, input_name=''):
             values = input_data.split()
             for value in values:
                 try:
                     float(value)
                 except (TypeError, ValueError):
                     raise_parse_error(node, 'Requires sequence of floats')
-            return input_data
+            return values
         def gds_format_double(self, input_data, input_name=''):
             return '%e' % input_data
-        def gds_validate_double(self, input_data, node, input_name=''):
+        def gds_validate_double(self, input_data, node=None, input_name=''):
             return input_data
         def gds_format_double_list(self, input_data, input_name=''):
-            return '%s' % input_data
-        def gds_validate_double_list(self, input_data, node, input_name=''):
+            return '%s' % ' '.join(input_data)
+        def gds_validate_double_list(
+                self, input_data, node=None, input_name=''):
             values = input_data.split()
             for value in values:
                 try:
                     float(value)
                 except (TypeError, ValueError):
                     raise_parse_error(node, 'Requires sequence of doubles')
-            return input_data
+            return values
         def gds_format_boolean(self, input_data, input_name=''):
             return ('%s' % input_data).lower()
-        def gds_validate_boolean(self, input_data, node, input_name=''):
+        def gds_validate_boolean(self, input_data, node=None, input_name=''):
             return input_data
         def gds_format_boolean_list(self, input_data, input_name=''):
-            return '%s' % input_data
-        def gds_validate_boolean_list(self, input_data, node, input_name=''):
+            return '%s' % ' '.join(input_data)
+        def gds_validate_boolean_list(
+                self, input_data, node=None, input_name=''):
             values = input_data.split()
             for value in values:
                 if value not in ('true', '1', 'false', '0', ):
@@ -170,8 +143,8 @@ except ImportError, exp:
                         node,
                         'Requires sequence of booleans '
                         '("true", "1", "false", "0")')
-            return input_data
-        def gds_validate_datetime(self, input_data, node, input_name=''):
+            return values
+        def gds_validate_datetime(self, input_data, node=None, input_name=''):
             return input_data
         def gds_format_datetime(self, input_data, input_name=''):
             if input_data.microsecond == 0:
@@ -236,7 +209,7 @@ except ImportError, exp:
                     input_data, '%Y-%m-%dT%H:%M:%S')
             dt = dt.replace(tzinfo=tz)
             return dt
-        def gds_validate_date(self, input_data, node, input_name=''):
+        def gds_validate_date(self, input_data, node=None, input_name=''):
             return input_data
         def gds_format_date(self, input_data, input_name=''):
             _svalue = '%04d-%02d-%02d' % (
@@ -259,7 +232,8 @@ except ImportError, exp:
                                 _svalue += '+'
                             hours = total_seconds // 3600
                             minutes = (total_seconds - (hours * 3600)) // 60
-                            _svalue += '{0:02d}:{1:02d}'.format(hours, minutes)
+                            _svalue += '{0:02d}:{1:02d}'.format(
+                                hours, minutes)
             except AttributeError:
                 pass
             return _svalue
@@ -282,7 +256,7 @@ except ImportError, exp:
             dt = datetime_.datetime.strptime(input_data, '%Y-%m-%d')
             dt = dt.replace(tzinfo=tz)
             return dt.date()
-        def gds_validate_time(self, input_data, node, input_name=''):
+        def gds_validate_time(self, input_data, node=None, input_name=''):
             return input_data
         def gds_format_time(self, input_data, input_name=''):
             if input_data.microsecond == 0:
@@ -314,6 +288,21 @@ except ImportError, exp:
                         minutes = (total_seconds - (hours * 3600)) // 60
                         _svalue += '{0:02d}:{1:02d}'.format(hours, minutes)
             return _svalue
+        def gds_validate_simple_patterns(self, patterns, target):
+            # pat is a list of lists of strings/patterns.  We should:
+            # - AND the outer elements
+            # - OR the inner elements
+            found1 = True
+            for patterns1 in patterns:
+                found2 = False
+                for patterns2 in patterns1:
+                    if re_.search(patterns2, target) is not None:
+                        found2 = True
+                        break
+                if not found2:
+                    found1 = False
+                    break
+            return found1
         @classmethod
         def gds_parse_time(cls, input_data):
             tz = None
@@ -369,6 +358,20 @@ except ImportError, exp:
         @classmethod
         def gds_reverse_node_mapping(cls, mapping):
             return dict(((v, k) for k, v in mapping.iteritems()))
+        @staticmethod
+        def gds_encode(instring):
+            if sys.version_info.major == 2:
+                return instring.encode(ExternalEncoding)
+            else:
+                return instring
+
+    def getSubclassFromModule_(module, class_):
+        '''Get the subclass of a class from a specific module.'''
+        name = class_.__name__ + 'Sub'
+        if hasattr(module, name):
+            return getattr(module, name)
+        else:
+            return None
 
 
 #
@@ -394,6 +397,11 @@ ExternalEncoding = 'ascii'
 Tag_pattern_ = re_.compile(r'({.*})?(.*)')
 String_cleanup_pat_ = re_.compile(r"[\n\r\s]+")
 Namespace_extract_pat_ = re_.compile(r'{(.*)}(.*)')
+CDATA_pattern_ = re_.compile(r"<!\[CDATA\[.*?\]\]>", re_.DOTALL)
+
+# Change this to redirect the generated superclass module to use a
+# specific subclass module.
+CurrentSubclassModule_ = None
 
 #
 # Support/utility functions.
@@ -407,19 +415,32 @@ def showIndent(outfile, level, pretty_print=True):
 
 
 def quote_xml(inStr):
+    "Escape markup chars, but do not modify CDATA sections."
     if not inStr:
         return ''
-    s1 = (isinstance(inStr, basestring) and inStr or
-          '%s' % inStr)
-    s1 = s1.replace('&', '&amp;')
+    s1 = (isinstance(inStr, BaseStrType_) and inStr or '%s' % inStr)
+    s2 = ''
+    pos = 0
+    matchobjects = CDATA_pattern_.finditer(s1)
+    for mo in matchobjects:
+        s3 = s1[pos:mo.start()]
+        s2 += quote_xml_aux(s3)
+        s2 += s1[mo.start():mo.end()]
+        pos = mo.end()
+    s3 = s1[pos:]
+    s2 += quote_xml_aux(s3)
+    return s2
+
+
+def quote_xml_aux(inStr):
+    s1 = inStr.replace('&', '&amp;')
     s1 = s1.replace('<', '&lt;')
     s1 = s1.replace('>', '&gt;')
     return s1
 
 
 def quote_attrib(inStr):
-    s1 = (isinstance(inStr, basestring) and inStr or
-          '%s' % inStr)
+    s1 = (isinstance(inStr, BaseStrType_) and inStr or '%s' % inStr)
     s1 = s1.replace('&', '&amp;')
     s1 = s1.replace('<', '&lt;')
     s1 = s1.replace('>', '&gt;')
@@ -479,11 +500,7 @@ class GDSParseError(Exception):
 
 
 def raise_parse_error(node, msg):
-    if XMLParser_import_library == XMLParser_import_lxml:
-        msg = '%s (element %s/line %d)' % (
-            msg, node.tag, node.sourceline, )
-    else:
-        msg = '%s (element %s)' % (msg, node.tag, )
+    msg = '%s (element %s/line %d)' % (msg, node.tag, node.sourceline, )
     raise GDSParseError(msg)
 
 
@@ -637,6 +654,11 @@ class VarianResearchBeam(GeneratedsSuper):
         self.Scale = _cast(None, Scale)
         self.SetBeam = SetBeam
     def factory(*args_, **kwargs_):
+        if CurrentSubclassModule_ is not None:
+            subclass = getSubclassFromModule_(
+                CurrentSubclassModule_, VarianResearchBeam)
+            if subclass is not None:
+                return subclass(*args_, **kwargs_)
         if VarianResearchBeam.subclass:
             return VarianResearchBeam.subclass(*args_, **kwargs_)
         else:
@@ -650,10 +672,28 @@ class VarianResearchBeam(GeneratedsSuper):
     def set_Scale(self, Scale): self.Scale = Scale
     def validate_ResearchBeamVersion(self, value):
         # Validate type ResearchBeamVersion, a restriction on xs:string.
-        pass
+        if value is not None and Validate_simpletypes_:
+            value = str(value)
+            enumerations = ['1.0']
+            enumeration_respectee = False
+            for enum in enumerations:
+                if value == enum:
+                    enumeration_respectee = True
+                    break
+            if not enumeration_respectee:
+                warnings_.warn('Value "%(value)s" does not match xsd enumeration restriction on ResearchBeamVersion' % {"value" : value.encode("utf-8")} )
     def validate_Scale(self, value):
         # Validate type Scale, a restriction on xs:string.
-        pass
+        if value is not None and Validate_simpletypes_:
+            value = str(value)
+            enumerations = ['IECContinuous']
+            enumeration_respectee = False
+            for enum in enumerations:
+                if value == enum:
+                    enumeration_respectee = True
+                    break
+            if not enumeration_respectee:
+                warnings_.warn('Value "%(value)s" does not match xsd enumeration restriction on Scale' % {"value" : value.encode("utf-8")} )
     def hasContent_(self):
         if (
             self.SetBeam is not None
@@ -720,78 +760,53 @@ class VarianResearchBeam(GeneratedsSuper):
 # end class VarianResearchBeam
 
 
-class SetBeam(GeneratedsSuper):
+class ArmAxesType(GeneratedsSuper):
+    """Arm axes clinical positions; units in cm / deg."""
     subclass = None
     superclass = None
-    def __init__(self, SchemaVersion=None, Id=None, GUID=None, TreatmentMode=None, MLCModel=None, Tracking=None, TolTable=None, VelTable=None, Accs=None, ControlPoints=None, ImagingParameters=None, BeamHoldDevices=None):
+    def __init__(self, Lat=None, Lng=None, Vrt=None, Pitch=None):
         self.original_tagname_ = None
-        self.SchemaVersion = SchemaVersion
-        self.Id = Id
-        self.GUID = GUID
-        self.TreatmentMode = TreatmentMode
-        self.MLCModel = MLCModel
-        self.Tracking = Tracking
-        self.TolTable = TolTable
-        self.VelTable = VelTable
-        self.Accs = Accs
-        self.ControlPoints = ControlPoints
-        self.ImagingParameters = ImagingParameters
-        self.BeamHoldDevices = BeamHoldDevices
+        self.Lat = Lat
+        self.validate_DoubleNone(self.Lat)
+        self.Lng = Lng
+        self.validate_DoubleNone(self.Lng)
+        self.Vrt = Vrt
+        self.validate_DoubleNone(self.Vrt)
+        self.Pitch = Pitch
+        self.validate_DoubleNone(self.Pitch)
     def factory(*args_, **kwargs_):
-        if SetBeam.subclass:
-            return SetBeam.subclass(*args_, **kwargs_)
+        if CurrentSubclassModule_ is not None:
+            subclass = getSubclassFromModule_(
+                CurrentSubclassModule_, ArmAxesType)
+            if subclass is not None:
+                return subclass(*args_, **kwargs_)
+        if ArmAxesType.subclass:
+            return ArmAxesType.subclass(*args_, **kwargs_)
         else:
-            return SetBeam(*args_, **kwargs_)
+            return ArmAxesType(*args_, **kwargs_)
     factory = staticmethod(factory)
-    def get_SchemaVersion(self): return self.SchemaVersion
-    def set_SchemaVersion(self, SchemaVersion): self.SchemaVersion = SchemaVersion
-    def get_Id(self): return self.Id
-    def set_Id(self, Id): self.Id = Id
-    def get_GUID(self): return self.GUID
-    def set_GUID(self, GUID): self.GUID = GUID
-    def get_TreatmentMode(self): return self.TreatmentMode
-    def set_TreatmentMode(self, TreatmentMode): self.TreatmentMode = TreatmentMode
-    def get_MLCModel(self): return self.MLCModel
-    def set_MLCModel(self, MLCModel): self.MLCModel = MLCModel
-    def get_Tracking(self): return self.Tracking
-    def set_Tracking(self, Tracking): self.Tracking = Tracking
-    def get_TolTable(self): return self.TolTable
-    def set_TolTable(self, TolTable): self.TolTable = TolTable
-    def get_VelTable(self): return self.VelTable
-    def set_VelTable(self, VelTable): self.VelTable = VelTable
-    def get_Accs(self): return self.Accs
-    def set_Accs(self, Accs): self.Accs = Accs
-    def get_ControlPoints(self): return self.ControlPoints
-    def set_ControlPoints(self, ControlPoints): self.ControlPoints = ControlPoints
-    def get_ImagingParameters(self): return self.ImagingParameters
-    def set_ImagingParameters(self, ImagingParameters): self.ImagingParameters = ImagingParameters
-    def get_BeamHoldDevices(self): return self.BeamHoldDevices
-    def set_BeamHoldDevices(self, BeamHoldDevices): self.BeamHoldDevices = BeamHoldDevices
-    def validate_TreatmentModeType(self, value):
-        # Validate type TreatmentModeType, a restriction on xs:string.
-        pass
-    def validate_MLCModelType(self, value):
-        # Validate type MLCModelType, a restriction on xs:string.
+    def get_Lat(self): return self.Lat
+    def set_Lat(self, Lat): self.Lat = Lat
+    def get_Lng(self): return self.Lng
+    def set_Lng(self, Lng): self.Lng = Lng
+    def get_Vrt(self): return self.Vrt
+    def set_Vrt(self, Vrt): self.Vrt = Vrt
+    def get_Pitch(self): return self.Pitch
+    def set_Pitch(self, Pitch): self.Pitch = Pitch
+    def validate_DoubleNone(self, value):
+        # Validate type DoubleNone, a restriction on None.
         pass
     def hasContent_(self):
         if (
-            self.SchemaVersion is not None or
-            self.Id is not None or
-            self.GUID is not None or
-            self.TreatmentMode is not None or
-            self.MLCModel is not None or
-            self.Tracking is not None or
-            self.TolTable is not None or
-            self.VelTable is not None or
-            self.Accs is not None or
-            self.ControlPoints is not None or
-            self.ImagingParameters is not None or
-            self.BeamHoldDevices is not None
+            self.Lat is not None or
+            self.Lng is not None or
+            self.Vrt is not None or
+            self.Pitch is not None
         ):
             return True
         else:
             return False
-    def export(self, outfile, level, namespace_='', name_='SetBeam', namespacedef_='', pretty_print=True):
+    def export(self, outfile, level, namespace_='', name_='ArmAxesType', namespacedef_='', pretty_print=True):
         if pretty_print:
             eol_ = '\n'
         else:
@@ -801,50 +816,33 @@ class SetBeam(GeneratedsSuper):
         showIndent(outfile, level, pretty_print)
         outfile.write('<%s%s%s' % (namespace_, name_, namespacedef_ and ' ' + namespacedef_ or '', ))
         already_processed = set()
-        self.exportAttributes(outfile, level, already_processed, namespace_, name_='SetBeam')
+        self.exportAttributes(outfile, level, already_processed, namespace_, name_='ArmAxesType')
         if self.hasContent_():
             outfile.write('>%s' % (eol_, ))
-            self.exportChildren(outfile, level + 1, namespace_='', name_='SetBeam', pretty_print=pretty_print)
+            self.exportChildren(outfile, level + 1, namespace_='', name_='ArmAxesType', pretty_print=pretty_print)
             showIndent(outfile, level, pretty_print)
             outfile.write('</%s%s>%s' % (namespace_, name_, eol_))
         else:
             outfile.write('/>%s' % (eol_, ))
-    def exportAttributes(self, outfile, level, already_processed, namespace_='', name_='SetBeam'):
+    def exportAttributes(self, outfile, level, already_processed, namespace_='', name_='ArmAxesType'):
         pass
-    def exportChildren(self, outfile, level, namespace_='', name_='SetBeam', fromsubclass_=False, pretty_print=True):
+    def exportChildren(self, outfile, level, namespace_='', name_='ArmAxesType', fromsubclass_=False, pretty_print=True):
         if pretty_print:
             eol_ = '\n'
         else:
             eol_ = ''
-        if self.SchemaVersion is not None:
+        if self.Lat is not None:
             showIndent(outfile, level, pretty_print)
-            outfile.write('<%sSchemaVersion>%s</%sSchemaVersion>%s' % (namespace_, self.gds_format_string(quote_xml(self.SchemaVersion).encode(ExternalEncoding), input_name='SchemaVersion'), namespace_, eol_))
-        if self.Id is not None:
+            outfile.write('<%sLat>%s</%sLat>%s' % (namespace_, self.gds_encode(self.gds_format_string(quote_xml(self.Lat), input_name='Lat')), namespace_, eol_))
+        if self.Lng is not None:
             showIndent(outfile, level, pretty_print)
-            outfile.write('<%sId>%s</%sId>%s' % (namespace_, self.gds_format_integer(self.Id, input_name='Id'), namespace_, eol_))
-        if self.GUID is not None:
+            outfile.write('<%sLng>%s</%sLng>%s' % (namespace_, self.gds_encode(self.gds_format_string(quote_xml(self.Lng), input_name='Lng')), namespace_, eol_))
+        if self.Vrt is not None:
             showIndent(outfile, level, pretty_print)
-            outfile.write('<%sGUID>%s</%sGUID>%s' % (namespace_, self.gds_format_string(quote_xml(self.GUID).encode(ExternalEncoding), input_name='GUID'), namespace_, eol_))
-        if self.TreatmentMode is not None:
+            outfile.write('<%sVrt>%s</%sVrt>%s' % (namespace_, self.gds_encode(self.gds_format_string(quote_xml(self.Vrt), input_name='Vrt')), namespace_, eol_))
+        if self.Pitch is not None:
             showIndent(outfile, level, pretty_print)
-            outfile.write('<%sTreatmentMode>%s</%sTreatmentMode>%s' % (namespace_, self.gds_format_string(quote_xml(self.TreatmentMode).encode(ExternalEncoding), input_name='TreatmentMode'), namespace_, eol_))
-        if self.MLCModel is not None:
-            showIndent(outfile, level, pretty_print)
-            outfile.write('<%sMLCModel>%s</%sMLCModel>%s' % (namespace_, self.gds_format_string(quote_xml(self.MLCModel).encode(ExternalEncoding), input_name='MLCModel'), namespace_, eol_))
-        if self.Tracking is not None:
-            self.Tracking.export(outfile, level, namespace_, name_='Tracking', pretty_print=pretty_print)
-        if self.TolTable is not None:
-            self.TolTable.export(outfile, level, namespace_, name_='TolTable', pretty_print=pretty_print)
-        if self.VelTable is not None:
-            self.VelTable.export(outfile, level, namespace_, name_='VelTable', pretty_print=pretty_print)
-        if self.Accs is not None:
-            self.Accs.export(outfile, level, namespace_, name_='Accs', pretty_print=pretty_print)
-        if self.ControlPoints is not None:
-            self.ControlPoints.export(outfile, level, namespace_, name_='ControlPoints', pretty_print=pretty_print)
-        if self.ImagingParameters is not None:
-            self.ImagingParameters.export(outfile, level, namespace_, name_='ImagingParameters', pretty_print=pretty_print)
-        if self.BeamHoldDevices is not None:
-            self.BeamHoldDevices.export(outfile, level, namespace_, name_='BeamHoldDevices', pretty_print=pretty_print)
+            outfile.write('<%sPitch>%s</%sPitch>%s' % (namespace_, self.gds_encode(self.gds_format_string(quote_xml(self.Pitch), input_name='Pitch')), namespace_, eol_))
     def build(self, node):
         already_processed = set()
         self.buildAttributes(node, node.attrib, already_processed)
@@ -855,191 +853,183 @@ class SetBeam(GeneratedsSuper):
     def buildAttributes(self, node, attrs, already_processed):
         pass
     def buildChildren(self, child_, node, nodeName_, fromsubclass_=False):
-        if nodeName_ == 'SchemaVersion':
-            SchemaVersion_ = child_.text
-            SchemaVersion_ = self.gds_validate_string(SchemaVersion_, node, 'SchemaVersion')
-            self.SchemaVersion = SchemaVersion_
-        elif nodeName_ == 'Id':
+        if nodeName_ == 'Lat':
+            Lat_ = child_.text
+            Lat_ = self.gds_validate_string(Lat_, node, 'Lat')
+            self.Lat = Lat_
+            # validate type DoubleNone
+            self.validate_DoubleNone(self.Lat)
+        elif nodeName_ == 'Lng':
+            Lng_ = child_.text
+            Lng_ = self.gds_validate_string(Lng_, node, 'Lng')
+            self.Lng = Lng_
+            # validate type DoubleNone
+            self.validate_DoubleNone(self.Lng)
+        elif nodeName_ == 'Vrt':
+            Vrt_ = child_.text
+            Vrt_ = self.gds_validate_string(Vrt_, node, 'Vrt')
+            self.Vrt = Vrt_
+            # validate type DoubleNone
+            self.validate_DoubleNone(self.Vrt)
+        elif nodeName_ == 'Pitch':
+            Pitch_ = child_.text
+            Pitch_ = self.gds_validate_string(Pitch_, node, 'Pitch')
+            self.Pitch = Pitch_
+            # validate type DoubleNone
+            self.validate_DoubleNone(self.Pitch)
+# end class ArmAxesType
+
+
+class KvFiltersPositionType(GeneratedsSuper):
+    subclass = None
+    superclass = None
+    def __init__(self, Shape=None, Foil=None):
+        self.original_tagname_ = None
+        self.Shape = Shape
+        self.validate_KvFilterType(self.Shape)
+        self.Foil = Foil
+        self.validate_KvFilterType(self.Foil)
+    def factory(*args_, **kwargs_):
+        if CurrentSubclassModule_ is not None:
+            subclass = getSubclassFromModule_(
+                CurrentSubclassModule_, KvFiltersPositionType)
+            if subclass is not None:
+                return subclass(*args_, **kwargs_)
+        if KvFiltersPositionType.subclass:
+            return KvFiltersPositionType.subclass(*args_, **kwargs_)
+        else:
+            return KvFiltersPositionType(*args_, **kwargs_)
+    factory = staticmethod(factory)
+    def get_Shape(self): return self.Shape
+    def set_Shape(self, Shape): self.Shape = Shape
+    def get_Foil(self): return self.Foil
+    def set_Foil(self, Foil): self.Foil = Foil
+    def validate_KvFilterType(self, value):
+        # Validate type KvFilterType, a restriction on xs:integer.
+        if value is not None and Validate_simpletypes_:
+            if value < 0:
+                warnings_.warn('Value "%(value)s" does not match xsd minInclusive restriction on KvFilterType' % {"value" : value} )
+            if value > 2:
+                warnings_.warn('Value "%(value)s" does not match xsd maxInclusive restriction on KvFilterType' % {"value" : value} )
+    def hasContent_(self):
+        if (
+            self.Shape is not None or
+            self.Foil is not None
+        ):
+            return True
+        else:
+            return False
+    def export(self, outfile, level, namespace_='', name_='KvFiltersPositionType', namespacedef_='', pretty_print=True):
+        if pretty_print:
+            eol_ = '\n'
+        else:
+            eol_ = ''
+        if self.original_tagname_ is not None:
+            name_ = self.original_tagname_
+        showIndent(outfile, level, pretty_print)
+        outfile.write('<%s%s%s' % (namespace_, name_, namespacedef_ and ' ' + namespacedef_ or '', ))
+        already_processed = set()
+        self.exportAttributes(outfile, level, already_processed, namespace_, name_='KvFiltersPositionType')
+        if self.hasContent_():
+            outfile.write('>%s' % (eol_, ))
+            self.exportChildren(outfile, level + 1, namespace_='', name_='KvFiltersPositionType', pretty_print=pretty_print)
+            showIndent(outfile, level, pretty_print)
+            outfile.write('</%s%s>%s' % (namespace_, name_, eol_))
+        else:
+            outfile.write('/>%s' % (eol_, ))
+    def exportAttributes(self, outfile, level, already_processed, namespace_='', name_='KvFiltersPositionType'):
+        pass
+    def exportChildren(self, outfile, level, namespace_='', name_='KvFiltersPositionType', fromsubclass_=False, pretty_print=True):
+        if pretty_print:
+            eol_ = '\n'
+        else:
+            eol_ = ''
+        if self.Shape is not None:
+            showIndent(outfile, level, pretty_print)
+            outfile.write('<%sShape>%s</%sShape>%s' % (namespace_, self.gds_format_integer(self.Shape, input_name='Shape'), namespace_, eol_))
+        if self.Foil is not None:
+            showIndent(outfile, level, pretty_print)
+            outfile.write('<%sFoil>%s</%sFoil>%s' % (namespace_, self.gds_format_integer(self.Foil, input_name='Foil'), namespace_, eol_))
+    def build(self, node):
+        already_processed = set()
+        self.buildAttributes(node, node.attrib, already_processed)
+        for child in node:
+            nodeName_ = Tag_pattern_.match(child.tag).groups()[-1]
+            self.buildChildren(child, node, nodeName_)
+        return self
+    def buildAttributes(self, node, attrs, already_processed):
+        pass
+    def buildChildren(self, child_, node, nodeName_, fromsubclass_=False):
+        if nodeName_ == 'Shape':
             sval_ = child_.text
             try:
                 ival_ = int(sval_)
-            except (TypeError, ValueError), exp:
+            except (TypeError, ValueError) as exp:
                 raise_parse_error(child_, 'requires integer: %s' % exp)
-            ival_ = self.gds_validate_integer(ival_, node, 'Id')
-            self.Id = ival_
-        elif nodeName_ == 'GUID':
-            GUID_ = child_.text
-            GUID_ = self.gds_validate_string(GUID_, node, 'GUID')
-            self.GUID = GUID_
-        elif nodeName_ == 'TreatmentMode':
-            TreatmentMode_ = child_.text
-            TreatmentMode_ = self.gds_validate_string(TreatmentMode_, node, 'TreatmentMode')
-            self.TreatmentMode = TreatmentMode_
-            self.validate_TreatmentModeType(self.TreatmentMode)    # validate type TreatmentModeType
-        elif nodeName_ == 'MLCModel':
-            MLCModel_ = child_.text
-            MLCModel_ = self.gds_validate_string(MLCModel_, node, 'MLCModel')
-            self.MLCModel = MLCModel_
-            self.validate_MLCModelType(self.MLCModel)    # validate type MLCModelType
-        elif nodeName_ == 'Tracking':
-            obj_ = TrackingType.factory()
-            obj_.build(child_)
-            self.Tracking = obj_
-            obj_.original_tagname_ = 'Tracking'
-        elif nodeName_ == 'TolTable':
-            obj_ = TolTableType.factory()
-            obj_.build(child_)
-            self.TolTable = obj_
-            obj_.original_tagname_ = 'TolTable'
-        elif nodeName_ == 'VelTable':
-            obj_ = VelTableType.factory()
-            obj_.build(child_)
-            self.VelTable = obj_
-            obj_.original_tagname_ = 'VelTable'
-        elif nodeName_ == 'Accs':
-            obj_ = AccsType.factory()
-            obj_.build(child_)
-            self.Accs = obj_
-            obj_.original_tagname_ = 'Accs'
-        elif nodeName_ == 'ControlPoints':
-            obj_ = ControlPointsType.factory()
-            obj_.build(child_)
-            self.ControlPoints = obj_
-            obj_.original_tagname_ = 'ControlPoints'
-        elif nodeName_ == 'ImagingParameters':
-            obj_ = ImagingParametersType.factory()
-            obj_.build(child_)
-            self.ImagingParameters = obj_
-            obj_.original_tagname_ = 'ImagingParameters'
-        elif nodeName_ == 'BeamHoldDevices':
-            obj_ = BeamHoldDevicesType.factory()
-            obj_.build(child_)
-            self.BeamHoldDevices = obj_
-            obj_.original_tagname_ = 'BeamHoldDevices'
-# end class SetBeam
-
-
-class Acquisition(GeneratedsSuper):
-    subclass = None
-    superclass = None
-    def __init__(self, AcquisitionId=None, AcquisitionSpecs=None, AcquisitionParameters=None):
-        self.original_tagname_ = None
-        self.AcquisitionId = AcquisitionId
-        self.AcquisitionSpecs = AcquisitionSpecs
-        self.AcquisitionParameters = AcquisitionParameters
-    def factory(*args_, **kwargs_):
-        if Acquisition.subclass:
-            return Acquisition.subclass(*args_, **kwargs_)
-        else:
-            return Acquisition(*args_, **kwargs_)
-    factory = staticmethod(factory)
-    def get_AcquisitionId(self): return self.AcquisitionId
-    def set_AcquisitionId(self, AcquisitionId): self.AcquisitionId = AcquisitionId
-    def get_AcquisitionSpecs(self): return self.AcquisitionSpecs
-    def set_AcquisitionSpecs(self, AcquisitionSpecs): self.AcquisitionSpecs = AcquisitionSpecs
-    def get_AcquisitionParameters(self): return self.AcquisitionParameters
-    def set_AcquisitionParameters(self, AcquisitionParameters): self.AcquisitionParameters = AcquisitionParameters
-    def hasContent_(self):
-        if (
-            self.AcquisitionId is not None or
-            self.AcquisitionSpecs is not None or
-            self.AcquisitionParameters is not None
-        ):
-            return True
-        else:
-            return False
-    def export(self, outfile, level, namespace_='', name_='Acquisition', namespacedef_='', pretty_print=True):
-        if pretty_print:
-            eol_ = '\n'
-        else:
-            eol_ = ''
-        if self.original_tagname_ is not None:
-            name_ = self.original_tagname_
-        showIndent(outfile, level, pretty_print)
-        outfile.write('<%s%s%s' % (namespace_, name_, namespacedef_ and ' ' + namespacedef_ or '', ))
-        already_processed = set()
-        self.exportAttributes(outfile, level, already_processed, namespace_, name_='Acquisition')
-        if self.hasContent_():
-            outfile.write('>%s' % (eol_, ))
-            self.exportChildren(outfile, level + 1, namespace_='', name_='Acquisition', pretty_print=pretty_print)
-            showIndent(outfile, level, pretty_print)
-            outfile.write('</%s%s>%s' % (namespace_, name_, eol_))
-        else:
-            outfile.write('/>%s' % (eol_, ))
-    def exportAttributes(self, outfile, level, already_processed, namespace_='', name_='Acquisition'):
-        pass
-    def exportChildren(self, outfile, level, namespace_='', name_='Acquisition', fromsubclass_=False, pretty_print=True):
-        if pretty_print:
-            eol_ = '\n'
-        else:
-            eol_ = ''
-        if self.AcquisitionId is not None:
-            showIndent(outfile, level, pretty_print)
-            outfile.write('<%sAcquisitionId>%s</%sAcquisitionId>%s' % (namespace_, self.gds_format_integer(self.AcquisitionId, input_name='AcquisitionId'), namespace_, eol_))
-        if self.AcquisitionSpecs is not None:
-            self.AcquisitionSpecs.export(outfile, level, namespace_, name_='AcquisitionSpecs', pretty_print=pretty_print)
-        if self.AcquisitionParameters is not None:
-            self.AcquisitionParameters.export(outfile, level, namespace_, name_='AcquisitionParameters', pretty_print=pretty_print)
-    def build(self, node):
-        already_processed = set()
-        self.buildAttributes(node, node.attrib, already_processed)
-        for child in node:
-            nodeName_ = Tag_pattern_.match(child.tag).groups()[-1]
-            self.buildChildren(child, node, nodeName_)
-        return self
-    def buildAttributes(self, node, attrs, already_processed):
-        pass
-    def buildChildren(self, child_, node, nodeName_, fromsubclass_=False):
-        if nodeName_ == 'AcquisitionId':
+            ival_ = self.gds_validate_integer(ival_, node, 'Shape')
+            self.Shape = ival_
+            # validate type KvFilterType
+            self.validate_KvFilterType(self.Shape)
+        elif nodeName_ == 'Foil':
             sval_ = child_.text
             try:
                 ival_ = int(sval_)
-            except (TypeError, ValueError), exp:
+            except (TypeError, ValueError) as exp:
                 raise_parse_error(child_, 'requires integer: %s' % exp)
-            ival_ = self.gds_validate_integer(ival_, node, 'AcquisitionId')
-            self.AcquisitionId = ival_
-        elif nodeName_ == 'AcquisitionSpecs':
-            obj_ = AcquisitionSpecsType.factory()
-            obj_.build(child_)
-            self.AcquisitionSpecs = obj_
-            obj_.original_tagname_ = 'AcquisitionSpecs'
-        elif nodeName_ == 'AcquisitionParameters':
-            obj_ = AcquisitionParametersType.factory()
-            obj_.build(child_)
-            self.AcquisitionParameters = obj_
-            obj_.original_tagname_ = 'AcquisitionParameters'
-# end class Acquisition
+            ival_ = self.gds_validate_integer(ival_, node, 'Foil')
+            self.Foil = ival_
+            # validate type KvFilterType
+            self.validate_KvFilterType(self.Foil)
+# end class KvFiltersPositionType
 
 
-class ArmPositionsType(GeneratedsSuper):
+class BladePositionsType(GeneratedsSuper):
+    """Positions of the kV Blades; units in cm."""
     subclass = None
     superclass = None
-    def __init__(self, SpecialPosition=None, Positions=None):
+    def __init__(self, KVX1=None, KVX2=None, KVY1=None, KVY2=None):
         self.original_tagname_ = None
-        self.SpecialPosition = SpecialPosition
-        self.Positions = Positions
+        self.KVX1 = KVX1
+        self.validate_DoubleNone(self.KVX1)
+        self.KVX2 = KVX2
+        self.validate_DoubleNone(self.KVX2)
+        self.KVY1 = KVY1
+        self.validate_DoubleNone(self.KVY1)
+        self.KVY2 = KVY2
+        self.validate_DoubleNone(self.KVY2)
     def factory(*args_, **kwargs_):
-        if ArmPositionsType.subclass:
-            return ArmPositionsType.subclass(*args_, **kwargs_)
+        if CurrentSubclassModule_ is not None:
+            subclass = getSubclassFromModule_(
+                CurrentSubclassModule_, BladePositionsType)
+            if subclass is not None:
+                return subclass(*args_, **kwargs_)
+        if BladePositionsType.subclass:
+            return BladePositionsType.subclass(*args_, **kwargs_)
         else:
-            return ArmPositionsType(*args_, **kwargs_)
+            return BladePositionsType(*args_, **kwargs_)
     factory = staticmethod(factory)
-    def get_SpecialPosition(self): return self.SpecialPosition
-    def set_SpecialPosition(self, SpecialPosition): self.SpecialPosition = SpecialPosition
-    def get_Positions(self): return self.Positions
-    def set_Positions(self, Positions): self.Positions = Positions
-    def validate_SpecialPositionType(self, value):
-        # Validate type SpecialPositionType, a restriction on xs:string.
+    def get_KVX1(self): return self.KVX1
+    def set_KVX1(self, KVX1): self.KVX1 = KVX1
+    def get_KVX2(self): return self.KVX2
+    def set_KVX2(self, KVX2): self.KVX2 = KVX2
+    def get_KVY1(self): return self.KVY1
+    def set_KVY1(self, KVY1): self.KVY1 = KVY1
+    def get_KVY2(self): return self.KVY2
+    def set_KVY2(self, KVY2): self.KVY2 = KVY2
+    def validate_DoubleNone(self, value):
+        # Validate type DoubleNone, a restriction on None.
         pass
     def hasContent_(self):
         if (
-            self.SpecialPosition is not None or
-            self.Positions is not None
+            self.KVX1 is not None or
+            self.KVX2 is not None or
+            self.KVY1 is not None or
+            self.KVY2 is not None
         ):
             return True
         else:
             return False
-    def export(self, outfile, level, namespace_='', name_='ArmPositionsType', namespacedef_='', pretty_print=True):
+    def export(self, outfile, level, namespace_='', name_='BladePositionsType', namespacedef_='', pretty_print=True):
         if pretty_print:
             eol_ = '\n'
         else:
@@ -1049,26 +1039,33 @@ class ArmPositionsType(GeneratedsSuper):
         showIndent(outfile, level, pretty_print)
         outfile.write('<%s%s%s' % (namespace_, name_, namespacedef_ and ' ' + namespacedef_ or '', ))
         already_processed = set()
-        self.exportAttributes(outfile, level, already_processed, namespace_, name_='ArmPositionsType')
+        self.exportAttributes(outfile, level, already_processed, namespace_, name_='BladePositionsType')
         if self.hasContent_():
             outfile.write('>%s' % (eol_, ))
-            self.exportChildren(outfile, level + 1, namespace_='', name_='ArmPositionsType', pretty_print=pretty_print)
+            self.exportChildren(outfile, level + 1, namespace_='', name_='BladePositionsType', pretty_print=pretty_print)
             showIndent(outfile, level, pretty_print)
             outfile.write('</%s%s>%s' % (namespace_, name_, eol_))
         else:
             outfile.write('/>%s' % (eol_, ))
-    def exportAttributes(self, outfile, level, already_processed, namespace_='', name_='ArmPositionsType'):
+    def exportAttributes(self, outfile, level, already_processed, namespace_='', name_='BladePositionsType'):
         pass
-    def exportChildren(self, outfile, level, namespace_='', name_='ArmPositionsType', fromsubclass_=False, pretty_print=True):
+    def exportChildren(self, outfile, level, namespace_='', name_='BladePositionsType', fromsubclass_=False, pretty_print=True):
         if pretty_print:
             eol_ = '\n'
         else:
             eol_ = ''
-        if self.SpecialPosition is not None:
+        if self.KVX1 is not None:
             showIndent(outfile, level, pretty_print)
-            outfile.write('<%sSpecialPosition>%s</%sSpecialPosition>%s' % (namespace_, self.gds_format_string(quote_xml(self.SpecialPosition).encode(ExternalEncoding), input_name='SpecialPosition'), namespace_, eol_))
-        if self.Positions is not None:
-            self.Positions.export(outfile, level, namespace_, name_='Positions', pretty_print=pretty_print)
+            outfile.write('<%sKVX1>%s</%sKVX1>%s' % (namespace_, self.gds_encode(self.gds_format_string(quote_xml(self.KVX1), input_name='KVX1')), namespace_, eol_))
+        if self.KVX2 is not None:
+            showIndent(outfile, level, pretty_print)
+            outfile.write('<%sKVX2>%s</%sKVX2>%s' % (namespace_, self.gds_encode(self.gds_format_string(quote_xml(self.KVX2), input_name='KVX2')), namespace_, eol_))
+        if self.KVY1 is not None:
+            showIndent(outfile, level, pretty_print)
+            outfile.write('<%sKVY1>%s</%sKVY1>%s' % (namespace_, self.gds_encode(self.gds_format_string(quote_xml(self.KVY1), input_name='KVY1')), namespace_, eol_))
+        if self.KVY2 is not None:
+            showIndent(outfile, level, pretty_print)
+            outfile.write('<%sKVY2>%s</%sKVY2>%s' % (namespace_, self.gds_encode(self.gds_format_string(quote_xml(self.KVY2), input_name='KVY2')), namespace_, eol_))
     def build(self, node):
         already_processed = set()
         self.buildAttributes(node, node.attrib, already_processed)
@@ -1079,20 +1076,262 @@ class ArmPositionsType(GeneratedsSuper):
     def buildAttributes(self, node, attrs, already_processed):
         pass
     def buildChildren(self, child_, node, nodeName_, fromsubclass_=False):
-        if nodeName_ == 'SpecialPosition':
-            SpecialPosition_ = child_.text
-            SpecialPosition_ = self.gds_validate_string(SpecialPosition_, node, 'SpecialPosition')
-            self.SpecialPosition = SpecialPosition_
-            self.validate_SpecialPositionType(self.SpecialPosition)    # validate type SpecialPositionType
-        elif nodeName_ == 'Positions':
-            obj_ = PositionsType3.factory()
+        if nodeName_ == 'KVX1':
+            KVX1_ = child_.text
+            KVX1_ = self.gds_validate_string(KVX1_, node, 'KVX1')
+            self.KVX1 = KVX1_
+            # validate type DoubleNone
+            self.validate_DoubleNone(self.KVX1)
+        elif nodeName_ == 'KVX2':
+            KVX2_ = child_.text
+            KVX2_ = self.gds_validate_string(KVX2_, node, 'KVX2')
+            self.KVX2 = KVX2_
+            # validate type DoubleNone
+            self.validate_DoubleNone(self.KVX2)
+        elif nodeName_ == 'KVY1':
+            KVY1_ = child_.text
+            KVY1_ = self.gds_validate_string(KVY1_, node, 'KVY1')
+            self.KVY1 = KVY1_
+            # validate type DoubleNone
+            self.validate_DoubleNone(self.KVY1)
+        elif nodeName_ == 'KVY2':
+            KVY2_ = child_.text
+            KVY2_ = self.gds_validate_string(KVY2_, node, 'KVY2')
+            self.KVY2 = KVY2_
+            # validate type DoubleNone
+            self.validate_DoubleNone(self.KVY2)
+# end class BladePositionsType
+
+
+class ImagingTolerances(GeneratedsSuper):
+    """Tolerances of the imaging equipment (imaging arms, kV collimation
+    system)."""
+    subclass = None
+    superclass = None
+    def __init__(self, Mvd=None, Kvd=None, Kvs=None, KvBlades=None):
+        self.original_tagname_ = None
+        self.Mvd = Mvd
+        self.Kvd = Kvd
+        self.Kvs = Kvs
+        self.KvBlades = KvBlades
+    def factory(*args_, **kwargs_):
+        if CurrentSubclassModule_ is not None:
+            subclass = getSubclassFromModule_(
+                CurrentSubclassModule_, ImagingTolerances)
+            if subclass is not None:
+                return subclass(*args_, **kwargs_)
+        if ImagingTolerances.subclass:
+            return ImagingTolerances.subclass(*args_, **kwargs_)
+        else:
+            return ImagingTolerances(*args_, **kwargs_)
+    factory = staticmethod(factory)
+    def get_Mvd(self): return self.Mvd
+    def set_Mvd(self, Mvd): self.Mvd = Mvd
+    def get_Kvd(self): return self.Kvd
+    def set_Kvd(self, Kvd): self.Kvd = Kvd
+    def get_Kvs(self): return self.Kvs
+    def set_Kvs(self, Kvs): self.Kvs = Kvs
+    def get_KvBlades(self): return self.KvBlades
+    def set_KvBlades(self, KvBlades): self.KvBlades = KvBlades
+    def hasContent_(self):
+        if (
+            self.Mvd is not None or
+            self.Kvd is not None or
+            self.Kvs is not None or
+            self.KvBlades is not None
+        ):
+            return True
+        else:
+            return False
+    def export(self, outfile, level, namespace_='', name_='ImagingTolerances', namespacedef_='', pretty_print=True):
+        if pretty_print:
+            eol_ = '\n'
+        else:
+            eol_ = ''
+        if self.original_tagname_ is not None:
+            name_ = self.original_tagname_
+        showIndent(outfile, level, pretty_print)
+        outfile.write('<%s%s%s' % (namespace_, name_, namespacedef_ and ' ' + namespacedef_ or '', ))
+        already_processed = set()
+        self.exportAttributes(outfile, level, already_processed, namespace_, name_='ImagingTolerances')
+        if self.hasContent_():
+            outfile.write('>%s' % (eol_, ))
+            self.exportChildren(outfile, level + 1, namespace_='', name_='ImagingTolerances', pretty_print=pretty_print)
+            showIndent(outfile, level, pretty_print)
+            outfile.write('</%s%s>%s' % (namespace_, name_, eol_))
+        else:
+            outfile.write('/>%s' % (eol_, ))
+    def exportAttributes(self, outfile, level, already_processed, namespace_='', name_='ImagingTolerances'):
+        pass
+    def exportChildren(self, outfile, level, namespace_='', name_='ImagingTolerances', fromsubclass_=False, pretty_print=True):
+        if pretty_print:
+            eol_ = '\n'
+        else:
+            eol_ = ''
+        if self.Mvd is not None:
+            self.Mvd.export(outfile, level, namespace_, name_='Mvd', pretty_print=pretty_print)
+        if self.Kvd is not None:
+            self.Kvd.export(outfile, level, namespace_, name_='Kvd', pretty_print=pretty_print)
+        if self.Kvs is not None:
+            self.Kvs.export(outfile, level, namespace_, name_='Kvs', pretty_print=pretty_print)
+        if self.KvBlades is not None:
+            self.KvBlades.export(outfile, level, namespace_, name_='KvBlades', pretty_print=pretty_print)
+    def build(self, node):
+        already_processed = set()
+        self.buildAttributes(node, node.attrib, already_processed)
+        for child in node:
+            nodeName_ = Tag_pattern_.match(child.tag).groups()[-1]
+            self.buildChildren(child, node, nodeName_)
+        return self
+    def buildAttributes(self, node, attrs, already_processed):
+        pass
+    def buildChildren(self, child_, node, nodeName_, fromsubclass_=False):
+        if nodeName_ == 'Mvd':
+            obj_ = ArmTolerances.factory()
             obj_.build(child_)
-            self.Positions = obj_
-            obj_.original_tagname_ = 'Positions'
-# end class ArmPositionsType
+            self.Mvd = obj_
+            obj_.original_tagname_ = 'Mvd'
+        elif nodeName_ == 'Kvd':
+            obj_ = ArmTolerances.factory()
+            obj_.build(child_)
+            self.Kvd = obj_
+            obj_.original_tagname_ = 'Kvd'
+        elif nodeName_ == 'Kvs':
+            obj_ = ArmTolerances.factory()
+            obj_.build(child_)
+            self.Kvs = obj_
+            obj_.original_tagname_ = 'Kvs'
+        elif nodeName_ == 'KvBlades':
+            obj_ = KvBladesTolerances.factory()
+            obj_.build(child_)
+            self.KvBlades = obj_
+            obj_.original_tagname_ = 'KvBlades'
+# end class ImagingTolerances
+
+
+class KvBladesTolerances(GeneratedsSuper):
+    """Tolerances of a kV Blades."""
+    subclass = None
+    superclass = None
+    def __init__(self, KVY1=None, KVY2=None, KVX1=None, KVX2=None):
+        self.original_tagname_ = None
+        self.KVY1 = KVY1
+        self.KVY2 = KVY2
+        self.KVX1 = KVX1
+        self.KVX2 = KVX2
+    def factory(*args_, **kwargs_):
+        if CurrentSubclassModule_ is not None:
+            subclass = getSubclassFromModule_(
+                CurrentSubclassModule_, KvBladesTolerances)
+            if subclass is not None:
+                return subclass(*args_, **kwargs_)
+        if KvBladesTolerances.subclass:
+            return KvBladesTolerances.subclass(*args_, **kwargs_)
+        else:
+            return KvBladesTolerances(*args_, **kwargs_)
+    factory = staticmethod(factory)
+    def get_KVY1(self): return self.KVY1
+    def set_KVY1(self, KVY1): self.KVY1 = KVY1
+    def get_KVY2(self): return self.KVY2
+    def set_KVY2(self, KVY2): self.KVY2 = KVY2
+    def get_KVX1(self): return self.KVX1
+    def set_KVX1(self, KVX1): self.KVX1 = KVX1
+    def get_KVX2(self): return self.KVX2
+    def set_KVX2(self, KVX2): self.KVX2 = KVX2
+    def hasContent_(self):
+        if (
+            self.KVY1 is not None or
+            self.KVY2 is not None or
+            self.KVX1 is not None or
+            self.KVX2 is not None
+        ):
+            return True
+        else:
+            return False
+    def export(self, outfile, level, namespace_='', name_='KvBladesTolerances', namespacedef_='', pretty_print=True):
+        if pretty_print:
+            eol_ = '\n'
+        else:
+            eol_ = ''
+        if self.original_tagname_ is not None:
+            name_ = self.original_tagname_
+        showIndent(outfile, level, pretty_print)
+        outfile.write('<%s%s%s' % (namespace_, name_, namespacedef_ and ' ' + namespacedef_ or '', ))
+        already_processed = set()
+        self.exportAttributes(outfile, level, already_processed, namespace_, name_='KvBladesTolerances')
+        if self.hasContent_():
+            outfile.write('>%s' % (eol_, ))
+            self.exportChildren(outfile, level + 1, namespace_='', name_='KvBladesTolerances', pretty_print=pretty_print)
+            showIndent(outfile, level, pretty_print)
+            outfile.write('</%s%s>%s' % (namespace_, name_, eol_))
+        else:
+            outfile.write('/>%s' % (eol_, ))
+    def exportAttributes(self, outfile, level, already_processed, namespace_='', name_='KvBladesTolerances'):
+        pass
+    def exportChildren(self, outfile, level, namespace_='', name_='KvBladesTolerances', fromsubclass_=False, pretty_print=True):
+        if pretty_print:
+            eol_ = '\n'
+        else:
+            eol_ = ''
+        if self.KVY1 is not None:
+            showIndent(outfile, level, pretty_print)
+            outfile.write('<%sKVY1>%s</%sKVY1>%s' % (namespace_, self.gds_format_double(self.KVY1, input_name='KVY1'), namespace_, eol_))
+        if self.KVY2 is not None:
+            showIndent(outfile, level, pretty_print)
+            outfile.write('<%sKVY2>%s</%sKVY2>%s' % (namespace_, self.gds_format_double(self.KVY2, input_name='KVY2'), namespace_, eol_))
+        if self.KVX1 is not None:
+            showIndent(outfile, level, pretty_print)
+            outfile.write('<%sKVX1>%s</%sKVX1>%s' % (namespace_, self.gds_format_double(self.KVX1, input_name='KVX1'), namespace_, eol_))
+        if self.KVX2 is not None:
+            showIndent(outfile, level, pretty_print)
+            outfile.write('<%sKVX2>%s</%sKVX2>%s' % (namespace_, self.gds_format_double(self.KVX2, input_name='KVX2'), namespace_, eol_))
+    def build(self, node):
+        already_processed = set()
+        self.buildAttributes(node, node.attrib, already_processed)
+        for child in node:
+            nodeName_ = Tag_pattern_.match(child.tag).groups()[-1]
+            self.buildChildren(child, node, nodeName_)
+        return self
+    def buildAttributes(self, node, attrs, already_processed):
+        pass
+    def buildChildren(self, child_, node, nodeName_, fromsubclass_=False):
+        if nodeName_ == 'KVY1':
+            sval_ = child_.text
+            try:
+                fval_ = float(sval_)
+            except (TypeError, ValueError) as exp:
+                raise_parse_error(child_, 'requires float or double: %s' % exp)
+            fval_ = self.gds_validate_float(fval_, node, 'KVY1')
+            self.KVY1 = fval_
+        elif nodeName_ == 'KVY2':
+            sval_ = child_.text
+            try:
+                fval_ = float(sval_)
+            except (TypeError, ValueError) as exp:
+                raise_parse_error(child_, 'requires float or double: %s' % exp)
+            fval_ = self.gds_validate_float(fval_, node, 'KVY2')
+            self.KVY2 = fval_
+        elif nodeName_ == 'KVX1':
+            sval_ = child_.text
+            try:
+                fval_ = float(sval_)
+            except (TypeError, ValueError) as exp:
+                raise_parse_error(child_, 'requires float or double: %s' % exp)
+            fval_ = self.gds_validate_float(fval_, node, 'KVX1')
+            self.KVX1 = fval_
+        elif nodeName_ == 'KVX2':
+            sval_ = child_.text
+            try:
+                fval_ = float(sval_)
+            except (TypeError, ValueError) as exp:
+                raise_parse_error(child_, 'requires float or double: %s' % exp)
+            fval_ = self.gds_validate_float(fval_, node, 'KVX2')
+            self.KVX2 = fval_
+# end class KvBladesTolerances
 
 
 class ArmTolerances(GeneratedsSuper):
+    """Tolerances of an arm."""
     subclass = None
     superclass = None
     def __init__(self, Lat=None, Lng=None, Vrt=None, Pitch=None):
@@ -1102,6 +1341,11 @@ class ArmTolerances(GeneratedsSuper):
         self.Vrt = Vrt
         self.Pitch = Pitch
     def factory(*args_, **kwargs_):
+        if CurrentSubclassModule_ is not None:
+            subclass = getSubclassFromModule_(
+                CurrentSubclassModule_, ArmTolerances)
+            if subclass is not None:
+                return subclass(*args_, **kwargs_)
         if ArmTolerances.subclass:
             return ArmTolerances.subclass(*args_, **kwargs_)
         else:
@@ -1176,7 +1420,7 @@ class ArmTolerances(GeneratedsSuper):
             sval_ = child_.text
             try:
                 fval_ = float(sval_)
-            except (TypeError, ValueError), exp:
+            except (TypeError, ValueError) as exp:
                 raise_parse_error(child_, 'requires float or double: %s' % exp)
             fval_ = self.gds_validate_float(fval_, node, 'Lat')
             self.Lat = fval_
@@ -1184,7 +1428,7 @@ class ArmTolerances(GeneratedsSuper):
             sval_ = child_.text
             try:
                 fval_ = float(sval_)
-            except (TypeError, ValueError), exp:
+            except (TypeError, ValueError) as exp:
                 raise_parse_error(child_, 'requires float or double: %s' % exp)
             fval_ = self.gds_validate_float(fval_, node, 'Lng')
             self.Lng = fval_
@@ -1192,7 +1436,7 @@ class ArmTolerances(GeneratedsSuper):
             sval_ = child_.text
             try:
                 fval_ = float(sval_)
-            except (TypeError, ValueError), exp:
+            except (TypeError, ValueError) as exp:
                 raise_parse_error(child_, 'requires float or double: %s' % exp)
             fval_ = self.gds_validate_float(fval_, node, 'Vrt')
             self.Vrt = fval_
@@ -1200,24 +1444,3302 @@ class ArmTolerances(GeneratedsSuper):
             sval_ = child_.text
             try:
                 fval_ = float(sval_)
-            except (TypeError, ValueError), exp:
+            except (TypeError, ValueError) as exp:
                 raise_parse_error(child_, 'requires float or double: %s' % exp)
             fval_ = self.gds_validate_float(fval_, node, 'Pitch')
             self.Pitch = fval_
 # end class ArmTolerances
 
 
-class AcquisitionTrigger(GeneratedsSuper):
+class ArmPositionsType(GeneratedsSuper):
     subclass = None
     superclass = None
-    def __init__(self, TriggerDelay=None, TriggerOnEnter=None, TriggerOnExit=None, SingleTrigger=None, extensiontype_=None):
+    def __init__(self, SpecialPosition=None, Positions=None):
+        self.original_tagname_ = None
+        self.SpecialPosition = SpecialPosition
+        self.validate_SpecialPositionType(self.SpecialPosition)
+        self.Positions = Positions
+    def factory(*args_, **kwargs_):
+        if CurrentSubclassModule_ is not None:
+            subclass = getSubclassFromModule_(
+                CurrentSubclassModule_, ArmPositionsType)
+            if subclass is not None:
+                return subclass(*args_, **kwargs_)
+        if ArmPositionsType.subclass:
+            return ArmPositionsType.subclass(*args_, **kwargs_)
+        else:
+            return ArmPositionsType(*args_, **kwargs_)
+    factory = staticmethod(factory)
+    def get_SpecialPosition(self): return self.SpecialPosition
+    def set_SpecialPosition(self, SpecialPosition): self.SpecialPosition = SpecialPosition
+    def get_Positions(self): return self.Positions
+    def set_Positions(self, Positions): self.Positions = Positions
+    def validate_SpecialPositionType(self, value):
+        # Validate type SpecialPositionType, a restriction on xs:string.
+        if value is not None and Validate_simpletypes_:
+            value = str(value)
+            enumerations = ['retracted', 'mid', 'extended', 'none']
+            enumeration_respectee = False
+            for enum in enumerations:
+                if value == enum:
+                    enumeration_respectee = True
+                    break
+            if not enumeration_respectee:
+                warnings_.warn('Value "%(value)s" does not match xsd enumeration restriction on SpecialPositionType' % {"value" : value.encode("utf-8")} )
+    def hasContent_(self):
+        if (
+            self.SpecialPosition is not None or
+            self.Positions is not None
+        ):
+            return True
+        else:
+            return False
+    def export(self, outfile, level, namespace_='', name_='ArmPositionsType', namespacedef_='', pretty_print=True):
+        if pretty_print:
+            eol_ = '\n'
+        else:
+            eol_ = ''
+        if self.original_tagname_ is not None:
+            name_ = self.original_tagname_
+        showIndent(outfile, level, pretty_print)
+        outfile.write('<%s%s%s' % (namespace_, name_, namespacedef_ and ' ' + namespacedef_ or '', ))
+        already_processed = set()
+        self.exportAttributes(outfile, level, already_processed, namespace_, name_='ArmPositionsType')
+        if self.hasContent_():
+            outfile.write('>%s' % (eol_, ))
+            self.exportChildren(outfile, level + 1, namespace_='', name_='ArmPositionsType', pretty_print=pretty_print)
+            showIndent(outfile, level, pretty_print)
+            outfile.write('</%s%s>%s' % (namespace_, name_, eol_))
+        else:
+            outfile.write('/>%s' % (eol_, ))
+    def exportAttributes(self, outfile, level, already_processed, namespace_='', name_='ArmPositionsType'):
+        pass
+    def exportChildren(self, outfile, level, namespace_='', name_='ArmPositionsType', fromsubclass_=False, pretty_print=True):
+        if pretty_print:
+            eol_ = '\n'
+        else:
+            eol_ = ''
+        if self.SpecialPosition is not None:
+            showIndent(outfile, level, pretty_print)
+            outfile.write('<%sSpecialPosition>%s</%sSpecialPosition>%s' % (namespace_, self.gds_encode(self.gds_format_string(quote_xml(self.SpecialPosition), input_name='SpecialPosition')), namespace_, eol_))
+        if self.Positions is not None:
+            self.Positions.export(outfile, level, namespace_, name_='Positions', pretty_print=pretty_print)
+    def build(self, node):
+        already_processed = set()
+        self.buildAttributes(node, node.attrib, already_processed)
+        for child in node:
+            nodeName_ = Tag_pattern_.match(child.tag).groups()[-1]
+            self.buildChildren(child, node, nodeName_)
+        return self
+    def buildAttributes(self, node, attrs, already_processed):
+        pass
+    def buildChildren(self, child_, node, nodeName_, fromsubclass_=False):
+        if nodeName_ == 'SpecialPosition':
+            SpecialPosition_ = child_.text
+            SpecialPosition_ = self.gds_validate_string(SpecialPosition_, node, 'SpecialPosition')
+            self.SpecialPosition = SpecialPosition_
+            # validate type SpecialPositionType
+            self.validate_SpecialPositionType(self.SpecialPosition)
+        elif nodeName_ == 'Positions':
+            obj_ = ArmAxes.factory()
+            obj_.build(child_)
+            self.Positions = obj_
+            obj_.original_tagname_ = 'Positions'
+# end class ArmPositionsType
+
+
+class KvBladePositionsType(GeneratedsSuper):
+    """Specify either blade tracking or blade positions."""
+    subclass = None
+    superclass = None
+    def __init__(self, Tracking=None, Positions=None):
+        self.original_tagname_ = None
+        self.Tracking = Tracking
+        self.Positions = Positions
+    def factory(*args_, **kwargs_):
+        if CurrentSubclassModule_ is not None:
+            subclass = getSubclassFromModule_(
+                CurrentSubclassModule_, KvBladePositionsType)
+            if subclass is not None:
+                return subclass(*args_, **kwargs_)
+        if KvBladePositionsType.subclass:
+            return KvBladePositionsType.subclass(*args_, **kwargs_)
+        else:
+            return KvBladePositionsType(*args_, **kwargs_)
+    factory = staticmethod(factory)
+    def get_Tracking(self): return self.Tracking
+    def set_Tracking(self, Tracking): self.Tracking = Tracking
+    def get_Positions(self): return self.Positions
+    def set_Positions(self, Positions): self.Positions = Positions
+    def hasContent_(self):
+        if (
+            self.Tracking is not None or
+            self.Positions is not None
+        ):
+            return True
+        else:
+            return False
+    def export(self, outfile, level, namespace_='', name_='KvBladePositionsType', namespacedef_='', pretty_print=True):
+        if pretty_print:
+            eol_ = '\n'
+        else:
+            eol_ = ''
+        if self.original_tagname_ is not None:
+            name_ = self.original_tagname_
+        showIndent(outfile, level, pretty_print)
+        outfile.write('<%s%s%s' % (namespace_, name_, namespacedef_ and ' ' + namespacedef_ or '', ))
+        already_processed = set()
+        self.exportAttributes(outfile, level, already_processed, namespace_, name_='KvBladePositionsType')
+        if self.hasContent_():
+            outfile.write('>%s' % (eol_, ))
+            self.exportChildren(outfile, level + 1, namespace_='', name_='KvBladePositionsType', pretty_print=pretty_print)
+            showIndent(outfile, level, pretty_print)
+            outfile.write('</%s%s>%s' % (namespace_, name_, eol_))
+        else:
+            outfile.write('/>%s' % (eol_, ))
+    def exportAttributes(self, outfile, level, already_processed, namespace_='', name_='KvBladePositionsType'):
+        pass
+    def exportChildren(self, outfile, level, namespace_='', name_='KvBladePositionsType', fromsubclass_=False, pretty_print=True):
+        if pretty_print:
+            eol_ = '\n'
+        else:
+            eol_ = ''
+        if self.Tracking is not None:
+            showIndent(outfile, level, pretty_print)
+            outfile.write('<%sTracking>%s</%sTracking>%s' % (namespace_, self.gds_format_boolean(self.Tracking, input_name='Tracking'), namespace_, eol_))
+        if self.Positions is not None:
+            self.Positions.export(outfile, level, namespace_, name_='Positions', pretty_print=pretty_print)
+    def build(self, node):
+        already_processed = set()
+        self.buildAttributes(node, node.attrib, already_processed)
+        for child in node:
+            nodeName_ = Tag_pattern_.match(child.tag).groups()[-1]
+            self.buildChildren(child, node, nodeName_)
+        return self
+    def buildAttributes(self, node, attrs, already_processed):
+        pass
+    def buildChildren(self, child_, node, nodeName_, fromsubclass_=False):
+        if nodeName_ == 'Tracking':
+            sval_ = child_.text
+            if sval_ in ('true', '1'):
+                ival_ = True
+            elif sval_ in ('false', '0'):
+                ival_ = False
+            else:
+                raise_parse_error(child_, 'requires boolean')
+            ival_ = self.gds_validate_boolean(ival_, node, 'Tracking')
+            self.Tracking = ival_
+        elif nodeName_ == 'Positions':
+            obj_ = BladePositionsType.factory()
+            obj_.build(child_)
+            self.Positions = obj_
+            obj_.original_tagname_ = 'Positions'
+# end class KvBladePositionsType
+
+
+class ArmAxes(GeneratedsSuper):
+    """Axes definitions for a working position of an arm."""
+    subclass = None
+    superclass = None
+    def __init__(self, Lat=None, Lng=None, Vrt=None, Pitch=None):
+        self.original_tagname_ = None
+        self.Lat = Lat
+        self.Lng = Lng
+        self.Vrt = Vrt
+        self.Pitch = Pitch
+    def factory(*args_, **kwargs_):
+        if CurrentSubclassModule_ is not None:
+            subclass = getSubclassFromModule_(
+                CurrentSubclassModule_, ArmAxes)
+            if subclass is not None:
+                return subclass(*args_, **kwargs_)
+        if ArmAxes.subclass:
+            return ArmAxes.subclass(*args_, **kwargs_)
+        else:
+            return ArmAxes(*args_, **kwargs_)
+    factory = staticmethod(factory)
+    def get_Lat(self): return self.Lat
+    def set_Lat(self, Lat): self.Lat = Lat
+    def get_Lng(self): return self.Lng
+    def set_Lng(self, Lng): self.Lng = Lng
+    def get_Vrt(self): return self.Vrt
+    def set_Vrt(self, Vrt): self.Vrt = Vrt
+    def get_Pitch(self): return self.Pitch
+    def set_Pitch(self, Pitch): self.Pitch = Pitch
+    def hasContent_(self):
+        if (
+            self.Lat is not None or
+            self.Lng is not None or
+            self.Vrt is not None or
+            self.Pitch is not None
+        ):
+            return True
+        else:
+            return False
+    def export(self, outfile, level, namespace_='', name_='ArmAxes', namespacedef_='', pretty_print=True):
+        if pretty_print:
+            eol_ = '\n'
+        else:
+            eol_ = ''
+        if self.original_tagname_ is not None:
+            name_ = self.original_tagname_
+        showIndent(outfile, level, pretty_print)
+        outfile.write('<%s%s%s' % (namespace_, name_, namespacedef_ and ' ' + namespacedef_ or '', ))
+        already_processed = set()
+        self.exportAttributes(outfile, level, already_processed, namespace_, name_='ArmAxes')
+        if self.hasContent_():
+            outfile.write('>%s' % (eol_, ))
+            self.exportChildren(outfile, level + 1, namespace_='', name_='ArmAxes', pretty_print=pretty_print)
+            showIndent(outfile, level, pretty_print)
+            outfile.write('</%s%s>%s' % (namespace_, name_, eol_))
+        else:
+            outfile.write('/>%s' % (eol_, ))
+    def exportAttributes(self, outfile, level, already_processed, namespace_='', name_='ArmAxes'):
+        pass
+    def exportChildren(self, outfile, level, namespace_='', name_='ArmAxes', fromsubclass_=False, pretty_print=True):
+        if pretty_print:
+            eol_ = '\n'
+        else:
+            eol_ = ''
+        if self.Lat is not None:
+            showIndent(outfile, level, pretty_print)
+            outfile.write('<%sLat>%s</%sLat>%s' % (namespace_, self.gds_format_double(self.Lat, input_name='Lat'), namespace_, eol_))
+        if self.Lng is not None:
+            showIndent(outfile, level, pretty_print)
+            outfile.write('<%sLng>%s</%sLng>%s' % (namespace_, self.gds_format_double(self.Lng, input_name='Lng'), namespace_, eol_))
+        if self.Vrt is not None:
+            showIndent(outfile, level, pretty_print)
+            outfile.write('<%sVrt>%s</%sVrt>%s' % (namespace_, self.gds_format_double(self.Vrt, input_name='Vrt'), namespace_, eol_))
+        if self.Pitch is not None:
+            showIndent(outfile, level, pretty_print)
+            outfile.write('<%sPitch>%s</%sPitch>%s' % (namespace_, self.gds_format_double(self.Pitch, input_name='Pitch'), namespace_, eol_))
+    def build(self, node):
+        already_processed = set()
+        self.buildAttributes(node, node.attrib, already_processed)
+        for child in node:
+            nodeName_ = Tag_pattern_.match(child.tag).groups()[-1]
+            self.buildChildren(child, node, nodeName_)
+        return self
+    def buildAttributes(self, node, attrs, already_processed):
+        pass
+    def buildChildren(self, child_, node, nodeName_, fromsubclass_=False):
+        if nodeName_ == 'Lat':
+            sval_ = child_.text
+            try:
+                fval_ = float(sval_)
+            except (TypeError, ValueError) as exp:
+                raise_parse_error(child_, 'requires float or double: %s' % exp)
+            fval_ = self.gds_validate_float(fval_, node, 'Lat')
+            self.Lat = fval_
+        elif nodeName_ == 'Lng':
+            sval_ = child_.text
+            try:
+                fval_ = float(sval_)
+            except (TypeError, ValueError) as exp:
+                raise_parse_error(child_, 'requires float or double: %s' % exp)
+            fval_ = self.gds_validate_float(fval_, node, 'Lng')
+            self.Lng = fval_
+        elif nodeName_ == 'Vrt':
+            sval_ = child_.text
+            try:
+                fval_ = float(sval_)
+            except (TypeError, ValueError) as exp:
+                raise_parse_error(child_, 'requires float or double: %s' % exp)
+            fval_ = self.gds_validate_float(fval_, node, 'Vrt')
+            self.Vrt = fval_
+        elif nodeName_ == 'Pitch':
+            sval_ = child_.text
+            try:
+                fval_ = float(sval_)
+            except (TypeError, ValueError) as exp:
+                raise_parse_error(child_, 'requires float or double: %s' % exp)
+            fval_ = self.gds_validate_float(fval_, node, 'Pitch')
+            self.Pitch = fval_
+# end class ArmAxes
+
+
+class ImageMode(GeneratedsSuper):
+    subclass = None
+    superclass = None
+    def __init__(self, id=None, Overwrite=None):
+        self.original_tagname_ = None
+        self.id = _cast(None, id)
+        if Overwrite is None:
+            self.Overwrite = []
+        else:
+            self.Overwrite = Overwrite
+    def factory(*args_, **kwargs_):
+        if CurrentSubclassModule_ is not None:
+            subclass = getSubclassFromModule_(
+                CurrentSubclassModule_, ImageMode)
+            if subclass is not None:
+                return subclass(*args_, **kwargs_)
+        if ImageMode.subclass:
+            return ImageMode.subclass(*args_, **kwargs_)
+        else:
+            return ImageMode(*args_, **kwargs_)
+    factory = staticmethod(factory)
+    def get_Overwrite(self): return self.Overwrite
+    def set_Overwrite(self, Overwrite): self.Overwrite = Overwrite
+    def add_Overwrite(self, value): self.Overwrite.append(value)
+    def insert_Overwrite_at(self, index, value): self.Overwrite.insert(index, value)
+    def replace_Overwrite_at(self, index, value): self.Overwrite[index] = value
+    def get_id(self): return self.id
+    def set_id(self, id): self.id = id
+    def hasContent_(self):
+        if (
+            self.Overwrite
+        ):
+            return True
+        else:
+            return False
+    def export(self, outfile, level, namespace_='', name_='ImageMode', namespacedef_='', pretty_print=True):
+        if pretty_print:
+            eol_ = '\n'
+        else:
+            eol_ = ''
+        if self.original_tagname_ is not None:
+            name_ = self.original_tagname_
+        showIndent(outfile, level, pretty_print)
+        outfile.write('<%s%s%s' % (namespace_, name_, namespacedef_ and ' ' + namespacedef_ or '', ))
+        already_processed = set()
+        self.exportAttributes(outfile, level, already_processed, namespace_, name_='ImageMode')
+        if self.hasContent_():
+            outfile.write('>%s' % (eol_, ))
+            self.exportChildren(outfile, level + 1, namespace_='', name_='ImageMode', pretty_print=pretty_print)
+            showIndent(outfile, level, pretty_print)
+            outfile.write('</%s%s>%s' % (namespace_, name_, eol_))
+        else:
+            outfile.write('/>%s' % (eol_, ))
+    def exportAttributes(self, outfile, level, already_processed, namespace_='', name_='ImageMode'):
+        if self.id is not None and 'id' not in already_processed:
+            already_processed.add('id')
+            outfile.write(' id=%s' % (self.gds_encode(self.gds_format_string(quote_attrib(self.id), input_name='id')), ))
+    def exportChildren(self, outfile, level, namespace_='', name_='ImageMode', fromsubclass_=False, pretty_print=True):
+        if pretty_print:
+            eol_ = '\n'
+        else:
+            eol_ = ''
+        for Overwrite_ in self.Overwrite:
+            Overwrite_.export(outfile, level, namespace_, name_='Overwrite', pretty_print=pretty_print)
+    def build(self, node):
+        already_processed = set()
+        self.buildAttributes(node, node.attrib, already_processed)
+        for child in node:
+            nodeName_ = Tag_pattern_.match(child.tag).groups()[-1]
+            self.buildChildren(child, node, nodeName_)
+        return self
+    def buildAttributes(self, node, attrs, already_processed):
+        value = find_attr_value_('id', node)
+        if value is not None and 'id' not in already_processed:
+            already_processed.add('id')
+            self.id = value
+    def buildChildren(self, child_, node, nodeName_, fromsubclass_=False):
+        if nodeName_ == 'Overwrite':
+            obj_ = ModeOverwrite.factory()
+            obj_.build(child_)
+            self.Overwrite.append(obj_)
+            obj_.original_tagname_ = 'Overwrite'
+# end class ImageMode
+
+
+class AcquisitionMode(GeneratedsSuper):
+    subclass = None
+    superclass = None
+    def __init__(self, id=None, Overwrite=None):
+        self.original_tagname_ = None
+        self.id = _cast(None, id)
+        if Overwrite is None:
+            self.Overwrite = []
+        else:
+            self.Overwrite = Overwrite
+    def factory(*args_, **kwargs_):
+        if CurrentSubclassModule_ is not None:
+            subclass = getSubclassFromModule_(
+                CurrentSubclassModule_, AcquisitionMode)
+            if subclass is not None:
+                return subclass(*args_, **kwargs_)
+        if AcquisitionMode.subclass:
+            return AcquisitionMode.subclass(*args_, **kwargs_)
+        else:
+            return AcquisitionMode(*args_, **kwargs_)
+    factory = staticmethod(factory)
+    def get_Overwrite(self): return self.Overwrite
+    def set_Overwrite(self, Overwrite): self.Overwrite = Overwrite
+    def add_Overwrite(self, value): self.Overwrite.append(value)
+    def insert_Overwrite_at(self, index, value): self.Overwrite.insert(index, value)
+    def replace_Overwrite_at(self, index, value): self.Overwrite[index] = value
+    def get_id(self): return self.id
+    def set_id(self, id): self.id = id
+    def hasContent_(self):
+        if (
+            self.Overwrite
+        ):
+            return True
+        else:
+            return False
+    def export(self, outfile, level, namespace_='', name_='AcquisitionMode', namespacedef_='', pretty_print=True):
+        if pretty_print:
+            eol_ = '\n'
+        else:
+            eol_ = ''
+        if self.original_tagname_ is not None:
+            name_ = self.original_tagname_
+        showIndent(outfile, level, pretty_print)
+        outfile.write('<%s%s%s' % (namespace_, name_, namespacedef_ and ' ' + namespacedef_ or '', ))
+        already_processed = set()
+        self.exportAttributes(outfile, level, already_processed, namespace_, name_='AcquisitionMode')
+        if self.hasContent_():
+            outfile.write('>%s' % (eol_, ))
+            self.exportChildren(outfile, level + 1, namespace_='', name_='AcquisitionMode', pretty_print=pretty_print)
+            showIndent(outfile, level, pretty_print)
+            outfile.write('</%s%s>%s' % (namespace_, name_, eol_))
+        else:
+            outfile.write('/>%s' % (eol_, ))
+    def exportAttributes(self, outfile, level, already_processed, namespace_='', name_='AcquisitionMode'):
+        if self.id is not None and 'id' not in already_processed:
+            already_processed.add('id')
+            outfile.write(' id=%s' % (self.gds_encode(self.gds_format_string(quote_attrib(self.id), input_name='id')), ))
+    def exportChildren(self, outfile, level, namespace_='', name_='AcquisitionMode', fromsubclass_=False, pretty_print=True):
+        if pretty_print:
+            eol_ = '\n'
+        else:
+            eol_ = ''
+        for Overwrite_ in self.Overwrite:
+            Overwrite_.export(outfile, level, namespace_, name_='Overwrite', pretty_print=pretty_print)
+    def build(self, node):
+        already_processed = set()
+        self.buildAttributes(node, node.attrib, already_processed)
+        for child in node:
+            nodeName_ = Tag_pattern_.match(child.tag).groups()[-1]
+            self.buildChildren(child, node, nodeName_)
+        return self
+    def buildAttributes(self, node, attrs, already_processed):
+        value = find_attr_value_('id', node)
+        if value is not None and 'id' not in already_processed:
+            already_processed.add('id')
+            self.id = value
+    def buildChildren(self, child_, node, nodeName_, fromsubclass_=False):
+        if nodeName_ == 'Overwrite':
+            obj_ = ModeOverwrite.factory()
+            obj_.build(child_)
+            self.Overwrite.append(obj_)
+            obj_.original_tagname_ = 'Overwrite'
+# end class AcquisitionMode
+
+
+class ModeOverwrite(GeneratedsSuper):
+    subclass = None
+    superclass = None
+    def __init__(self, parameter=None, valueOf_=None):
+        self.original_tagname_ = None
+        self.parameter = _cast(None, parameter)
+        self.valueOf_ = valueOf_
+    def factory(*args_, **kwargs_):
+        if CurrentSubclassModule_ is not None:
+            subclass = getSubclassFromModule_(
+                CurrentSubclassModule_, ModeOverwrite)
+            if subclass is not None:
+                return subclass(*args_, **kwargs_)
+        if ModeOverwrite.subclass:
+            return ModeOverwrite.subclass(*args_, **kwargs_)
+        else:
+            return ModeOverwrite(*args_, **kwargs_)
+    factory = staticmethod(factory)
+    def get_parameter(self): return self.parameter
+    def set_parameter(self, parameter): self.parameter = parameter
+    def get_valueOf_(self): return self.valueOf_
+    def set_valueOf_(self, valueOf_): self.valueOf_ = valueOf_
+    def hasContent_(self):
+        if (
+            1 if type(self.valueOf_) in [int,float] else self.valueOf_
+        ):
+            return True
+        else:
+            return False
+    def export(self, outfile, level, namespace_='', name_='ModeOverwrite', namespacedef_='', pretty_print=True):
+        if pretty_print:
+            eol_ = '\n'
+        else:
+            eol_ = ''
+        if self.original_tagname_ is not None:
+            name_ = self.original_tagname_
+        showIndent(outfile, level, pretty_print)
+        outfile.write('<%s%s%s' % (namespace_, name_, namespacedef_ and ' ' + namespacedef_ or '', ))
+        already_processed = set()
+        self.exportAttributes(outfile, level, already_processed, namespace_, name_='ModeOverwrite')
+        if self.hasContent_():
+            outfile.write('>')
+            outfile.write((quote_xml(self.valueOf_) if type(self.valueOf_) is str else self.gds_encode(str(self.valueOf_))))
+            self.exportChildren(outfile, level + 1, namespace_='', name_='ModeOverwrite', pretty_print=pretty_print)
+            outfile.write('</%s%s>%s' % (namespace_, name_, eol_))
+        else:
+            outfile.write('/>%s' % (eol_, ))
+    def exportAttributes(self, outfile, level, already_processed, namespace_='', name_='ModeOverwrite'):
+        if self.parameter is not None and 'parameter' not in already_processed:
+            already_processed.add('parameter')
+            outfile.write(' parameter=%s' % (self.gds_encode(self.gds_format_string(quote_attrib(self.parameter), input_name='parameter')), ))
+    def exportChildren(self, outfile, level, namespace_='', name_='ModeOverwrite', fromsubclass_=False, pretty_print=True):
+        pass
+    def build(self, node):
+        already_processed = set()
+        self.buildAttributes(node, node.attrib, already_processed)
+        self.valueOf_ = get_all_text_(node)
+        for child in node:
+            nodeName_ = Tag_pattern_.match(child.tag).groups()[-1]
+            self.buildChildren(child, node, nodeName_)
+        return self
+    def buildAttributes(self, node, attrs, already_processed):
+        value = find_attr_value_('parameter', node)
+        if value is not None and 'parameter' not in already_processed:
+            already_processed.add('parameter')
+            self.parameter = value
+    def buildChildren(self, child_, node, nodeName_, fromsubclass_=False):
+        pass
+# end class ModeOverwrite
+
+
+class Movie(GeneratedsSuper):
+    subclass = None
+    superclass = None
+    def __init__(self, Destination=None, Parameters=None):
+        self.original_tagname_ = None
+        self.Destination = Destination
+        self.Parameters = Parameters
+    def factory(*args_, **kwargs_):
+        if CurrentSubclassModule_ is not None:
+            subclass = getSubclassFromModule_(
+                CurrentSubclassModule_, Movie)
+            if subclass is not None:
+                return subclass(*args_, **kwargs_)
+        if Movie.subclass:
+            return Movie.subclass(*args_, **kwargs_)
+        else:
+            return Movie(*args_, **kwargs_)
+    factory = staticmethod(factory)
+    def get_Destination(self): return self.Destination
+    def set_Destination(self, Destination): self.Destination = Destination
+    def get_Parameters(self): return self.Parameters
+    def set_Parameters(self, Parameters): self.Parameters = Parameters
+    def hasContent_(self):
+        if (
+            self.Destination is not None or
+            self.Parameters is not None
+        ):
+            return True
+        else:
+            return False
+    def export(self, outfile, level, namespace_='', name_='Movie', namespacedef_='', pretty_print=True):
+        if pretty_print:
+            eol_ = '\n'
+        else:
+            eol_ = ''
+        if self.original_tagname_ is not None:
+            name_ = self.original_tagname_
+        showIndent(outfile, level, pretty_print)
+        outfile.write('<%s%s%s' % (namespace_, name_, namespacedef_ and ' ' + namespacedef_ or '', ))
+        already_processed = set()
+        self.exportAttributes(outfile, level, already_processed, namespace_, name_='Movie')
+        if self.hasContent_():
+            outfile.write('>%s' % (eol_, ))
+            self.exportChildren(outfile, level + 1, namespace_='', name_='Movie', pretty_print=pretty_print)
+            showIndent(outfile, level, pretty_print)
+            outfile.write('</%s%s>%s' % (namespace_, name_, eol_))
+        else:
+            outfile.write('/>%s' % (eol_, ))
+    def exportAttributes(self, outfile, level, already_processed, namespace_='', name_='Movie'):
+        pass
+    def exportChildren(self, outfile, level, namespace_='', name_='Movie', fromsubclass_=False, pretty_print=True):
+        if pretty_print:
+            eol_ = '\n'
+        else:
+            eol_ = ''
+        if self.Destination is not None:
+            showIndent(outfile, level, pretty_print)
+            outfile.write('<%sDestination>%s</%sDestination>%s' % (namespace_, self.gds_encode(self.gds_format_string(quote_xml(self.Destination), input_name='Destination')), namespace_, eol_))
+        if self.Parameters is not None:
+            self.Parameters.export(outfile, level, namespace_, name_='Parameters', pretty_print=pretty_print)
+    def build(self, node):
+        already_processed = set()
+        self.buildAttributes(node, node.attrib, already_processed)
+        for child in node:
+            nodeName_ = Tag_pattern_.match(child.tag).groups()[-1]
+            self.buildChildren(child, node, nodeName_)
+        return self
+    def buildAttributes(self, node, attrs, already_processed):
+        pass
+    def buildChildren(self, child_, node, nodeName_, fromsubclass_=False):
+        if nodeName_ == 'Destination':
+            Destination_ = child_.text
+            Destination_ = self.gds_validate_string(Destination_, node, 'Destination')
+            self.Destination = Destination_
+        elif nodeName_ == 'Parameters':
+            obj_ = MovieParameters.factory()
+            obj_.build(child_)
+            self.Parameters = obj_
+            obj_.original_tagname_ = 'Parameters'
+# end class Movie
+
+
+class MovieParameters(GeneratedsSuper):
+    subclass = None
+    superclass = None
+    def __init__(self, Width=None, Height=None, FrameRate=None, Crop=None, Invert=None, PixelValue0=None, PixelValue255=None, CutOff=None, Weight=None):
+        self.original_tagname_ = None
+        self.Width = Width
+        self.Height = Height
+        self.FrameRate = FrameRate
+        self.Crop = Crop
+        self.Invert = Invert
+        self.PixelValue0 = PixelValue0
+        self.PixelValue255 = PixelValue255
+        self.CutOff = CutOff
+        self.Weight = Weight
+    def factory(*args_, **kwargs_):
+        if CurrentSubclassModule_ is not None:
+            subclass = getSubclassFromModule_(
+                CurrentSubclassModule_, MovieParameters)
+            if subclass is not None:
+                return subclass(*args_, **kwargs_)
+        if MovieParameters.subclass:
+            return MovieParameters.subclass(*args_, **kwargs_)
+        else:
+            return MovieParameters(*args_, **kwargs_)
+    factory = staticmethod(factory)
+    def get_Width(self): return self.Width
+    def set_Width(self, Width): self.Width = Width
+    def get_Height(self): return self.Height
+    def set_Height(self, Height): self.Height = Height
+    def get_FrameRate(self): return self.FrameRate
+    def set_FrameRate(self, FrameRate): self.FrameRate = FrameRate
+    def get_Crop(self): return self.Crop
+    def set_Crop(self, Crop): self.Crop = Crop
+    def get_Invert(self): return self.Invert
+    def set_Invert(self, Invert): self.Invert = Invert
+    def get_PixelValue0(self): return self.PixelValue0
+    def set_PixelValue0(self, PixelValue0): self.PixelValue0 = PixelValue0
+    def get_PixelValue255(self): return self.PixelValue255
+    def set_PixelValue255(self, PixelValue255): self.PixelValue255 = PixelValue255
+    def get_CutOff(self): return self.CutOff
+    def set_CutOff(self, CutOff): self.CutOff = CutOff
+    def get_Weight(self): return self.Weight
+    def set_Weight(self, Weight): self.Weight = Weight
+    def hasContent_(self):
+        if (
+            self.Width is not None or
+            self.Height is not None or
+            self.FrameRate is not None or
+            self.Crop is not None or
+            self.Invert is not None or
+            self.PixelValue0 is not None or
+            self.PixelValue255 is not None or
+            self.CutOff is not None or
+            self.Weight is not None
+        ):
+            return True
+        else:
+            return False
+    def export(self, outfile, level, namespace_='', name_='MovieParameters', namespacedef_='', pretty_print=True):
+        if pretty_print:
+            eol_ = '\n'
+        else:
+            eol_ = ''
+        if self.original_tagname_ is not None:
+            name_ = self.original_tagname_
+        showIndent(outfile, level, pretty_print)
+        outfile.write('<%s%s%s' % (namespace_, name_, namespacedef_ and ' ' + namespacedef_ or '', ))
+        already_processed = set()
+        self.exportAttributes(outfile, level, already_processed, namespace_, name_='MovieParameters')
+        if self.hasContent_():
+            outfile.write('>%s' % (eol_, ))
+            self.exportChildren(outfile, level + 1, namespace_='', name_='MovieParameters', pretty_print=pretty_print)
+            showIndent(outfile, level, pretty_print)
+            outfile.write('</%s%s>%s' % (namespace_, name_, eol_))
+        else:
+            outfile.write('/>%s' % (eol_, ))
+    def exportAttributes(self, outfile, level, already_processed, namespace_='', name_='MovieParameters'):
+        pass
+    def exportChildren(self, outfile, level, namespace_='', name_='MovieParameters', fromsubclass_=False, pretty_print=True):
+        if pretty_print:
+            eol_ = '\n'
+        else:
+            eol_ = ''
+        if self.Width is not None:
+            showIndent(outfile, level, pretty_print)
+            outfile.write('<%sWidth>%s</%sWidth>%s' % (namespace_, self.gds_format_integer(self.Width, input_name='Width'), namespace_, eol_))
+        if self.Height is not None:
+            showIndent(outfile, level, pretty_print)
+            outfile.write('<%sHeight>%s</%sHeight>%s' % (namespace_, self.gds_format_integer(self.Height, input_name='Height'), namespace_, eol_))
+        if self.FrameRate is not None:
+            showIndent(outfile, level, pretty_print)
+            outfile.write('<%sFrameRate>%s</%sFrameRate>%s' % (namespace_, self.gds_format_double(self.FrameRate, input_name='FrameRate'), namespace_, eol_))
+        if self.Crop is not None:
+            showIndent(outfile, level, pretty_print)
+            outfile.write('<%sCrop>%s</%sCrop>%s' % (namespace_, self.gds_format_boolean(self.Crop, input_name='Crop'), namespace_, eol_))
+        if self.Invert is not None:
+            showIndent(outfile, level, pretty_print)
+            outfile.write('<%sInvert>%s</%sInvert>%s' % (namespace_, self.gds_format_boolean(self.Invert, input_name='Invert'), namespace_, eol_))
+        if self.PixelValue0 is not None:
+            showIndent(outfile, level, pretty_print)
+            outfile.write('<%sPixelValue0>%s</%sPixelValue0>%s' % (namespace_, self.gds_format_integer(self.PixelValue0, input_name='PixelValue0'), namespace_, eol_))
+        if self.PixelValue255 is not None:
+            showIndent(outfile, level, pretty_print)
+            outfile.write('<%sPixelValue255>%s</%sPixelValue255>%s' % (namespace_, self.gds_format_integer(self.PixelValue255, input_name='PixelValue255'), namespace_, eol_))
+        if self.CutOff is not None:
+            showIndent(outfile, level, pretty_print)
+            outfile.write('<%sCutOff>%s</%sCutOff>%s' % (namespace_, self.gds_format_integer(self.CutOff, input_name='CutOff'), namespace_, eol_))
+        if self.Weight is not None:
+            showIndent(outfile, level, pretty_print)
+            outfile.write('<%sWeight>%s</%sWeight>%s' % (namespace_, self.gds_format_double(self.Weight, input_name='Weight'), namespace_, eol_))
+    def build(self, node):
+        already_processed = set()
+        self.buildAttributes(node, node.attrib, already_processed)
+        for child in node:
+            nodeName_ = Tag_pattern_.match(child.tag).groups()[-1]
+            self.buildChildren(child, node, nodeName_)
+        return self
+    def buildAttributes(self, node, attrs, already_processed):
+        pass
+    def buildChildren(self, child_, node, nodeName_, fromsubclass_=False):
+        if nodeName_ == 'Width':
+            sval_ = child_.text
+            try:
+                ival_ = int(sval_)
+            except (TypeError, ValueError) as exp:
+                raise_parse_error(child_, 'requires integer: %s' % exp)
+            ival_ = self.gds_validate_integer(ival_, node, 'Width')
+            self.Width = ival_
+        elif nodeName_ == 'Height':
+            sval_ = child_.text
+            try:
+                ival_ = int(sval_)
+            except (TypeError, ValueError) as exp:
+                raise_parse_error(child_, 'requires integer: %s' % exp)
+            ival_ = self.gds_validate_integer(ival_, node, 'Height')
+            self.Height = ival_
+        elif nodeName_ == 'FrameRate':
+            sval_ = child_.text
+            try:
+                fval_ = float(sval_)
+            except (TypeError, ValueError) as exp:
+                raise_parse_error(child_, 'requires float or double: %s' % exp)
+            fval_ = self.gds_validate_float(fval_, node, 'FrameRate')
+            self.FrameRate = fval_
+        elif nodeName_ == 'Crop':
+            sval_ = child_.text
+            if sval_ in ('true', '1'):
+                ival_ = True
+            elif sval_ in ('false', '0'):
+                ival_ = False
+            else:
+                raise_parse_error(child_, 'requires boolean')
+            ival_ = self.gds_validate_boolean(ival_, node, 'Crop')
+            self.Crop = ival_
+        elif nodeName_ == 'Invert':
+            sval_ = child_.text
+            if sval_ in ('true', '1'):
+                ival_ = True
+            elif sval_ in ('false', '0'):
+                ival_ = False
+            else:
+                raise_parse_error(child_, 'requires boolean')
+            ival_ = self.gds_validate_boolean(ival_, node, 'Invert')
+            self.Invert = ival_
+        elif nodeName_ == 'PixelValue0':
+            sval_ = child_.text
+            try:
+                ival_ = int(sval_)
+            except (TypeError, ValueError) as exp:
+                raise_parse_error(child_, 'requires integer: %s' % exp)
+            ival_ = self.gds_validate_integer(ival_, node, 'PixelValue0')
+            self.PixelValue0 = ival_
+        elif nodeName_ == 'PixelValue255':
+            sval_ = child_.text
+            try:
+                ival_ = int(sval_)
+            except (TypeError, ValueError) as exp:
+                raise_parse_error(child_, 'requires integer: %s' % exp)
+            ival_ = self.gds_validate_integer(ival_, node, 'PixelValue255')
+            self.PixelValue255 = ival_
+        elif nodeName_ == 'CutOff':
+            sval_ = child_.text
+            try:
+                ival_ = int(sval_)
+            except (TypeError, ValueError) as exp:
+                raise_parse_error(child_, 'requires integer: %s' % exp)
+            ival_ = self.gds_validate_integer(ival_, node, 'CutOff')
+            self.CutOff = ival_
+        elif nodeName_ == 'Weight':
+            sval_ = child_.text
+            try:
+                fval_ = float(sval_)
+            except (TypeError, ValueError) as exp:
+                raise_parse_error(child_, 'requires float or double: %s' % exp)
+            fval_ = self.gds_validate_float(fval_, node, 'Weight')
+            self.Weight = fval_
+# end class MovieParameters
+
+
+class HistogramRoi(GeneratedsSuper):
+    subclass = None
+    superclass = None
+    def __init__(self, X1=None, Y1=None, X2=None, Y2=None):
+        self.original_tagname_ = None
+        self.X1 = X1
+        self.Y1 = Y1
+        self.X2 = X2
+        self.Y2 = Y2
+    def factory(*args_, **kwargs_):
+        if CurrentSubclassModule_ is not None:
+            subclass = getSubclassFromModule_(
+                CurrentSubclassModule_, HistogramRoi)
+            if subclass is not None:
+                return subclass(*args_, **kwargs_)
+        if HistogramRoi.subclass:
+            return HistogramRoi.subclass(*args_, **kwargs_)
+        else:
+            return HistogramRoi(*args_, **kwargs_)
+    factory = staticmethod(factory)
+    def get_X1(self): return self.X1
+    def set_X1(self, X1): self.X1 = X1
+    def get_Y1(self): return self.Y1
+    def set_Y1(self, Y1): self.Y1 = Y1
+    def get_X2(self): return self.X2
+    def set_X2(self, X2): self.X2 = X2
+    def get_Y2(self): return self.Y2
+    def set_Y2(self, Y2): self.Y2 = Y2
+    def hasContent_(self):
+        if (
+            self.X1 is not None or
+            self.Y1 is not None or
+            self.X2 is not None or
+            self.Y2 is not None
+        ):
+            return True
+        else:
+            return False
+    def export(self, outfile, level, namespace_='', name_='HistogramRoi', namespacedef_='', pretty_print=True):
+        if pretty_print:
+            eol_ = '\n'
+        else:
+            eol_ = ''
+        if self.original_tagname_ is not None:
+            name_ = self.original_tagname_
+        showIndent(outfile, level, pretty_print)
+        outfile.write('<%s%s%s' % (namespace_, name_, namespacedef_ and ' ' + namespacedef_ or '', ))
+        already_processed = set()
+        self.exportAttributes(outfile, level, already_processed, namespace_, name_='HistogramRoi')
+        if self.hasContent_():
+            outfile.write('>%s' % (eol_, ))
+            self.exportChildren(outfile, level + 1, namespace_='', name_='HistogramRoi', pretty_print=pretty_print)
+            showIndent(outfile, level, pretty_print)
+            outfile.write('</%s%s>%s' % (namespace_, name_, eol_))
+        else:
+            outfile.write('/>%s' % (eol_, ))
+    def exportAttributes(self, outfile, level, already_processed, namespace_='', name_='HistogramRoi'):
+        pass
+    def exportChildren(self, outfile, level, namespace_='', name_='HistogramRoi', fromsubclass_=False, pretty_print=True):
+        if pretty_print:
+            eol_ = '\n'
+        else:
+            eol_ = ''
+        if self.X1 is not None:
+            showIndent(outfile, level, pretty_print)
+            outfile.write('<%sX1>%s</%sX1>%s' % (namespace_, self.gds_format_integer(self.X1, input_name='X1'), namespace_, eol_))
+        if self.Y1 is not None:
+            showIndent(outfile, level, pretty_print)
+            outfile.write('<%sY1>%s</%sY1>%s' % (namespace_, self.gds_format_integer(self.Y1, input_name='Y1'), namespace_, eol_))
+        if self.X2 is not None:
+            showIndent(outfile, level, pretty_print)
+            outfile.write('<%sX2>%s</%sX2>%s' % (namespace_, self.gds_format_integer(self.X2, input_name='X2'), namespace_, eol_))
+        if self.Y2 is not None:
+            showIndent(outfile, level, pretty_print)
+            outfile.write('<%sY2>%s</%sY2>%s' % (namespace_, self.gds_format_integer(self.Y2, input_name='Y2'), namespace_, eol_))
+    def build(self, node):
+        already_processed = set()
+        self.buildAttributes(node, node.attrib, already_processed)
+        for child in node:
+            nodeName_ = Tag_pattern_.match(child.tag).groups()[-1]
+            self.buildChildren(child, node, nodeName_)
+        return self
+    def buildAttributes(self, node, attrs, already_processed):
+        pass
+    def buildChildren(self, child_, node, nodeName_, fromsubclass_=False):
+        if nodeName_ == 'X1':
+            sval_ = child_.text
+            try:
+                ival_ = int(sval_)
+            except (TypeError, ValueError) as exp:
+                raise_parse_error(child_, 'requires integer: %s' % exp)
+            ival_ = self.gds_validate_integer(ival_, node, 'X1')
+            self.X1 = ival_
+        elif nodeName_ == 'Y1':
+            sval_ = child_.text
+            try:
+                ival_ = int(sval_)
+            except (TypeError, ValueError) as exp:
+                raise_parse_error(child_, 'requires integer: %s' % exp)
+            ival_ = self.gds_validate_integer(ival_, node, 'Y1')
+            self.Y1 = ival_
+        elif nodeName_ == 'X2':
+            sval_ = child_.text
+            try:
+                ival_ = int(sval_)
+            except (TypeError, ValueError) as exp:
+                raise_parse_error(child_, 'requires integer: %s' % exp)
+            ival_ = self.gds_validate_integer(ival_, node, 'X2')
+            self.X2 = ival_
+        elif nodeName_ == 'Y2':
+            sval_ = child_.text
+            try:
+                ival_ = int(sval_)
+            except (TypeError, ValueError) as exp:
+                raise_parse_error(child_, 'requires integer: %s' % exp)
+            ival_ = self.gds_validate_integer(ival_, node, 'Y2')
+            self.Y2 = ival_
+# end class HistogramRoi
+
+
+class ImageProcessing(GeneratedsSuper):
+    subclass = None
+    superclass = None
+    def __init__(self, Timeout=0, ModeId=None, AutoBeamOff=None, ConfidenceThreshold=None, Markers=None):
+        self.original_tagname_ = None
+        self.Timeout = Timeout
+        self.ModeId = ModeId
+        self.AutoBeamOff = AutoBeamOff
+        self.ConfidenceThreshold = ConfidenceThreshold
+        self.Markers = Markers
+    def factory(*args_, **kwargs_):
+        if CurrentSubclassModule_ is not None:
+            subclass = getSubclassFromModule_(
+                CurrentSubclassModule_, ImageProcessing)
+            if subclass is not None:
+                return subclass(*args_, **kwargs_)
+        if ImageProcessing.subclass:
+            return ImageProcessing.subclass(*args_, **kwargs_)
+        else:
+            return ImageProcessing(*args_, **kwargs_)
+    factory = staticmethod(factory)
+    def get_Timeout(self): return self.Timeout
+    def set_Timeout(self, Timeout): self.Timeout = Timeout
+    def get_ModeId(self): return self.ModeId
+    def set_ModeId(self, ModeId): self.ModeId = ModeId
+    def get_AutoBeamOff(self): return self.AutoBeamOff
+    def set_AutoBeamOff(self, AutoBeamOff): self.AutoBeamOff = AutoBeamOff
+    def get_ConfidenceThreshold(self): return self.ConfidenceThreshold
+    def set_ConfidenceThreshold(self, ConfidenceThreshold): self.ConfidenceThreshold = ConfidenceThreshold
+    def get_Markers(self): return self.Markers
+    def set_Markers(self, Markers): self.Markers = Markers
+    def hasContent_(self):
+        if (
+            self.Timeout != 0 or
+            self.ModeId is not None or
+            self.AutoBeamOff is not None or
+            self.ConfidenceThreshold is not None or
+            self.Markers is not None
+        ):
+            return True
+        else:
+            return False
+    def export(self, outfile, level, namespace_='', name_='ImageProcessing', namespacedef_='', pretty_print=True):
+        if pretty_print:
+            eol_ = '\n'
+        else:
+            eol_ = ''
+        if self.original_tagname_ is not None:
+            name_ = self.original_tagname_
+        showIndent(outfile, level, pretty_print)
+        outfile.write('<%s%s%s' % (namespace_, name_, namespacedef_ and ' ' + namespacedef_ or '', ))
+        already_processed = set()
+        self.exportAttributes(outfile, level, already_processed, namespace_, name_='ImageProcessing')
+        if self.hasContent_():
+            outfile.write('>%s' % (eol_, ))
+            self.exportChildren(outfile, level + 1, namespace_='', name_='ImageProcessing', pretty_print=pretty_print)
+            showIndent(outfile, level, pretty_print)
+            outfile.write('</%s%s>%s' % (namespace_, name_, eol_))
+        else:
+            outfile.write('/>%s' % (eol_, ))
+    def exportAttributes(self, outfile, level, already_processed, namespace_='', name_='ImageProcessing'):
+        pass
+    def exportChildren(self, outfile, level, namespace_='', name_='ImageProcessing', fromsubclass_=False, pretty_print=True):
+        if pretty_print:
+            eol_ = '\n'
+        else:
+            eol_ = ''
+        if self.Timeout != 0:
+            showIndent(outfile, level, pretty_print)
+            outfile.write('<%sTimeout>%s</%sTimeout>%s' % (namespace_, self.gds_format_integer(self.Timeout, input_name='Timeout'), namespace_, eol_))
+        if self.ModeId is not None:
+            showIndent(outfile, level, pretty_print)
+            outfile.write('<%sModeId>%s</%sModeId>%s' % (namespace_, self.gds_encode(self.gds_format_string(quote_xml(self.ModeId), input_name='ModeId')), namespace_, eol_))
+        if self.AutoBeamOff is not None:
+            showIndent(outfile, level, pretty_print)
+            outfile.write('<%sAutoBeamOff>%s</%sAutoBeamOff>%s' % (namespace_, self.gds_format_boolean(self.AutoBeamOff, input_name='AutoBeamOff'), namespace_, eol_))
+        if self.ConfidenceThreshold is not None:
+            showIndent(outfile, level, pretty_print)
+            outfile.write('<%sConfidenceThreshold>%s</%sConfidenceThreshold>%s' % (namespace_, self.gds_format_double(self.ConfidenceThreshold, input_name='ConfidenceThreshold'), namespace_, eol_))
+        if self.Markers is not None:
+            self.Markers.export(outfile, level, namespace_, name_='Markers', pretty_print=pretty_print)
+    def build(self, node):
+        already_processed = set()
+        self.buildAttributes(node, node.attrib, already_processed)
+        for child in node:
+            nodeName_ = Tag_pattern_.match(child.tag).groups()[-1]
+            self.buildChildren(child, node, nodeName_)
+        return self
+    def buildAttributes(self, node, attrs, already_processed):
+        pass
+    def buildChildren(self, child_, node, nodeName_, fromsubclass_=False):
+        if nodeName_ == 'Timeout':
+            sval_ = child_.text
+            try:
+                ival_ = int(sval_)
+            except (TypeError, ValueError) as exp:
+                raise_parse_error(child_, 'requires integer: %s' % exp)
+            ival_ = self.gds_validate_integer(ival_, node, 'Timeout')
+            self.Timeout = ival_
+        elif nodeName_ == 'ModeId':
+            ModeId_ = child_.text
+            ModeId_ = self.gds_validate_string(ModeId_, node, 'ModeId')
+            self.ModeId = ModeId_
+        elif nodeName_ == 'AutoBeamOff':
+            sval_ = child_.text
+            if sval_ in ('true', '1'):
+                ival_ = True
+            elif sval_ in ('false', '0'):
+                ival_ = False
+            else:
+                raise_parse_error(child_, 'requires boolean')
+            ival_ = self.gds_validate_boolean(ival_, node, 'AutoBeamOff')
+            self.AutoBeamOff = ival_
+        elif nodeName_ == 'ConfidenceThreshold':
+            sval_ = child_.text
+            try:
+                fval_ = float(sval_)
+            except (TypeError, ValueError) as exp:
+                raise_parse_error(child_, 'requires float or double: %s' % exp)
+            fval_ = self.gds_validate_float(fval_, node, 'ConfidenceThreshold')
+            self.ConfidenceThreshold = fval_
+        elif nodeName_ == 'Markers':
+            obj_ = MarkerDefinitions.factory()
+            obj_.build(child_)
+            self.Markers = obj_
+            obj_.original_tagname_ = 'Markers'
+# end class ImageProcessing
+
+
+class MarkerDefinitions(GeneratedsSuper):
+    subclass = None
+    superclass = None
+    def __init__(self, MarkerToleranceRadius=None, MarkerToleranceVolume=None):
+        self.original_tagname_ = None
+        if MarkerToleranceRadius is None:
+            self.MarkerToleranceRadius = []
+        else:
+            self.MarkerToleranceRadius = MarkerToleranceRadius
+        if MarkerToleranceVolume is None:
+            self.MarkerToleranceVolume = []
+        else:
+            self.MarkerToleranceVolume = MarkerToleranceVolume
+    def factory(*args_, **kwargs_):
+        if CurrentSubclassModule_ is not None:
+            subclass = getSubclassFromModule_(
+                CurrentSubclassModule_, MarkerDefinitions)
+            if subclass is not None:
+                return subclass(*args_, **kwargs_)
+        if MarkerDefinitions.subclass:
+            return MarkerDefinitions.subclass(*args_, **kwargs_)
+        else:
+            return MarkerDefinitions(*args_, **kwargs_)
+    factory = staticmethod(factory)
+    def get_MarkerToleranceRadius(self): return self.MarkerToleranceRadius
+    def set_MarkerToleranceRadius(self, MarkerToleranceRadius): self.MarkerToleranceRadius = MarkerToleranceRadius
+    def add_MarkerToleranceRadius(self, value): self.MarkerToleranceRadius.append(value)
+    def insert_MarkerToleranceRadius_at(self, index, value): self.MarkerToleranceRadius.insert(index, value)
+    def replace_MarkerToleranceRadius_at(self, index, value): self.MarkerToleranceRadius[index] = value
+    def get_MarkerToleranceVolume(self): return self.MarkerToleranceVolume
+    def set_MarkerToleranceVolume(self, MarkerToleranceVolume): self.MarkerToleranceVolume = MarkerToleranceVolume
+    def add_MarkerToleranceVolume(self, value): self.MarkerToleranceVolume.append(value)
+    def insert_MarkerToleranceVolume_at(self, index, value): self.MarkerToleranceVolume.insert(index, value)
+    def replace_MarkerToleranceVolume_at(self, index, value): self.MarkerToleranceVolume[index] = value
+    def hasContent_(self):
+        if (
+            self.MarkerToleranceRadius or
+            self.MarkerToleranceVolume
+        ):
+            return True
+        else:
+            return False
+    def export(self, outfile, level, namespace_='', name_='MarkerDefinitions', namespacedef_='', pretty_print=True):
+        if pretty_print:
+            eol_ = '\n'
+        else:
+            eol_ = ''
+        if self.original_tagname_ is not None:
+            name_ = self.original_tagname_
+        showIndent(outfile, level, pretty_print)
+        outfile.write('<%s%s%s' % (namespace_, name_, namespacedef_ and ' ' + namespacedef_ or '', ))
+        already_processed = set()
+        self.exportAttributes(outfile, level, already_processed, namespace_, name_='MarkerDefinitions')
+        if self.hasContent_():
+            outfile.write('>%s' % (eol_, ))
+            self.exportChildren(outfile, level + 1, namespace_='', name_='MarkerDefinitions', pretty_print=pretty_print)
+            showIndent(outfile, level, pretty_print)
+            outfile.write('</%s%s>%s' % (namespace_, name_, eol_))
+        else:
+            outfile.write('/>%s' % (eol_, ))
+    def exportAttributes(self, outfile, level, already_processed, namespace_='', name_='MarkerDefinitions'):
+        pass
+    def exportChildren(self, outfile, level, namespace_='', name_='MarkerDefinitions', fromsubclass_=False, pretty_print=True):
+        if pretty_print:
+            eol_ = '\n'
+        else:
+            eol_ = ''
+        for MarkerToleranceRadius_ in self.MarkerToleranceRadius:
+            MarkerToleranceRadius_.export(outfile, level, namespace_, name_='MarkerToleranceRadius', pretty_print=pretty_print)
+        for MarkerToleranceVolume_ in self.MarkerToleranceVolume:
+            MarkerToleranceVolume_.export(outfile, level, namespace_, name_='MarkerToleranceVolume', pretty_print=pretty_print)
+    def build(self, node):
+        already_processed = set()
+        self.buildAttributes(node, node.attrib, already_processed)
+        for child in node:
+            nodeName_ = Tag_pattern_.match(child.tag).groups()[-1]
+            self.buildChildren(child, node, nodeName_)
+        return self
+    def buildAttributes(self, node, attrs, already_processed):
+        pass
+    def buildChildren(self, child_, node, nodeName_, fromsubclass_=False):
+        if nodeName_ == 'MarkerToleranceRadius':
+            obj_ = MarkerDefinitionToleranceRadius.factory()
+            obj_.build(child_)
+            self.MarkerToleranceRadius.append(obj_)
+            obj_.original_tagname_ = 'MarkerToleranceRadius'
+        elif nodeName_ == 'MarkerToleranceVolume':
+            obj_ = MarkerDefinitionToleranceVolume.factory()
+            obj_.build(child_)
+            self.MarkerToleranceVolume.append(obj_)
+            obj_.original_tagname_ = 'MarkerToleranceVolume'
+# end class MarkerDefinitions
+
+
+class MarkerDefinition(GeneratedsSuper):
+    subclass = None
+    superclass = None
+    def __init__(self, Id=None, X=None, Y=None, Z=None, extensiontype_=None):
+        self.original_tagname_ = None
+        self.Id = Id
+        self.X = X
+        self.Y = Y
+        self.Z = Z
+        self.extensiontype_ = extensiontype_
+    def factory(*args_, **kwargs_):
+        if CurrentSubclassModule_ is not None:
+            subclass = getSubclassFromModule_(
+                CurrentSubclassModule_, MarkerDefinition)
+            if subclass is not None:
+                return subclass(*args_, **kwargs_)
+        if MarkerDefinition.subclass:
+            return MarkerDefinition.subclass(*args_, **kwargs_)
+        else:
+            return MarkerDefinition(*args_, **kwargs_)
+    factory = staticmethod(factory)
+    def get_Id(self): return self.Id
+    def set_Id(self, Id): self.Id = Id
+    def get_X(self): return self.X
+    def set_X(self, X): self.X = X
+    def get_Y(self): return self.Y
+    def set_Y(self, Y): self.Y = Y
+    def get_Z(self): return self.Z
+    def set_Z(self, Z): self.Z = Z
+    def get_extensiontype_(self): return self.extensiontype_
+    def set_extensiontype_(self, extensiontype_): self.extensiontype_ = extensiontype_
+    def hasContent_(self):
+        if (
+            self.Id is not None or
+            self.X is not None or
+            self.Y is not None or
+            self.Z is not None
+        ):
+            return True
+        else:
+            return False
+    def export(self, outfile, level, namespace_='', name_='MarkerDefinition', namespacedef_='', pretty_print=True):
+        if pretty_print:
+            eol_ = '\n'
+        else:
+            eol_ = ''
+        if self.original_tagname_ is not None:
+            name_ = self.original_tagname_
+        showIndent(outfile, level, pretty_print)
+        outfile.write('<%s%s%s' % (namespace_, name_, namespacedef_ and ' ' + namespacedef_ or '', ))
+        already_processed = set()
+        self.exportAttributes(outfile, level, already_processed, namespace_, name_='MarkerDefinition')
+        if self.hasContent_():
+            outfile.write('>%s' % (eol_, ))
+            self.exportChildren(outfile, level + 1, namespace_='', name_='MarkerDefinition', pretty_print=pretty_print)
+            showIndent(outfile, level, pretty_print)
+            outfile.write('</%s%s>%s' % (namespace_, name_, eol_))
+        else:
+            outfile.write('/>%s' % (eol_, ))
+    def exportAttributes(self, outfile, level, already_processed, namespace_='', name_='MarkerDefinition'):
+        if self.extensiontype_ is not None and 'xsi:type' not in already_processed:
+            already_processed.add('xsi:type')
+            outfile.write(' xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"')
+            outfile.write(' xsi:type="%s"' % self.extensiontype_)
+        pass
+    def exportChildren(self, outfile, level, namespace_='', name_='MarkerDefinition', fromsubclass_=False, pretty_print=True):
+        if pretty_print:
+            eol_ = '\n'
+        else:
+            eol_ = ''
+        if self.Id is not None:
+            showIndent(outfile, level, pretty_print)
+            outfile.write('<%sId>%s</%sId>%s' % (namespace_, self.gds_encode(self.gds_format_string(quote_xml(self.Id), input_name='Id')), namespace_, eol_))
+        if self.X is not None:
+            showIndent(outfile, level, pretty_print)
+            outfile.write('<%sX>%s</%sX>%s' % (namespace_, self.gds_format_double(self.X, input_name='X'), namespace_, eol_))
+        if self.Y is not None:
+            showIndent(outfile, level, pretty_print)
+            outfile.write('<%sY>%s</%sY>%s' % (namespace_, self.gds_format_double(self.Y, input_name='Y'), namespace_, eol_))
+        if self.Z is not None:
+            showIndent(outfile, level, pretty_print)
+            outfile.write('<%sZ>%s</%sZ>%s' % (namespace_, self.gds_format_double(self.Z, input_name='Z'), namespace_, eol_))
+    def build(self, node):
+        already_processed = set()
+        self.buildAttributes(node, node.attrib, already_processed)
+        for child in node:
+            nodeName_ = Tag_pattern_.match(child.tag).groups()[-1]
+            self.buildChildren(child, node, nodeName_)
+        return self
+    def buildAttributes(self, node, attrs, already_processed):
+        value = find_attr_value_('xsi:type', node)
+        if value is not None and 'xsi:type' not in already_processed:
+            already_processed.add('xsi:type')
+            self.extensiontype_ = value
+    def buildChildren(self, child_, node, nodeName_, fromsubclass_=False):
+        if nodeName_ == 'Id':
+            Id_ = child_.text
+            Id_ = self.gds_validate_string(Id_, node, 'Id')
+            self.Id = Id_
+        elif nodeName_ == 'X':
+            sval_ = child_.text
+            try:
+                fval_ = float(sval_)
+            except (TypeError, ValueError) as exp:
+                raise_parse_error(child_, 'requires float or double: %s' % exp)
+            fval_ = self.gds_validate_float(fval_, node, 'X')
+            self.X = fval_
+        elif nodeName_ == 'Y':
+            sval_ = child_.text
+            try:
+                fval_ = float(sval_)
+            except (TypeError, ValueError) as exp:
+                raise_parse_error(child_, 'requires float or double: %s' % exp)
+            fval_ = self.gds_validate_float(fval_, node, 'Y')
+            self.Y = fval_
+        elif nodeName_ == 'Z':
+            sval_ = child_.text
+            try:
+                fval_ = float(sval_)
+            except (TypeError, ValueError) as exp:
+                raise_parse_error(child_, 'requires float or double: %s' % exp)
+            fval_ = self.gds_validate_float(fval_, node, 'Z')
+            self.Z = fval_
+# end class MarkerDefinition
+
+
+class MarkerDefinitionToleranceRadius(MarkerDefinition):
+    subclass = None
+    superclass = MarkerDefinition
+    def __init__(self, Id=None, X=None, Y=None, Z=None, ToleranceRadius=None):
+        self.original_tagname_ = None
+        super(MarkerDefinitionToleranceRadius, self).__init__(Id, X, Y, Z, )
+        self.ToleranceRadius = ToleranceRadius
+    def factory(*args_, **kwargs_):
+        if CurrentSubclassModule_ is not None:
+            subclass = getSubclassFromModule_(
+                CurrentSubclassModule_, MarkerDefinitionToleranceRadius)
+            if subclass is not None:
+                return subclass(*args_, **kwargs_)
+        if MarkerDefinitionToleranceRadius.subclass:
+            return MarkerDefinitionToleranceRadius.subclass(*args_, **kwargs_)
+        else:
+            return MarkerDefinitionToleranceRadius(*args_, **kwargs_)
+    factory = staticmethod(factory)
+    def get_ToleranceRadius(self): return self.ToleranceRadius
+    def set_ToleranceRadius(self, ToleranceRadius): self.ToleranceRadius = ToleranceRadius
+    def hasContent_(self):
+        if (
+            self.ToleranceRadius is not None or
+            super(MarkerDefinitionToleranceRadius, self).hasContent_()
+        ):
+            return True
+        else:
+            return False
+    def export(self, outfile, level, namespace_='', name_='MarkerDefinitionToleranceRadius', namespacedef_='', pretty_print=True):
+        if pretty_print:
+            eol_ = '\n'
+        else:
+            eol_ = ''
+        if self.original_tagname_ is not None:
+            name_ = self.original_tagname_
+        showIndent(outfile, level, pretty_print)
+        outfile.write('<%s%s%s' % (namespace_, name_, namespacedef_ and ' ' + namespacedef_ or '', ))
+        already_processed = set()
+        self.exportAttributes(outfile, level, already_processed, namespace_, name_='MarkerDefinitionToleranceRadius')
+        if self.hasContent_():
+            outfile.write('>%s' % (eol_, ))
+            self.exportChildren(outfile, level + 1, namespace_='', name_='MarkerDefinitionToleranceRadius', pretty_print=pretty_print)
+            showIndent(outfile, level, pretty_print)
+            outfile.write('</%s%s>%s' % (namespace_, name_, eol_))
+        else:
+            outfile.write('/>%s' % (eol_, ))
+    def exportAttributes(self, outfile, level, already_processed, namespace_='', name_='MarkerDefinitionToleranceRadius'):
+        super(MarkerDefinitionToleranceRadius, self).exportAttributes(outfile, level, already_processed, namespace_, name_='MarkerDefinitionToleranceRadius')
+    def exportChildren(self, outfile, level, namespace_='', name_='MarkerDefinitionToleranceRadius', fromsubclass_=False, pretty_print=True):
+        super(MarkerDefinitionToleranceRadius, self).exportChildren(outfile, level, namespace_, name_, True, pretty_print=pretty_print)
+        if pretty_print:
+            eol_ = '\n'
+        else:
+            eol_ = ''
+        if self.ToleranceRadius is not None:
+            showIndent(outfile, level, pretty_print)
+            outfile.write('<%sToleranceRadius>%s</%sToleranceRadius>%s' % (namespace_, self.gds_format_double(self.ToleranceRadius, input_name='ToleranceRadius'), namespace_, eol_))
+    def build(self, node):
+        already_processed = set()
+        self.buildAttributes(node, node.attrib, already_processed)
+        for child in node:
+            nodeName_ = Tag_pattern_.match(child.tag).groups()[-1]
+            self.buildChildren(child, node, nodeName_)
+        return self
+    def buildAttributes(self, node, attrs, already_processed):
+        super(MarkerDefinitionToleranceRadius, self).buildAttributes(node, attrs, already_processed)
+    def buildChildren(self, child_, node, nodeName_, fromsubclass_=False):
+        if nodeName_ == 'ToleranceRadius':
+            sval_ = child_.text
+            try:
+                fval_ = float(sval_)
+            except (TypeError, ValueError) as exp:
+                raise_parse_error(child_, 'requires float or double: %s' % exp)
+            fval_ = self.gds_validate_float(fval_, node, 'ToleranceRadius')
+            self.ToleranceRadius = fval_
+        super(MarkerDefinitionToleranceRadius, self).buildChildren(child_, node, nodeName_, True)
+# end class MarkerDefinitionToleranceRadius
+
+
+class MarkerDefinitionToleranceVolume(MarkerDefinition):
+    subclass = None
+    superclass = MarkerDefinition
+    def __init__(self, Id=None, X=None, Y=None, Z=None, Vertices=None, Indices=None):
+        self.original_tagname_ = None
+        super(MarkerDefinitionToleranceVolume, self).__init__(Id, X, Y, Z, )
+        self.Vertices = Vertices
+        self.Indices = Indices
+    def factory(*args_, **kwargs_):
+        if CurrentSubclassModule_ is not None:
+            subclass = getSubclassFromModule_(
+                CurrentSubclassModule_, MarkerDefinitionToleranceVolume)
+            if subclass is not None:
+                return subclass(*args_, **kwargs_)
+        if MarkerDefinitionToleranceVolume.subclass:
+            return MarkerDefinitionToleranceVolume.subclass(*args_, **kwargs_)
+        else:
+            return MarkerDefinitionToleranceVolume(*args_, **kwargs_)
+    factory = staticmethod(factory)
+    def get_Vertices(self): return self.Vertices
+    def set_Vertices(self, Vertices): self.Vertices = Vertices
+    def get_Indices(self): return self.Indices
+    def set_Indices(self, Indices): self.Indices = Indices
+    def hasContent_(self):
+        if (
+            self.Vertices is not None or
+            self.Indices is not None or
+            super(MarkerDefinitionToleranceVolume, self).hasContent_()
+        ):
+            return True
+        else:
+            return False
+    def export(self, outfile, level, namespace_='', name_='MarkerDefinitionToleranceVolume', namespacedef_='', pretty_print=True):
+        if pretty_print:
+            eol_ = '\n'
+        else:
+            eol_ = ''
+        if self.original_tagname_ is not None:
+            name_ = self.original_tagname_
+        showIndent(outfile, level, pretty_print)
+        outfile.write('<%s%s%s' % (namespace_, name_, namespacedef_ and ' ' + namespacedef_ or '', ))
+        already_processed = set()
+        self.exportAttributes(outfile, level, already_processed, namespace_, name_='MarkerDefinitionToleranceVolume')
+        if self.hasContent_():
+            outfile.write('>%s' % (eol_, ))
+            self.exportChildren(outfile, level + 1, namespace_='', name_='MarkerDefinitionToleranceVolume', pretty_print=pretty_print)
+            showIndent(outfile, level, pretty_print)
+            outfile.write('</%s%s>%s' % (namespace_, name_, eol_))
+        else:
+            outfile.write('/>%s' % (eol_, ))
+    def exportAttributes(self, outfile, level, already_processed, namespace_='', name_='MarkerDefinitionToleranceVolume'):
+        super(MarkerDefinitionToleranceVolume, self).exportAttributes(outfile, level, already_processed, namespace_, name_='MarkerDefinitionToleranceVolume')
+    def exportChildren(self, outfile, level, namespace_='', name_='MarkerDefinitionToleranceVolume', fromsubclass_=False, pretty_print=True):
+        super(MarkerDefinitionToleranceVolume, self).exportChildren(outfile, level, namespace_, name_, True, pretty_print=pretty_print)
+        if pretty_print:
+            eol_ = '\n'
+        else:
+            eol_ = ''
+        if self.Vertices is not None:
+            showIndent(outfile, level, pretty_print)
+            outfile.write('<%sVertices>%s</%sVertices>%s' % (namespace_, self.gds_encode(self.gds_format_string(quote_xml(self.Vertices), input_name='Vertices')), namespace_, eol_))
+        if self.Indices is not None:
+            showIndent(outfile, level, pretty_print)
+            outfile.write('<%sIndices>%s</%sIndices>%s' % (namespace_, self.gds_encode(self.gds_format_string(quote_xml(self.Indices), input_name='Indices')), namespace_, eol_))
+    def build(self, node):
+        already_processed = set()
+        self.buildAttributes(node, node.attrib, already_processed)
+        for child in node:
+            nodeName_ = Tag_pattern_.match(child.tag).groups()[-1]
+            self.buildChildren(child, node, nodeName_)
+        return self
+    def buildAttributes(self, node, attrs, already_processed):
+        super(MarkerDefinitionToleranceVolume, self).buildAttributes(node, attrs, already_processed)
+    def buildChildren(self, child_, node, nodeName_, fromsubclass_=False):
+        if nodeName_ == 'Vertices':
+            Vertices_ = child_.text
+            Vertices_ = self.gds_validate_string(Vertices_, node, 'Vertices')
+            self.Vertices = Vertices_
+        elif nodeName_ == 'Indices':
+            Indices_ = child_.text
+            Indices_ = self.gds_validate_string(Indices_, node, 'Indices')
+            self.Indices = Indices_
+        super(MarkerDefinitionToleranceVolume, self).buildChildren(child_, node, nodeName_, True)
+# end class MarkerDefinitionToleranceVolume
+
+
+class MVParameters(GeneratedsSuper):
+    subclass = None
+    superclass = None
+    def __init__(self, Energy=None, DoseRate=None):
+        self.original_tagname_ = None
+        self.Energy = Energy
+        self.DoseRate = DoseRate
+    def factory(*args_, **kwargs_):
+        if CurrentSubclassModule_ is not None:
+            subclass = getSubclassFromModule_(
+                CurrentSubclassModule_, MVParameters)
+            if subclass is not None:
+                return subclass(*args_, **kwargs_)
+        if MVParameters.subclass:
+            return MVParameters.subclass(*args_, **kwargs_)
+        else:
+            return MVParameters(*args_, **kwargs_)
+    factory = staticmethod(factory)
+    def get_Energy(self): return self.Energy
+    def set_Energy(self, Energy): self.Energy = Energy
+    def get_DoseRate(self): return self.DoseRate
+    def set_DoseRate(self, DoseRate): self.DoseRate = DoseRate
+    def hasContent_(self):
+        if (
+            self.Energy is not None or
+            self.DoseRate is not None
+        ):
+            return True
+        else:
+            return False
+    def export(self, outfile, level, namespace_='', name_='MVParameters', namespacedef_='', pretty_print=True):
+        if pretty_print:
+            eol_ = '\n'
+        else:
+            eol_ = ''
+        if self.original_tagname_ is not None:
+            name_ = self.original_tagname_
+        showIndent(outfile, level, pretty_print)
+        outfile.write('<%s%s%s' % (namespace_, name_, namespacedef_ and ' ' + namespacedef_ or '', ))
+        already_processed = set()
+        self.exportAttributes(outfile, level, already_processed, namespace_, name_='MVParameters')
+        if self.hasContent_():
+            outfile.write('>%s' % (eol_, ))
+            self.exportChildren(outfile, level + 1, namespace_='', name_='MVParameters', pretty_print=pretty_print)
+            showIndent(outfile, level, pretty_print)
+            outfile.write('</%s%s>%s' % (namespace_, name_, eol_))
+        else:
+            outfile.write('/>%s' % (eol_, ))
+    def exportAttributes(self, outfile, level, already_processed, namespace_='', name_='MVParameters'):
+        pass
+    def exportChildren(self, outfile, level, namespace_='', name_='MVParameters', fromsubclass_=False, pretty_print=True):
+        if pretty_print:
+            eol_ = '\n'
+        else:
+            eol_ = ''
+        if self.Energy is not None:
+            showIndent(outfile, level, pretty_print)
+            outfile.write('<%sEnergy>%s</%sEnergy>%s' % (namespace_, self.gds_encode(self.gds_format_string(quote_xml(self.Energy), input_name='Energy')), namespace_, eol_))
+        if self.DoseRate is not None:
+            showIndent(outfile, level, pretty_print)
+            outfile.write('<%sDoseRate>%s</%sDoseRate>%s' % (namespace_, self.gds_format_double(self.DoseRate, input_name='DoseRate'), namespace_, eol_))
+    def build(self, node):
+        already_processed = set()
+        self.buildAttributes(node, node.attrib, already_processed)
+        for child in node:
+            nodeName_ = Tag_pattern_.match(child.tag).groups()[-1]
+            self.buildChildren(child, node, nodeName_)
+        return self
+    def buildAttributes(self, node, attrs, already_processed):
+        pass
+    def buildChildren(self, child_, node, nodeName_, fromsubclass_=False):
+        if nodeName_ == 'Energy':
+            Energy_ = child_.text
+            Energy_ = self.gds_validate_string(Energy_, node, 'Energy')
+            self.Energy = Energy_
+        elif nodeName_ == 'DoseRate':
+            sval_ = child_.text
+            try:
+                fval_ = float(sval_)
+            except (TypeError, ValueError) as exp:
+                raise_parse_error(child_, 'requires float or double: %s' % exp)
+            fval_ = self.gds_validate_float(fval_, node, 'DoseRate')
+            self.DoseRate = fval_
+# end class MVParameters
+
+
+class KVParameters(GeneratedsSuper):
+    subclass = None
+    superclass = None
+    def __init__(self, KiloVolts=None, MilliAmperes=None, MilliSeconds=None, FocalSpot='Large', FluoroLevelControl='Low', AutoBrightnessControl=False, DoseRecording=True, FrameRate=0):
+        self.original_tagname_ = None
+        self.KiloVolts = KiloVolts
+        self.MilliAmperes = MilliAmperes
+        self.MilliSeconds = MilliSeconds
+        self.FocalSpot = FocalSpot
+        self.validate_EFocalSpot(self.FocalSpot)
+        self.FluoroLevelControl = FluoroLevelControl
+        self.validate_EFluoroLevelControl(self.FluoroLevelControl)
+        self.AutoBrightnessControl = AutoBrightnessControl
+        self.DoseRecording = DoseRecording
+        self.FrameRate = FrameRate
+    def factory(*args_, **kwargs_):
+        if CurrentSubclassModule_ is not None:
+            subclass = getSubclassFromModule_(
+                CurrentSubclassModule_, KVParameters)
+            if subclass is not None:
+                return subclass(*args_, **kwargs_)
+        if KVParameters.subclass:
+            return KVParameters.subclass(*args_, **kwargs_)
+        else:
+            return KVParameters(*args_, **kwargs_)
+    factory = staticmethod(factory)
+    def get_KiloVolts(self): return self.KiloVolts
+    def set_KiloVolts(self, KiloVolts): self.KiloVolts = KiloVolts
+    def get_MilliAmperes(self): return self.MilliAmperes
+    def set_MilliAmperes(self, MilliAmperes): self.MilliAmperes = MilliAmperes
+    def get_MilliSeconds(self): return self.MilliSeconds
+    def set_MilliSeconds(self, MilliSeconds): self.MilliSeconds = MilliSeconds
+    def get_FocalSpot(self): return self.FocalSpot
+    def set_FocalSpot(self, FocalSpot): self.FocalSpot = FocalSpot
+    def get_FluoroLevelControl(self): return self.FluoroLevelControl
+    def set_FluoroLevelControl(self, FluoroLevelControl): self.FluoroLevelControl = FluoroLevelControl
+    def get_AutoBrightnessControl(self): return self.AutoBrightnessControl
+    def set_AutoBrightnessControl(self, AutoBrightnessControl): self.AutoBrightnessControl = AutoBrightnessControl
+    def get_DoseRecording(self): return self.DoseRecording
+    def set_DoseRecording(self, DoseRecording): self.DoseRecording = DoseRecording
+    def get_FrameRate(self): return self.FrameRate
+    def set_FrameRate(self, FrameRate): self.FrameRate = FrameRate
+    def validate_EFocalSpot(self, value):
+        # Validate type EFocalSpot, a restriction on xs:string.
+        if value is not None and Validate_simpletypes_:
+            value = str(value)
+            enumerations = ['Small', 'Large']
+            enumeration_respectee = False
+            for enum in enumerations:
+                if value == enum:
+                    enumeration_respectee = True
+                    break
+            if not enumeration_respectee:
+                warnings_.warn('Value "%(value)s" does not match xsd enumeration restriction on EFocalSpot' % {"value" : value.encode("utf-8")} )
+    def validate_EFluoroLevelControl(self, value):
+        # Validate type EFluoroLevelControl, a restriction on xs:string.
+        if value is not None and Validate_simpletypes_:
+            value = str(value)
+            enumerations = ['None', 'Low', 'High']
+            enumeration_respectee = False
+            for enum in enumerations:
+                if value == enum:
+                    enumeration_respectee = True
+                    break
+            if not enumeration_respectee:
+                warnings_.warn('Value "%(value)s" does not match xsd enumeration restriction on EFluoroLevelControl' % {"value" : value.encode("utf-8")} )
+    def hasContent_(self):
+        if (
+            self.KiloVolts is not None or
+            self.MilliAmperes is not None or
+            self.MilliSeconds is not None or
+            self.FocalSpot != "Large" or
+            self.FluoroLevelControl != "Low" or
+            self.AutoBrightnessControl or
+            not self.DoseRecording or
+            self.FrameRate != 0
+        ):
+            return True
+        else:
+            return False
+    def export(self, outfile, level, namespace_='', name_='KVParameters', namespacedef_='', pretty_print=True):
+        if pretty_print:
+            eol_ = '\n'
+        else:
+            eol_ = ''
+        if self.original_tagname_ is not None:
+            name_ = self.original_tagname_
+        showIndent(outfile, level, pretty_print)
+        outfile.write('<%s%s%s' % (namespace_, name_, namespacedef_ and ' ' + namespacedef_ or '', ))
+        already_processed = set()
+        self.exportAttributes(outfile, level, already_processed, namespace_, name_='KVParameters')
+        if self.hasContent_():
+            outfile.write('>%s' % (eol_, ))
+            self.exportChildren(outfile, level + 1, namespace_='', name_='KVParameters', pretty_print=pretty_print)
+            showIndent(outfile, level, pretty_print)
+            outfile.write('</%s%s>%s' % (namespace_, name_, eol_))
+        else:
+            outfile.write('/>%s' % (eol_, ))
+    def exportAttributes(self, outfile, level, already_processed, namespace_='', name_='KVParameters'):
+        pass
+    def exportChildren(self, outfile, level, namespace_='', name_='KVParameters', fromsubclass_=False, pretty_print=True):
+        if pretty_print:
+            eol_ = '\n'
+        else:
+            eol_ = ''
+        if self.KiloVolts is not None:
+            showIndent(outfile, level, pretty_print)
+            outfile.write('<%sKiloVolts>%s</%sKiloVolts>%s' % (namespace_, self.gds_format_double(self.KiloVolts, input_name='KiloVolts'), namespace_, eol_))
+        if self.MilliAmperes is not None:
+            showIndent(outfile, level, pretty_print)
+            outfile.write('<%sMilliAmperes>%s</%sMilliAmperes>%s' % (namespace_, self.gds_format_double(self.MilliAmperes, input_name='MilliAmperes'), namespace_, eol_))
+        if self.MilliSeconds is not None:
+            showIndent(outfile, level, pretty_print)
+            outfile.write('<%sMilliSeconds>%s</%sMilliSeconds>%s' % (namespace_, self.gds_format_double(self.MilliSeconds, input_name='MilliSeconds'), namespace_, eol_))
+        if self.FocalSpot != "Large":
+            showIndent(outfile, level, pretty_print)
+            outfile.write('<%sFocalSpot>%s</%sFocalSpot>%s' % (namespace_, self.gds_encode(self.gds_format_string(quote_xml(self.FocalSpot), input_name='FocalSpot')), namespace_, eol_))
+        if self.FluoroLevelControl != "Low":
+            showIndent(outfile, level, pretty_print)
+            outfile.write('<%sFluoroLevelControl>%s</%sFluoroLevelControl>%s' % (namespace_, self.gds_encode(self.gds_format_string(quote_xml(self.FluoroLevelControl), input_name='FluoroLevelControl')), namespace_, eol_))
+        if self.AutoBrightnessControl:
+            showIndent(outfile, level, pretty_print)
+            outfile.write('<%sAutoBrightnessControl>%s</%sAutoBrightnessControl>%s' % (namespace_, self.gds_format_boolean(self.AutoBrightnessControl, input_name='AutoBrightnessControl'), namespace_, eol_))
+        if not self.DoseRecording:
+            showIndent(outfile, level, pretty_print)
+            outfile.write('<%sDoseRecording>%s</%sDoseRecording>%s' % (namespace_, self.gds_format_boolean(self.DoseRecording, input_name='DoseRecording'), namespace_, eol_))
+        if self.FrameRate != 0:
+            showIndent(outfile, level, pretty_print)
+            outfile.write('<%sFrameRate>%s</%sFrameRate>%s' % (namespace_, self.gds_format_integer(self.FrameRate, input_name='FrameRate'), namespace_, eol_))
+    def build(self, node):
+        already_processed = set()
+        self.buildAttributes(node, node.attrib, already_processed)
+        for child in node:
+            nodeName_ = Tag_pattern_.match(child.tag).groups()[-1]
+            self.buildChildren(child, node, nodeName_)
+        return self
+    def buildAttributes(self, node, attrs, already_processed):
+        pass
+    def buildChildren(self, child_, node, nodeName_, fromsubclass_=False):
+        if nodeName_ == 'KiloVolts':
+            sval_ = child_.text
+            try:
+                fval_ = float(sval_)
+            except (TypeError, ValueError) as exp:
+                raise_parse_error(child_, 'requires float or double: %s' % exp)
+            fval_ = self.gds_validate_float(fval_, node, 'KiloVolts')
+            self.KiloVolts = fval_
+        elif nodeName_ == 'MilliAmperes':
+            sval_ = child_.text
+            try:
+                fval_ = float(sval_)
+            except (TypeError, ValueError) as exp:
+                raise_parse_error(child_, 'requires float or double: %s' % exp)
+            fval_ = self.gds_validate_float(fval_, node, 'MilliAmperes')
+            self.MilliAmperes = fval_
+        elif nodeName_ == 'MilliSeconds':
+            sval_ = child_.text
+            try:
+                fval_ = float(sval_)
+            except (TypeError, ValueError) as exp:
+                raise_parse_error(child_, 'requires float or double: %s' % exp)
+            fval_ = self.gds_validate_float(fval_, node, 'MilliSeconds')
+            self.MilliSeconds = fval_
+        elif nodeName_ == 'FocalSpot':
+            FocalSpot_ = child_.text
+            FocalSpot_ = self.gds_validate_string(FocalSpot_, node, 'FocalSpot')
+            self.FocalSpot = FocalSpot_
+            # validate type EFocalSpot
+            self.validate_EFocalSpot(self.FocalSpot)
+        elif nodeName_ == 'FluoroLevelControl':
+            FluoroLevelControl_ = child_.text
+            FluoroLevelControl_ = self.gds_validate_string(FluoroLevelControl_, node, 'FluoroLevelControl')
+            self.FluoroLevelControl = FluoroLevelControl_
+            # validate type EFluoroLevelControl
+            self.validate_EFluoroLevelControl(self.FluoroLevelControl)
+        elif nodeName_ == 'AutoBrightnessControl':
+            sval_ = child_.text
+            if sval_ in ('true', '1'):
+                ival_ = True
+            elif sval_ in ('false', '0'):
+                ival_ = False
+            else:
+                raise_parse_error(child_, 'requires boolean')
+            ival_ = self.gds_validate_boolean(ival_, node, 'AutoBrightnessControl')
+            self.AutoBrightnessControl = ival_
+        elif nodeName_ == 'DoseRecording':
+            sval_ = child_.text
+            if sval_ in ('true', '1'):
+                ival_ = True
+            elif sval_ in ('false', '0'):
+                ival_ = False
+            else:
+                raise_parse_error(child_, 'requires boolean')
+            ival_ = self.gds_validate_boolean(ival_, node, 'DoseRecording')
+            self.DoseRecording = ival_
+        elif nodeName_ == 'FrameRate':
+            sval_ = child_.text
+            try:
+                ival_ = int(sval_)
+            except (TypeError, ValueError) as exp:
+                raise_parse_error(child_, 'requires integer: %s' % exp)
+            ival_ = self.gds_validate_integer(ival_, node, 'FrameRate')
+            self.FrameRate = ival_
+# end class KVParameters
+
+
+class AcquisitionParameters(GeneratedsSuper):
+    """ImageMode : Name of the image mode CalibrationSet : Name of the
+    calibration set used for image processing. The default
+    calibration set is called "DefaultCalibrationSetId"
+    ImageDestination: The image destination defines the target
+    destination where XI should sent the acquired images. If it is
+    not defined the live destination is used. The system provides
+    predefined image destinations: - AllImages : Every frame is sent
+    to XI Service and stored into the gallery. -
+    LiveImageDestination: Only the latest frmaes are sent to XI
+    Service and only every few second one of these frame is stored
+    into the gallery. NotificationDestination: -
+    NotificationDestination : Tracking data are sent to this
+    notification destination Movie: - MovieDestination: This is the
+    default destination for movie encoding"""
+    subclass = None
+    superclass = None
+    def __init__(self, ImageMode=None, AcquisitionMode=None, CalibrationSet=None, ImageDestination=None, NotificationDestination=None, Movie=None, RaiseFault=None, Cache=None, HistogramRoi=None, ImageProcessing=None, MV=None, KV=None):
+        self.original_tagname_ = None
+        self.ImageMode = ImageMode
+        self.AcquisitionMode = AcquisitionMode
+        self.CalibrationSet = CalibrationSet
+        if ImageDestination is None:
+            self.ImageDestination = []
+        else:
+            self.ImageDestination = ImageDestination
+        if NotificationDestination is None:
+            self.NotificationDestination = []
+        else:
+            self.NotificationDestination = NotificationDestination
+        self.Movie = Movie
+        self.RaiseFault = RaiseFault
+        self.Cache = Cache
+        self.HistogramRoi = HistogramRoi
+        self.ImageProcessing = ImageProcessing
+        self.MV = MV
+        self.KV = KV
+    def factory(*args_, **kwargs_):
+        if CurrentSubclassModule_ is not None:
+            subclass = getSubclassFromModule_(
+                CurrentSubclassModule_, AcquisitionParameters)
+            if subclass is not None:
+                return subclass(*args_, **kwargs_)
+        if AcquisitionParameters.subclass:
+            return AcquisitionParameters.subclass(*args_, **kwargs_)
+        else:
+            return AcquisitionParameters(*args_, **kwargs_)
+    factory = staticmethod(factory)
+    def get_ImageMode(self): return self.ImageMode
+    def set_ImageMode(self, ImageMode): self.ImageMode = ImageMode
+    def get_AcquisitionMode(self): return self.AcquisitionMode
+    def set_AcquisitionMode(self, AcquisitionMode): self.AcquisitionMode = AcquisitionMode
+    def get_CalibrationSet(self): return self.CalibrationSet
+    def set_CalibrationSet(self, CalibrationSet): self.CalibrationSet = CalibrationSet
+    def get_ImageDestination(self): return self.ImageDestination
+    def set_ImageDestination(self, ImageDestination): self.ImageDestination = ImageDestination
+    def add_ImageDestination(self, value): self.ImageDestination.append(value)
+    def insert_ImageDestination_at(self, index, value): self.ImageDestination.insert(index, value)
+    def replace_ImageDestination_at(self, index, value): self.ImageDestination[index] = value
+    def get_NotificationDestination(self): return self.NotificationDestination
+    def set_NotificationDestination(self, NotificationDestination): self.NotificationDestination = NotificationDestination
+    def add_NotificationDestination(self, value): self.NotificationDestination.append(value)
+    def insert_NotificationDestination_at(self, index, value): self.NotificationDestination.insert(index, value)
+    def replace_NotificationDestination_at(self, index, value): self.NotificationDestination[index] = value
+    def get_Movie(self): return self.Movie
+    def set_Movie(self, Movie): self.Movie = Movie
+    def get_RaiseFault(self): return self.RaiseFault
+    def set_RaiseFault(self, RaiseFault): self.RaiseFault = RaiseFault
+    def get_Cache(self): return self.Cache
+    def set_Cache(self, Cache): self.Cache = Cache
+    def get_HistogramRoi(self): return self.HistogramRoi
+    def set_HistogramRoi(self, HistogramRoi): self.HistogramRoi = HistogramRoi
+    def get_ImageProcessing(self): return self.ImageProcessing
+    def set_ImageProcessing(self, ImageProcessing): self.ImageProcessing = ImageProcessing
+    def get_MV(self): return self.MV
+    def set_MV(self, MV): self.MV = MV
+    def get_KV(self): return self.KV
+    def set_KV(self, KV): self.KV = KV
+    def hasContent_(self):
+        if (
+            self.ImageMode is not None or
+            self.AcquisitionMode is not None or
+            self.CalibrationSet is not None or
+            self.ImageDestination or
+            self.NotificationDestination or
+            self.Movie is not None or
+            self.RaiseFault is not None or
+            self.Cache is not None or
+            self.HistogramRoi is not None or
+            self.ImageProcessing is not None or
+            self.MV is not None or
+            self.KV is not None
+        ):
+            return True
+        else:
+            return False
+    def export(self, outfile, level, namespace_='', name_='AcquisitionParameters', namespacedef_='', pretty_print=True):
+        if pretty_print:
+            eol_ = '\n'
+        else:
+            eol_ = ''
+        if self.original_tagname_ is not None:
+            name_ = self.original_tagname_
+        showIndent(outfile, level, pretty_print)
+        outfile.write('<%s%s%s' % (namespace_, name_, namespacedef_ and ' ' + namespacedef_ or '', ))
+        already_processed = set()
+        self.exportAttributes(outfile, level, already_processed, namespace_, name_='AcquisitionParameters')
+        if self.hasContent_():
+            outfile.write('>%s' % (eol_, ))
+            self.exportChildren(outfile, level + 1, namespace_='', name_='AcquisitionParameters', pretty_print=pretty_print)
+            showIndent(outfile, level, pretty_print)
+            outfile.write('</%s%s>%s' % (namespace_, name_, eol_))
+        else:
+            outfile.write('/>%s' % (eol_, ))
+    def exportAttributes(self, outfile, level, already_processed, namespace_='', name_='AcquisitionParameters'):
+        pass
+    def exportChildren(self, outfile, level, namespace_='', name_='AcquisitionParameters', fromsubclass_=False, pretty_print=True):
+        if pretty_print:
+            eol_ = '\n'
+        else:
+            eol_ = ''
+        if self.ImageMode is not None:
+            self.ImageMode.export(outfile, level, namespace_, name_='ImageMode', pretty_print=pretty_print)
+        if self.AcquisitionMode is not None:
+            self.AcquisitionMode.export(outfile, level, namespace_, name_='AcquisitionMode', pretty_print=pretty_print)
+        if self.CalibrationSet is not None:
+            showIndent(outfile, level, pretty_print)
+            outfile.write('<%sCalibrationSet>%s</%sCalibrationSet>%s' % (namespace_, self.gds_encode(self.gds_format_string(quote_xml(self.CalibrationSet), input_name='CalibrationSet')), namespace_, eol_))
+        for ImageDestination_ in self.ImageDestination:
+            showIndent(outfile, level, pretty_print)
+            outfile.write('<%sImageDestination>%s</%sImageDestination>%s' % (namespace_, self.gds_encode(self.gds_format_string(quote_xml(ImageDestination_), input_name='ImageDestination')), namespace_, eol_))
+        for NotificationDestination_ in self.NotificationDestination:
+            showIndent(outfile, level, pretty_print)
+            outfile.write('<%sNotificationDestination>%s</%sNotificationDestination>%s' % (namespace_, self.gds_encode(self.gds_format_string(quote_xml(NotificationDestination_), input_name='NotificationDestination')), namespace_, eol_))
+        if self.Movie is not None:
+            self.Movie.export(outfile, level, namespace_, name_='Movie', pretty_print=pretty_print)
+        if self.RaiseFault is not None:
+            showIndent(outfile, level, pretty_print)
+            outfile.write('<%sRaiseFault>%s</%sRaiseFault>%s' % (namespace_, self.gds_format_boolean(self.RaiseFault, input_name='RaiseFault'), namespace_, eol_))
+        if self.Cache is not None:
+            showIndent(outfile, level, pretty_print)
+            outfile.write('<%sCache>%s</%sCache>%s' % (namespace_, self.gds_format_boolean(self.Cache, input_name='Cache'), namespace_, eol_))
+        if self.HistogramRoi is not None:
+            self.HistogramRoi.export(outfile, level, namespace_, name_='HistogramRoi', pretty_print=pretty_print)
+        if self.ImageProcessing is not None:
+            self.ImageProcessing.export(outfile, level, namespace_, name_='ImageProcessing', pretty_print=pretty_print)
+        if self.MV is not None:
+            self.MV.export(outfile, level, namespace_, name_='MV', pretty_print=pretty_print)
+        if self.KV is not None:
+            self.KV.export(outfile, level, namespace_, name_='KV', pretty_print=pretty_print)
+    def build(self, node):
+        already_processed = set()
+        self.buildAttributes(node, node.attrib, already_processed)
+        for child in node:
+            nodeName_ = Tag_pattern_.match(child.tag).groups()[-1]
+            self.buildChildren(child, node, nodeName_)
+        return self
+    def buildAttributes(self, node, attrs, already_processed):
+        pass
+    def buildChildren(self, child_, node, nodeName_, fromsubclass_=False):
+        if nodeName_ == 'ImageMode':
+            obj_ = ImageMode.factory()
+            obj_.build(child_)
+            self.ImageMode = obj_
+            obj_.original_tagname_ = 'ImageMode'
+        elif nodeName_ == 'AcquisitionMode':
+            obj_ = AcquisitionMode.factory()
+            obj_.build(child_)
+            self.AcquisitionMode = obj_
+            obj_.original_tagname_ = 'AcquisitionMode'
+        elif nodeName_ == 'CalibrationSet':
+            CalibrationSet_ = child_.text
+            CalibrationSet_ = self.gds_validate_string(CalibrationSet_, node, 'CalibrationSet')
+            self.CalibrationSet = CalibrationSet_
+        elif nodeName_ == 'ImageDestination':
+            ImageDestination_ = child_.text
+            ImageDestination_ = self.gds_validate_string(ImageDestination_, node, 'ImageDestination')
+            self.ImageDestination.append(ImageDestination_)
+        elif nodeName_ == 'NotificationDestination':
+            NotificationDestination_ = child_.text
+            NotificationDestination_ = self.gds_validate_string(NotificationDestination_, node, 'NotificationDestination')
+            self.NotificationDestination.append(NotificationDestination_)
+        elif nodeName_ == 'Movie':
+            obj_ = Movie.factory()
+            obj_.build(child_)
+            self.Movie = obj_
+            obj_.original_tagname_ = 'Movie'
+        elif nodeName_ == 'RaiseFault':
+            sval_ = child_.text
+            if sval_ in ('true', '1'):
+                ival_ = True
+            elif sval_ in ('false', '0'):
+                ival_ = False
+            else:
+                raise_parse_error(child_, 'requires boolean')
+            ival_ = self.gds_validate_boolean(ival_, node, 'RaiseFault')
+            self.RaiseFault = ival_
+        elif nodeName_ == 'Cache':
+            sval_ = child_.text
+            if sval_ in ('true', '1'):
+                ival_ = True
+            elif sval_ in ('false', '0'):
+                ival_ = False
+            else:
+                raise_parse_error(child_, 'requires boolean')
+            ival_ = self.gds_validate_boolean(ival_, node, 'Cache')
+            self.Cache = ival_
+        elif nodeName_ == 'HistogramRoi':
+            obj_ = HistogramRoi.factory()
+            obj_.build(child_)
+            self.HistogramRoi = obj_
+            obj_.original_tagname_ = 'HistogramRoi'
+        elif nodeName_ == 'ImageProcessing':
+            obj_ = ImageProcessing.factory()
+            obj_.build(child_)
+            self.ImageProcessing = obj_
+            obj_.original_tagname_ = 'ImageProcessing'
+        elif nodeName_ == 'MV':
+            obj_ = MVParameters.factory()
+            obj_.build(child_)
+            self.MV = obj_
+            obj_.original_tagname_ = 'MV'
+        elif nodeName_ == 'KV':
+            obj_ = KVParameters.factory()
+            obj_.build(child_)
+            self.KV = obj_
+            obj_.original_tagname_ = 'KV'
+# end class AcquisitionParameters
+
+
+class Vector(GeneratedsSuper):
+    """Definition of a 3D vector matrix. Used by Placement to define the
+    origin and orientation."""
+    subclass = None
+    superclass = None
+    def __init__(self, X=None, Y=None, Z=None):
+        self.original_tagname_ = None
+        self.X = X
+        self.Y = Y
+        self.Z = Z
+    def factory(*args_, **kwargs_):
+        if CurrentSubclassModule_ is not None:
+            subclass = getSubclassFromModule_(
+                CurrentSubclassModule_, Vector)
+            if subclass is not None:
+                return subclass(*args_, **kwargs_)
+        if Vector.subclass:
+            return Vector.subclass(*args_, **kwargs_)
+        else:
+            return Vector(*args_, **kwargs_)
+    factory = staticmethod(factory)
+    def get_X(self): return self.X
+    def set_X(self, X): self.X = X
+    def get_Y(self): return self.Y
+    def set_Y(self, Y): self.Y = Y
+    def get_Z(self): return self.Z
+    def set_Z(self, Z): self.Z = Z
+    def hasContent_(self):
+        if (
+            self.X is not None or
+            self.Y is not None or
+            self.Z is not None
+        ):
+            return True
+        else:
+            return False
+    def export(self, outfile, level, namespace_='', name_='Vector', namespacedef_='', pretty_print=True):
+        if pretty_print:
+            eol_ = '\n'
+        else:
+            eol_ = ''
+        if self.original_tagname_ is not None:
+            name_ = self.original_tagname_
+        showIndent(outfile, level, pretty_print)
+        outfile.write('<%s%s%s' % (namespace_, name_, namespacedef_ and ' ' + namespacedef_ or '', ))
+        already_processed = set()
+        self.exportAttributes(outfile, level, already_processed, namespace_, name_='Vector')
+        if self.hasContent_():
+            outfile.write('>%s' % (eol_, ))
+            self.exportChildren(outfile, level + 1, namespace_='', name_='Vector', pretty_print=pretty_print)
+            showIndent(outfile, level, pretty_print)
+            outfile.write('</%s%s>%s' % (namespace_, name_, eol_))
+        else:
+            outfile.write('/>%s' % (eol_, ))
+    def exportAttributes(self, outfile, level, already_processed, namespace_='', name_='Vector'):
+        pass
+    def exportChildren(self, outfile, level, namespace_='', name_='Vector', fromsubclass_=False, pretty_print=True):
+        if pretty_print:
+            eol_ = '\n'
+        else:
+            eol_ = ''
+        if self.X is not None:
+            showIndent(outfile, level, pretty_print)
+            outfile.write('<%sX>%s</%sX>%s' % (namespace_, self.gds_format_double(self.X, input_name='X'), namespace_, eol_))
+        if self.Y is not None:
+            showIndent(outfile, level, pretty_print)
+            outfile.write('<%sY>%s</%sY>%s' % (namespace_, self.gds_format_double(self.Y, input_name='Y'), namespace_, eol_))
+        if self.Z is not None:
+            showIndent(outfile, level, pretty_print)
+            outfile.write('<%sZ>%s</%sZ>%s' % (namespace_, self.gds_format_double(self.Z, input_name='Z'), namespace_, eol_))
+    def build(self, node):
+        already_processed = set()
+        self.buildAttributes(node, node.attrib, already_processed)
+        for child in node:
+            nodeName_ = Tag_pattern_.match(child.tag).groups()[-1]
+            self.buildChildren(child, node, nodeName_)
+        return self
+    def buildAttributes(self, node, attrs, already_processed):
+        pass
+    def buildChildren(self, child_, node, nodeName_, fromsubclass_=False):
+        if nodeName_ == 'X':
+            sval_ = child_.text
+            try:
+                fval_ = float(sval_)
+            except (TypeError, ValueError) as exp:
+                raise_parse_error(child_, 'requires float or double: %s' % exp)
+            fval_ = self.gds_validate_float(fval_, node, 'X')
+            self.X = fval_
+        elif nodeName_ == 'Y':
+            sval_ = child_.text
+            try:
+                fval_ = float(sval_)
+            except (TypeError, ValueError) as exp:
+                raise_parse_error(child_, 'requires float or double: %s' % exp)
+            fval_ = self.gds_validate_float(fval_, node, 'Y')
+            self.Y = fval_
+        elif nodeName_ == 'Z':
+            sval_ = child_.text
+            try:
+                fval_ = float(sval_)
+            except (TypeError, ValueError) as exp:
+                raise_parse_error(child_, 'requires float or double: %s' % exp)
+            fval_ = self.gds_validate_float(fval_, node, 'Z')
+            self.Z = fval_
+# end class Vector
+
+
+class Placement(GeneratedsSuper):
+    """A placement describes the translation (Origin) and orientation
+    (AxisX,Y,Z). The placement itself does not define in which
+    coordinate system the value are. The documentation of the use-
+    case should include more information about the coordinate
+    system. The three axis vectors must be orthogonal to each other
+    and their length is one (norm vectors)."""
+    subclass = None
+    superclass = None
+    def __init__(self, Origin=None, AxisX=None, AxisY=None, AxisZ=None):
+        self.original_tagname_ = None
+        self.Origin = Origin
+        self.AxisX = AxisX
+        self.AxisY = AxisY
+        self.AxisZ = AxisZ
+    def factory(*args_, **kwargs_):
+        if CurrentSubclassModule_ is not None:
+            subclass = getSubclassFromModule_(
+                CurrentSubclassModule_, Placement)
+            if subclass is not None:
+                return subclass(*args_, **kwargs_)
+        if Placement.subclass:
+            return Placement.subclass(*args_, **kwargs_)
+        else:
+            return Placement(*args_, **kwargs_)
+    factory = staticmethod(factory)
+    def get_Origin(self): return self.Origin
+    def set_Origin(self, Origin): self.Origin = Origin
+    def get_AxisX(self): return self.AxisX
+    def set_AxisX(self, AxisX): self.AxisX = AxisX
+    def get_AxisY(self): return self.AxisY
+    def set_AxisY(self, AxisY): self.AxisY = AxisY
+    def get_AxisZ(self): return self.AxisZ
+    def set_AxisZ(self, AxisZ): self.AxisZ = AxisZ
+    def hasContent_(self):
+        if (
+            self.Origin is not None or
+            self.AxisX is not None or
+            self.AxisY is not None or
+            self.AxisZ is not None
+        ):
+            return True
+        else:
+            return False
+    def export(self, outfile, level, namespace_='', name_='Placement', namespacedef_='', pretty_print=True):
+        if pretty_print:
+            eol_ = '\n'
+        else:
+            eol_ = ''
+        if self.original_tagname_ is not None:
+            name_ = self.original_tagname_
+        showIndent(outfile, level, pretty_print)
+        outfile.write('<%s%s%s' % (namespace_, name_, namespacedef_ and ' ' + namespacedef_ or '', ))
+        already_processed = set()
+        self.exportAttributes(outfile, level, already_processed, namespace_, name_='Placement')
+        if self.hasContent_():
+            outfile.write('>%s' % (eol_, ))
+            self.exportChildren(outfile, level + 1, namespace_='', name_='Placement', pretty_print=pretty_print)
+            showIndent(outfile, level, pretty_print)
+            outfile.write('</%s%s>%s' % (namespace_, name_, eol_))
+        else:
+            outfile.write('/>%s' % (eol_, ))
+    def exportAttributes(self, outfile, level, already_processed, namespace_='', name_='Placement'):
+        pass
+    def exportChildren(self, outfile, level, namespace_='', name_='Placement', fromsubclass_=False, pretty_print=True):
+        if pretty_print:
+            eol_ = '\n'
+        else:
+            eol_ = ''
+        if self.Origin is not None:
+            self.Origin.export(outfile, level, namespace_, name_='Origin', pretty_print=pretty_print)
+        if self.AxisX is not None:
+            self.AxisX.export(outfile, level, namespace_, name_='AxisX', pretty_print=pretty_print)
+        if self.AxisY is not None:
+            self.AxisY.export(outfile, level, namespace_, name_='AxisY', pretty_print=pretty_print)
+        if self.AxisZ is not None:
+            self.AxisZ.export(outfile, level, namespace_, name_='AxisZ', pretty_print=pretty_print)
+    def build(self, node):
+        already_processed = set()
+        self.buildAttributes(node, node.attrib, already_processed)
+        for child in node:
+            nodeName_ = Tag_pattern_.match(child.tag).groups()[-1]
+            self.buildChildren(child, node, nodeName_)
+        return self
+    def buildAttributes(self, node, attrs, already_processed):
+        pass
+    def buildChildren(self, child_, node, nodeName_, fromsubclass_=False):
+        if nodeName_ == 'Origin':
+            obj_ = Vector.factory()
+            obj_.build(child_)
+            self.Origin = obj_
+            obj_.original_tagname_ = 'Origin'
+        elif nodeName_ == 'AxisX':
+            obj_ = Vector.factory()
+            obj_.build(child_)
+            self.AxisX = obj_
+            obj_.original_tagname_ = 'AxisX'
+        elif nodeName_ == 'AxisY':
+            obj_ = Vector.factory()
+            obj_.build(child_)
+            self.AxisY = obj_
+            obj_.original_tagname_ = 'AxisY'
+        elif nodeName_ == 'AxisZ':
+            obj_ = Vector.factory()
+            obj_.build(child_)
+            self.AxisZ = obj_
+            obj_.original_tagname_ = 'AxisZ'
+# end class Placement
+
+
+class Coefficients(GeneratedsSuper):
+    """Coefficients for the amplitude fit model. For polynomial fits, a0...
+    are used. For planar fit, the equation is a0 + a1*amplitude +
+    a2*rate."""
+    subclass = None
+    superclass = None
+    def __init__(self, a0=None, a1=None, a2=None, a3=None):
+        self.original_tagname_ = None
+        self.a0 = a0
+        self.a1 = a1
+        self.a2 = a2
+        self.a3 = a3
+    def factory(*args_, **kwargs_):
+        if CurrentSubclassModule_ is not None:
+            subclass = getSubclassFromModule_(
+                CurrentSubclassModule_, Coefficients)
+            if subclass is not None:
+                return subclass(*args_, **kwargs_)
+        if Coefficients.subclass:
+            return Coefficients.subclass(*args_, **kwargs_)
+        else:
+            return Coefficients(*args_, **kwargs_)
+    factory = staticmethod(factory)
+    def get_a0(self): return self.a0
+    def set_a0(self, a0): self.a0 = a0
+    def get_a1(self): return self.a1
+    def set_a1(self, a1): self.a1 = a1
+    def get_a2(self): return self.a2
+    def set_a2(self, a2): self.a2 = a2
+    def get_a3(self): return self.a3
+    def set_a3(self, a3): self.a3 = a3
+    def hasContent_(self):
+        if (
+            self.a0 is not None or
+            self.a1 is not None or
+            self.a2 is not None or
+            self.a3 is not None
+        ):
+            return True
+        else:
+            return False
+    def export(self, outfile, level, namespace_='', name_='Coefficients', namespacedef_='', pretty_print=True):
+        if pretty_print:
+            eol_ = '\n'
+        else:
+            eol_ = ''
+        if self.original_tagname_ is not None:
+            name_ = self.original_tagname_
+        showIndent(outfile, level, pretty_print)
+        outfile.write('<%s%s%s' % (namespace_, name_, namespacedef_ and ' ' + namespacedef_ or '', ))
+        already_processed = set()
+        self.exportAttributes(outfile, level, already_processed, namespace_, name_='Coefficients')
+        if self.hasContent_():
+            outfile.write('>%s' % (eol_, ))
+            self.exportChildren(outfile, level + 1, namespace_='', name_='Coefficients', pretty_print=pretty_print)
+            showIndent(outfile, level, pretty_print)
+            outfile.write('</%s%s>%s' % (namespace_, name_, eol_))
+        else:
+            outfile.write('/>%s' % (eol_, ))
+    def exportAttributes(self, outfile, level, already_processed, namespace_='', name_='Coefficients'):
+        pass
+    def exportChildren(self, outfile, level, namespace_='', name_='Coefficients', fromsubclass_=False, pretty_print=True):
+        if pretty_print:
+            eol_ = '\n'
+        else:
+            eol_ = ''
+        if self.a0 is not None:
+            showIndent(outfile, level, pretty_print)
+            outfile.write('<%sa0>%s</%sa0>%s' % (namespace_, self.gds_format_double(self.a0, input_name='a0'), namespace_, eol_))
+        if self.a1 is not None:
+            showIndent(outfile, level, pretty_print)
+            outfile.write('<%sa1>%s</%sa1>%s' % (namespace_, self.gds_format_double(self.a1, input_name='a1'), namespace_, eol_))
+        if self.a2 is not None:
+            showIndent(outfile, level, pretty_print)
+            outfile.write('<%sa2>%s</%sa2>%s' % (namespace_, self.gds_format_double(self.a2, input_name='a2'), namespace_, eol_))
+        if self.a3 is not None:
+            showIndent(outfile, level, pretty_print)
+            outfile.write('<%sa3>%s</%sa3>%s' % (namespace_, self.gds_format_double(self.a3, input_name='a3'), namespace_, eol_))
+    def build(self, node):
+        already_processed = set()
+        self.buildAttributes(node, node.attrib, already_processed)
+        for child in node:
+            nodeName_ = Tag_pattern_.match(child.tag).groups()[-1]
+            self.buildChildren(child, node, nodeName_)
+        return self
+    def buildAttributes(self, node, attrs, already_processed):
+        pass
+    def buildChildren(self, child_, node, nodeName_, fromsubclass_=False):
+        if nodeName_ == 'a0':
+            sval_ = child_.text
+            try:
+                fval_ = float(sval_)
+            except (TypeError, ValueError) as exp:
+                raise_parse_error(child_, 'requires float or double: %s' % exp)
+            fval_ = self.gds_validate_float(fval_, node, 'a0')
+            self.a0 = fval_
+        elif nodeName_ == 'a1':
+            sval_ = child_.text
+            try:
+                fval_ = float(sval_)
+            except (TypeError, ValueError) as exp:
+                raise_parse_error(child_, 'requires float or double: %s' % exp)
+            fval_ = self.gds_validate_float(fval_, node, 'a1')
+            self.a1 = fval_
+        elif nodeName_ == 'a2':
+            sval_ = child_.text
+            try:
+                fval_ = float(sval_)
+            except (TypeError, ValueError) as exp:
+                raise_parse_error(child_, 'requires float or double: %s' % exp)
+            fval_ = self.gds_validate_float(fval_, node, 'a2')
+            self.a2 = fval_
+        elif nodeName_ == 'a3':
+            sval_ = child_.text
+            try:
+                fval_ = float(sval_)
+            except (TypeError, ValueError) as exp:
+                raise_parse_error(child_, 'requires float or double: %s' % exp)
+            fval_ = self.gds_validate_float(fval_, node, 'a3')
+            self.a3 = fval_
+# end class Coefficients
+
+
+class FitData(GeneratedsSuper):
+    """For the AmplitudeFit surrogate model. Supported fit types are:
+    Static Linear Quadratic Cubic Planar See coefficients for a
+    description of the used fitting equations."""
+    subclass = None
+    superclass = None
+    def __init__(self, FitType=None, Coefficients=None):
+        self.original_tagname_ = None
+        self.FitType = FitType
+        self.Coefficients = Coefficients
+    def factory(*args_, **kwargs_):
+        if CurrentSubclassModule_ is not None:
+            subclass = getSubclassFromModule_(
+                CurrentSubclassModule_, FitData)
+            if subclass is not None:
+                return subclass(*args_, **kwargs_)
+        if FitData.subclass:
+            return FitData.subclass(*args_, **kwargs_)
+        else:
+            return FitData(*args_, **kwargs_)
+    factory = staticmethod(factory)
+    def get_FitType(self): return self.FitType
+    def set_FitType(self, FitType): self.FitType = FitType
+    def get_Coefficients(self): return self.Coefficients
+    def set_Coefficients(self, Coefficients): self.Coefficients = Coefficients
+    def hasContent_(self):
+        if (
+            self.FitType is not None or
+            self.Coefficients is not None
+        ):
+            return True
+        else:
+            return False
+    def export(self, outfile, level, namespace_='', name_='FitData', namespacedef_='', pretty_print=True):
+        if pretty_print:
+            eol_ = '\n'
+        else:
+            eol_ = ''
+        if self.original_tagname_ is not None:
+            name_ = self.original_tagname_
+        showIndent(outfile, level, pretty_print)
+        outfile.write('<%s%s%s' % (namespace_, name_, namespacedef_ and ' ' + namespacedef_ or '', ))
+        already_processed = set()
+        self.exportAttributes(outfile, level, already_processed, namespace_, name_='FitData')
+        if self.hasContent_():
+            outfile.write('>%s' % (eol_, ))
+            self.exportChildren(outfile, level + 1, namespace_='', name_='FitData', pretty_print=pretty_print)
+            showIndent(outfile, level, pretty_print)
+            outfile.write('</%s%s>%s' % (namespace_, name_, eol_))
+        else:
+            outfile.write('/>%s' % (eol_, ))
+    def exportAttributes(self, outfile, level, already_processed, namespace_='', name_='FitData'):
+        pass
+    def exportChildren(self, outfile, level, namespace_='', name_='FitData', fromsubclass_=False, pretty_print=True):
+        if pretty_print:
+            eol_ = '\n'
+        else:
+            eol_ = ''
+        if self.FitType is not None:
+            showIndent(outfile, level, pretty_print)
+            outfile.write('<%sFitType>%s</%sFitType>%s' % (namespace_, self.gds_encode(self.gds_format_string(quote_xml(self.FitType), input_name='FitType')), namespace_, eol_))
+        if self.Coefficients is not None:
+            self.Coefficients.export(outfile, level, namespace_, name_='Coefficients', pretty_print=pretty_print)
+    def build(self, node):
+        already_processed = set()
+        self.buildAttributes(node, node.attrib, already_processed)
+        for child in node:
+            nodeName_ = Tag_pattern_.match(child.tag).groups()[-1]
+            self.buildChildren(child, node, nodeName_)
+        return self
+    def buildAttributes(self, node, attrs, already_processed):
+        pass
+    def buildChildren(self, child_, node, nodeName_, fromsubclass_=False):
+        if nodeName_ == 'FitType':
+            FitType_ = child_.text
+            FitType_ = self.gds_validate_string(FitType_, node, 'FitType')
+            self.FitType = FitType_
+        elif nodeName_ == 'Coefficients':
+            obj_ = Coefficients.factory()
+            obj_.build(child_)
+            self.Coefficients = obj_
+            obj_.original_tagname_ = 'Coefficients'
+# end class FitData
+
+
+class ModelSystem(GeneratedsSuper):
+    """The model system defines the relation between the fixed room system
+    and the model system. The model system is always pinned to the
+    couch. This means if the target moves with the couch the target
+    position in the model system does not change. The couch position
+    (lateral, longitudinal, vertical, rotation, pitch and roll) are
+    in cm. If the couch position is not defined system is pinned to:
+    - The defined couch position of the first control point - Or if
+    there is not definition in the first control point it pins to
+    the current couch position while loading this research beam"""
+    subclass = None
+    superclass = None
+    def __init__(self, ModelSystem_pinned=None, CouchLat=None, CouchLng=None, CouchVrt=None, CouchRtn=None, CouchPit=None, CouchRol=None):
+        self.original_tagname_ = None
+        self.ModelSystem_pinned = ModelSystem_pinned
+        self.CouchLat = CouchLat
+        self.CouchLng = CouchLng
+        self.CouchVrt = CouchVrt
+        self.CouchRtn = CouchRtn
+        self.CouchPit = CouchPit
+        self.CouchRol = CouchRol
+    def factory(*args_, **kwargs_):
+        if CurrentSubclassModule_ is not None:
+            subclass = getSubclassFromModule_(
+                CurrentSubclassModule_, ModelSystem)
+            if subclass is not None:
+                return subclass(*args_, **kwargs_)
+        if ModelSystem.subclass:
+            return ModelSystem.subclass(*args_, **kwargs_)
+        else:
+            return ModelSystem(*args_, **kwargs_)
+    factory = staticmethod(factory)
+    def get_ModelSystem_pinned(self): return self.ModelSystem_pinned
+    def set_ModelSystem_pinned(self, ModelSystem_pinned): self.ModelSystem_pinned = ModelSystem_pinned
+    def get_CouchLat(self): return self.CouchLat
+    def set_CouchLat(self, CouchLat): self.CouchLat = CouchLat
+    def get_CouchLng(self): return self.CouchLng
+    def set_CouchLng(self, CouchLng): self.CouchLng = CouchLng
+    def get_CouchVrt(self): return self.CouchVrt
+    def set_CouchVrt(self, CouchVrt): self.CouchVrt = CouchVrt
+    def get_CouchRtn(self): return self.CouchRtn
+    def set_CouchRtn(self, CouchRtn): self.CouchRtn = CouchRtn
+    def get_CouchPit(self): return self.CouchPit
+    def set_CouchPit(self, CouchPit): self.CouchPit = CouchPit
+    def get_CouchRol(self): return self.CouchRol
+    def set_CouchRol(self, CouchRol): self.CouchRol = CouchRol
+    def hasContent_(self):
+        if (
+            self.ModelSystem_pinned is not None or
+            self.CouchLat is not None or
+            self.CouchLng is not None or
+            self.CouchVrt is not None or
+            self.CouchRtn is not None or
+            self.CouchPit is not None or
+            self.CouchRol is not None
+        ):
+            return True
+        else:
+            return False
+    def export(self, outfile, level, namespace_='', name_='ModelSystem', namespacedef_='', pretty_print=True):
+        if pretty_print:
+            eol_ = '\n'
+        else:
+            eol_ = ''
+        if self.original_tagname_ is not None:
+            name_ = self.original_tagname_
+        showIndent(outfile, level, pretty_print)
+        outfile.write('<%s%s%s' % (namespace_, name_, namespacedef_ and ' ' + namespacedef_ or '', ))
+        already_processed = set()
+        self.exportAttributes(outfile, level, already_processed, namespace_, name_='ModelSystem')
+        if self.hasContent_():
+            outfile.write('>%s' % (eol_, ))
+            self.exportChildren(outfile, level + 1, namespace_='', name_='ModelSystem', pretty_print=pretty_print)
+            showIndent(outfile, level, pretty_print)
+            outfile.write('</%s%s>%s' % (namespace_, name_, eol_))
+        else:
+            outfile.write('/>%s' % (eol_, ))
+    def exportAttributes(self, outfile, level, already_processed, namespace_='', name_='ModelSystem'):
+        pass
+    def exportChildren(self, outfile, level, namespace_='', name_='ModelSystem', fromsubclass_=False, pretty_print=True):
+        if pretty_print:
+            eol_ = '\n'
+        else:
+            eol_ = ''
+        if self.ModelSystem_pinned is not None:
+            self.ModelSystem_pinned.export(outfile, level, namespace_, name_='ModelSystem_pinned', pretty_print=pretty_print)
+        if self.CouchLat is not None:
+            showIndent(outfile, level, pretty_print)
+            outfile.write('<%sCouchLat>%s</%sCouchLat>%s' % (namespace_, self.gds_format_double(self.CouchLat, input_name='CouchLat'), namespace_, eol_))
+        if self.CouchLng is not None:
+            showIndent(outfile, level, pretty_print)
+            outfile.write('<%sCouchLng>%s</%sCouchLng>%s' % (namespace_, self.gds_format_double(self.CouchLng, input_name='CouchLng'), namespace_, eol_))
+        if self.CouchVrt is not None:
+            showIndent(outfile, level, pretty_print)
+            outfile.write('<%sCouchVrt>%s</%sCouchVrt>%s' % (namespace_, self.gds_format_double(self.CouchVrt, input_name='CouchVrt'), namespace_, eol_))
+        if self.CouchRtn is not None:
+            showIndent(outfile, level, pretty_print)
+            outfile.write('<%sCouchRtn>%s</%sCouchRtn>%s' % (namespace_, self.gds_format_double(self.CouchRtn, input_name='CouchRtn'), namespace_, eol_))
+        if self.CouchPit is not None:
+            showIndent(outfile, level, pretty_print)
+            outfile.write('<%sCouchPit>%s</%sCouchPit>%s' % (namespace_, self.gds_format_double(self.CouchPit, input_name='CouchPit'), namespace_, eol_))
+        if self.CouchRol is not None:
+            showIndent(outfile, level, pretty_print)
+            outfile.write('<%sCouchRol>%s</%sCouchRol>%s' % (namespace_, self.gds_format_double(self.CouchRol, input_name='CouchRol'), namespace_, eol_))
+    def build(self, node):
+        already_processed = set()
+        self.buildAttributes(node, node.attrib, already_processed)
+        for child in node:
+            nodeName_ = Tag_pattern_.match(child.tag).groups()[-1]
+            self.buildChildren(child, node, nodeName_)
+        return self
+    def buildAttributes(self, node, attrs, already_processed):
+        pass
+    def buildChildren(self, child_, node, nodeName_, fromsubclass_=False):
+        if nodeName_ == 'ModelSystem_pinned':
+            obj_ = Placement.factory()
+            obj_.build(child_)
+            self.ModelSystem_pinned = obj_
+            obj_.original_tagname_ = 'ModelSystem_pinned'
+        elif nodeName_ == 'CouchLat':
+            sval_ = child_.text
+            try:
+                fval_ = float(sval_)
+            except (TypeError, ValueError) as exp:
+                raise_parse_error(child_, 'requires float or double: %s' % exp)
+            fval_ = self.gds_validate_float(fval_, node, 'CouchLat')
+            self.CouchLat = fval_
+        elif nodeName_ == 'CouchLng':
+            sval_ = child_.text
+            try:
+                fval_ = float(sval_)
+            except (TypeError, ValueError) as exp:
+                raise_parse_error(child_, 'requires float or double: %s' % exp)
+            fval_ = self.gds_validate_float(fval_, node, 'CouchLng')
+            self.CouchLng = fval_
+        elif nodeName_ == 'CouchVrt':
+            sval_ = child_.text
+            try:
+                fval_ = float(sval_)
+            except (TypeError, ValueError) as exp:
+                raise_parse_error(child_, 'requires float or double: %s' % exp)
+            fval_ = self.gds_validate_float(fval_, node, 'CouchVrt')
+            self.CouchVrt = fval_
+        elif nodeName_ == 'CouchRtn':
+            sval_ = child_.text
+            try:
+                fval_ = float(sval_)
+            except (TypeError, ValueError) as exp:
+                raise_parse_error(child_, 'requires float or double: %s' % exp)
+            fval_ = self.gds_validate_float(fval_, node, 'CouchRtn')
+            self.CouchRtn = fval_
+        elif nodeName_ == 'CouchPit':
+            sval_ = child_.text
+            try:
+                fval_ = float(sval_)
+            except (TypeError, ValueError) as exp:
+                raise_parse_error(child_, 'requires float or double: %s' % exp)
+            fval_ = self.gds_validate_float(fval_, node, 'CouchPit')
+            self.CouchPit = fval_
+        elif nodeName_ == 'CouchRol':
+            sval_ = child_.text
+            try:
+                fval_ = float(sval_)
+            except (TypeError, ValueError) as exp:
+                raise_parse_error(child_, 'requires float or double: %s' % exp)
+            fval_ = self.gds_validate_float(fval_, node, 'CouchRol')
+            self.CouchRol = fval_
+# end class ModelSystem
+
+
+class BasicSurrogateModel(GeneratedsSuper):
+    """The basic surrogate model defines a fix relation between the
+    surrogate and the target. The relation TargetPosition_surrogate
+    is defined in the fixed room system. By default the target
+    position is equal to the surrogate position (identity for
+    TargetPosition_surrogate)."""
+    subclass = None
+    superclass = None
+    def __init__(self, TargetPosition_surrogate=None):
+        self.original_tagname_ = None
+        self.TargetPosition_surrogate = TargetPosition_surrogate
+    def factory(*args_, **kwargs_):
+        if CurrentSubclassModule_ is not None:
+            subclass = getSubclassFromModule_(
+                CurrentSubclassModule_, BasicSurrogateModel)
+            if subclass is not None:
+                return subclass(*args_, **kwargs_)
+        if BasicSurrogateModel.subclass:
+            return BasicSurrogateModel.subclass(*args_, **kwargs_)
+        else:
+            return BasicSurrogateModel(*args_, **kwargs_)
+    factory = staticmethod(factory)
+    def get_TargetPosition_surrogate(self): return self.TargetPosition_surrogate
+    def set_TargetPosition_surrogate(self, TargetPosition_surrogate): self.TargetPosition_surrogate = TargetPosition_surrogate
+    def hasContent_(self):
+        if (
+            self.TargetPosition_surrogate is not None
+        ):
+            return True
+        else:
+            return False
+    def export(self, outfile, level, namespace_='', name_='BasicSurrogateModel', namespacedef_='', pretty_print=True):
+        if pretty_print:
+            eol_ = '\n'
+        else:
+            eol_ = ''
+        if self.original_tagname_ is not None:
+            name_ = self.original_tagname_
+        showIndent(outfile, level, pretty_print)
+        outfile.write('<%s%s%s' % (namespace_, name_, namespacedef_ and ' ' + namespacedef_ or '', ))
+        already_processed = set()
+        self.exportAttributes(outfile, level, already_processed, namespace_, name_='BasicSurrogateModel')
+        if self.hasContent_():
+            outfile.write('>%s' % (eol_, ))
+            self.exportChildren(outfile, level + 1, namespace_='', name_='BasicSurrogateModel', pretty_print=pretty_print)
+            showIndent(outfile, level, pretty_print)
+            outfile.write('</%s%s>%s' % (namespace_, name_, eol_))
+        else:
+            outfile.write('/>%s' % (eol_, ))
+    def exportAttributes(self, outfile, level, already_processed, namespace_='', name_='BasicSurrogateModel'):
+        pass
+    def exportChildren(self, outfile, level, namespace_='', name_='BasicSurrogateModel', fromsubclass_=False, pretty_print=True):
+        if pretty_print:
+            eol_ = '\n'
+        else:
+            eol_ = ''
+        if self.TargetPosition_surrogate is not None:
+            self.TargetPosition_surrogate.export(outfile, level, namespace_, name_='TargetPosition_surrogate', pretty_print=pretty_print)
+    def build(self, node):
+        already_processed = set()
+        self.buildAttributes(node, node.attrib, already_processed)
+        for child in node:
+            nodeName_ = Tag_pattern_.match(child.tag).groups()[-1]
+            self.buildChildren(child, node, nodeName_)
+        return self
+    def buildAttributes(self, node, attrs, already_processed):
+        pass
+    def buildChildren(self, child_, node, nodeName_, fromsubclass_=False):
+        if nodeName_ == 'TargetPosition_surrogate':
+            obj_ = Placement.factory()
+            obj_.build(child_)
+            self.TargetPosition_surrogate = obj_
+            obj_.original_tagname_ = 'TargetPosition_surrogate'
+# end class BasicSurrogateModel
+
+
+class AmplitudeFitSurrogateModel(GeneratedsSuper):
+    """The amplitude fit model maps the amplitude (and rate) of the motion
+    model onto an internal axis. For each axis, a different fit can
+    be given, see FitData comment for the equation. The surrogate
+    model is executed in the couch-pinned model coordinate system,
+    as defined by model system."""
+    subclass = None
+    superclass = None
+    def __init__(self, X=None, Y=None, Z=None):
+        self.original_tagname_ = None
+        self.X = X
+        self.Y = Y
+        self.Z = Z
+    def factory(*args_, **kwargs_):
+        if CurrentSubclassModule_ is not None:
+            subclass = getSubclassFromModule_(
+                CurrentSubclassModule_, AmplitudeFitSurrogateModel)
+            if subclass is not None:
+                return subclass(*args_, **kwargs_)
+        if AmplitudeFitSurrogateModel.subclass:
+            return AmplitudeFitSurrogateModel.subclass(*args_, **kwargs_)
+        else:
+            return AmplitudeFitSurrogateModel(*args_, **kwargs_)
+    factory = staticmethod(factory)
+    def get_X(self): return self.X
+    def set_X(self, X): self.X = X
+    def get_Y(self): return self.Y
+    def set_Y(self, Y): self.Y = Y
+    def get_Z(self): return self.Z
+    def set_Z(self, Z): self.Z = Z
+    def hasContent_(self):
+        if (
+            self.X is not None or
+            self.Y is not None or
+            self.Z is not None
+        ):
+            return True
+        else:
+            return False
+    def export(self, outfile, level, namespace_='', name_='AmplitudeFitSurrogateModel', namespacedef_='', pretty_print=True):
+        if pretty_print:
+            eol_ = '\n'
+        else:
+            eol_ = ''
+        if self.original_tagname_ is not None:
+            name_ = self.original_tagname_
+        showIndent(outfile, level, pretty_print)
+        outfile.write('<%s%s%s' % (namespace_, name_, namespacedef_ and ' ' + namespacedef_ or '', ))
+        already_processed = set()
+        self.exportAttributes(outfile, level, already_processed, namespace_, name_='AmplitudeFitSurrogateModel')
+        if self.hasContent_():
+            outfile.write('>%s' % (eol_, ))
+            self.exportChildren(outfile, level + 1, namespace_='', name_='AmplitudeFitSurrogateModel', pretty_print=pretty_print)
+            showIndent(outfile, level, pretty_print)
+            outfile.write('</%s%s>%s' % (namespace_, name_, eol_))
+        else:
+            outfile.write('/>%s' % (eol_, ))
+    def exportAttributes(self, outfile, level, already_processed, namespace_='', name_='AmplitudeFitSurrogateModel'):
+        pass
+    def exportChildren(self, outfile, level, namespace_='', name_='AmplitudeFitSurrogateModel', fromsubclass_=False, pretty_print=True):
+        if pretty_print:
+            eol_ = '\n'
+        else:
+            eol_ = ''
+        if self.X is not None:
+            self.X.export(outfile, level, namespace_, name_='X', pretty_print=pretty_print)
+        if self.Y is not None:
+            self.Y.export(outfile, level, namespace_, name_='Y', pretty_print=pretty_print)
+        if self.Z is not None:
+            self.Z.export(outfile, level, namespace_, name_='Z', pretty_print=pretty_print)
+    def build(self, node):
+        already_processed = set()
+        self.buildAttributes(node, node.attrib, already_processed)
+        for child in node:
+            nodeName_ = Tag_pattern_.match(child.tag).groups()[-1]
+            self.buildChildren(child, node, nodeName_)
+        return self
+    def buildAttributes(self, node, attrs, already_processed):
+        pass
+    def buildChildren(self, child_, node, nodeName_, fromsubclass_=False):
+        if nodeName_ == 'X':
+            obj_ = FitData.factory()
+            obj_.build(child_)
+            self.X = obj_
+            obj_.original_tagname_ = 'X'
+        elif nodeName_ == 'Y':
+            obj_ = FitData.factory()
+            obj_.build(child_)
+            self.Y = obj_
+            obj_.original_tagname_ = 'Y'
+        elif nodeName_ == 'Z':
+            obj_ = FitData.factory()
+            obj_.build(child_)
+            self.Z = obj_
+            obj_.original_tagname_ = 'Z'
+# end class AmplitudeFitSurrogateModel
+
+
+class SurrogateModelPlugIn(GeneratedsSuper):
+    """Surrogate model plugin is an engineering only option"""
+    subclass = None
+    superclass = None
+    def __init__(self, module=None, name=None, anytypeobjs_=None):
+        self.original_tagname_ = None
+        self.module = _cast(None, module)
+        self.name = _cast(None, name)
+        if anytypeobjs_ is None:
+            self.anytypeobjs_ = []
+        else:
+            self.anytypeobjs_ = anytypeobjs_
+    def factory(*args_, **kwargs_):
+        if CurrentSubclassModule_ is not None:
+            subclass = getSubclassFromModule_(
+                CurrentSubclassModule_, SurrogateModelPlugIn)
+            if subclass is not None:
+                return subclass(*args_, **kwargs_)
+        if SurrogateModelPlugIn.subclass:
+            return SurrogateModelPlugIn.subclass(*args_, **kwargs_)
+        else:
+            return SurrogateModelPlugIn(*args_, **kwargs_)
+    factory = staticmethod(factory)
+    def get_anytypeobjs_(self): return self.anytypeobjs_
+    def set_anytypeobjs_(self, anytypeobjs_): self.anytypeobjs_ = anytypeobjs_
+    def add_anytypeobjs_(self, value): self.anytypeobjs_.append(value)
+    def insert_anytypeobjs_(self, index, value): self._anytypeobjs_[index] = value
+    def get_module(self): return self.module
+    def set_module(self, module): self.module = module
+    def get_name(self): return self.name
+    def set_name(self, name): self.name = name
+    def hasContent_(self):
+        if (
+            self.anytypeobjs_
+        ):
+            return True
+        else:
+            return False
+    def export(self, outfile, level, namespace_='', name_='SurrogateModelPlugIn', namespacedef_='', pretty_print=True):
+        if pretty_print:
+            eol_ = '\n'
+        else:
+            eol_ = ''
+        if self.original_tagname_ is not None:
+            name_ = self.original_tagname_
+        showIndent(outfile, level, pretty_print)
+        outfile.write('<%s%s%s' % (namespace_, name_, namespacedef_ and ' ' + namespacedef_ or '', ))
+        already_processed = set()
+        self.exportAttributes(outfile, level, already_processed, namespace_, name_='SurrogateModelPlugIn')
+        if self.hasContent_():
+            outfile.write('>%s' % (eol_, ))
+            self.exportChildren(outfile, level + 1, namespace_='', name_='SurrogateModelPlugIn', pretty_print=pretty_print)
+            showIndent(outfile, level, pretty_print)
+            outfile.write('</%s%s>%s' % (namespace_, name_, eol_))
+        else:
+            outfile.write('/>%s' % (eol_, ))
+    def exportAttributes(self, outfile, level, already_processed, namespace_='', name_='SurrogateModelPlugIn'):
+        if self.module is not None and 'module' not in already_processed:
+            already_processed.add('module')
+            outfile.write(' module=%s' % (self.gds_encode(self.gds_format_string(quote_attrib(self.module), input_name='module')), ))
+        if self.name is not None and 'name' not in already_processed:
+            already_processed.add('name')
+            outfile.write(' name=%s' % (self.gds_encode(self.gds_format_string(quote_attrib(self.name), input_name='name')), ))
+    def exportChildren(self, outfile, level, namespace_='', name_='SurrogateModelPlugIn', fromsubclass_=False, pretty_print=True):
+        if pretty_print:
+            eol_ = '\n'
+        else:
+            eol_ = ''
+        for obj_ in self.anytypeobjs_:
+            obj_.export(outfile, level, namespace_, pretty_print=pretty_print)
+    def build(self, node):
+        already_processed = set()
+        self.buildAttributes(node, node.attrib, already_processed)
+        for child in node:
+            nodeName_ = Tag_pattern_.match(child.tag).groups()[-1]
+            self.buildChildren(child, node, nodeName_)
+        return self
+    def buildAttributes(self, node, attrs, already_processed):
+        value = find_attr_value_('module', node)
+        if value is not None and 'module' not in already_processed:
+            already_processed.add('module')
+            self.module = value
+        value = find_attr_value_('name', node)
+        if value is not None and 'name' not in already_processed:
+            already_processed.add('name')
+            self.name = value
+    def buildChildren(self, child_, node, nodeName_, fromsubclass_=False):
+        obj_ = self.gds_build_any(child_, 'SurrogateModelPlugIn')
+        if obj_ is not None:
+            self.add_anytypeobjs_(obj_)
+# end class SurrogateModelPlugIn
+
+
+class SurrogateModel(GeneratedsSuper):
+    """The surrogate model defines the relation between the surrogate and
+    the target."""
+    subclass = None
+    superclass = None
+    def __init__(self, Basic=None, AmplitudeFit=None, PlugIn=None):
+        self.original_tagname_ = None
+        self.Basic = Basic
+        self.AmplitudeFit = AmplitudeFit
+        self.PlugIn = PlugIn
+    def factory(*args_, **kwargs_):
+        if CurrentSubclassModule_ is not None:
+            subclass = getSubclassFromModule_(
+                CurrentSubclassModule_, SurrogateModel)
+            if subclass is not None:
+                return subclass(*args_, **kwargs_)
+        if SurrogateModel.subclass:
+            return SurrogateModel.subclass(*args_, **kwargs_)
+        else:
+            return SurrogateModel(*args_, **kwargs_)
+    factory = staticmethod(factory)
+    def get_Basic(self): return self.Basic
+    def set_Basic(self, Basic): self.Basic = Basic
+    def get_AmplitudeFit(self): return self.AmplitudeFit
+    def set_AmplitudeFit(self, AmplitudeFit): self.AmplitudeFit = AmplitudeFit
+    def get_PlugIn(self): return self.PlugIn
+    def set_PlugIn(self, PlugIn): self.PlugIn = PlugIn
+    def hasContent_(self):
+        if (
+            self.Basic is not None or
+            self.AmplitudeFit is not None or
+            self.PlugIn is not None
+        ):
+            return True
+        else:
+            return False
+    def export(self, outfile, level, namespace_='', name_='SurrogateModel', namespacedef_='', pretty_print=True):
+        if pretty_print:
+            eol_ = '\n'
+        else:
+            eol_ = ''
+        if self.original_tagname_ is not None:
+            name_ = self.original_tagname_
+        showIndent(outfile, level, pretty_print)
+        outfile.write('<%s%s%s' % (namespace_, name_, namespacedef_ and ' ' + namespacedef_ or '', ))
+        already_processed = set()
+        self.exportAttributes(outfile, level, already_processed, namespace_, name_='SurrogateModel')
+        if self.hasContent_():
+            outfile.write('>%s' % (eol_, ))
+            self.exportChildren(outfile, level + 1, namespace_='', name_='SurrogateModel', pretty_print=pretty_print)
+            showIndent(outfile, level, pretty_print)
+            outfile.write('</%s%s>%s' % (namespace_, name_, eol_))
+        else:
+            outfile.write('/>%s' % (eol_, ))
+    def exportAttributes(self, outfile, level, already_processed, namespace_='', name_='SurrogateModel'):
+        pass
+    def exportChildren(self, outfile, level, namespace_='', name_='SurrogateModel', fromsubclass_=False, pretty_print=True):
+        if pretty_print:
+            eol_ = '\n'
+        else:
+            eol_ = ''
+        if self.Basic is not None:
+            self.Basic.export(outfile, level, namespace_, name_='Basic', pretty_print=pretty_print)
+        if self.AmplitudeFit is not None:
+            self.AmplitudeFit.export(outfile, level, namespace_, name_='AmplitudeFit', pretty_print=pretty_print)
+        if self.PlugIn is not None:
+            self.PlugIn.export(outfile, level, namespace_, name_='PlugIn', pretty_print=pretty_print)
+    def build(self, node):
+        already_processed = set()
+        self.buildAttributes(node, node.attrib, already_processed)
+        for child in node:
+            nodeName_ = Tag_pattern_.match(child.tag).groups()[-1]
+            self.buildChildren(child, node, nodeName_)
+        return self
+    def buildAttributes(self, node, attrs, already_processed):
+        pass
+    def buildChildren(self, child_, node, nodeName_, fromsubclass_=False):
+        if nodeName_ == 'Basic':
+            obj_ = BasicSurrogateModel.factory()
+            obj_.build(child_)
+            self.Basic = obj_
+            obj_.original_tagname_ = 'Basic'
+        elif nodeName_ == 'AmplitudeFit':
+            obj_ = AmplitudeFitSurrogateModel.factory()
+            obj_.build(child_)
+            self.AmplitudeFit = obj_
+            obj_.original_tagname_ = 'AmplitudeFit'
+        elif nodeName_ == 'PlugIn':
+            obj_ = SurrogateModelPlugIn.factory()
+            obj_.build(child_)
+            self.PlugIn = obj_
+            obj_.original_tagname_ = 'PlugIn'
+# end class SurrogateModel
+
+
+class BasicMotionModel(GeneratedsSuper):
+    """The basic motion model does not detect any amplitude, phase or
+    quality of the breathing pattern."""
+    subclass = None
+    superclass = None
+    def __init__(self):
+        self.original_tagname_ = None
+    def factory(*args_, **kwargs_):
+        if CurrentSubclassModule_ is not None:
+            subclass = getSubclassFromModule_(
+                CurrentSubclassModule_, BasicMotionModel)
+            if subclass is not None:
+                return subclass(*args_, **kwargs_)
+        if BasicMotionModel.subclass:
+            return BasicMotionModel.subclass(*args_, **kwargs_)
+        else:
+            return BasicMotionModel(*args_, **kwargs_)
+    factory = staticmethod(factory)
+    def hasContent_(self):
+        if (
+
+        ):
+            return True
+        else:
+            return False
+    def export(self, outfile, level, namespace_='', name_='BasicMotionModel', namespacedef_='', pretty_print=True):
+        if pretty_print:
+            eol_ = '\n'
+        else:
+            eol_ = ''
+        if self.original_tagname_ is not None:
+            name_ = self.original_tagname_
+        showIndent(outfile, level, pretty_print)
+        outfile.write('<%s%s%s' % (namespace_, name_, namespacedef_ and ' ' + namespacedef_ or '', ))
+        already_processed = set()
+        self.exportAttributes(outfile, level, already_processed, namespace_, name_='BasicMotionModel')
+        if self.hasContent_():
+            outfile.write('>%s' % (eol_, ))
+            self.exportChildren(outfile, level + 1, namespace_='', name_='BasicMotionModel', pretty_print=pretty_print)
+            outfile.write('</%s%s>%s' % (namespace_, name_, eol_))
+        else:
+            outfile.write('/>%s' % (eol_, ))
+    def exportAttributes(self, outfile, level, already_processed, namespace_='', name_='BasicMotionModel'):
+        pass
+    def exportChildren(self, outfile, level, namespace_='', name_='BasicMotionModel', fromsubclass_=False, pretty_print=True):
+        pass
+    def build(self, node):
+        already_processed = set()
+        self.buildAttributes(node, node.attrib, already_processed)
+        for child in node:
+            nodeName_ = Tag_pattern_.match(child.tag).groups()[-1]
+            self.buildChildren(child, node, nodeName_)
+        return self
+    def buildAttributes(self, node, attrs, already_processed):
+        pass
+    def buildChildren(self, child_, node, nodeName_, fromsubclass_=False):
+        pass
+# end class BasicMotionModel
+
+
+class GatingMotionModel(GeneratedsSuper):
+    """The gating motion model calculated the amplitude, phase and quality
+    of the breathing pattern by using SmartBreath. Furthermore the
+    last max inhale and exhale, the running average of max exhale,
+    running average of inhale and exhale period and the number of
+    detected inhale peaks are reported. By default the amplitude
+    direction is the Z axis in the model system."""
+    subclass = None
+    superclass = None
+    def __init__(self, AmplitudeDirection_model=None):
+        self.original_tagname_ = None
+        self.AmplitudeDirection_model = AmplitudeDirection_model
+    def factory(*args_, **kwargs_):
+        if CurrentSubclassModule_ is not None:
+            subclass = getSubclassFromModule_(
+                CurrentSubclassModule_, GatingMotionModel)
+            if subclass is not None:
+                return subclass(*args_, **kwargs_)
+        if GatingMotionModel.subclass:
+            return GatingMotionModel.subclass(*args_, **kwargs_)
+        else:
+            return GatingMotionModel(*args_, **kwargs_)
+    factory = staticmethod(factory)
+    def get_AmplitudeDirection_model(self): return self.AmplitudeDirection_model
+    def set_AmplitudeDirection_model(self, AmplitudeDirection_model): self.AmplitudeDirection_model = AmplitudeDirection_model
+    def hasContent_(self):
+        if (
+            self.AmplitudeDirection_model is not None
+        ):
+            return True
+        else:
+            return False
+    def export(self, outfile, level, namespace_='', name_='GatingMotionModel', namespacedef_='', pretty_print=True):
+        if pretty_print:
+            eol_ = '\n'
+        else:
+            eol_ = ''
+        if self.original_tagname_ is not None:
+            name_ = self.original_tagname_
+        showIndent(outfile, level, pretty_print)
+        outfile.write('<%s%s%s' % (namespace_, name_, namespacedef_ and ' ' + namespacedef_ or '', ))
+        already_processed = set()
+        self.exportAttributes(outfile, level, already_processed, namespace_, name_='GatingMotionModel')
+        if self.hasContent_():
+            outfile.write('>%s' % (eol_, ))
+            self.exportChildren(outfile, level + 1, namespace_='', name_='GatingMotionModel', pretty_print=pretty_print)
+            showIndent(outfile, level, pretty_print)
+            outfile.write('</%s%s>%s' % (namespace_, name_, eol_))
+        else:
+            outfile.write('/>%s' % (eol_, ))
+    def exportAttributes(self, outfile, level, already_processed, namespace_='', name_='GatingMotionModel'):
+        pass
+    def exportChildren(self, outfile, level, namespace_='', name_='GatingMotionModel', fromsubclass_=False, pretty_print=True):
+        if pretty_print:
+            eol_ = '\n'
+        else:
+            eol_ = ''
+        if self.AmplitudeDirection_model is not None:
+            self.AmplitudeDirection_model.export(outfile, level, namespace_, name_='AmplitudeDirection_model', pretty_print=pretty_print)
+    def build(self, node):
+        already_processed = set()
+        self.buildAttributes(node, node.attrib, already_processed)
+        for child in node:
+            nodeName_ = Tag_pattern_.match(child.tag).groups()[-1]
+            self.buildChildren(child, node, nodeName_)
+        return self
+    def buildAttributes(self, node, attrs, already_processed):
+        pass
+    def buildChildren(self, child_, node, nodeName_, fromsubclass_=False):
+        if nodeName_ == 'AmplitudeDirection_model':
+            obj_ = Vector.factory()
+            obj_.build(child_)
+            self.AmplitudeDirection_model = obj_
+            obj_.original_tagname_ = 'AmplitudeDirection_model'
+# end class GatingMotionModel
+
+
+class MotionModelPlugIn(GeneratedsSuper):
+    """Motion model plugin is an engineering only option"""
+    subclass = None
+    superclass = None
+    def __init__(self, module=None, name=None, anytypeobjs_=None):
+        self.original_tagname_ = None
+        self.module = _cast(None, module)
+        self.name = _cast(None, name)
+        if anytypeobjs_ is None:
+            self.anytypeobjs_ = []
+        else:
+            self.anytypeobjs_ = anytypeobjs_
+    def factory(*args_, **kwargs_):
+        if CurrentSubclassModule_ is not None:
+            subclass = getSubclassFromModule_(
+                CurrentSubclassModule_, MotionModelPlugIn)
+            if subclass is not None:
+                return subclass(*args_, **kwargs_)
+        if MotionModelPlugIn.subclass:
+            return MotionModelPlugIn.subclass(*args_, **kwargs_)
+        else:
+            return MotionModelPlugIn(*args_, **kwargs_)
+    factory = staticmethod(factory)
+    def get_anytypeobjs_(self): return self.anytypeobjs_
+    def set_anytypeobjs_(self, anytypeobjs_): self.anytypeobjs_ = anytypeobjs_
+    def add_anytypeobjs_(self, value): self.anytypeobjs_.append(value)
+    def insert_anytypeobjs_(self, index, value): self._anytypeobjs_[index] = value
+    def get_module(self): return self.module
+    def set_module(self, module): self.module = module
+    def get_name(self): return self.name
+    def set_name(self, name): self.name = name
+    def hasContent_(self):
+        if (
+            self.anytypeobjs_
+        ):
+            return True
+        else:
+            return False
+    def export(self, outfile, level, namespace_='', name_='MotionModelPlugIn', namespacedef_='', pretty_print=True):
+        if pretty_print:
+            eol_ = '\n'
+        else:
+            eol_ = ''
+        if self.original_tagname_ is not None:
+            name_ = self.original_tagname_
+        showIndent(outfile, level, pretty_print)
+        outfile.write('<%s%s%s' % (namespace_, name_, namespacedef_ and ' ' + namespacedef_ or '', ))
+        already_processed = set()
+        self.exportAttributes(outfile, level, already_processed, namespace_, name_='MotionModelPlugIn')
+        if self.hasContent_():
+            outfile.write('>%s' % (eol_, ))
+            self.exportChildren(outfile, level + 1, namespace_='', name_='MotionModelPlugIn', pretty_print=pretty_print)
+            showIndent(outfile, level, pretty_print)
+            outfile.write('</%s%s>%s' % (namespace_, name_, eol_))
+        else:
+            outfile.write('/>%s' % (eol_, ))
+    def exportAttributes(self, outfile, level, already_processed, namespace_='', name_='MotionModelPlugIn'):
+        if self.module is not None and 'module' not in already_processed:
+            already_processed.add('module')
+            outfile.write(' module=%s' % (self.gds_encode(self.gds_format_string(quote_attrib(self.module), input_name='module')), ))
+        if self.name is not None and 'name' not in already_processed:
+            already_processed.add('name')
+            outfile.write(' name=%s' % (self.gds_encode(self.gds_format_string(quote_attrib(self.name), input_name='name')), ))
+    def exportChildren(self, outfile, level, namespace_='', name_='MotionModelPlugIn', fromsubclass_=False, pretty_print=True):
+        if pretty_print:
+            eol_ = '\n'
+        else:
+            eol_ = ''
+        for obj_ in self.anytypeobjs_:
+            obj_.export(outfile, level, namespace_, pretty_print=pretty_print)
+    def build(self, node):
+        already_processed = set()
+        self.buildAttributes(node, node.attrib, already_processed)
+        for child in node:
+            nodeName_ = Tag_pattern_.match(child.tag).groups()[-1]
+            self.buildChildren(child, node, nodeName_)
+        return self
+    def buildAttributes(self, node, attrs, already_processed):
+        value = find_attr_value_('module', node)
+        if value is not None and 'module' not in already_processed:
+            already_processed.add('module')
+            self.module = value
+        value = find_attr_value_('name', node)
+        if value is not None and 'name' not in already_processed:
+            already_processed.add('name')
+            self.name = value
+    def buildChildren(self, child_, node, nodeName_, fromsubclass_=False):
+        obj_ = self.gds_build_any(child_, 'MotionModelPlugIn')
+        if obj_ is not None:
+            self.add_anytypeobjs_(obj_)
+# end class MotionModelPlugIn
+
+
+class MotionModel(GeneratedsSuper):
+    """The selected motion model defines how the current breathing motion
+    is detected. See the description of each specific motion model
+    for further information."""
+    subclass = None
+    superclass = None
+    def __init__(self, Basic=None, Gating=None, PlugIn=None):
+        self.original_tagname_ = None
+        self.Basic = Basic
+        self.Gating = Gating
+        self.PlugIn = PlugIn
+    def factory(*args_, **kwargs_):
+        if CurrentSubclassModule_ is not None:
+            subclass = getSubclassFromModule_(
+                CurrentSubclassModule_, MotionModel)
+            if subclass is not None:
+                return subclass(*args_, **kwargs_)
+        if MotionModel.subclass:
+            return MotionModel.subclass(*args_, **kwargs_)
+        else:
+            return MotionModel(*args_, **kwargs_)
+    factory = staticmethod(factory)
+    def get_Basic(self): return self.Basic
+    def set_Basic(self, Basic): self.Basic = Basic
+    def get_Gating(self): return self.Gating
+    def set_Gating(self, Gating): self.Gating = Gating
+    def get_PlugIn(self): return self.PlugIn
+    def set_PlugIn(self, PlugIn): self.PlugIn = PlugIn
+    def hasContent_(self):
+        if (
+            self.Basic is not None or
+            self.Gating is not None or
+            self.PlugIn is not None
+        ):
+            return True
+        else:
+            return False
+    def export(self, outfile, level, namespace_='', name_='MotionModel', namespacedef_='', pretty_print=True):
+        if pretty_print:
+            eol_ = '\n'
+        else:
+            eol_ = ''
+        if self.original_tagname_ is not None:
+            name_ = self.original_tagname_
+        showIndent(outfile, level, pretty_print)
+        outfile.write('<%s%s%s' % (namespace_, name_, namespacedef_ and ' ' + namespacedef_ or '', ))
+        already_processed = set()
+        self.exportAttributes(outfile, level, already_processed, namespace_, name_='MotionModel')
+        if self.hasContent_():
+            outfile.write('>%s' % (eol_, ))
+            self.exportChildren(outfile, level + 1, namespace_='', name_='MotionModel', pretty_print=pretty_print)
+            showIndent(outfile, level, pretty_print)
+            outfile.write('</%s%s>%s' % (namespace_, name_, eol_))
+        else:
+            outfile.write('/>%s' % (eol_, ))
+    def exportAttributes(self, outfile, level, already_processed, namespace_='', name_='MotionModel'):
+        pass
+    def exportChildren(self, outfile, level, namespace_='', name_='MotionModel', fromsubclass_=False, pretty_print=True):
+        if pretty_print:
+            eol_ = '\n'
+        else:
+            eol_ = ''
+        if self.Basic is not None:
+            self.Basic.export(outfile, level, namespace_, name_='Basic', pretty_print=pretty_print)
+        if self.Gating is not None:
+            self.Gating.export(outfile, level, namespace_, name_='Gating', pretty_print=pretty_print)
+        if self.PlugIn is not None:
+            self.PlugIn.export(outfile, level, namespace_, name_='PlugIn', pretty_print=pretty_print)
+    def build(self, node):
+        already_processed = set()
+        self.buildAttributes(node, node.attrib, already_processed)
+        for child in node:
+            nodeName_ = Tag_pattern_.match(child.tag).groups()[-1]
+            self.buildChildren(child, node, nodeName_)
+        return self
+    def buildAttributes(self, node, attrs, already_processed):
+        pass
+    def buildChildren(self, child_, node, nodeName_, fromsubclass_=False):
+        if nodeName_ == 'Basic':
+            obj_ = BasicMotionModel.factory()
+            obj_.build(child_)
+            self.Basic = obj_
+            obj_.original_tagname_ = 'Basic'
+        elif nodeName_ == 'Gating':
+            obj_ = GatingMotionModel.factory()
+            obj_.build(child_)
+            self.Gating = obj_
+            obj_.original_tagname_ = 'Gating'
+        elif nodeName_ == 'PlugIn':
+            obj_ = MotionModelPlugIn.factory()
+            obj_.build(child_)
+            self.PlugIn = obj_
+            obj_.original_tagname_ = 'PlugIn'
+# end class MotionModel
+
+
+class AcquisitionTrigger(GeneratedsSuper):
+    """TriggerDelay : Delay in sec before a trigger is released.
+    TriggerOnEnter : Send a trigger on enter window TriggerOnExit :
+    Send a trigger on exit window SingleTrigger : If true a trigger
+    is only sent once for the whole acquisition. If false a trigger
+    is sent every time if the window is enter or exit (depending on
+    TriggerOnEnter and TriggerOnExit)."""
+    subclass = None
+    superclass = None
+    def __init__(self, TriggerDelay=0, TriggerOnEnter=True, TriggerOnExit=False, SingleTrigger=True):
         self.original_tagname_ = None
         self.TriggerDelay = TriggerDelay
         self.TriggerOnEnter = TriggerOnEnter
         self.TriggerOnExit = TriggerOnExit
         self.SingleTrigger = SingleTrigger
-        self.extensiontype_ = extensiontype_
     def factory(*args_, **kwargs_):
+        if CurrentSubclassModule_ is not None:
+            subclass = getSubclassFromModule_(
+                CurrentSubclassModule_, AcquisitionTrigger)
+            if subclass is not None:
+                return subclass(*args_, **kwargs_)
         if AcquisitionTrigger.subclass:
             return AcquisitionTrigger.subclass(*args_, **kwargs_)
         else:
@@ -1231,14 +4753,12 @@ class AcquisitionTrigger(GeneratedsSuper):
     def set_TriggerOnExit(self, TriggerOnExit): self.TriggerOnExit = TriggerOnExit
     def get_SingleTrigger(self): return self.SingleTrigger
     def set_SingleTrigger(self, SingleTrigger): self.SingleTrigger = SingleTrigger
-    def get_extensiontype_(self): return self.extensiontype_
-    def set_extensiontype_(self, extensiontype_): self.extensiontype_ = extensiontype_
     def hasContent_(self):
         if (
-            self.TriggerDelay is not None or
-            self.TriggerOnEnter is not None or
-            self.TriggerOnExit is not None or
-            self.SingleTrigger is not None
+            self.TriggerDelay != 0 or
+            not self.TriggerOnEnter or
+            self.TriggerOnExit or
+            not self.SingleTrigger
         ):
             return True
         else:
@@ -1262,26 +4782,22 @@ class AcquisitionTrigger(GeneratedsSuper):
         else:
             outfile.write('/>%s' % (eol_, ))
     def exportAttributes(self, outfile, level, already_processed, namespace_='', name_='AcquisitionTrigger'):
-        if self.extensiontype_ is not None and 'xsi:type' not in already_processed:
-            already_processed.add('xsi:type')
-            outfile.write(' xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"')
-            outfile.write(' xsi:type="%s"' % self.extensiontype_)
         pass
     def exportChildren(self, outfile, level, namespace_='', name_='AcquisitionTrigger', fromsubclass_=False, pretty_print=True):
         if pretty_print:
             eol_ = '\n'
         else:
             eol_ = ''
-        if self.TriggerDelay is not None:
+        if self.TriggerDelay != 0:
             showIndent(outfile, level, pretty_print)
             outfile.write('<%sTriggerDelay>%s</%sTriggerDelay>%s' % (namespace_, self.gds_format_double(self.TriggerDelay, input_name='TriggerDelay'), namespace_, eol_))
-        if self.TriggerOnEnter is not None:
+        if not self.TriggerOnEnter:
             showIndent(outfile, level, pretty_print)
             outfile.write('<%sTriggerOnEnter>%s</%sTriggerOnEnter>%s' % (namespace_, self.gds_format_boolean(self.TriggerOnEnter, input_name='TriggerOnEnter'), namespace_, eol_))
-        if self.TriggerOnExit is not None:
+        if self.TriggerOnExit:
             showIndent(outfile, level, pretty_print)
             outfile.write('<%sTriggerOnExit>%s</%sTriggerOnExit>%s' % (namespace_, self.gds_format_boolean(self.TriggerOnExit, input_name='TriggerOnExit'), namespace_, eol_))
-        if self.SingleTrigger is not None:
+        if not self.SingleTrigger:
             showIndent(outfile, level, pretty_print)
             outfile.write('<%sSingleTrigger>%s</%sSingleTrigger>%s' % (namespace_, self.gds_format_boolean(self.SingleTrigger, input_name='SingleTrigger'), namespace_, eol_))
     def build(self, node):
@@ -1292,16 +4808,13 @@ class AcquisitionTrigger(GeneratedsSuper):
             self.buildChildren(child, node, nodeName_)
         return self
     def buildAttributes(self, node, attrs, already_processed):
-        value = find_attr_value_('xsi:type', node)
-        if value is not None and 'xsi:type' not in already_processed:
-            already_processed.add('xsi:type')
-            self.extensiontype_ = value
+        pass
     def buildChildren(self, child_, node, nodeName_, fromsubclass_=False):
         if nodeName_ == 'TriggerDelay':
             sval_ = child_.text
             try:
                 fval_ = float(sval_)
-            except (TypeError, ValueError), exp:
+            except (TypeError, ValueError) as exp:
                 raise_parse_error(child_, 'requires float or double: %s' % exp)
             fval_ = self.gds_validate_float(fval_, node, 'TriggerDelay')
             self.TriggerDelay = fval_
@@ -1338,35 +4851,51 @@ class AcquisitionTrigger(GeneratedsSuper):
 # end class AcquisitionTrigger
 
 
-class TrackingType(GeneratedsSuper):
+class AcquisitionTriggers(GeneratedsSuper):
+    """Use KV to sent the trigger to the kV image source and MV to trigger
+    the MV image source."""
     subclass = None
     superclass = None
-    def __init__(self, TrackingEnabled=None, CapabilityRatio=None):
+    def __init__(self, MV=None, KV=None):
         self.original_tagname_ = None
-        self.TrackingEnabled = TrackingEnabled
-        self.CapabilityRatio = CapabilityRatio
-    def factory(*args_, **kwargs_):
-        if TrackingType.subclass:
-            return TrackingType.subclass(*args_, **kwargs_)
+        if MV is None:
+            self.MV = []
         else:
-            return TrackingType(*args_, **kwargs_)
+            self.MV = MV
+        if KV is None:
+            self.KV = []
+        else:
+            self.KV = KV
+    def factory(*args_, **kwargs_):
+        if CurrentSubclassModule_ is not None:
+            subclass = getSubclassFromModule_(
+                CurrentSubclassModule_, AcquisitionTriggers)
+            if subclass is not None:
+                return subclass(*args_, **kwargs_)
+        if AcquisitionTriggers.subclass:
+            return AcquisitionTriggers.subclass(*args_, **kwargs_)
+        else:
+            return AcquisitionTriggers(*args_, **kwargs_)
     factory = staticmethod(factory)
-    def get_TrackingEnabled(self): return self.TrackingEnabled
-    def set_TrackingEnabled(self, TrackingEnabled): self.TrackingEnabled = TrackingEnabled
-    def get_CapabilityRatio(self): return self.CapabilityRatio
-    def set_CapabilityRatio(self, CapabilityRatio): self.CapabilityRatio = CapabilityRatio
-    def validate_CapabilityRatioType(self, value):
-        # Validate type CapabilityRatioType, a restriction on xs:double.
-        pass
+    def get_MV(self): return self.MV
+    def set_MV(self, MV): self.MV = MV
+    def add_MV(self, value): self.MV.append(value)
+    def insert_MV_at(self, index, value): self.MV.insert(index, value)
+    def replace_MV_at(self, index, value): self.MV[index] = value
+    def get_KV(self): return self.KV
+    def set_KV(self, KV): self.KV = KV
+    def add_KV(self, value): self.KV.append(value)
+    def insert_KV_at(self, index, value): self.KV.insert(index, value)
+    def replace_KV_at(self, index, value): self.KV[index] = value
     def hasContent_(self):
         if (
-            self.TrackingEnabled is not None or
-            self.CapabilityRatio is not None
+            self.MV or
+            self.KV
         ):
             return True
         else:
             return False
-    def export(self, outfile, level, namespace_='', name_='TrackingType', namespacedef_='', pretty_print=True):
+    def export(self, outfile, level, namespace_='', name_='AcquisitionTriggers', namespacedef_='', pretty_print=True):
         if pretty_print:
             eol_ = '\n'
         else:
@@ -1376,27 +4905,25 @@ class TrackingType(GeneratedsSuper):
         showIndent(outfile, level, pretty_print)
         outfile.write('<%s%s%s' % (namespace_, name_, namespacedef_ and ' ' + namespacedef_ or '', ))
         already_processed = set()
-        self.exportAttributes(outfile, level, already_processed, namespace_, name_='TrackingType')
+        self.exportAttributes(outfile, level, already_processed, namespace_, name_='AcquisitionTriggers')
         if self.hasContent_():
             outfile.write('>%s' % (eol_, ))
-            self.exportChildren(outfile, level + 1, namespace_='', name_='TrackingType', pretty_print=pretty_print)
+            self.exportChildren(outfile, level + 1, namespace_='', name_='AcquisitionTriggers', pretty_print=pretty_print)
             showIndent(outfile, level, pretty_print)
             outfile.write('</%s%s>%s' % (namespace_, name_, eol_))
         else:
             outfile.write('/>%s' % (eol_, ))
-    def exportAttributes(self, outfile, level, already_processed, namespace_='', name_='TrackingType'):
+    def exportAttributes(self, outfile, level, already_processed, namespace_='', name_='AcquisitionTriggers'):
         pass
-    def exportChildren(self, outfile, level, namespace_='', name_='TrackingType', fromsubclass_=False, pretty_print=True):
+    def exportChildren(self, outfile, level, namespace_='', name_='AcquisitionTriggers', fromsubclass_=False, pretty_print=True):
         if pretty_print:
             eol_ = '\n'
         else:
             eol_ = ''
-        if self.TrackingEnabled is not None:
-            showIndent(outfile, level, pretty_print)
-            outfile.write('<%sTrackingEnabled>%s</%sTrackingEnabled>%s' % (namespace_, self.gds_format_boolean(self.TrackingEnabled, input_name='TrackingEnabled'), namespace_, eol_))
-        if self.CapabilityRatio is not None:
-            showIndent(outfile, level, pretty_print)
-            outfile.write('<%sCapabilityRatio>%s</%sCapabilityRatio>%s' % (namespace_, self.gds_format_double(self.CapabilityRatio, input_name='CapabilityRatio'), namespace_, eol_))
+        for MV_ in self.MV:
+            MV_.export(outfile, level, namespace_, name_='MV', pretty_print=pretty_print)
+        for KV_ in self.KV:
+            KV_.export(outfile, level, namespace_, name_='KV', pretty_print=pretty_print)
     def build(self, node):
         already_processed = set()
         self.buildAttributes(node, node.attrib, already_processed)
@@ -1407,7 +4934,198 @@ class TrackingType(GeneratedsSuper):
     def buildAttributes(self, node, attrs, already_processed):
         pass
     def buildChildren(self, child_, node, nodeName_, fromsubclass_=False):
-        if nodeName_ == 'TrackingEnabled':
+        if nodeName_ == 'MV':
+            obj_ = AcquisitionTrigger.factory()
+            obj_.build(child_)
+            self.MV.append(obj_)
+            obj_.original_tagname_ = 'MV'
+        elif nodeName_ == 'KV':
+            obj_ = AcquisitionTrigger.factory()
+            obj_.build(child_)
+            self.KV.append(obj_)
+            obj_.original_tagname_ = 'KV'
+# end class AcquisitionTriggers
+
+
+class ActionWindow(GeneratedsSuper):
+    """Each defined action window (AW) is assigned to one axis. The AW
+    defined the system behavior if the current axis value is within
+    or outside of the defined border. It could hold the kV or MV
+    beam (MVBeamImpact/KVBeamImpact). Additionally the action window
+    could trigger an MV or kV image on the gate transition (enter or
+    exit window). There are two different sets of axis ID's: -
+    Global axes : The global axes refers to a machine state and are
+    mainly used for MU, gantry or time triggered imaging. - Tracking
+    axes : The tracking axes are related to a actual value
+    determined by a running tracking acquisition. The supported
+    global axis ID's are: - MU : Used for delta triggered imaging
+    based on delivered MUs - GantryAngle : Used for delta triggered
+    imaging based on gantry rotation [degree] - Time : Used for
+    delta triggered imaging based on treatment time. The treatment
+    time does not stop while the treatment beam is held. The unit
+    for the treatment time is seconds. - ConformityIndexOverArea : -
+    ConformityIndexUnderArea : The supported tracking axis ID's are:
+    - Amplitude - Phase - Quality - Target_fixed.X : Target motion
+    on X axis in fix system [cm] - Target_fixed.Y : Target motion on
+    Y axis in fix system [cm] - Target_fixed.Z : Target motion on Z
+    axis in fix system [cm] - Target_fixed.R : Target radial motion
+    in fix system [cm] - Target_fixed.AngleX : Target motion around
+    X axis in fix system [degree] - Target_fixed.AngleY : Target
+    motion around Y axis in fix system [degree] -
+    Target_fixed.AngleZ : Target motion around Z axis in fix system
+    [degree] - Target_model.X : Target motion on X axis in model
+    system [cm] - Target_ model.Y : Target motion on Y axis in model
+    system [cm] - Target_ model.Z : Target motion on Z axis in model
+    system [cm] - Target_ model.R : Target radial motion in model
+    system [cm] - Target_ model.AngleX : Target motion around X axis
+    in model system [degree] - Target_ model.AngleY : Target motion
+    around Y axis in model system [degree] - Target_ model.AngleZ :
+    Target motion around Z axis in model system [degree] Parameter
+    description: Attribut axis : Name of the axis MVBeamImpact :
+    Hold the MV beam if tracking source is outside of the action
+    window. KVBeamImpact : Hold the kV beam if tracking source is
+    outside of the action window. MotionCompensationImpact:
+    LowerLimit : Lower limit of the action window. Unit according to
+    axis ID. UpperLimit : Upper limit of the action window. Unit
+    according to axis ID. Delta : Delta value used for gantry, MU or
+    time based triggered imaging EntryDelay : Entry delay in milli
+    seconds LingerTimeout : Linger timeout in milli seconds
+    FaultOnExit : Raise a fault on exit the action window
+    AcquisitionTriggers: MV or kV acquisition triggers"""
+    subclass = None
+    superclass = None
+    def __init__(self, axis=None, MVBeamImpact=True, KVBeamImpact=False, MotionCompensationImpact=False, LowerLimit=None, UpperLimit=None, Delta=None, EntryDelay=0, LingerTimeout=0, FaultOnExit=False, AcquisitionTriggers=None):
+        self.original_tagname_ = None
+        self.axis = _cast(None, axis)
+        self.MVBeamImpact = MVBeamImpact
+        self.KVBeamImpact = KVBeamImpact
+        self.MotionCompensationImpact = MotionCompensationImpact
+        self.LowerLimit = LowerLimit
+        self.UpperLimit = UpperLimit
+        self.Delta = Delta
+        self.EntryDelay = EntryDelay
+        self.LingerTimeout = LingerTimeout
+        self.FaultOnExit = FaultOnExit
+        self.AcquisitionTriggers = AcquisitionTriggers
+    def factory(*args_, **kwargs_):
+        if CurrentSubclassModule_ is not None:
+            subclass = getSubclassFromModule_(
+                CurrentSubclassModule_, ActionWindow)
+            if subclass is not None:
+                return subclass(*args_, **kwargs_)
+        if ActionWindow.subclass:
+            return ActionWindow.subclass(*args_, **kwargs_)
+        else:
+            return ActionWindow(*args_, **kwargs_)
+    factory = staticmethod(factory)
+    def get_MVBeamImpact(self): return self.MVBeamImpact
+    def set_MVBeamImpact(self, MVBeamImpact): self.MVBeamImpact = MVBeamImpact
+    def get_KVBeamImpact(self): return self.KVBeamImpact
+    def set_KVBeamImpact(self, KVBeamImpact): self.KVBeamImpact = KVBeamImpact
+    def get_MotionCompensationImpact(self): return self.MotionCompensationImpact
+    def set_MotionCompensationImpact(self, MotionCompensationImpact): self.MotionCompensationImpact = MotionCompensationImpact
+    def get_LowerLimit(self): return self.LowerLimit
+    def set_LowerLimit(self, LowerLimit): self.LowerLimit = LowerLimit
+    def get_UpperLimit(self): return self.UpperLimit
+    def set_UpperLimit(self, UpperLimit): self.UpperLimit = UpperLimit
+    def get_Delta(self): return self.Delta
+    def set_Delta(self, Delta): self.Delta = Delta
+    def get_EntryDelay(self): return self.EntryDelay
+    def set_EntryDelay(self, EntryDelay): self.EntryDelay = EntryDelay
+    def get_LingerTimeout(self): return self.LingerTimeout
+    def set_LingerTimeout(self, LingerTimeout): self.LingerTimeout = LingerTimeout
+    def get_FaultOnExit(self): return self.FaultOnExit
+    def set_FaultOnExit(self, FaultOnExit): self.FaultOnExit = FaultOnExit
+    def get_AcquisitionTriggers(self): return self.AcquisitionTriggers
+    def set_AcquisitionTriggers(self, AcquisitionTriggers): self.AcquisitionTriggers = AcquisitionTriggers
+    def get_axis(self): return self.axis
+    def set_axis(self, axis): self.axis = axis
+    def hasContent_(self):
+        if (
+            not self.MVBeamImpact or
+            self.KVBeamImpact or
+            self.MotionCompensationImpact or
+            self.LowerLimit is not None or
+            self.UpperLimit is not None or
+            self.Delta is not None or
+            self.EntryDelay != 0 or
+            self.LingerTimeout != 0 or
+            self.FaultOnExit or
+            self.AcquisitionTriggers is not None
+        ):
+            return True
+        else:
+            return False
+    def export(self, outfile, level, namespace_='', name_='ActionWindow', namespacedef_='', pretty_print=True):
+        if pretty_print:
+            eol_ = '\n'
+        else:
+            eol_ = ''
+        if self.original_tagname_ is not None:
+            name_ = self.original_tagname_
+        showIndent(outfile, level, pretty_print)
+        outfile.write('<%s%s%s' % (namespace_, name_, namespacedef_ and ' ' + namespacedef_ or '', ))
+        already_processed = set()
+        self.exportAttributes(outfile, level, already_processed, namespace_, name_='ActionWindow')
+        if self.hasContent_():
+            outfile.write('>%s' % (eol_, ))
+            self.exportChildren(outfile, level + 1, namespace_='', name_='ActionWindow', pretty_print=pretty_print)
+            showIndent(outfile, level, pretty_print)
+            outfile.write('</%s%s>%s' % (namespace_, name_, eol_))
+        else:
+            outfile.write('/>%s' % (eol_, ))
+    def exportAttributes(self, outfile, level, already_processed, namespace_='', name_='ActionWindow'):
+        if self.axis is not None and 'axis' not in already_processed:
+            already_processed.add('axis')
+            outfile.write(' axis=%s' % (self.gds_encode(self.gds_format_string(quote_attrib(self.axis), input_name='axis')), ))
+    def exportChildren(self, outfile, level, namespace_='', name_='ActionWindow', fromsubclass_=False, pretty_print=True):
+        if pretty_print:
+            eol_ = '\n'
+        else:
+            eol_ = ''
+        if not self.MVBeamImpact:
+            showIndent(outfile, level, pretty_print)
+            outfile.write('<%sMVBeamImpact>%s</%sMVBeamImpact>%s' % (namespace_, self.gds_format_boolean(self.MVBeamImpact, input_name='MVBeamImpact'), namespace_, eol_))
+        if self.KVBeamImpact:
+            showIndent(outfile, level, pretty_print)
+            outfile.write('<%sKVBeamImpact>%s</%sKVBeamImpact>%s' % (namespace_, self.gds_format_boolean(self.KVBeamImpact, input_name='KVBeamImpact'), namespace_, eol_))
+        if self.MotionCompensationImpact:
+            showIndent(outfile, level, pretty_print)
+            outfile.write('<%sMotionCompensationImpact>%s</%sMotionCompensationImpact>%s' % (namespace_, self.gds_format_boolean(self.MotionCompensationImpact, input_name='MotionCompensationImpact'), namespace_, eol_))
+        if self.LowerLimit is not None:
+            showIndent(outfile, level, pretty_print)
+            outfile.write('<%sLowerLimit>%s</%sLowerLimit>%s' % (namespace_, self.gds_format_double(self.LowerLimit, input_name='LowerLimit'), namespace_, eol_))
+        if self.UpperLimit is not None:
+            showIndent(outfile, level, pretty_print)
+            outfile.write('<%sUpperLimit>%s</%sUpperLimit>%s' % (namespace_, self.gds_format_double(self.UpperLimit, input_name='UpperLimit'), namespace_, eol_))
+        if self.Delta is not None:
+            showIndent(outfile, level, pretty_print)
+            outfile.write('<%sDelta>%s</%sDelta>%s' % (namespace_, self.gds_format_double(self.Delta, input_name='Delta'), namespace_, eol_))
+        if self.EntryDelay != 0:
+            showIndent(outfile, level, pretty_print)
+            outfile.write('<%sEntryDelay>%s</%sEntryDelay>%s' % (namespace_, self.gds_format_double(self.EntryDelay, input_name='EntryDelay'), namespace_, eol_))
+        if self.LingerTimeout != 0:
+            showIndent(outfile, level, pretty_print)
+            outfile.write('<%sLingerTimeout>%s</%sLingerTimeout>%s' % (namespace_, self.gds_format_double(self.LingerTimeout, input_name='LingerTimeout'), namespace_, eol_))
+        if self.FaultOnExit:
+            showIndent(outfile, level, pretty_print)
+            outfile.write('<%sFaultOnExit>%s</%sFaultOnExit>%s' % (namespace_, self.gds_format_boolean(self.FaultOnExit, input_name='FaultOnExit'), namespace_, eol_))
+        if self.AcquisitionTriggers is not None:
+            self.AcquisitionTriggers.export(outfile, level, namespace_, name_='AcquisitionTriggers', pretty_print=pretty_print)
+    def build(self, node):
+        already_processed = set()
+        self.buildAttributes(node, node.attrib, already_processed)
+        for child in node:
+            nodeName_ = Tag_pattern_.match(child.tag).groups()[-1]
+            self.buildChildren(child, node, nodeName_)
+        return self
+    def buildAttributes(self, node, attrs, already_processed):
+        value = find_attr_value_('axis', node)
+        if value is not None and 'axis' not in already_processed:
+            already_processed.add('axis')
+            self.axis = value
+    def buildChildren(self, child_, node, nodeName_, fromsubclass_=False):
+        if nodeName_ == 'MVBeamImpact':
             sval_ = child_.text
             if sval_ in ('true', '1'):
                 ival_ = True
@@ -1415,70 +5133,136 @@ class TrackingType(GeneratedsSuper):
                 ival_ = False
             else:
                 raise_parse_error(child_, 'requires boolean')
-            ival_ = self.gds_validate_boolean(ival_, node, 'TrackingEnabled')
-            self.TrackingEnabled = ival_
-        elif nodeName_ == 'CapabilityRatio':
+            ival_ = self.gds_validate_boolean(ival_, node, 'MVBeamImpact')
+            self.MVBeamImpact = ival_
+        elif nodeName_ == 'KVBeamImpact':
+            sval_ = child_.text
+            if sval_ in ('true', '1'):
+                ival_ = True
+            elif sval_ in ('false', '0'):
+                ival_ = False
+            else:
+                raise_parse_error(child_, 'requires boolean')
+            ival_ = self.gds_validate_boolean(ival_, node, 'KVBeamImpact')
+            self.KVBeamImpact = ival_
+        elif nodeName_ == 'MotionCompensationImpact':
+            sval_ = child_.text
+            if sval_ in ('true', '1'):
+                ival_ = True
+            elif sval_ in ('false', '0'):
+                ival_ = False
+            else:
+                raise_parse_error(child_, 'requires boolean')
+            ival_ = self.gds_validate_boolean(ival_, node, 'MotionCompensationImpact')
+            self.MotionCompensationImpact = ival_
+        elif nodeName_ == 'LowerLimit':
             sval_ = child_.text
             try:
                 fval_ = float(sval_)
-            except (TypeError, ValueError), exp:
+            except (TypeError, ValueError) as exp:
                 raise_parse_error(child_, 'requires float or double: %s' % exp)
-            fval_ = self.gds_validate_float(fval_, node, 'CapabilityRatio')
-            self.CapabilityRatio = fval_
-            self.validate_CapabilityRatioType(self.CapabilityRatio)    # validate type CapabilityRatioType
-# end class TrackingType
+            fval_ = self.gds_validate_float(fval_, node, 'LowerLimit')
+            self.LowerLimit = fval_
+        elif nodeName_ == 'UpperLimit':
+            sval_ = child_.text
+            try:
+                fval_ = float(sval_)
+            except (TypeError, ValueError) as exp:
+                raise_parse_error(child_, 'requires float or double: %s' % exp)
+            fval_ = self.gds_validate_float(fval_, node, 'UpperLimit')
+            self.UpperLimit = fval_
+        elif nodeName_ == 'Delta':
+            sval_ = child_.text
+            try:
+                fval_ = float(sval_)
+            except (TypeError, ValueError) as exp:
+                raise_parse_error(child_, 'requires float or double: %s' % exp)
+            fval_ = self.gds_validate_float(fval_, node, 'Delta')
+            self.Delta = fval_
+        elif nodeName_ == 'EntryDelay':
+            sval_ = child_.text
+            try:
+                fval_ = float(sval_)
+            except (TypeError, ValueError) as exp:
+                raise_parse_error(child_, 'requires float or double: %s' % exp)
+            fval_ = self.gds_validate_float(fval_, node, 'EntryDelay')
+            self.EntryDelay = fval_
+        elif nodeName_ == 'LingerTimeout':
+            sval_ = child_.text
+            try:
+                fval_ = float(sval_)
+            except (TypeError, ValueError) as exp:
+                raise_parse_error(child_, 'requires float or double: %s' % exp)
+            fval_ = self.gds_validate_float(fval_, node, 'LingerTimeout')
+            self.LingerTimeout = fval_
+        elif nodeName_ == 'FaultOnExit':
+            sval_ = child_.text
+            if sval_ in ('true', '1'):
+                ival_ = True
+            elif sval_ in ('false', '0'):
+                ival_ = False
+            else:
+                raise_parse_error(child_, 'requires boolean')
+            ival_ = self.gds_validate_boolean(ival_, node, 'FaultOnExit')
+            self.FaultOnExit = ival_
+        elif nodeName_ == 'AcquisitionTriggers':
+            obj_ = AcquisitionTriggers.factory()
+            obj_.build(child_)
+            self.AcquisitionTriggers = obj_
+            obj_.original_tagname_ = 'AcquisitionTriggers'
+# end class ActionWindow
 
 
-class TolTableType(GeneratedsSuper):
+class ActionWindows(GeneratedsSuper):
+    """Basic Action Window: The basic action window is used to define a set
+    of gating window. The beam is released automatically if the axis
+    is within the gate again. Segmental Action Window: The beam is
+    hold if the axis is outside the defined gate but not
+    automatically resumed if the axis is inside the gate again. The
+    user needs to give the OK before resuming. TODO: Verify the
+    descriprion text for segmental"""
     subclass = None
     superclass = None
-    def __init__(self, GantryRtn=None, CollRtn=None, CouchVrt=None, CouchLat=None, CouchLng=None, CouchRtn=None, Y12=None, X12=None):
+    def __init__(self, Basic=None, Segmental=None):
         self.original_tagname_ = None
-        self.GantryRtn = GantryRtn
-        self.CollRtn = CollRtn
-        self.CouchVrt = CouchVrt
-        self.CouchLat = CouchLat
-        self.CouchLng = CouchLng
-        self.CouchRtn = CouchRtn
-        self.Y12 = Y12
-        self.X12 = X12
-    def factory(*args_, **kwargs_):
-        if TolTableType.subclass:
-            return TolTableType.subclass(*args_, **kwargs_)
+        if Basic is None:
+            self.Basic = []
         else:
-            return TolTableType(*args_, **kwargs_)
+            self.Basic = Basic
+        if Segmental is None:
+            self.Segmental = []
+        else:
+            self.Segmental = Segmental
+    def factory(*args_, **kwargs_):
+        if CurrentSubclassModule_ is not None:
+            subclass = getSubclassFromModule_(
+                CurrentSubclassModule_, ActionWindows)
+            if subclass is not None:
+                return subclass(*args_, **kwargs_)
+        if ActionWindows.subclass:
+            return ActionWindows.subclass(*args_, **kwargs_)
+        else:
+            return ActionWindows(*args_, **kwargs_)
     factory = staticmethod(factory)
-    def get_GantryRtn(self): return self.GantryRtn
-    def set_GantryRtn(self, GantryRtn): self.GantryRtn = GantryRtn
-    def get_CollRtn(self): return self.CollRtn
-    def set_CollRtn(self, CollRtn): self.CollRtn = CollRtn
-    def get_CouchVrt(self): return self.CouchVrt
-    def set_CouchVrt(self, CouchVrt): self.CouchVrt = CouchVrt
-    def get_CouchLat(self): return self.CouchLat
-    def set_CouchLat(self, CouchLat): self.CouchLat = CouchLat
-    def get_CouchLng(self): return self.CouchLng
-    def set_CouchLng(self, CouchLng): self.CouchLng = CouchLng
-    def get_CouchRtn(self): return self.CouchRtn
-    def set_CouchRtn(self, CouchRtn): self.CouchRtn = CouchRtn
-    def get_Y12(self): return self.Y12
-    def set_Y12(self, Y12): self.Y12 = Y12
-    def get_X12(self): return self.X12
-    def set_X12(self, X12): self.X12 = X12
+    def get_Basic(self): return self.Basic
+    def set_Basic(self, Basic): self.Basic = Basic
+    def add_Basic(self, value): self.Basic.append(value)
+    def insert_Basic_at(self, index, value): self.Basic.insert(index, value)
+    def replace_Basic_at(self, index, value): self.Basic[index] = value
+    def get_Segmental(self): return self.Segmental
+    def set_Segmental(self, Segmental): self.Segmental = Segmental
+    def add_Segmental(self, value): self.Segmental.append(value)
+    def insert_Segmental_at(self, index, value): self.Segmental.insert(index, value)
+    def replace_Segmental_at(self, index, value): self.Segmental[index] = value
     def hasContent_(self):
         if (
-            self.GantryRtn is not None or
-            self.CollRtn is not None or
-            self.CouchVrt is not None or
-            self.CouchLat is not None or
-            self.CouchLng is not None or
-            self.CouchRtn is not None or
-            self.Y12 is not None or
-            self.X12 is not None
+            self.Basic or
+            self.Segmental
         ):
             return True
         else:
             return False
-    def export(self, outfile, level, namespace_='', name_='TolTableType', namespacedef_='', pretty_print=True):
+    def export(self, outfile, level, namespace_='', name_='ActionWindows', namespacedef_='', pretty_print=True):
         if pretty_print:
             eol_ = '\n'
         else:
@@ -1488,45 +5272,25 @@ class TolTableType(GeneratedsSuper):
         showIndent(outfile, level, pretty_print)
         outfile.write('<%s%s%s' % (namespace_, name_, namespacedef_ and ' ' + namespacedef_ or '', ))
         already_processed = set()
-        self.exportAttributes(outfile, level, already_processed, namespace_, name_='TolTableType')
+        self.exportAttributes(outfile, level, already_processed, namespace_, name_='ActionWindows')
         if self.hasContent_():
             outfile.write('>%s' % (eol_, ))
-            self.exportChildren(outfile, level + 1, namespace_='', name_='TolTableType', pretty_print=pretty_print)
+            self.exportChildren(outfile, level + 1, namespace_='', name_='ActionWindows', pretty_print=pretty_print)
             showIndent(outfile, level, pretty_print)
             outfile.write('</%s%s>%s' % (namespace_, name_, eol_))
         else:
             outfile.write('/>%s' % (eol_, ))
-    def exportAttributes(self, outfile, level, already_processed, namespace_='', name_='TolTableType'):
+    def exportAttributes(self, outfile, level, already_processed, namespace_='', name_='ActionWindows'):
         pass
-    def exportChildren(self, outfile, level, namespace_='', name_='TolTableType', fromsubclass_=False, pretty_print=True):
+    def exportChildren(self, outfile, level, namespace_='', name_='ActionWindows', fromsubclass_=False, pretty_print=True):
         if pretty_print:
             eol_ = '\n'
         else:
             eol_ = ''
-        if self.GantryRtn is not None:
-            showIndent(outfile, level, pretty_print)
-            outfile.write('<%sGantryRtn>%s</%sGantryRtn>%s' % (namespace_, self.gds_format_double(self.GantryRtn, input_name='GantryRtn'), namespace_, eol_))
-        if self.CollRtn is not None:
-            showIndent(outfile, level, pretty_print)
-            outfile.write('<%sCollRtn>%s</%sCollRtn>%s' % (namespace_, self.gds_format_double(self.CollRtn, input_name='CollRtn'), namespace_, eol_))
-        if self.CouchVrt is not None:
-            showIndent(outfile, level, pretty_print)
-            outfile.write('<%sCouchVrt>%s</%sCouchVrt>%s' % (namespace_, self.gds_format_double(self.CouchVrt, input_name='CouchVrt'), namespace_, eol_))
-        if self.CouchLat is not None:
-            showIndent(outfile, level, pretty_print)
-            outfile.write('<%sCouchLat>%s</%sCouchLat>%s' % (namespace_, self.gds_format_double(self.CouchLat, input_name='CouchLat'), namespace_, eol_))
-        if self.CouchLng is not None:
-            showIndent(outfile, level, pretty_print)
-            outfile.write('<%sCouchLng>%s</%sCouchLng>%s' % (namespace_, self.gds_format_double(self.CouchLng, input_name='CouchLng'), namespace_, eol_))
-        if self.CouchRtn is not None:
-            showIndent(outfile, level, pretty_print)
-            outfile.write('<%sCouchRtn>%s</%sCouchRtn>%s' % (namespace_, self.gds_format_double(self.CouchRtn, input_name='CouchRtn'), namespace_, eol_))
-        if self.Y12 is not None:
-            showIndent(outfile, level, pretty_print)
-            outfile.write('<%sY12>%s</%sY12>%s' % (namespace_, self.gds_format_double(self.Y12, input_name='Y12'), namespace_, eol_))
-        if self.X12 is not None:
-            showIndent(outfile, level, pretty_print)
-            outfile.write('<%sX12>%s</%sX12>%s' % (namespace_, self.gds_format_double(self.X12, input_name='X12'), namespace_, eol_))
+        for Basic_ in self.Basic:
+            Basic_.export(outfile, level, namespace_, name_='Basic', pretty_print=pretty_print)
+        for Segmental_ in self.Segmental:
+            Segmental_.export(outfile, level, namespace_, name_='Segmental', pretty_print=pretty_print)
     def build(self, node):
         already_processed = set()
         self.buildAttributes(node, node.attrib, already_processed)
@@ -1537,131 +5301,60 @@ class TolTableType(GeneratedsSuper):
     def buildAttributes(self, node, attrs, already_processed):
         pass
     def buildChildren(self, child_, node, nodeName_, fromsubclass_=False):
-        if nodeName_ == 'GantryRtn':
-            sval_ = child_.text
-            try:
-                fval_ = float(sval_)
-            except (TypeError, ValueError), exp:
-                raise_parse_error(child_, 'requires float or double: %s' % exp)
-            fval_ = self.gds_validate_float(fval_, node, 'GantryRtn')
-            self.GantryRtn = fval_
-        elif nodeName_ == 'CollRtn':
-            sval_ = child_.text
-            try:
-                fval_ = float(sval_)
-            except (TypeError, ValueError), exp:
-                raise_parse_error(child_, 'requires float or double: %s' % exp)
-            fval_ = self.gds_validate_float(fval_, node, 'CollRtn')
-            self.CollRtn = fval_
-        elif nodeName_ == 'CouchVrt':
-            sval_ = child_.text
-            try:
-                fval_ = float(sval_)
-            except (TypeError, ValueError), exp:
-                raise_parse_error(child_, 'requires float or double: %s' % exp)
-            fval_ = self.gds_validate_float(fval_, node, 'CouchVrt')
-            self.CouchVrt = fval_
-        elif nodeName_ == 'CouchLat':
-            sval_ = child_.text
-            try:
-                fval_ = float(sval_)
-            except (TypeError, ValueError), exp:
-                raise_parse_error(child_, 'requires float or double: %s' % exp)
-            fval_ = self.gds_validate_float(fval_, node, 'CouchLat')
-            self.CouchLat = fval_
-        elif nodeName_ == 'CouchLng':
-            sval_ = child_.text
-            try:
-                fval_ = float(sval_)
-            except (TypeError, ValueError), exp:
-                raise_parse_error(child_, 'requires float or double: %s' % exp)
-            fval_ = self.gds_validate_float(fval_, node, 'CouchLng')
-            self.CouchLng = fval_
-        elif nodeName_ == 'CouchRtn':
-            sval_ = child_.text
-            try:
-                fval_ = float(sval_)
-            except (TypeError, ValueError), exp:
-                raise_parse_error(child_, 'requires float or double: %s' % exp)
-            fval_ = self.gds_validate_float(fval_, node, 'CouchRtn')
-            self.CouchRtn = fval_
-        elif nodeName_ == 'Y12':
-            sval_ = child_.text
-            try:
-                fval_ = float(sval_)
-            except (TypeError, ValueError), exp:
-                raise_parse_error(child_, 'requires float or double: %s' % exp)
-            fval_ = self.gds_validate_float(fval_, node, 'Y12')
-            self.Y12 = fval_
-        elif nodeName_ == 'X12':
-            sval_ = child_.text
-            try:
-                fval_ = float(sval_)
-            except (TypeError, ValueError), exp:
-                raise_parse_error(child_, 'requires float or double: %s' % exp)
-            fval_ = self.gds_validate_float(fval_, node, 'X12')
-            self.X12 = fval_
-# end class TolTableType
+        if nodeName_ == 'Basic':
+            obj_ = ActionWindow.factory()
+            obj_.build(child_)
+            self.Basic.append(obj_)
+            obj_.original_tagname_ = 'Basic'
+        elif nodeName_ == 'Segmental':
+            obj_ = ActionWindow.factory()
+            obj_.build(child_)
+            self.Segmental.append(obj_)
+            obj_.original_tagname_ = 'Segmental'
+# end class ActionWindows
 
 
-class VelTableType(GeneratedsSuper):
+class BasicMotionCompensation(GeneratedsSuper):
     subclass = None
     superclass = None
-    def __init__(self, GantryRtn=None, CollRtn=None, CouchVrt=None, CouchLat=None, CouchLng=None, CouchRtn=None, X1=None, X2=None, Y1=None, Y2=None):
+    def __init__(self, TrackingSource=None, CompensateRotation=False, Restriction_model=None):
         self.original_tagname_ = None
-        self.GantryRtn = GantryRtn
-        self.CollRtn = CollRtn
-        self.CouchVrt = CouchVrt
-        self.CouchLat = CouchLat
-        self.CouchLng = CouchLng
-        self.CouchRtn = CouchRtn
-        self.X1 = X1
-        self.X2 = X2
-        self.Y1 = Y1
-        self.Y2 = Y2
-    def factory(*args_, **kwargs_):
-        if VelTableType.subclass:
-            return VelTableType.subclass(*args_, **kwargs_)
+        self.TrackingSource = TrackingSource
+        self.CompensateRotation = CompensateRotation
+        if Restriction_model is None:
+            self.Restriction_model = []
         else:
-            return VelTableType(*args_, **kwargs_)
+            self.Restriction_model = Restriction_model
+    def factory(*args_, **kwargs_):
+        if CurrentSubclassModule_ is not None:
+            subclass = getSubclassFromModule_(
+                CurrentSubclassModule_, BasicMotionCompensation)
+            if subclass is not None:
+                return subclass(*args_, **kwargs_)
+        if BasicMotionCompensation.subclass:
+            return BasicMotionCompensation.subclass(*args_, **kwargs_)
+        else:
+            return BasicMotionCompensation(*args_, **kwargs_)
     factory = staticmethod(factory)
-    def get_GantryRtn(self): return self.GantryRtn
-    def set_GantryRtn(self, GantryRtn): self.GantryRtn = GantryRtn
-    def get_CollRtn(self): return self.CollRtn
-    def set_CollRtn(self, CollRtn): self.CollRtn = CollRtn
-    def get_CouchVrt(self): return self.CouchVrt
-    def set_CouchVrt(self, CouchVrt): self.CouchVrt = CouchVrt
-    def get_CouchLat(self): return self.CouchLat
-    def set_CouchLat(self, CouchLat): self.CouchLat = CouchLat
-    def get_CouchLng(self): return self.CouchLng
-    def set_CouchLng(self, CouchLng): self.CouchLng = CouchLng
-    def get_CouchRtn(self): return self.CouchRtn
-    def set_CouchRtn(self, CouchRtn): self.CouchRtn = CouchRtn
-    def get_X1(self): return self.X1
-    def set_X1(self, X1): self.X1 = X1
-    def get_X2(self): return self.X2
-    def set_X2(self, X2): self.X2 = X2
-    def get_Y1(self): return self.Y1
-    def set_Y1(self, Y1): self.Y1 = Y1
-    def get_Y2(self): return self.Y2
-    def set_Y2(self, Y2): self.Y2 = Y2
+    def get_TrackingSource(self): return self.TrackingSource
+    def set_TrackingSource(self, TrackingSource): self.TrackingSource = TrackingSource
+    def get_CompensateRotation(self): return self.CompensateRotation
+    def set_CompensateRotation(self, CompensateRotation): self.CompensateRotation = CompensateRotation
+    def get_Restriction_model(self): return self.Restriction_model
+    def set_Restriction_model(self, Restriction_model): self.Restriction_model = Restriction_model
+    def add_Restriction_model(self, value): self.Restriction_model.append(value)
+    def insert_Restriction_model_at(self, index, value): self.Restriction_model.insert(index, value)
+    def replace_Restriction_model_at(self, index, value): self.Restriction_model[index] = value
     def hasContent_(self):
         if (
-            self.GantryRtn is not None or
-            self.CollRtn is not None or
-            self.CouchVrt is not None or
-            self.CouchLat is not None or
-            self.CouchLng is not None or
-            self.CouchRtn is not None or
-            self.X1 is not None or
-            self.X2 is not None or
-            self.Y1 is not None or
-            self.Y2 is not None
+            self.TrackingSource is not None or
+            self.CompensateRotation or
+            self.Restriction_model
         ):
             return True
         else:
             return False
-    def export(self, outfile, level, namespace_='', name_='VelTableType', namespacedef_='', pretty_print=True):
+    def export(self, outfile, level, namespace_='', name_='BasicMotionCompensation', namespacedef_='', pretty_print=True):
         if pretty_print:
             eol_ = '\n'
         else:
@@ -1671,51 +5364,29 @@ class VelTableType(GeneratedsSuper):
         showIndent(outfile, level, pretty_print)
         outfile.write('<%s%s%s' % (namespace_, name_, namespacedef_ and ' ' + namespacedef_ or '', ))
         already_processed = set()
-        self.exportAttributes(outfile, level, already_processed, namespace_, name_='VelTableType')
+        self.exportAttributes(outfile, level, already_processed, namespace_, name_='BasicMotionCompensation')
         if self.hasContent_():
             outfile.write('>%s' % (eol_, ))
-            self.exportChildren(outfile, level + 1, namespace_='', name_='VelTableType', pretty_print=pretty_print)
+            self.exportChildren(outfile, level + 1, namespace_='', name_='BasicMotionCompensation', pretty_print=pretty_print)
             showIndent(outfile, level, pretty_print)
             outfile.write('</%s%s>%s' % (namespace_, name_, eol_))
         else:
             outfile.write('/>%s' % (eol_, ))
-    def exportAttributes(self, outfile, level, already_processed, namespace_='', name_='VelTableType'):
+    def exportAttributes(self, outfile, level, already_processed, namespace_='', name_='BasicMotionCompensation'):
         pass
-    def exportChildren(self, outfile, level, namespace_='', name_='VelTableType', fromsubclass_=False, pretty_print=True):
+    def exportChildren(self, outfile, level, namespace_='', name_='BasicMotionCompensation', fromsubclass_=False, pretty_print=True):
         if pretty_print:
             eol_ = '\n'
         else:
             eol_ = ''
-        if self.GantryRtn is not None:
+        if self.TrackingSource is not None:
             showIndent(outfile, level, pretty_print)
-            outfile.write('<%sGantryRtn>%s</%sGantryRtn>%s' % (namespace_, self.gds_format_double(self.GantryRtn, input_name='GantryRtn'), namespace_, eol_))
-        if self.CollRtn is not None:
+            outfile.write('<%sTrackingSource>%s</%sTrackingSource>%s' % (namespace_, self.gds_encode(self.gds_format_string(quote_xml(self.TrackingSource), input_name='TrackingSource')), namespace_, eol_))
+        if self.CompensateRotation:
             showIndent(outfile, level, pretty_print)
-            outfile.write('<%sCollRtn>%s</%sCollRtn>%s' % (namespace_, self.gds_format_double(self.CollRtn, input_name='CollRtn'), namespace_, eol_))
-        if self.CouchVrt is not None:
-            showIndent(outfile, level, pretty_print)
-            outfile.write('<%sCouchVrt>%s</%sCouchVrt>%s' % (namespace_, self.gds_format_double(self.CouchVrt, input_name='CouchVrt'), namespace_, eol_))
-        if self.CouchLat is not None:
-            showIndent(outfile, level, pretty_print)
-            outfile.write('<%sCouchLat>%s</%sCouchLat>%s' % (namespace_, self.gds_format_double(self.CouchLat, input_name='CouchLat'), namespace_, eol_))
-        if self.CouchLng is not None:
-            showIndent(outfile, level, pretty_print)
-            outfile.write('<%sCouchLng>%s</%sCouchLng>%s' % (namespace_, self.gds_format_double(self.CouchLng, input_name='CouchLng'), namespace_, eol_))
-        if self.CouchRtn is not None:
-            showIndent(outfile, level, pretty_print)
-            outfile.write('<%sCouchRtn>%s</%sCouchRtn>%s' % (namespace_, self.gds_format_double(self.CouchRtn, input_name='CouchRtn'), namespace_, eol_))
-        if self.X1 is not None:
-            showIndent(outfile, level, pretty_print)
-            outfile.write('<%sX1>%s</%sX1>%s' % (namespace_, self.gds_format_double(self.X1, input_name='X1'), namespace_, eol_))
-        if self.X2 is not None:
-            showIndent(outfile, level, pretty_print)
-            outfile.write('<%sX2>%s</%sX2>%s' % (namespace_, self.gds_format_double(self.X2, input_name='X2'), namespace_, eol_))
-        if self.Y1 is not None:
-            showIndent(outfile, level, pretty_print)
-            outfile.write('<%sY1>%s</%sY1>%s' % (namespace_, self.gds_format_double(self.Y1, input_name='Y1'), namespace_, eol_))
-        if self.Y2 is not None:
-            showIndent(outfile, level, pretty_print)
-            outfile.write('<%sY2>%s</%sY2>%s' % (namespace_, self.gds_format_double(self.Y2, input_name='Y2'), namespace_, eol_))
+            outfile.write('<%sCompensateRotation>%s</%sCompensateRotation>%s' % (namespace_, self.gds_format_boolean(self.CompensateRotation, input_name='CompensateRotation'), namespace_, eol_))
+        for Restriction_model_ in self.Restriction_model:
+            Restriction_model_.export(outfile, level, namespace_, name_='Restriction_model', pretty_print=pretty_print)
     def build(self, node):
         already_processed = set()
         self.buildAttributes(node, node.attrib, already_processed)
@@ -1726,123 +5397,67 @@ class VelTableType(GeneratedsSuper):
     def buildAttributes(self, node, attrs, already_processed):
         pass
     def buildChildren(self, child_, node, nodeName_, fromsubclass_=False):
-        if nodeName_ == 'GantryRtn':
+        if nodeName_ == 'TrackingSource':
+            TrackingSource_ = child_.text
+            TrackingSource_ = self.gds_validate_string(TrackingSource_, node, 'TrackingSource')
+            self.TrackingSource = TrackingSource_
+        elif nodeName_ == 'CompensateRotation':
             sval_ = child_.text
-            try:
-                fval_ = float(sval_)
-            except (TypeError, ValueError), exp:
-                raise_parse_error(child_, 'requires float or double: %s' % exp)
-            fval_ = self.gds_validate_float(fval_, node, 'GantryRtn')
-            self.GantryRtn = fval_
-        elif nodeName_ == 'CollRtn':
-            sval_ = child_.text
-            try:
-                fval_ = float(sval_)
-            except (TypeError, ValueError), exp:
-                raise_parse_error(child_, 'requires float or double: %s' % exp)
-            fval_ = self.gds_validate_float(fval_, node, 'CollRtn')
-            self.CollRtn = fval_
-        elif nodeName_ == 'CouchVrt':
-            sval_ = child_.text
-            try:
-                fval_ = float(sval_)
-            except (TypeError, ValueError), exp:
-                raise_parse_error(child_, 'requires float or double: %s' % exp)
-            fval_ = self.gds_validate_float(fval_, node, 'CouchVrt')
-            self.CouchVrt = fval_
-        elif nodeName_ == 'CouchLat':
-            sval_ = child_.text
-            try:
-                fval_ = float(sval_)
-            except (TypeError, ValueError), exp:
-                raise_parse_error(child_, 'requires float or double: %s' % exp)
-            fval_ = self.gds_validate_float(fval_, node, 'CouchLat')
-            self.CouchLat = fval_
-        elif nodeName_ == 'CouchLng':
-            sval_ = child_.text
-            try:
-                fval_ = float(sval_)
-            except (TypeError, ValueError), exp:
-                raise_parse_error(child_, 'requires float or double: %s' % exp)
-            fval_ = self.gds_validate_float(fval_, node, 'CouchLng')
-            self.CouchLng = fval_
-        elif nodeName_ == 'CouchRtn':
-            sval_ = child_.text
-            try:
-                fval_ = float(sval_)
-            except (TypeError, ValueError), exp:
-                raise_parse_error(child_, 'requires float or double: %s' % exp)
-            fval_ = self.gds_validate_float(fval_, node, 'CouchRtn')
-            self.CouchRtn = fval_
-        elif nodeName_ == 'X1':
-            sval_ = child_.text
-            try:
-                fval_ = float(sval_)
-            except (TypeError, ValueError), exp:
-                raise_parse_error(child_, 'requires float or double: %s' % exp)
-            fval_ = self.gds_validate_float(fval_, node, 'X1')
-            self.X1 = fval_
-        elif nodeName_ == 'X2':
-            sval_ = child_.text
-            try:
-                fval_ = float(sval_)
-            except (TypeError, ValueError), exp:
-                raise_parse_error(child_, 'requires float or double: %s' % exp)
-            fval_ = self.gds_validate_float(fval_, node, 'X2')
-            self.X2 = fval_
-        elif nodeName_ == 'Y1':
-            sval_ = child_.text
-            try:
-                fval_ = float(sval_)
-            except (TypeError, ValueError), exp:
-                raise_parse_error(child_, 'requires float or double: %s' % exp)
-            fval_ = self.gds_validate_float(fval_, node, 'Y1')
-            self.Y1 = fval_
-        elif nodeName_ == 'Y2':
-            sval_ = child_.text
-            try:
-                fval_ = float(sval_)
-            except (TypeError, ValueError), exp:
-                raise_parse_error(child_, 'requires float or double: %s' % exp)
-            fval_ = self.gds_validate_float(fval_, node, 'Y2')
-            self.Y2 = fval_
-# end class VelTableType
+            if sval_ in ('true', '1'):
+                ival_ = True
+            elif sval_ in ('false', '0'):
+                ival_ = False
+            else:
+                raise_parse_error(child_, 'requires boolean')
+            ival_ = self.gds_validate_boolean(ival_, node, 'CompensateRotation')
+            self.CompensateRotation = ival_
+        elif nodeName_ == 'Restriction_model':
+            obj_ = Vector.factory()
+            obj_.build(child_)
+            self.Restriction_model.append(obj_)
+            obj_.original_tagname_ = 'Restriction_model'
+# end class BasicMotionCompensation
 
 
-class AccsType(GeneratedsSuper):
+class MotionCompensationPlugIn(GeneratedsSuper):
+    """Motion compensation plugin is an engineering only option"""
     subclass = None
     superclass = None
-    def __init__(self, Acc1=None, Acc2=None, Acc3=None, Acc4=None):
+    def __init__(self, module=None, name=None, anytypeobjs_=None):
         self.original_tagname_ = None
-        self.Acc1 = Acc1
-        self.Acc2 = Acc2
-        self.Acc3 = Acc3
-        self.Acc4 = Acc4
-    def factory(*args_, **kwargs_):
-        if AccsType.subclass:
-            return AccsType.subclass(*args_, **kwargs_)
+        self.module = _cast(None, module)
+        self.name = _cast(None, name)
+        if anytypeobjs_ is None:
+            self.anytypeobjs_ = []
         else:
-            return AccsType(*args_, **kwargs_)
+            self.anytypeobjs_ = anytypeobjs_
+    def factory(*args_, **kwargs_):
+        if CurrentSubclassModule_ is not None:
+            subclass = getSubclassFromModule_(
+                CurrentSubclassModule_, MotionCompensationPlugIn)
+            if subclass is not None:
+                return subclass(*args_, **kwargs_)
+        if MotionCompensationPlugIn.subclass:
+            return MotionCompensationPlugIn.subclass(*args_, **kwargs_)
+        else:
+            return MotionCompensationPlugIn(*args_, **kwargs_)
     factory = staticmethod(factory)
-    def get_Acc1(self): return self.Acc1
-    def set_Acc1(self, Acc1): self.Acc1 = Acc1
-    def get_Acc2(self): return self.Acc2
-    def set_Acc2(self, Acc2): self.Acc2 = Acc2
-    def get_Acc3(self): return self.Acc3
-    def set_Acc3(self, Acc3): self.Acc3 = Acc3
-    def get_Acc4(self): return self.Acc4
-    def set_Acc4(self, Acc4): self.Acc4 = Acc4
+    def get_anytypeobjs_(self): return self.anytypeobjs_
+    def set_anytypeobjs_(self, anytypeobjs_): self.anytypeobjs_ = anytypeobjs_
+    def add_anytypeobjs_(self, value): self.anytypeobjs_.append(value)
+    def insert_anytypeobjs_(self, index, value): self._anytypeobjs_[index] = value
+    def get_module(self): return self.module
+    def set_module(self, module): self.module = module
+    def get_name(self): return self.name
+    def set_name(self, name): self.name = name
     def hasContent_(self):
         if (
-            self.Acc1 is not None or
-            self.Acc2 is not None or
-            self.Acc3 is not None or
-            self.Acc4 is not None
+            self.anytypeobjs_
         ):
             return True
         else:
             return False
-    def export(self, outfile, level, namespace_='', name_='AccsType', namespacedef_='', pretty_print=True):
+    def export(self, outfile, level, namespace_='', name_='MotionCompensationPlugIn', namespacedef_='', pretty_print=True):
         if pretty_print:
             eol_ = '\n'
         else:
@@ -1852,33 +5467,110 @@ class AccsType(GeneratedsSuper):
         showIndent(outfile, level, pretty_print)
         outfile.write('<%s%s%s' % (namespace_, name_, namespacedef_ and ' ' + namespacedef_ or '', ))
         already_processed = set()
-        self.exportAttributes(outfile, level, already_processed, namespace_, name_='AccsType')
+        self.exportAttributes(outfile, level, already_processed, namespace_, name_='MotionCompensationPlugIn')
         if self.hasContent_():
             outfile.write('>%s' % (eol_, ))
-            self.exportChildren(outfile, level + 1, namespace_='', name_='AccsType', pretty_print=pretty_print)
+            self.exportChildren(outfile, level + 1, namespace_='', name_='MotionCompensationPlugIn', pretty_print=pretty_print)
             showIndent(outfile, level, pretty_print)
             outfile.write('</%s%s>%s' % (namespace_, name_, eol_))
         else:
             outfile.write('/>%s' % (eol_, ))
-    def exportAttributes(self, outfile, level, already_processed, namespace_='', name_='AccsType'):
-        pass
-    def exportChildren(self, outfile, level, namespace_='', name_='AccsType', fromsubclass_=False, pretty_print=True):
+    def exportAttributes(self, outfile, level, already_processed, namespace_='', name_='MotionCompensationPlugIn'):
+        if self.module is not None and 'module' not in already_processed:
+            already_processed.add('module')
+            outfile.write(' module=%s' % (self.gds_encode(self.gds_format_string(quote_attrib(self.module), input_name='module')), ))
+        if self.name is not None and 'name' not in already_processed:
+            already_processed.add('name')
+            outfile.write(' name=%s' % (self.gds_encode(self.gds_format_string(quote_attrib(self.name), input_name='name')), ))
+    def exportChildren(self, outfile, level, namespace_='', name_='MotionCompensationPlugIn', fromsubclass_=False, pretty_print=True):
         if pretty_print:
             eol_ = '\n'
         else:
             eol_ = ''
-        if self.Acc1 is not None:
+        for obj_ in self.anytypeobjs_:
+            obj_.export(outfile, level, namespace_, pretty_print=pretty_print)
+    def build(self, node):
+        already_processed = set()
+        self.buildAttributes(node, node.attrib, already_processed)
+        for child in node:
+            nodeName_ = Tag_pattern_.match(child.tag).groups()[-1]
+            self.buildChildren(child, node, nodeName_)
+        return self
+    def buildAttributes(self, node, attrs, already_processed):
+        value = find_attr_value_('module', node)
+        if value is not None and 'module' not in already_processed:
+            already_processed.add('module')
+            self.module = value
+        value = find_attr_value_('name', node)
+        if value is not None and 'name' not in already_processed:
+            already_processed.add('name')
+            self.name = value
+    def buildChildren(self, child_, node, nodeName_, fromsubclass_=False):
+        obj_ = self.gds_build_any(child_, 'MotionCompensationPlugIn')
+        if obj_ is not None:
+            self.add_anytypeobjs_(obj_)
+# end class MotionCompensationPlugIn
+
+
+class MotionCompensation(GeneratedsSuper):
+    subclass = None
+    superclass = None
+    def __init__(self, Basic=None, PlugIn=None):
+        self.original_tagname_ = None
+        self.Basic = Basic
+        self.PlugIn = PlugIn
+    def factory(*args_, **kwargs_):
+        if CurrentSubclassModule_ is not None:
+            subclass = getSubclassFromModule_(
+                CurrentSubclassModule_, MotionCompensation)
+            if subclass is not None:
+                return subclass(*args_, **kwargs_)
+        if MotionCompensation.subclass:
+            return MotionCompensation.subclass(*args_, **kwargs_)
+        else:
+            return MotionCompensation(*args_, **kwargs_)
+    factory = staticmethod(factory)
+    def get_Basic(self): return self.Basic
+    def set_Basic(self, Basic): self.Basic = Basic
+    def get_PlugIn(self): return self.PlugIn
+    def set_PlugIn(self, PlugIn): self.PlugIn = PlugIn
+    def hasContent_(self):
+        if (
+            self.Basic is not None or
+            self.PlugIn is not None
+        ):
+            return True
+        else:
+            return False
+    def export(self, outfile, level, namespace_='', name_='MotionCompensation', namespacedef_='', pretty_print=True):
+        if pretty_print:
+            eol_ = '\n'
+        else:
+            eol_ = ''
+        if self.original_tagname_ is not None:
+            name_ = self.original_tagname_
+        showIndent(outfile, level, pretty_print)
+        outfile.write('<%s%s%s' % (namespace_, name_, namespacedef_ and ' ' + namespacedef_ or '', ))
+        already_processed = set()
+        self.exportAttributes(outfile, level, already_processed, namespace_, name_='MotionCompensation')
+        if self.hasContent_():
+            outfile.write('>%s' % (eol_, ))
+            self.exportChildren(outfile, level + 1, namespace_='', name_='MotionCompensation', pretty_print=pretty_print)
             showIndent(outfile, level, pretty_print)
-            outfile.write('<%sAcc1>%s</%sAcc1>%s' % (namespace_, self.gds_format_integer(self.Acc1, input_name='Acc1'), namespace_, eol_))
-        if self.Acc2 is not None:
-            showIndent(outfile, level, pretty_print)
-            outfile.write('<%sAcc2>%s</%sAcc2>%s' % (namespace_, self.gds_format_integer(self.Acc2, input_name='Acc2'), namespace_, eol_))
-        if self.Acc3 is not None:
-            showIndent(outfile, level, pretty_print)
-            outfile.write('<%sAcc3>%s</%sAcc3>%s' % (namespace_, self.gds_format_integer(self.Acc3, input_name='Acc3'), namespace_, eol_))
-        if self.Acc4 is not None:
-            showIndent(outfile, level, pretty_print)
-            outfile.write('<%sAcc4>%s</%sAcc4>%s' % (namespace_, self.gds_format_integer(self.Acc4, input_name='Acc4'), namespace_, eol_))
+            outfile.write('</%s%s>%s' % (namespace_, name_, eol_))
+        else:
+            outfile.write('/>%s' % (eol_, ))
+    def exportAttributes(self, outfile, level, already_processed, namespace_='', name_='MotionCompensation'):
+        pass
+    def exportChildren(self, outfile, level, namespace_='', name_='MotionCompensation', fromsubclass_=False, pretty_print=True):
+        if pretty_print:
+            eol_ = '\n'
+        else:
+            eol_ = ''
+        if self.Basic is not None:
+            self.Basic.export(outfile, level, namespace_, name_='Basic', pretty_print=pretty_print)
+        if self.PlugIn is not None:
+            self.PlugIn.export(outfile, level, namespace_, name_='PlugIn', pretty_print=pretty_print)
     def build(self, node):
         already_processed = set()
         self.buildAttributes(node, node.attrib, already_processed)
@@ -1889,69 +5581,502 @@ class AccsType(GeneratedsSuper):
     def buildAttributes(self, node, attrs, already_processed):
         pass
     def buildChildren(self, child_, node, nodeName_, fromsubclass_=False):
-        if nodeName_ == 'Acc1':
-            sval_ = child_.text
-            try:
-                ival_ = int(sval_)
-            except (TypeError, ValueError), exp:
-                raise_parse_error(child_, 'requires integer: %s' % exp)
-            ival_ = self.gds_validate_integer(ival_, node, 'Acc1')
-            self.Acc1 = ival_
-        elif nodeName_ == 'Acc2':
-            sval_ = child_.text
-            try:
-                ival_ = int(sval_)
-            except (TypeError, ValueError), exp:
-                raise_parse_error(child_, 'requires integer: %s' % exp)
-            ival_ = self.gds_validate_integer(ival_, node, 'Acc2')
-            self.Acc2 = ival_
-        elif nodeName_ == 'Acc3':
-            sval_ = child_.text
-            try:
-                ival_ = int(sval_)
-            except (TypeError, ValueError), exp:
-                raise_parse_error(child_, 'requires integer: %s' % exp)
-            ival_ = self.gds_validate_integer(ival_, node, 'Acc3')
-            self.Acc3 = ival_
-        elif nodeName_ == 'Acc4':
-            sval_ = child_.text
-            try:
-                ival_ = int(sval_)
-            except (TypeError, ValueError), exp:
-                raise_parse_error(child_, 'requires integer: %s' % exp)
-            ival_ = self.gds_validate_integer(ival_, node, 'Acc4')
-            self.Acc4 = ival_
-# end class AccsType
+        if nodeName_ == 'Basic':
+            obj_ = BasicMotionCompensation.factory()
+            obj_.build(child_)
+            self.Basic = obj_
+            obj_.original_tagname_ = 'Basic'
+        elif nodeName_ == 'PlugIn':
+            obj_ = MotionCompensationPlugIn.factory()
+            obj_.build(child_)
+            self.PlugIn = obj_
+            obj_.original_tagname_ = 'PlugIn'
+# end class MotionCompensation
 
 
-class ControlPointsType(GeneratedsSuper):
+class TrackingSource(GeneratedsSuper):
+    """Attribute id : Name of the tracking source. E.g. NDI, RTX1 or RTX2
+    AcquisitionParameters : Defines the acquisition specific
+    settings as image mode name. SurrogateModel : Model definition
+    of the surrogate. MotionModel : Model definition of the motion.
+    TrackingActionWindows : Action windows which are related"""
     subclass = None
     superclass = None
-    def __init__(self, Cp=None):
+    def __init__(self, id=None, AcquisitionParameters=None, SurrogateModel=None, MotionModel=None, TrackingActionWindows=None):
         self.original_tagname_ = None
-        if Cp is None:
-            self.Cp = []
-        else:
-            self.Cp = Cp
+        self.id = _cast(None, id)
+        self.AcquisitionParameters = AcquisitionParameters
+        self.SurrogateModel = SurrogateModel
+        self.MotionModel = MotionModel
+        self.TrackingActionWindows = TrackingActionWindows
     def factory(*args_, **kwargs_):
-        if ControlPointsType.subclass:
-            return ControlPointsType.subclass(*args_, **kwargs_)
+        if CurrentSubclassModule_ is not None:
+            subclass = getSubclassFromModule_(
+                CurrentSubclassModule_, TrackingSource)
+            if subclass is not None:
+                return subclass(*args_, **kwargs_)
+        if TrackingSource.subclass:
+            return TrackingSource.subclass(*args_, **kwargs_)
         else:
-            return ControlPointsType(*args_, **kwargs_)
+            return TrackingSource(*args_, **kwargs_)
+    factory = staticmethod(factory)
+    def get_AcquisitionParameters(self): return self.AcquisitionParameters
+    def set_AcquisitionParameters(self, AcquisitionParameters): self.AcquisitionParameters = AcquisitionParameters
+    def get_SurrogateModel(self): return self.SurrogateModel
+    def set_SurrogateModel(self, SurrogateModel): self.SurrogateModel = SurrogateModel
+    def get_MotionModel(self): return self.MotionModel
+    def set_MotionModel(self, MotionModel): self.MotionModel = MotionModel
+    def get_TrackingActionWindows(self): return self.TrackingActionWindows
+    def set_TrackingActionWindows(self, TrackingActionWindows): self.TrackingActionWindows = TrackingActionWindows
+    def get_id(self): return self.id
+    def set_id(self, id): self.id = id
+    def hasContent_(self):
+        if (
+            self.AcquisitionParameters is not None or
+            self.SurrogateModel is not None or
+            self.MotionModel is not None or
+            self.TrackingActionWindows is not None
+        ):
+            return True
+        else:
+            return False
+    def export(self, outfile, level, namespace_='', name_='TrackingSource', namespacedef_='', pretty_print=True):
+        if pretty_print:
+            eol_ = '\n'
+        else:
+            eol_ = ''
+        if self.original_tagname_ is not None:
+            name_ = self.original_tagname_
+        showIndent(outfile, level, pretty_print)
+        outfile.write('<%s%s%s' % (namespace_, name_, namespacedef_ and ' ' + namespacedef_ or '', ))
+        already_processed = set()
+        self.exportAttributes(outfile, level, already_processed, namespace_, name_='TrackingSource')
+        if self.hasContent_():
+            outfile.write('>%s' % (eol_, ))
+            self.exportChildren(outfile, level + 1, namespace_='', name_='TrackingSource', pretty_print=pretty_print)
+            showIndent(outfile, level, pretty_print)
+            outfile.write('</%s%s>%s' % (namespace_, name_, eol_))
+        else:
+            outfile.write('/>%s' % (eol_, ))
+    def exportAttributes(self, outfile, level, already_processed, namespace_='', name_='TrackingSource'):
+        if self.id is not None and 'id' not in already_processed:
+            already_processed.add('id')
+            outfile.write(' id=%s' % (self.gds_encode(self.gds_format_string(quote_attrib(self.id), input_name='id')), ))
+    def exportChildren(self, outfile, level, namespace_='', name_='TrackingSource', fromsubclass_=False, pretty_print=True):
+        if pretty_print:
+            eol_ = '\n'
+        else:
+            eol_ = ''
+        if self.AcquisitionParameters is not None:
+            self.AcquisitionParameters.export(outfile, level, namespace_, name_='AcquisitionParameters', pretty_print=pretty_print)
+        if self.SurrogateModel is not None:
+            self.SurrogateModel.export(outfile, level, namespace_, name_='SurrogateModel', pretty_print=pretty_print)
+        if self.MotionModel is not None:
+            self.MotionModel.export(outfile, level, namespace_, name_='MotionModel', pretty_print=pretty_print)
+        if self.TrackingActionWindows is not None:
+            self.TrackingActionWindows.export(outfile, level, namespace_, name_='TrackingActionWindows', pretty_print=pretty_print)
+    def build(self, node):
+        already_processed = set()
+        self.buildAttributes(node, node.attrib, already_processed)
+        for child in node:
+            nodeName_ = Tag_pattern_.match(child.tag).groups()[-1]
+            self.buildChildren(child, node, nodeName_)
+        return self
+    def buildAttributes(self, node, attrs, already_processed):
+        value = find_attr_value_('id', node)
+        if value is not None and 'id' not in already_processed:
+            already_processed.add('id')
+            self.id = value
+    def buildChildren(self, child_, node, nodeName_, fromsubclass_=False):
+        if nodeName_ == 'AcquisitionParameters':
+            obj_ = AcquisitionParameters.factory()
+            obj_.build(child_)
+            self.AcquisitionParameters = obj_
+            obj_.original_tagname_ = 'AcquisitionParameters'
+        elif nodeName_ == 'SurrogateModel':
+            obj_ = SurrogateModel.factory()
+            obj_.build(child_)
+            self.SurrogateModel = obj_
+            obj_.original_tagname_ = 'SurrogateModel'
+        elif nodeName_ == 'MotionModel':
+            obj_ = MotionModel.factory()
+            obj_.build(child_)
+            self.MotionModel = obj_
+            obj_.original_tagname_ = 'MotionModel'
+        elif nodeName_ == 'TrackingActionWindows':
+            obj_ = ActionWindows.factory()
+            obj_.build(child_)
+            self.TrackingActionWindows = obj_
+            obj_.original_tagname_ = 'TrackingActionWindows'
+# end class TrackingSource
+
+
+class MotionManagementParameters(GeneratedsSuper):
+    """Define XI specific motion model parameters ModelSystem : Defines the
+    model system TrackingSource : Setup parameters for involved
+    tracking sources MotionCompensation : Defines the motion
+    compensation model GlobalActionWindows : Action windows which
+    are not related to a tracking source (see description of
+    ActionWindow)"""
+    subclass = None
+    superclass = None
+    def __init__(self, ModelSystem=None, TrackingSource=None, MotionCompensation=None, GlobalActionWindows=None):
+        self.original_tagname_ = None
+        self.ModelSystem = ModelSystem
+        if TrackingSource is None:
+            self.TrackingSource = []
+        else:
+            self.TrackingSource = TrackingSource
+        self.MotionCompensation = MotionCompensation
+        self.GlobalActionWindows = GlobalActionWindows
+    def factory(*args_, **kwargs_):
+        if CurrentSubclassModule_ is not None:
+            subclass = getSubclassFromModule_(
+                CurrentSubclassModule_, MotionManagementParameters)
+            if subclass is not None:
+                return subclass(*args_, **kwargs_)
+        if MotionManagementParameters.subclass:
+            return MotionManagementParameters.subclass(*args_, **kwargs_)
+        else:
+            return MotionManagementParameters(*args_, **kwargs_)
+    factory = staticmethod(factory)
+    def get_ModelSystem(self): return self.ModelSystem
+    def set_ModelSystem(self, ModelSystem): self.ModelSystem = ModelSystem
+    def get_TrackingSource(self): return self.TrackingSource
+    def set_TrackingSource(self, TrackingSource): self.TrackingSource = TrackingSource
+    def add_TrackingSource(self, value): self.TrackingSource.append(value)
+    def insert_TrackingSource_at(self, index, value): self.TrackingSource.insert(index, value)
+    def replace_TrackingSource_at(self, index, value): self.TrackingSource[index] = value
+    def get_MotionCompensation(self): return self.MotionCompensation
+    def set_MotionCompensation(self, MotionCompensation): self.MotionCompensation = MotionCompensation
+    def get_GlobalActionWindows(self): return self.GlobalActionWindows
+    def set_GlobalActionWindows(self, GlobalActionWindows): self.GlobalActionWindows = GlobalActionWindows
+    def hasContent_(self):
+        if (
+            self.ModelSystem is not None or
+            self.TrackingSource or
+            self.MotionCompensation is not None or
+            self.GlobalActionWindows is not None
+        ):
+            return True
+        else:
+            return False
+    def export(self, outfile, level, namespace_='', name_='MotionManagementParameters', namespacedef_='', pretty_print=True):
+        if pretty_print:
+            eol_ = '\n'
+        else:
+            eol_ = ''
+        if self.original_tagname_ is not None:
+            name_ = self.original_tagname_
+        showIndent(outfile, level, pretty_print)
+        outfile.write('<%s%s%s' % (namespace_, name_, namespacedef_ and ' ' + namespacedef_ or '', ))
+        already_processed = set()
+        self.exportAttributes(outfile, level, already_processed, namespace_, name_='MotionManagementParameters')
+        if self.hasContent_():
+            outfile.write('>%s' % (eol_, ))
+            self.exportChildren(outfile, level + 1, namespace_='', name_='MotionManagementParameters', pretty_print=pretty_print)
+            showIndent(outfile, level, pretty_print)
+            outfile.write('</%s%s>%s' % (namespace_, name_, eol_))
+        else:
+            outfile.write('/>%s' % (eol_, ))
+    def exportAttributes(self, outfile, level, already_processed, namespace_='', name_='MotionManagementParameters'):
+        pass
+    def exportChildren(self, outfile, level, namespace_='', name_='MotionManagementParameters', fromsubclass_=False, pretty_print=True):
+        if pretty_print:
+            eol_ = '\n'
+        else:
+            eol_ = ''
+        if self.ModelSystem is not None:
+            self.ModelSystem.export(outfile, level, namespace_, name_='ModelSystem', pretty_print=pretty_print)
+        for TrackingSource_ in self.TrackingSource:
+            TrackingSource_.export(outfile, level, namespace_, name_='TrackingSource', pretty_print=pretty_print)
+        if self.MotionCompensation is not None:
+            self.MotionCompensation.export(outfile, level, namespace_, name_='MotionCompensation', pretty_print=pretty_print)
+        if self.GlobalActionWindows is not None:
+            self.GlobalActionWindows.export(outfile, level, namespace_, name_='GlobalActionWindows', pretty_print=pretty_print)
+    def build(self, node):
+        already_processed = set()
+        self.buildAttributes(node, node.attrib, already_processed)
+        for child in node:
+            nodeName_ = Tag_pattern_.match(child.tag).groups()[-1]
+            self.buildChildren(child, node, nodeName_)
+        return self
+    def buildAttributes(self, node, attrs, already_processed):
+        pass
+    def buildChildren(self, child_, node, nodeName_, fromsubclass_=False):
+        if nodeName_ == 'ModelSystem':
+            obj_ = ModelSystem.factory()
+            obj_.build(child_)
+            self.ModelSystem = obj_
+            obj_.original_tagname_ = 'ModelSystem'
+        elif nodeName_ == 'TrackingSource':
+            obj_ = TrackingSource.factory()
+            obj_.build(child_)
+            self.TrackingSource.append(obj_)
+            obj_.original_tagname_ = 'TrackingSource'
+        elif nodeName_ == 'MotionCompensation':
+            obj_ = MotionCompensation.factory()
+            obj_.build(child_)
+            self.MotionCompensation = obj_
+            obj_.original_tagname_ = 'MotionCompensation'
+        elif nodeName_ == 'GlobalActionWindows':
+            obj_ = ActionWindows.factory()
+            obj_.build(child_)
+            self.GlobalActionWindows = obj_
+            obj_.original_tagname_ = 'GlobalActionWindows'
+# end class MotionManagementParameters
+
+
+class iTools(GeneratedsSuper):
+    subclass = None
+    superclass = None
+    def __init__(self, anytypeobjs_=None):
+        self.original_tagname_ = None
+        if anytypeobjs_ is None:
+            self.anytypeobjs_ = []
+        else:
+            self.anytypeobjs_ = anytypeobjs_
+    def factory(*args_, **kwargs_):
+        if CurrentSubclassModule_ is not None:
+            subclass = getSubclassFromModule_(
+                CurrentSubclassModule_, iTools)
+            if subclass is not None:
+                return subclass(*args_, **kwargs_)
+        if iTools.subclass:
+            return iTools.subclass(*args_, **kwargs_)
+        else:
+            return iTools(*args_, **kwargs_)
+    factory = staticmethod(factory)
+    def get_anytypeobjs_(self): return self.anytypeobjs_
+    def set_anytypeobjs_(self, anytypeobjs_): self.anytypeobjs_ = anytypeobjs_
+    def add_anytypeobjs_(self, value): self.anytypeobjs_.append(value)
+    def insert_anytypeobjs_(self, index, value): self._anytypeobjs_[index] = value
+    def hasContent_(self):
+        if (
+            self.anytypeobjs_
+        ):
+            return True
+        else:
+            return False
+    def export(self, outfile, level, namespace_='', name_='iTools', namespacedef_='', pretty_print=True):
+        if pretty_print:
+            eol_ = '\n'
+        else:
+            eol_ = ''
+        if self.original_tagname_ is not None:
+            name_ = self.original_tagname_
+        showIndent(outfile, level, pretty_print)
+        outfile.write('<%s%s%s' % (namespace_, name_, namespacedef_ and ' ' + namespacedef_ or '', ))
+        already_processed = set()
+        self.exportAttributes(outfile, level, already_processed, namespace_, name_='iTools')
+        if self.hasContent_():
+            outfile.write('>%s' % (eol_, ))
+            self.exportChildren(outfile, level + 1, namespace_='', name_='iTools', pretty_print=pretty_print)
+            showIndent(outfile, level, pretty_print)
+            outfile.write('</%s%s>%s' % (namespace_, name_, eol_))
+        else:
+            outfile.write('/>%s' % (eol_, ))
+    def exportAttributes(self, outfile, level, already_processed, namespace_='', name_='iTools'):
+        pass
+    def exportChildren(self, outfile, level, namespace_='', name_='iTools', fromsubclass_=False, pretty_print=True):
+        if pretty_print:
+            eol_ = '\n'
+        else:
+            eol_ = ''
+        for obj_ in self.anytypeobjs_:
+            obj_.export(outfile, level, namespace_, pretty_print=pretty_print)
+    def build(self, node):
+        already_processed = set()
+        self.buildAttributes(node, node.attrib, already_processed)
+        for child in node:
+            nodeName_ = Tag_pattern_.match(child.tag).groups()[-1]
+            self.buildChildren(child, node, nodeName_)
+        return self
+    def buildAttributes(self, node, attrs, already_processed):
+        pass
+    def buildChildren(self, child_, node, nodeName_, fromsubclass_=False):
+        obj_ = self.gds_build_any(child_, 'iTools')
+        if obj_ is not None:
+            self.add_anytypeobjs_(obj_)
+# end class iTools
+
+
+class ImagingPoints(GeneratedsSuper):
+    """Sequence of imaging points. An initial imaging point at Cp=0 is
+    mandatory for all imaging axes, which are specified in a
+    subsequent imaging point."""
+    subclass = None
+    superclass = None
+    def __init__(self, ImagingPoint=None):
+        self.original_tagname_ = None
+        if ImagingPoint is None:
+            self.ImagingPoint = []
+        else:
+            self.ImagingPoint = ImagingPoint
+    def factory(*args_, **kwargs_):
+        if CurrentSubclassModule_ is not None:
+            subclass = getSubclassFromModule_(
+                CurrentSubclassModule_, ImagingPoints)
+            if subclass is not None:
+                return subclass(*args_, **kwargs_)
+        if ImagingPoints.subclass:
+            return ImagingPoints.subclass(*args_, **kwargs_)
+        else:
+            return ImagingPoints(*args_, **kwargs_)
+    factory = staticmethod(factory)
+    def get_ImagingPoint(self): return self.ImagingPoint
+    def set_ImagingPoint(self, ImagingPoint): self.ImagingPoint = ImagingPoint
+    def add_ImagingPoint(self, value): self.ImagingPoint.append(value)
+    def insert_ImagingPoint_at(self, index, value): self.ImagingPoint.insert(index, value)
+    def replace_ImagingPoint_at(self, index, value): self.ImagingPoint[index] = value
+    def hasContent_(self):
+        if (
+            self.ImagingPoint
+        ):
+            return True
+        else:
+            return False
+    def export(self, outfile, level, namespace_='', name_='ImagingPoints', namespacedef_='', pretty_print=True):
+        if pretty_print:
+            eol_ = '\n'
+        else:
+            eol_ = ''
+        if self.original_tagname_ is not None:
+            name_ = self.original_tagname_
+        showIndent(outfile, level, pretty_print)
+        outfile.write('<%s%s%s' % (namespace_, name_, namespacedef_ and ' ' + namespacedef_ or '', ))
+        already_processed = set()
+        self.exportAttributes(outfile, level, already_processed, namespace_, name_='ImagingPoints')
+        if self.hasContent_():
+            outfile.write('>%s' % (eol_, ))
+            self.exportChildren(outfile, level + 1, namespace_='', name_='ImagingPoints', pretty_print=pretty_print)
+            showIndent(outfile, level, pretty_print)
+            outfile.write('</%s%s>%s' % (namespace_, name_, eol_))
+        else:
+            outfile.write('/>%s' % (eol_, ))
+    def exportAttributes(self, outfile, level, already_processed, namespace_='', name_='ImagingPoints'):
+        pass
+    def exportChildren(self, outfile, level, namespace_='', name_='ImagingPoints', fromsubclass_=False, pretty_print=True):
+        if pretty_print:
+            eol_ = '\n'
+        else:
+            eol_ = ''
+        for ImagingPoint_ in self.ImagingPoint:
+            ImagingPoint_.export(outfile, level, namespace_, name_='ImagingPoint', pretty_print=pretty_print)
+    def build(self, node):
+        already_processed = set()
+        self.buildAttributes(node, node.attrib, already_processed)
+        for child in node:
+            nodeName_ = Tag_pattern_.match(child.tag).groups()[-1]
+            self.buildChildren(child, node, nodeName_)
+        return self
+    def buildAttributes(self, node, attrs, already_processed):
+        pass
+    def buildChildren(self, child_, node, nodeName_, fromsubclass_=False):
+        if nodeName_ == 'ImagingPoint':
+            obj_ = ImagingPoint.factory()
+            obj_.build(child_)
+            self.ImagingPoint.append(obj_)
+            obj_.original_tagname_ = 'ImagingPoint'
+# end class ImagingPoints
+
+
+class ImagingPoint(GeneratedsSuper):
+    """Imaging point. Refers to fractional control point indices, e.g. 3.5
+    means with all Clinac axes averaged between control points with
+    indices 3 and 4. In case of a beam group (or superbeam), Cp
+    refers to the fractional control point index of the combined
+    beam. Example: Beam group with 3 beams. First beam has 5 control
+    points:0 ≤ Cp ≤ 4. Second beam has 2 control points:5 ≤ Cp ≤ 6.
+    Third beam has 3 control points:7 ≤ Cp ≤ 9."""
+    subclass = None
+    superclass = None
+    def __init__(self, Cp=None, Acquisition=None, AcquisitionStart=None, AcquisitionStop=None, KvFilters=None, KvBlades=None, Mvd=None, Kvd=None, Kvs=None, MvdAfter=None, KvdAfter=None, KvsAfter=None):
+        self.original_tagname_ = None
+        self.Cp = Cp
+        if Acquisition is None:
+            self.Acquisition = []
+        else:
+            self.Acquisition = Acquisition
+        if AcquisitionStart is None:
+            self.AcquisitionStart = []
+        else:
+            self.AcquisitionStart = AcquisitionStart
+        if AcquisitionStop is None:
+            self.AcquisitionStop = []
+        else:
+            self.AcquisitionStop = AcquisitionStop
+        self.KvFilters = KvFilters
+        self.KvBlades = KvBlades
+        self.Mvd = Mvd
+        self.Kvd = Kvd
+        self.Kvs = Kvs
+        self.MvdAfter = MvdAfter
+        self.KvdAfter = KvdAfter
+        self.KvsAfter = KvsAfter
+    def factory(*args_, **kwargs_):
+        if CurrentSubclassModule_ is not None:
+            subclass = getSubclassFromModule_(
+                CurrentSubclassModule_, ImagingPoint)
+            if subclass is not None:
+                return subclass(*args_, **kwargs_)
+        if ImagingPoint.subclass:
+            return ImagingPoint.subclass(*args_, **kwargs_)
+        else:
+            return ImagingPoint(*args_, **kwargs_)
     factory = staticmethod(factory)
     def get_Cp(self): return self.Cp
     def set_Cp(self, Cp): self.Cp = Cp
-    def add_Cp(self, value): self.Cp.append(value)
-    def insert_Cp_at(self, index, value): self.Cp.insert(index, value)
-    def replace_Cp_at(self, index, value): self.Cp[index] = value
+    def get_Acquisition(self): return self.Acquisition
+    def set_Acquisition(self, Acquisition): self.Acquisition = Acquisition
+    def add_Acquisition(self, value): self.Acquisition.append(value)
+    def insert_Acquisition_at(self, index, value): self.Acquisition.insert(index, value)
+    def replace_Acquisition_at(self, index, value): self.Acquisition[index] = value
+    def get_AcquisitionStart(self): return self.AcquisitionStart
+    def set_AcquisitionStart(self, AcquisitionStart): self.AcquisitionStart = AcquisitionStart
+    def add_AcquisitionStart(self, value): self.AcquisitionStart.append(value)
+    def insert_AcquisitionStart_at(self, index, value): self.AcquisitionStart.insert(index, value)
+    def replace_AcquisitionStart_at(self, index, value): self.AcquisitionStart[index] = value
+    def get_AcquisitionStop(self): return self.AcquisitionStop
+    def set_AcquisitionStop(self, AcquisitionStop): self.AcquisitionStop = AcquisitionStop
+    def add_AcquisitionStop(self, value): self.AcquisitionStop.append(value)
+    def insert_AcquisitionStop_at(self, index, value): self.AcquisitionStop.insert(index, value)
+    def replace_AcquisitionStop_at(self, index, value): self.AcquisitionStop[index] = value
+    def get_KvFilters(self): return self.KvFilters
+    def set_KvFilters(self, KvFilters): self.KvFilters = KvFilters
+    def get_KvBlades(self): return self.KvBlades
+    def set_KvBlades(self, KvBlades): self.KvBlades = KvBlades
+    def get_Mvd(self): return self.Mvd
+    def set_Mvd(self, Mvd): self.Mvd = Mvd
+    def get_Kvd(self): return self.Kvd
+    def set_Kvd(self, Kvd): self.Kvd = Kvd
+    def get_Kvs(self): return self.Kvs
+    def set_Kvs(self, Kvs): self.Kvs = Kvs
+    def get_MvdAfter(self): return self.MvdAfter
+    def set_MvdAfter(self, MvdAfter): self.MvdAfter = MvdAfter
+    def get_KvdAfter(self): return self.KvdAfter
+    def set_KvdAfter(self, KvdAfter): self.KvdAfter = KvdAfter
+    def get_KvsAfter(self): return self.KvsAfter
+    def set_KvsAfter(self, KvsAfter): self.KvsAfter = KvsAfter
     def hasContent_(self):
         if (
-            self.Cp
+            self.Cp is not None or
+            self.Acquisition or
+            self.AcquisitionStart or
+            self.AcquisitionStop or
+            self.KvFilters is not None or
+            self.KvBlades is not None or
+            self.Mvd is not None or
+            self.Kvd is not None or
+            self.Kvs is not None or
+            self.MvdAfter is not None or
+            self.KvdAfter is not None or
+            self.KvsAfter is not None
         ):
             return True
         else:
             return False
-    def export(self, outfile, level, namespace_='', name_='ControlPointsType', namespacedef_='', pretty_print=True):
+    def export(self, outfile, level, namespace_='', name_='ImagingPoint', namespacedef_='', pretty_print=True):
         if pretty_print:
             eol_ = '\n'
         else:
@@ -1961,23 +6086,46 @@ class ControlPointsType(GeneratedsSuper):
         showIndent(outfile, level, pretty_print)
         outfile.write('<%s%s%s' % (namespace_, name_, namespacedef_ and ' ' + namespacedef_ or '', ))
         already_processed = set()
-        self.exportAttributes(outfile, level, already_processed, namespace_, name_='ControlPointsType')
+        self.exportAttributes(outfile, level, already_processed, namespace_, name_='ImagingPoint')
         if self.hasContent_():
             outfile.write('>%s' % (eol_, ))
-            self.exportChildren(outfile, level + 1, namespace_='', name_='ControlPointsType', pretty_print=pretty_print)
+            self.exportChildren(outfile, level + 1, namespace_='', name_='ImagingPoint', pretty_print=pretty_print)
             showIndent(outfile, level, pretty_print)
             outfile.write('</%s%s>%s' % (namespace_, name_, eol_))
         else:
             outfile.write('/>%s' % (eol_, ))
-    def exportAttributes(self, outfile, level, already_processed, namespace_='', name_='ControlPointsType'):
+    def exportAttributes(self, outfile, level, already_processed, namespace_='', name_='ImagingPoint'):
         pass
-    def exportChildren(self, outfile, level, namespace_='', name_='ControlPointsType', fromsubclass_=False, pretty_print=True):
+    def exportChildren(self, outfile, level, namespace_='', name_='ImagingPoint', fromsubclass_=False, pretty_print=True):
         if pretty_print:
             eol_ = '\n'
         else:
             eol_ = ''
-        for Cp_ in self.Cp:
-            Cp_.export(outfile, level, namespace_, name_='Cp', pretty_print=pretty_print)
+        if self.Cp is not None:
+            showIndent(outfile, level, pretty_print)
+            outfile.write('<%sCp>%s</%sCp>%s' % (namespace_, self.gds_format_double(self.Cp, input_name='Cp'), namespace_, eol_))
+        for Acquisition_ in self.Acquisition:
+            Acquisition_.export(outfile, level, namespace_, name_='Acquisition', pretty_print=pretty_print)
+        for AcquisitionStart_ in self.AcquisitionStart:
+            AcquisitionStart_.export(outfile, level, namespace_, name_='AcquisitionStart', pretty_print=pretty_print)
+        for AcquisitionStop_ in self.AcquisitionStop:
+            AcquisitionStop_.export(outfile, level, namespace_, name_='AcquisitionStop', pretty_print=pretty_print)
+        if self.KvFilters is not None:
+            self.KvFilters.export(outfile, level, namespace_, name_='KvFilters', pretty_print=pretty_print)
+        if self.KvBlades is not None:
+            self.KvBlades.export(outfile, level, namespace_, name_='KvBlades', pretty_print=pretty_print)
+        if self.Mvd is not None:
+            self.Mvd.export(outfile, level, namespace_, name_='Mvd', pretty_print=pretty_print)
+        if self.Kvd is not None:
+            self.Kvd.export(outfile, level, namespace_, name_='Kvd', pretty_print=pretty_print)
+        if self.Kvs is not None:
+            self.Kvs.export(outfile, level, namespace_, name_='Kvs', pretty_print=pretty_print)
+        if self.MvdAfter is not None:
+            self.MvdAfter.export(outfile, level, namespace_, name_='MvdAfter', pretty_print=pretty_print)
+        if self.KvdAfter is not None:
+            self.KvdAfter.export(outfile, level, namespace_, name_='KvdAfter', pretty_print=pretty_print)
+        if self.KvsAfter is not None:
+            self.KvsAfter.export(outfile, level, namespace_, name_='KvsAfter', pretty_print=pretty_print)
     def build(self, node):
         already_processed = set()
         self.buildAttributes(node, node.attrib, already_processed)
@@ -1989,107 +6137,107 @@ class ControlPointsType(GeneratedsSuper):
         pass
     def buildChildren(self, child_, node, nodeName_, fromsubclass_=False):
         if nodeName_ == 'Cp':
-            obj_ = CpType.factory()
+            sval_ = child_.text
+            try:
+                fval_ = float(sval_)
+            except (TypeError, ValueError) as exp:
+                raise_parse_error(child_, 'requires float or double: %s' % exp)
+            fval_ = self.gds_validate_float(fval_, node, 'Cp')
+            self.Cp = fval_
+        elif nodeName_ == 'Acquisition':
+            obj_ = Acquisition.factory()
             obj_.build(child_)
-            self.Cp.append(obj_)
-            obj_.original_tagname_ = 'Cp'
-# end class ControlPointsType
+            self.Acquisition.append(obj_)
+            obj_.original_tagname_ = 'Acquisition'
+        elif nodeName_ == 'AcquisitionStart':
+            obj_ = Acquisition.factory()
+            obj_.build(child_)
+            self.AcquisitionStart.append(obj_)
+            obj_.original_tagname_ = 'AcquisitionStart'
+        elif nodeName_ == 'AcquisitionStop':
+            obj_ = Acquisition.factory()
+            obj_.build(child_)
+            self.AcquisitionStop.append(obj_)
+            obj_.original_tagname_ = 'AcquisitionStop'
+        elif nodeName_ == 'KvFilters':
+            obj_ = KvFiltersPositionType.factory()
+            obj_.build(child_)
+            self.KvFilters = obj_
+            obj_.original_tagname_ = 'KvFilters'
+        elif nodeName_ == 'KvBlades':
+            obj_ = KvBladePositionsType.factory()
+            obj_.build(child_)
+            self.KvBlades = obj_
+            obj_.original_tagname_ = 'KvBlades'
+        elif nodeName_ == 'Mvd':
+            obj_ = ArmPositionsType.factory()
+            obj_.build(child_)
+            self.Mvd = obj_
+            obj_.original_tagname_ = 'Mvd'
+        elif nodeName_ == 'Kvd':
+            obj_ = ArmPositionsType.factory()
+            obj_.build(child_)
+            self.Kvd = obj_
+            obj_.original_tagname_ = 'Kvd'
+        elif nodeName_ == 'Kvs':
+            obj_ = ArmPositionsType.factory()
+            obj_.build(child_)
+            self.Kvs = obj_
+            obj_.original_tagname_ = 'Kvs'
+        elif nodeName_ == 'MvdAfter':
+            obj_ = ArmPositionsType.factory()
+            obj_.build(child_)
+            self.MvdAfter = obj_
+            obj_.original_tagname_ = 'MvdAfter'
+        elif nodeName_ == 'KvdAfter':
+            obj_ = ArmPositionsType.factory()
+            obj_.build(child_)
+            self.KvdAfter = obj_
+            obj_.original_tagname_ = 'KvdAfter'
+        elif nodeName_ == 'KvsAfter':
+            obj_ = ArmPositionsType.factory()
+            obj_.build(child_)
+            self.KvsAfter = obj_
+            obj_.original_tagname_ = 'KvsAfter'
+# end class ImagingPoint
 
 
-class CpType(GeneratedsSuper):
+class Acquisition(GeneratedsSuper):
+    """Acquisition parameters for one image source."""
     subclass = None
     superclass = None
-    def __init__(self, TreatProgressEvent=None, SubBeam=None, Energy=None, Mu=None, DRate=None, GantryRtn=None, CollRtn=None, CouchVrt=None, CouchLat=None, CouchLng=None, CouchRtn=None, Y1=None, Y2=None, X1=None, X2=None, Mlc=None):
+    def __init__(self, AcquisitionId=None, AcquisitionSpecs=None, AcquisitionParameters=None):
         self.original_tagname_ = None
-        self.TreatProgressEvent = TreatProgressEvent
-        self.SubBeam = SubBeam
-        self.Energy = Energy
-        self.Mu = Mu
-        self.DRate = DRate
-        self.GantryRtn = GantryRtn
-        self.CollRtn = CollRtn
-        self.CouchVrt = CouchVrt
-        self.CouchLat = CouchLat
-        self.CouchLng = CouchLng
-        self.CouchRtn = CouchRtn
-        self.Y1 = Y1
-        self.Y2 = Y2
-        self.X1 = X1
-        self.X2 = X2
-        if Mlc is None:
-            self.Mlc = []
-        else:
-            self.Mlc = Mlc
+        self.AcquisitionId = AcquisitionId
+        self.AcquisitionSpecs = AcquisitionSpecs
+        self.AcquisitionParameters = AcquisitionParameters
     def factory(*args_, **kwargs_):
-        if CpType.subclass:
-            return CpType.subclass(*args_, **kwargs_)
+        if CurrentSubclassModule_ is not None:
+            subclass = getSubclassFromModule_(
+                CurrentSubclassModule_, Acquisition)
+            if subclass is not None:
+                return subclass(*args_, **kwargs_)
+        if Acquisition.subclass:
+            return Acquisition.subclass(*args_, **kwargs_)
         else:
-            return CpType(*args_, **kwargs_)
+            return Acquisition(*args_, **kwargs_)
     factory = staticmethod(factory)
-    def get_TreatProgressEvent(self): return self.TreatProgressEvent
-    def set_TreatProgressEvent(self, TreatProgressEvent): self.TreatProgressEvent = TreatProgressEvent
-    def get_SubBeam(self): return self.SubBeam
-    def set_SubBeam(self, SubBeam): self.SubBeam = SubBeam
-    def get_Energy(self): return self.Energy
-    def set_Energy(self, Energy): self.Energy = Energy
-    def get_Mu(self): return self.Mu
-    def set_Mu(self, Mu): self.Mu = Mu
-    def get_DRate(self): return self.DRate
-    def set_DRate(self, DRate): self.DRate = DRate
-    def get_GantryRtn(self): return self.GantryRtn
-    def set_GantryRtn(self, GantryRtn): self.GantryRtn = GantryRtn
-    def get_CollRtn(self): return self.CollRtn
-    def set_CollRtn(self, CollRtn): self.CollRtn = CollRtn
-    def get_CouchVrt(self): return self.CouchVrt
-    def set_CouchVrt(self, CouchVrt): self.CouchVrt = CouchVrt
-    def get_CouchLat(self): return self.CouchLat
-    def set_CouchLat(self, CouchLat): self.CouchLat = CouchLat
-    def get_CouchLng(self): return self.CouchLng
-    def set_CouchLng(self, CouchLng): self.CouchLng = CouchLng
-    def get_CouchRtn(self): return self.CouchRtn
-    def set_CouchRtn(self, CouchRtn): self.CouchRtn = CouchRtn
-    def get_Y1(self): return self.Y1
-    def set_Y1(self, Y1): self.Y1 = Y1
-    def get_Y2(self): return self.Y2
-    def set_Y2(self, Y2): self.Y2 = Y2
-    def get_X1(self): return self.X1
-    def set_X1(self, X1): self.X1 = X1
-    def get_X2(self): return self.X2
-    def set_X2(self, X2): self.X2 = X2
-    def get_Mlc(self): return self.Mlc
-    def set_Mlc(self, Mlc): self.Mlc = Mlc
-    def add_Mlc(self, value): self.Mlc.append(value)
-    def insert_Mlc_at(self, index, value): self.Mlc.insert(index, value)
-    def replace_Mlc_at(self, index, value): self.Mlc[index] = value
-    def validate_MuType(self, value):
-        # Validate type MuType, a restriction on xs:double.
-        pass
-    def validate_DRateType(self, value):
-        # Validate type DRateType, a restriction on xs:double.
-        pass
+    def get_AcquisitionId(self): return self.AcquisitionId
+    def set_AcquisitionId(self, AcquisitionId): self.AcquisitionId = AcquisitionId
+    def get_AcquisitionSpecs(self): return self.AcquisitionSpecs
+    def set_AcquisitionSpecs(self, AcquisitionSpecs): self.AcquisitionSpecs = AcquisitionSpecs
+    def get_AcquisitionParameters(self): return self.AcquisitionParameters
+    def set_AcquisitionParameters(self, AcquisitionParameters): self.AcquisitionParameters = AcquisitionParameters
     def hasContent_(self):
         if (
-            self.TreatProgressEvent is not None or
-            self.SubBeam is not None or
-            self.Energy is not None or
-            self.Mu is not None or
-            self.DRate is not None or
-            self.GantryRtn is not None or
-            self.CollRtn is not None or
-            self.CouchVrt is not None or
-            self.CouchLat is not None or
-            self.CouchLng is not None or
-            self.CouchRtn is not None or
-            self.Y1 is not None or
-            self.Y2 is not None or
-            self.X1 is not None or
-            self.X2 is not None or
-            self.Mlc
+            self.AcquisitionId is not None or
+            self.AcquisitionSpecs is not None or
+            self.AcquisitionParameters is not None
         ):
             return True
         else:
             return False
-    def export(self, outfile, level, namespace_='', name_='CpType', namespacedef_='', pretty_print=True):
+    def export(self, outfile, level, namespace_='', name_='Acquisition', namespacedef_='', pretty_print=True):
         if pretty_print:
             eol_ = '\n'
         else:
@@ -2099,67 +6247,28 @@ class CpType(GeneratedsSuper):
         showIndent(outfile, level, pretty_print)
         outfile.write('<%s%s%s' % (namespace_, name_, namespacedef_ and ' ' + namespacedef_ or '', ))
         already_processed = set()
-        self.exportAttributes(outfile, level, already_processed, namespace_, name_='CpType')
+        self.exportAttributes(outfile, level, already_processed, namespace_, name_='Acquisition')
         if self.hasContent_():
             outfile.write('>%s' % (eol_, ))
-            self.exportChildren(outfile, level + 1, namespace_='', name_='CpType', pretty_print=pretty_print)
+            self.exportChildren(outfile, level + 1, namespace_='', name_='Acquisition', pretty_print=pretty_print)
             showIndent(outfile, level, pretty_print)
             outfile.write('</%s%s>%s' % (namespace_, name_, eol_))
         else:
             outfile.write('/>%s' % (eol_, ))
-    def exportAttributes(self, outfile, level, already_processed, namespace_='', name_='CpType'):
+    def exportAttributes(self, outfile, level, already_processed, namespace_='', name_='Acquisition'):
         pass
-    def exportChildren(self, outfile, level, namespace_='', name_='CpType', fromsubclass_=False, pretty_print=True):
+    def exportChildren(self, outfile, level, namespace_='', name_='Acquisition', fromsubclass_=False, pretty_print=True):
         if pretty_print:
             eol_ = '\n'
         else:
             eol_ = ''
-        if self.TreatProgressEvent is not None:
+        if self.AcquisitionId is not None:
             showIndent(outfile, level, pretty_print)
-            outfile.write('<%sTreatProgressEvent>%s</%sTreatProgressEvent>%s' % (namespace_, self.gds_format_string(quote_xml(self.TreatProgressEvent).encode(ExternalEncoding), input_name='TreatProgressEvent'), namespace_, eol_))
-        if self.SubBeam is not None:
-            self.SubBeam.export(outfile, level, namespace_, name_='SubBeam', pretty_print=pretty_print)
-        if self.Energy is not None:
-            showIndent(outfile, level, pretty_print)
-            outfile.write('<%sEnergy>%s</%sEnergy>%s' % (namespace_, self.gds_format_string(quote_xml(self.Energy).encode(ExternalEncoding), input_name='Energy'), namespace_, eol_))
-        if self.Mu is not None:
-            showIndent(outfile, level, pretty_print)
-            outfile.write('<%sMu>%s</%sMu>%s' % (namespace_, self.gds_format_double(self.Mu, input_name='Mu'), namespace_, eol_))
-        if self.DRate is not None:
-            showIndent(outfile, level, pretty_print)
-            outfile.write('<%sDRate>%s</%sDRate>%s' % (namespace_, self.gds_format_double(self.DRate, input_name='DRate'), namespace_, eol_))
-        if self.GantryRtn is not None:
-            showIndent(outfile, level, pretty_print)
-            outfile.write('<%sGantryRtn>%s</%sGantryRtn>%s' % (namespace_, self.gds_format_double(self.GantryRtn, input_name='GantryRtn'), namespace_, eol_))
-        if self.CollRtn is not None:
-            showIndent(outfile, level, pretty_print)
-            outfile.write('<%sCollRtn>%s</%sCollRtn>%s' % (namespace_, self.gds_format_double(self.CollRtn, input_name='CollRtn'), namespace_, eol_))
-        if self.CouchVrt is not None:
-            showIndent(outfile, level, pretty_print)
-            outfile.write('<%sCouchVrt>%s</%sCouchVrt>%s' % (namespace_, self.gds_format_double(self.CouchVrt, input_name='CouchVrt'), namespace_, eol_))
-        if self.CouchLat is not None:
-            showIndent(outfile, level, pretty_print)
-            outfile.write('<%sCouchLat>%s</%sCouchLat>%s' % (namespace_, self.gds_format_double(self.CouchLat, input_name='CouchLat'), namespace_, eol_))
-        if self.CouchLng is not None:
-            showIndent(outfile, level, pretty_print)
-            outfile.write('<%sCouchLng>%s</%sCouchLng>%s' % (namespace_, self.gds_format_double(self.CouchLng, input_name='CouchLng'), namespace_, eol_))
-        if self.CouchRtn is not None:
-            showIndent(outfile, level, pretty_print)
-            outfile.write('<%sCouchRtn>%s</%sCouchRtn>%s' % (namespace_, self.gds_format_double(self.CouchRtn, input_name='CouchRtn'), namespace_, eol_))
-        if self.Y1 is not None:
-            showIndent(outfile, level, pretty_print)
-            outfile.write('<%sY1>%s</%sY1>%s' % (namespace_, self.gds_format_double(self.Y1, input_name='Y1'), namespace_, eol_))
-        if self.Y2 is not None:
-            showIndent(outfile, level, pretty_print)
-            outfile.write('<%sY2>%s</%sY2>%s' % (namespace_, self.gds_format_double(self.Y2, input_name='Y2'), namespace_, eol_))
-        if self.X1 is not None:
-            showIndent(outfile, level, pretty_print)
-            outfile.write('<%sX1>%s</%sX1>%s' % (namespace_, self.gds_format_double(self.X1, input_name='X1'), namespace_, eol_))
-        if self.X2 is not None:
-            showIndent(outfile, level, pretty_print)
-            outfile.write('<%sX2>%s</%sX2>%s' % (namespace_, self.gds_format_double(self.X2, input_name='X2'), namespace_, eol_))
-        for Mlc_ in self.Mlc:
-            Mlc_.export(outfile, level, namespace_, name_='Mlc', pretty_print=pretty_print)
+            outfile.write('<%sAcquisitionId>%s</%sAcquisitionId>%s' % (namespace_, self.gds_format_integer(self.AcquisitionId, input_name='AcquisitionId'), namespace_, eol_))
+        if self.AcquisitionSpecs is not None:
+            self.AcquisitionSpecs.export(outfile, level, namespace_, name_='AcquisitionSpecs', pretty_print=pretty_print)
+        if self.AcquisitionParameters is not None:
+            self.AcquisitionParameters.export(outfile, level, namespace_, name_='AcquisitionParameters', pretty_print=pretty_print)
     def build(self, node):
         already_processed = set()
         self.buildAttributes(node, node.attrib, already_processed)
@@ -2170,126 +6279,570 @@ class CpType(GeneratedsSuper):
     def buildAttributes(self, node, attrs, already_processed):
         pass
     def buildChildren(self, child_, node, nodeName_, fromsubclass_=False):
-        if nodeName_ == 'TreatProgressEvent':
-            TreatProgressEvent_ = child_.text
-            TreatProgressEvent_ = self.gds_validate_string(TreatProgressEvent_, node, 'TreatProgressEvent')
-            self.TreatProgressEvent = TreatProgressEvent_
-        elif nodeName_ == 'SubBeam':
-            obj_ = SubBeamType.factory()
+        if nodeName_ == 'AcquisitionId':
+            sval_ = child_.text
+            try:
+                ival_ = int(sval_)
+            except (TypeError, ValueError) as exp:
+                raise_parse_error(child_, 'requires integer: %s' % exp)
+            ival_ = self.gds_validate_integer(ival_, node, 'AcquisitionId')
+            self.AcquisitionId = ival_
+        elif nodeName_ == 'AcquisitionSpecs':
+            obj_ = AcquisitionSpecs.factory()
             obj_.build(child_)
-            self.SubBeam = obj_
-            obj_.original_tagname_ = 'SubBeam'
-        elif nodeName_ == 'Energy':
-            Energy_ = child_.text
-            Energy_ = self.gds_validate_string(Energy_, node, 'Energy')
-            self.Energy = Energy_
-        elif nodeName_ == 'Mu':
-            sval_ = child_.text
-            try:
-                fval_ = float(sval_)
-            except (TypeError, ValueError), exp:
-                raise_parse_error(child_, 'requires float or double: %s' % exp)
-            fval_ = self.gds_validate_float(fval_, node, 'Mu')
-            self.Mu = fval_
-            self.validate_MuType(self.Mu)    # validate type MuType
-        elif nodeName_ == 'DRate':
-            sval_ = child_.text
-            try:
-                fval_ = float(sval_)
-            except (TypeError, ValueError), exp:
-                raise_parse_error(child_, 'requires float or double: %s' % exp)
-            fval_ = self.gds_validate_float(fval_, node, 'DRate')
-            self.DRate = fval_
-            self.validate_DRateType(self.DRate)    # validate type DRateType
-        elif nodeName_ == 'GantryRtn':
-            sval_ = child_.text
-            try:
-                fval_ = float(sval_)
-            except (TypeError, ValueError), exp:
-                raise_parse_error(child_, 'requires float or double: %s' % exp)
-            fval_ = self.gds_validate_float(fval_, node, 'GantryRtn')
-            self.GantryRtn = fval_
-        elif nodeName_ == 'CollRtn':
-            sval_ = child_.text
-            try:
-                fval_ = float(sval_)
-            except (TypeError, ValueError), exp:
-                raise_parse_error(child_, 'requires float or double: %s' % exp)
-            fval_ = self.gds_validate_float(fval_, node, 'CollRtn')
-            self.CollRtn = fval_
-        elif nodeName_ == 'CouchVrt':
-            sval_ = child_.text
-            try:
-                fval_ = float(sval_)
-            except (TypeError, ValueError), exp:
-                raise_parse_error(child_, 'requires float or double: %s' % exp)
-            fval_ = self.gds_validate_float(fval_, node, 'CouchVrt')
-            self.CouchVrt = fval_
-        elif nodeName_ == 'CouchLat':
-            sval_ = child_.text
-            try:
-                fval_ = float(sval_)
-            except (TypeError, ValueError), exp:
-                raise_parse_error(child_, 'requires float or double: %s' % exp)
-            fval_ = self.gds_validate_float(fval_, node, 'CouchLat')
-            self.CouchLat = fval_
-        elif nodeName_ == 'CouchLng':
-            sval_ = child_.text
-            try:
-                fval_ = float(sval_)
-            except (TypeError, ValueError), exp:
-                raise_parse_error(child_, 'requires float or double: %s' % exp)
-            fval_ = self.gds_validate_float(fval_, node, 'CouchLng')
-            self.CouchLng = fval_
-        elif nodeName_ == 'CouchRtn':
-            sval_ = child_.text
-            try:
-                fval_ = float(sval_)
-            except (TypeError, ValueError), exp:
-                raise_parse_error(child_, 'requires float or double: %s' % exp)
-            fval_ = self.gds_validate_float(fval_, node, 'CouchRtn')
-            self.CouchRtn = fval_
-        elif nodeName_ == 'Y1':
-            sval_ = child_.text
-            try:
-                fval_ = float(sval_)
-            except (TypeError, ValueError), exp:
-                raise_parse_error(child_, 'requires float or double: %s' % exp)
-            fval_ = self.gds_validate_float(fval_, node, 'Y1')
-            self.Y1 = fval_
-        elif nodeName_ == 'Y2':
-            sval_ = child_.text
-            try:
-                fval_ = float(sval_)
-            except (TypeError, ValueError), exp:
-                raise_parse_error(child_, 'requires float or double: %s' % exp)
-            fval_ = self.gds_validate_float(fval_, node, 'Y2')
-            self.Y2 = fval_
-        elif nodeName_ == 'X1':
-            sval_ = child_.text
-            try:
-                fval_ = float(sval_)
-            except (TypeError, ValueError), exp:
-                raise_parse_error(child_, 'requires float or double: %s' % exp)
-            fval_ = self.gds_validate_float(fval_, node, 'X1')
-            self.X1 = fval_
-        elif nodeName_ == 'X2':
-            sval_ = child_.text
-            try:
-                fval_ = float(sval_)
-            except (TypeError, ValueError), exp:
-                raise_parse_error(child_, 'requires float or double: %s' % exp)
-            fval_ = self.gds_validate_float(fval_, node, 'X2')
-            self.X2 = fval_
-        elif nodeName_ == 'Mlc':
-            obj_ = MlcType.factory()
+            self.AcquisitionSpecs = obj_
+            obj_.original_tagname_ = 'AcquisitionSpecs'
+        elif nodeName_ == 'AcquisitionParameters':
+            obj_ = AcquisitionParameters.factory()
             obj_.build(child_)
-            self.Mlc.append(obj_)
-            obj_.original_tagname_ = 'Mlc'
-# end class CpType
+            self.AcquisitionParameters = obj_
+            obj_.original_tagname_ = 'AcquisitionParameters'
+# end class Acquisition
+
+
+class AcquisitionSpecs(GeneratedsSuper):
+    """TODO: Verify with Daniel Wong is description is correct The
+    acquisition specs defines the coordination between XI and SPV.
+    The meaning of the handshake flag is different for kV and MV
+    imaging. Handshake for MV imaging: This is used for radshot
+    imaging where SPV places the required MV dose and afterwards
+    triggers XI to readout the detector. For continuous or Dosimetry
+    imaging this flag has to be false. Handshake for kV imaging: If
+    the handshake flag is true the SPV stops all axis until XI has
+    finished the kV acquisition (if the imaging point uses
+    <Acquisition>) or the acquisition is started/stopped (if the
+    imaging point uses <AcquisitionStart> or <AcquisitionStop>). KV:
+    True if image with kV Beam. MVDose: Estimated total amount of MV
+    dose required in order to acquire the image."""
+    subclass = None
+    superclass = None
+    def __init__(self, Handshake=None, KV=None, MVDose=None):
+        self.original_tagname_ = None
+        self.Handshake = Handshake
+        self.KV = KV
+        self.MVDose = MVDose
+    def factory(*args_, **kwargs_):
+        if CurrentSubclassModule_ is not None:
+            subclass = getSubclassFromModule_(
+                CurrentSubclassModule_, AcquisitionSpecs)
+            if subclass is not None:
+                return subclass(*args_, **kwargs_)
+        if AcquisitionSpecs.subclass:
+            return AcquisitionSpecs.subclass(*args_, **kwargs_)
+        else:
+            return AcquisitionSpecs(*args_, **kwargs_)
+    factory = staticmethod(factory)
+    def get_Handshake(self): return self.Handshake
+    def set_Handshake(self, Handshake): self.Handshake = Handshake
+    def get_KV(self): return self.KV
+    def set_KV(self, KV): self.KV = KV
+    def get_MVDose(self): return self.MVDose
+    def set_MVDose(self, MVDose): self.MVDose = MVDose
+    def hasContent_(self):
+        if (
+            self.Handshake is not None or
+            self.KV is not None or
+            self.MVDose is not None
+        ):
+            return True
+        else:
+            return False
+    def export(self, outfile, level, namespace_='', name_='AcquisitionSpecs', namespacedef_='', pretty_print=True):
+        if pretty_print:
+            eol_ = '\n'
+        else:
+            eol_ = ''
+        if self.original_tagname_ is not None:
+            name_ = self.original_tagname_
+        showIndent(outfile, level, pretty_print)
+        outfile.write('<%s%s%s' % (namespace_, name_, namespacedef_ and ' ' + namespacedef_ or '', ))
+        already_processed = set()
+        self.exportAttributes(outfile, level, already_processed, namespace_, name_='AcquisitionSpecs')
+        if self.hasContent_():
+            outfile.write('>%s' % (eol_, ))
+            self.exportChildren(outfile, level + 1, namespace_='', name_='AcquisitionSpecs', pretty_print=pretty_print)
+            showIndent(outfile, level, pretty_print)
+            outfile.write('</%s%s>%s' % (namespace_, name_, eol_))
+        else:
+            outfile.write('/>%s' % (eol_, ))
+    def exportAttributes(self, outfile, level, already_processed, namespace_='', name_='AcquisitionSpecs'):
+        pass
+    def exportChildren(self, outfile, level, namespace_='', name_='AcquisitionSpecs', fromsubclass_=False, pretty_print=True):
+        if pretty_print:
+            eol_ = '\n'
+        else:
+            eol_ = ''
+        if self.Handshake is not None:
+            showIndent(outfile, level, pretty_print)
+            outfile.write('<%sHandshake>%s</%sHandshake>%s' % (namespace_, self.gds_format_boolean(self.Handshake, input_name='Handshake'), namespace_, eol_))
+        if self.KV is not None:
+            showIndent(outfile, level, pretty_print)
+            outfile.write('<%sKV>%s</%sKV>%s' % (namespace_, self.gds_format_boolean(self.KV, input_name='KV'), namespace_, eol_))
+        if self.MVDose is not None:
+            showIndent(outfile, level, pretty_print)
+            outfile.write('<%sMVDose>%s</%sMVDose>%s' % (namespace_, self.gds_format_double(self.MVDose, input_name='MVDose'), namespace_, eol_))
+    def build(self, node):
+        already_processed = set()
+        self.buildAttributes(node, node.attrib, already_processed)
+        for child in node:
+            nodeName_ = Tag_pattern_.match(child.tag).groups()[-1]
+            self.buildChildren(child, node, nodeName_)
+        return self
+    def buildAttributes(self, node, attrs, already_processed):
+        pass
+    def buildChildren(self, child_, node, nodeName_, fromsubclass_=False):
+        if nodeName_ == 'Handshake':
+            sval_ = child_.text
+            if sval_ in ('true', '1'):
+                ival_ = True
+            elif sval_ in ('false', '0'):
+                ival_ = False
+            else:
+                raise_parse_error(child_, 'requires boolean')
+            ival_ = self.gds_validate_boolean(ival_, node, 'Handshake')
+            self.Handshake = ival_
+        elif nodeName_ == 'KV':
+            sval_ = child_.text
+            if sval_ in ('true', '1'):
+                ival_ = True
+            elif sval_ in ('false', '0'):
+                ival_ = False
+            else:
+                raise_parse_error(child_, 'requires boolean')
+            ival_ = self.gds_validate_boolean(ival_, node, 'KV')
+            self.KV = ival_
+        elif nodeName_ == 'MVDose':
+            sval_ = child_.text
+            try:
+                fval_ = float(sval_)
+            except (TypeError, ValueError) as exp:
+                raise_parse_error(child_, 'requires float or double: %s' % exp)
+            fval_ = self.gds_validate_float(fval_, node, 'MVDose')
+            self.MVDose = fval_
+# end class AcquisitionSpecs
+
+
+class DuringTreatment(GeneratedsSuper):
+    """Type for imaging during treatment. Images may be acquired during
+    treatment. If the beam is paused while XI is in an acquiring
+    state, the current image(s) will be dropped and the treatment
+    beam can be resumed under SPV control at the control point where
+    it was paused. If the system is equipped for imaging, but no
+    images have to be acquired for a treatment beam, this type is
+    used at well. In this case, imaging points shall contain the
+    initial arm positions, but no acquisitions."""
+    subclass = None
+    superclass = None
+    def __init__(self):
+        self.original_tagname_ = None
+    def factory(*args_, **kwargs_):
+        if CurrentSubclassModule_ is not None:
+            subclass = getSubclassFromModule_(
+                CurrentSubclassModule_, DuringTreatment)
+            if subclass is not None:
+                return subclass(*args_, **kwargs_)
+        if DuringTreatment.subclass:
+            return DuringTreatment.subclass(*args_, **kwargs_)
+        else:
+            return DuringTreatment(*args_, **kwargs_)
+    factory = staticmethod(factory)
+    def hasContent_(self):
+        if (
+
+        ):
+            return True
+        else:
+            return False
+    def export(self, outfile, level, namespace_='', name_='DuringTreatment', namespacedef_='', pretty_print=True):
+        if pretty_print:
+            eol_ = '\n'
+        else:
+            eol_ = ''
+        if self.original_tagname_ is not None:
+            name_ = self.original_tagname_
+        showIndent(outfile, level, pretty_print)
+        outfile.write('<%s%s%s' % (namespace_, name_, namespacedef_ and ' ' + namespacedef_ or '', ))
+        already_processed = set()
+        self.exportAttributes(outfile, level, already_processed, namespace_, name_='DuringTreatment')
+        if self.hasContent_():
+            outfile.write('>%s' % (eol_, ))
+            self.exportChildren(outfile, level + 1, namespace_='', name_='DuringTreatment', pretty_print=pretty_print)
+            outfile.write('</%s%s>%s' % (namespace_, name_, eol_))
+        else:
+            outfile.write('/>%s' % (eol_, ))
+    def exportAttributes(self, outfile, level, already_processed, namespace_='', name_='DuringTreatment'):
+        pass
+    def exportChildren(self, outfile, level, namespace_='', name_='DuringTreatment', fromsubclass_=False, pretty_print=True):
+        pass
+    def build(self, node):
+        already_processed = set()
+        self.buildAttributes(node, node.attrib, already_processed)
+        for child in node:
+            nodeName_ = Tag_pattern_.match(child.tag).groups()[-1]
+            self.buildChildren(child, node, nodeName_)
+        return self
+    def buildAttributes(self, node, attrs, already_processed):
+        pass
+    def buildChildren(self, child_, node, nodeName_, fromsubclass_=False):
+        pass
+# end class DuringTreatment
+
+
+class OutsideTreatment(GeneratedsSuper):
+    """Type for imaging outside treatment. Supervisor shall terminate the
+    beam as soon as one of the following condition is fulfilled: 1.
+    All acquisitions are completed (normal termination). 2. The
+    maximum MU limit (MaxMu) is reached. 3. The operator stops the
+    beam. 4. A fault occurs. Supervisor beam state never changes to
+    'paused'. The reason of termination can be determined from the
+    supervisor beam history. Note: The corresponding beam has the
+    following characteristics. 1. There may be no MV energy defined
+    (e.g. kV imaging or dark field acquisition), MaxMu shall be 0 in
+    this case. 2. The meterset values in the control points have no
+    semantics. 3. There may be 2 successive control points with no
+    changes in any value."""
+    subclass = None
+    superclass = None
+    def __init__(self, MaxMu=None):
+        self.original_tagname_ = None
+        self.MaxMu = MaxMu
+    def factory(*args_, **kwargs_):
+        if CurrentSubclassModule_ is not None:
+            subclass = getSubclassFromModule_(
+                CurrentSubclassModule_, OutsideTreatment)
+            if subclass is not None:
+                return subclass(*args_, **kwargs_)
+        if OutsideTreatment.subclass:
+            return OutsideTreatment.subclass(*args_, **kwargs_)
+        else:
+            return OutsideTreatment(*args_, **kwargs_)
+    factory = staticmethod(factory)
+    def get_MaxMu(self): return self.MaxMu
+    def set_MaxMu(self, MaxMu): self.MaxMu = MaxMu
+    def hasContent_(self):
+        if (
+            self.MaxMu is not None
+        ):
+            return True
+        else:
+            return False
+    def export(self, outfile, level, namespace_='', name_='OutsideTreatment', namespacedef_='', pretty_print=True):
+        if pretty_print:
+            eol_ = '\n'
+        else:
+            eol_ = ''
+        if self.original_tagname_ is not None:
+            name_ = self.original_tagname_
+        showIndent(outfile, level, pretty_print)
+        outfile.write('<%s%s%s' % (namespace_, name_, namespacedef_ and ' ' + namespacedef_ or '', ))
+        already_processed = set()
+        self.exportAttributes(outfile, level, already_processed, namespace_, name_='OutsideTreatment')
+        if self.hasContent_():
+            outfile.write('>%s' % (eol_, ))
+            self.exportChildren(outfile, level + 1, namespace_='', name_='OutsideTreatment', pretty_print=pretty_print)
+            showIndent(outfile, level, pretty_print)
+            outfile.write('</%s%s>%s' % (namespace_, name_, eol_))
+        else:
+            outfile.write('/>%s' % (eol_, ))
+    def exportAttributes(self, outfile, level, already_processed, namespace_='', name_='OutsideTreatment'):
+        pass
+    def exportChildren(self, outfile, level, namespace_='', name_='OutsideTreatment', fromsubclass_=False, pretty_print=True):
+        if pretty_print:
+            eol_ = '\n'
+        else:
+            eol_ = ''
+        if self.MaxMu is not None:
+            showIndent(outfile, level, pretty_print)
+            outfile.write('<%sMaxMu>%s</%sMaxMu>%s' % (namespace_, self.gds_format_double(self.MaxMu, input_name='MaxMu'), namespace_, eol_))
+    def build(self, node):
+        already_processed = set()
+        self.buildAttributes(node, node.attrib, already_processed)
+        for child in node:
+            nodeName_ = Tag_pattern_.match(child.tag).groups()[-1]
+            self.buildChildren(child, node, nodeName_)
+        return self
+    def buildAttributes(self, node, attrs, already_processed):
+        pass
+    def buildChildren(self, child_, node, nodeName_, fromsubclass_=False):
+        if nodeName_ == 'MaxMu':
+            sval_ = child_.text
+            try:
+                fval_ = float(sval_)
+            except (TypeError, ValueError) as exp:
+                raise_parse_error(child_, 'requires float or double: %s' % exp)
+            fval_ = self.gds_validate_float(fval_, node, 'MaxMu')
+            self.MaxMu = fval_
+# end class OutsideTreatment
+
+
+class ImagingParameters(GeneratedsSuper):
+    """Imaging parameters associated with a (super-)beam."""
+    subclass = None
+    superclass = None
+    def __init__(self, DuringTreatment=None, OutsideTreatment=None, LatchBEL=True, LatchKVBEL=True, ImagingPoints=None, ImagingTolerances=None, MotionManagementParameters=None, iTools=None):
+        self.original_tagname_ = None
+        self.DuringTreatment = DuringTreatment
+        self.OutsideTreatment = OutsideTreatment
+        self.LatchBEL = LatchBEL
+        self.LatchKVBEL = LatchKVBEL
+        self.ImagingPoints = ImagingPoints
+        self.ImagingTolerances = ImagingTolerances
+        self.MotionManagementParameters = MotionManagementParameters
+        self.iTools = iTools
+    def factory(*args_, **kwargs_):
+        if CurrentSubclassModule_ is not None:
+            subclass = getSubclassFromModule_(
+                CurrentSubclassModule_, ImagingParameters)
+            if subclass is not None:
+                return subclass(*args_, **kwargs_)
+        if ImagingParameters.subclass:
+            return ImagingParameters.subclass(*args_, **kwargs_)
+        else:
+            return ImagingParameters(*args_, **kwargs_)
+    factory = staticmethod(factory)
+    def get_DuringTreatment(self): return self.DuringTreatment
+    def set_DuringTreatment(self, DuringTreatment): self.DuringTreatment = DuringTreatment
+    def get_OutsideTreatment(self): return self.OutsideTreatment
+    def set_OutsideTreatment(self, OutsideTreatment): self.OutsideTreatment = OutsideTreatment
+    def get_LatchBEL(self): return self.LatchBEL
+    def set_LatchBEL(self, LatchBEL): self.LatchBEL = LatchBEL
+    def get_LatchKVBEL(self): return self.LatchKVBEL
+    def set_LatchKVBEL(self, LatchKVBEL): self.LatchKVBEL = LatchKVBEL
+    def get_ImagingPoints(self): return self.ImagingPoints
+    def set_ImagingPoints(self, ImagingPoints): self.ImagingPoints = ImagingPoints
+    def get_ImagingTolerances(self): return self.ImagingTolerances
+    def set_ImagingTolerances(self, ImagingTolerances): self.ImagingTolerances = ImagingTolerances
+    def get_MotionManagementParameters(self): return self.MotionManagementParameters
+    def set_MotionManagementParameters(self, MotionManagementParameters): self.MotionManagementParameters = MotionManagementParameters
+    def get_iTools(self): return self.iTools
+    def set_iTools(self, iTools): self.iTools = iTools
+    def hasContent_(self):
+        if (
+            self.DuringTreatment is not None or
+            self.OutsideTreatment is not None or
+            not self.LatchBEL or
+            not self.LatchKVBEL or
+            self.ImagingPoints is not None or
+            self.ImagingTolerances is not None or
+            self.MotionManagementParameters is not None or
+            self.iTools is not None
+        ):
+            return True
+        else:
+            return False
+    def export(self, outfile, level, namespace_='', name_='ImagingParameters', namespacedef_='', pretty_print=True):
+        if pretty_print:
+            eol_ = '\n'
+        else:
+            eol_ = ''
+        if self.original_tagname_ is not None:
+            name_ = self.original_tagname_
+        showIndent(outfile, level, pretty_print)
+        outfile.write('<%s%s%s' % (namespace_, name_, namespacedef_ and ' ' + namespacedef_ or '', ))
+        already_processed = set()
+        self.exportAttributes(outfile, level, already_processed, namespace_, name_='ImagingParameters')
+        if self.hasContent_():
+            outfile.write('>%s' % (eol_, ))
+            self.exportChildren(outfile, level + 1, namespace_='', name_='ImagingParameters', pretty_print=pretty_print)
+            showIndent(outfile, level, pretty_print)
+            outfile.write('</%s%s>%s' % (namespace_, name_, eol_))
+        else:
+            outfile.write('/>%s' % (eol_, ))
+    def exportAttributes(self, outfile, level, already_processed, namespace_='', name_='ImagingParameters'):
+        pass
+    def exportChildren(self, outfile, level, namespace_='', name_='ImagingParameters', fromsubclass_=False, pretty_print=True):
+        if pretty_print:
+            eol_ = '\n'
+        else:
+            eol_ = ''
+        if self.DuringTreatment is not None:
+            self.DuringTreatment.export(outfile, level, namespace_, name_='DuringTreatment', pretty_print=pretty_print)
+        if self.OutsideTreatment is not None:
+            self.OutsideTreatment.export(outfile, level, namespace_, name_='OutsideTreatment', pretty_print=pretty_print)
+        if not self.LatchBEL:
+            showIndent(outfile, level, pretty_print)
+            outfile.write('<%sLatchBEL>%s</%sLatchBEL>%s' % (namespace_, self.gds_format_boolean(self.LatchBEL, input_name='LatchBEL'), namespace_, eol_))
+        if not self.LatchKVBEL:
+            showIndent(outfile, level, pretty_print)
+            outfile.write('<%sLatchKVBEL>%s</%sLatchKVBEL>%s' % (namespace_, self.gds_format_boolean(self.LatchKVBEL, input_name='LatchKVBEL'), namespace_, eol_))
+        if self.ImagingPoints is not None:
+            self.ImagingPoints.export(outfile, level, namespace_, name_='ImagingPoints', pretty_print=pretty_print)
+        if self.ImagingTolerances is not None:
+            self.ImagingTolerances.export(outfile, level, namespace_, name_='ImagingTolerances', pretty_print=pretty_print)
+        if self.MotionManagementParameters is not None:
+            self.MotionManagementParameters.export(outfile, level, namespace_, name_='MotionManagementParameters', pretty_print=pretty_print)
+        if self.iTools is not None:
+            self.iTools.export(outfile, level, namespace_, name_='iTools', pretty_print=pretty_print)
+    def build(self, node):
+        already_processed = set()
+        self.buildAttributes(node, node.attrib, already_processed)
+        for child in node:
+            nodeName_ = Tag_pattern_.match(child.tag).groups()[-1]
+            self.buildChildren(child, node, nodeName_)
+        return self
+    def buildAttributes(self, node, attrs, already_processed):
+        pass
+    def buildChildren(self, child_, node, nodeName_, fromsubclass_=False):
+        if nodeName_ == 'DuringTreatment':
+            obj_ = DuringTreatment.factory()
+            obj_.build(child_)
+            self.DuringTreatment = obj_
+            obj_.original_tagname_ = 'DuringTreatment'
+        elif nodeName_ == 'OutsideTreatment':
+            obj_ = OutsideTreatment.factory()
+            obj_.build(child_)
+            self.OutsideTreatment = obj_
+            obj_.original_tagname_ = 'OutsideTreatment'
+        elif nodeName_ == 'LatchBEL':
+            sval_ = child_.text
+            if sval_ in ('true', '1'):
+                ival_ = True
+            elif sval_ in ('false', '0'):
+                ival_ = False
+            else:
+                raise_parse_error(child_, 'requires boolean')
+            ival_ = self.gds_validate_boolean(ival_, node, 'LatchBEL')
+            self.LatchBEL = ival_
+        elif nodeName_ == 'LatchKVBEL':
+            sval_ = child_.text
+            if sval_ in ('true', '1'):
+                ival_ = True
+            elif sval_ in ('false', '0'):
+                ival_ = False
+            else:
+                raise_parse_error(child_, 'requires boolean')
+            ival_ = self.gds_validate_boolean(ival_, node, 'LatchKVBEL')
+            self.LatchKVBEL = ival_
+        elif nodeName_ == 'ImagingPoints':
+            obj_ = ImagingPoints.factory()
+            obj_.build(child_)
+            self.ImagingPoints = obj_
+            obj_.original_tagname_ = 'ImagingPoints'
+        elif nodeName_ == 'ImagingTolerances':
+            obj_ = ImagingTolerances.factory()
+            obj_.build(child_)
+            self.ImagingTolerances = obj_
+            obj_.original_tagname_ = 'ImagingTolerances'
+        elif nodeName_ == 'MotionManagementParameters':
+            obj_ = MotionManagementParameters.factory()
+            obj_.build(child_)
+            self.MotionManagementParameters = obj_
+            obj_.original_tagname_ = 'MotionManagementParameters'
+        elif nodeName_ == 'iTools':
+            obj_ = iTools.factory()
+            obj_.build(child_)
+            self.iTools = obj_
+            obj_.original_tagname_ = 'iTools'
+# end class ImagingParameters
+
+
+class MlcPositionsType(GeneratedsSuper):
+    """Type for a set of MLC Positions ID = 1 means primary MLC ID = 2 mean
+    secondary MLC In a given Control Point, either all MLC Leaf
+    Positions are present or "Mlc" element is missing."""
+    subclass = None
+    superclass = None
+    def __init__(self, ID=None, B=None, A=None):
+        self.original_tagname_ = None
+        self.ID = ID
+        self.B = B
+        self.A = A
+    def factory(*args_, **kwargs_):
+        if CurrentSubclassModule_ is not None:
+            subclass = getSubclassFromModule_(
+                CurrentSubclassModule_, MlcPositionsType)
+            if subclass is not None:
+                return subclass(*args_, **kwargs_)
+        if MlcPositionsType.subclass:
+            return MlcPositionsType.subclass(*args_, **kwargs_)
+        else:
+            return MlcPositionsType(*args_, **kwargs_)
+    factory = staticmethod(factory)
+    def get_ID(self): return self.ID
+    def set_ID(self, ID): self.ID = ID
+    def get_B(self): return self.B
+    def set_B(self, B): self.B = B
+    def get_A(self): return self.A
+    def set_A(self, A): self.A = A
+    def hasContent_(self):
+        if (
+            self.ID is not None or
+            self.B is not None or
+            self.A is not None
+        ):
+            return True
+        else:
+            return False
+    def export(self, outfile, level, namespace_='', name_='MlcPositionsType', namespacedef_='', pretty_print=True):
+        if pretty_print:
+            eol_ = '\n'
+        else:
+            eol_ = ''
+        if self.original_tagname_ is not None:
+            name_ = self.original_tagname_
+        showIndent(outfile, level, pretty_print)
+        outfile.write('<%s%s%s' % (namespace_, name_, namespacedef_ and ' ' + namespacedef_ or '', ))
+        already_processed = set()
+        self.exportAttributes(outfile, level, already_processed, namespace_, name_='MlcPositionsType')
+        if self.hasContent_():
+            outfile.write('>%s' % (eol_, ))
+            self.exportChildren(outfile, level + 1, namespace_='', name_='MlcPositionsType', pretty_print=pretty_print)
+            showIndent(outfile, level, pretty_print)
+            outfile.write('</%s%s>%s' % (namespace_, name_, eol_))
+        else:
+            outfile.write('/>%s' % (eol_, ))
+    def exportAttributes(self, outfile, level, already_processed, namespace_='', name_='MlcPositionsType'):
+        pass
+    def exportChildren(self, outfile, level, namespace_='', name_='MlcPositionsType', fromsubclass_=False, pretty_print=True):
+        if pretty_print:
+            eol_ = '\n'
+        else:
+            eol_ = ''
+        if self.ID is not None:
+            showIndent(outfile, level, pretty_print)
+            outfile.write('<%sID>%s</%sID>%s' % (namespace_, self.gds_format_integer(self.ID, input_name='ID'), namespace_, eol_))
+        if self.B is not None:
+            showIndent(outfile, level, pretty_print)
+            outfile.write('<%sB>%s</%sB>%s' % (namespace_, self.gds_encode(self.gds_format_string(quote_xml(self.B), input_name='B')), namespace_, eol_))
+        if self.A is not None:
+            showIndent(outfile, level, pretty_print)
+            outfile.write('<%sA>%s</%sA>%s' % (namespace_, self.gds_encode(self.gds_format_string(quote_xml(self.A), input_name='A')), namespace_, eol_))
+    def build(self, node):
+        already_processed = set()
+        self.buildAttributes(node, node.attrib, already_processed)
+        for child in node:
+            nodeName_ = Tag_pattern_.match(child.tag).groups()[-1]
+            self.buildChildren(child, node, nodeName_)
+        return self
+    def buildAttributes(self, node, attrs, already_processed):
+        pass
+    def buildChildren(self, child_, node, nodeName_, fromsubclass_=False):
+        if nodeName_ == 'ID':
+            sval_ = child_.text
+            try:
+                ival_ = int(sval_)
+            except (TypeError, ValueError) as exp:
+                raise_parse_error(child_, 'requires integer: %s' % exp)
+            ival_ = self.gds_validate_integer(ival_, node, 'ID')
+            self.ID = ival_
+        elif nodeName_ == 'B':
+            B_ = child_.text
+            B_ = self.gds_validate_string(B_, node, 'B')
+            self.B = B_
+        elif nodeName_ == 'A':
+            A_ = child_.text
+            A_ = self.gds_validate_string(A_, node, 'A')
+            self.A = A_
+# end class MlcPositionsType
 
 
 class SubBeamType(GeneratedsSuper):
+    """Indicates the start of a new "Sub" Beam Seq - sequence number of
+    the"Sub" Beam within the Group (0,1,2,...) Name = name of the
+    "Sub" Beam within the Group MaxRadTime = maximum radiation time
+    for this Sub beam (in seconds). The controller also calulates
+    the nominal radiation time. The smaller of the two values is
+    used."""
     subclass = None
     superclass = None
     def __init__(self, Seq=None, SubbeamGUID=None, Name=None, MaxRadTime=None, TrackingTrainingOnly=None):
@@ -2300,6 +6853,11 @@ class SubBeamType(GeneratedsSuper):
         self.MaxRadTime = MaxRadTime
         self.TrackingTrainingOnly = TrackingTrainingOnly
     def factory(*args_, **kwargs_):
+        if CurrentSubclassModule_ is not None:
+            subclass = getSubclassFromModule_(
+                CurrentSubclassModule_, SubBeamType)
+            if subclass is not None:
+                return subclass(*args_, **kwargs_)
         if SubBeamType.subclass:
             return SubBeamType.subclass(*args_, **kwargs_)
         else:
@@ -2356,10 +6914,10 @@ class SubBeamType(GeneratedsSuper):
             outfile.write('<%sSeq>%s</%sSeq>%s' % (namespace_, self.gds_format_integer(self.Seq, input_name='Seq'), namespace_, eol_))
         if self.SubbeamGUID is not None:
             showIndent(outfile, level, pretty_print)
-            outfile.write('<%sSubbeamGUID>%s</%sSubbeamGUID>%s' % (namespace_, self.gds_format_string(quote_xml(self.SubbeamGUID).encode(ExternalEncoding), input_name='SubbeamGUID'), namespace_, eol_))
+            outfile.write('<%sSubbeamGUID>%s</%sSubbeamGUID>%s' % (namespace_, self.gds_encode(self.gds_format_string(quote_xml(self.SubbeamGUID), input_name='SubbeamGUID')), namespace_, eol_))
         if self.Name is not None:
             showIndent(outfile, level, pretty_print)
-            outfile.write('<%sName>%s</%sName>%s' % (namespace_, self.gds_format_string(quote_xml(self.Name).encode(ExternalEncoding), input_name='Name'), namespace_, eol_))
+            outfile.write('<%sName>%s</%sName>%s' % (namespace_, self.gds_encode(self.gds_format_string(quote_xml(self.Name), input_name='Name')), namespace_, eol_))
         if self.MaxRadTime is not None:
             showIndent(outfile, level, pretty_print)
             outfile.write('<%sMaxRadTime>%s</%sMaxRadTime>%s' % (namespace_, self.gds_format_double(self.MaxRadTime, input_name='MaxRadTime'), namespace_, eol_))
@@ -2380,7 +6938,7 @@ class SubBeamType(GeneratedsSuper):
             sval_ = child_.text
             try:
                 ival_ = int(sval_)
-            except (TypeError, ValueError), exp:
+            except (TypeError, ValueError) as exp:
                 raise_parse_error(child_, 'requires integer: %s' % exp)
             ival_ = self.gds_validate_integer(ival_, node, 'Seq')
             self.Seq = ival_
@@ -2396,7 +6954,7 @@ class SubBeamType(GeneratedsSuper):
             sval_ = child_.text
             try:
                 fval_ = float(sval_)
-            except (TypeError, ValueError), exp:
+            except (TypeError, ValueError) as exp:
                 raise_parse_error(child_, 'requires float or double: %s' % exp)
             fval_ = self.gds_validate_float(fval_, node, 'MaxRadTime')
             self.MaxRadTime = fval_
@@ -2413,36 +6971,167 @@ class SubBeamType(GeneratedsSuper):
 # end class SubBeamType
 
 
-class MlcType(GeneratedsSuper):
+class Cp(GeneratedsSuper):
+    """A single ControlPoint General Control Point Rules: 1) Unspecified
+    (i.e. unplanned) STATIC Axes, should NOT APPEAR in ANY Control
+    Point. The Control System will not enforce any tolerance
+    restrictions on such axes. However, te Control System still will
+    ensure that these axes do not move from wherever they are placed
+    once it goes to READY. NOTE: MLC may be unspecified STATIC by
+    this rule. 2) Specified STATIC Axes, whose initial positions are
+    contained in the Beam need only appear in the First Control
+    Point. The controller will ensure that they do not move from
+    wherever they are placed once it goes to READY. 3) Specified
+    DYNAMIC Axes, whose position "program" is contained in the Beam
+    need only appear in the First Control Point and any subsequent
+    Control Point where there is a change in their position. The
+    controller will ensure that they follow their position "program"
+    during the treatment). 4) Only one independent jaw of a pair may
+    be appear in a Control Point. It is not necessary for both to
+    appear. This could occur if only one jaw is dynamic. 5) MU is
+    cumulative. From one control point to the next, it can only go
+    up or stay the same. It cannot decrease. Units: 1) Energy - A
+    unique signature for the energy of the form "dds" where dd =
+    0-99, and s = 'x', 'e', or 'h', where x -- MV X-Rays e -- MeV
+    electrons h -- Mev HDTSe- electons. k -- KV beams Examples: "6x"
+    (6 MV X-Rays) and "12e" (12 Mev electrons) and "0k" (kv beam) 2)
+    Mu - 1 MU 3) Axis Positions - 1 deg and 1 cm in Varian Internal
+    Scale 4) Dose Rate - 1 MU/min (max dose rate) First Control
+    Point Rules: 1) Must contain "Energy". 2) Must contain "Mu" = 0.
+    3) Must contain "DRate". 4) Must contain "SubBeam" Subsequent
+    Control Points: 1) Must contain "Energy" only if it is changing
+    2) Must contain "Mu" only if it is changing (i.e. not a "no
+    dose" segment). 3) Must contain "DRate" only if it is changing
+    4) Must contain axes whose positions are changing (dynamic
+    axes). 5) May not contain axes (including MLC) which were not
+    contained in the first Control Point. Name Attribute: The Name
+    Attribute is the name of an Individual Beam with a Group of
+    Beams. The presence of a name attribute indicates the start of a
+    new Individual Beam. If there is only one Beam in the Group,
+    only the 1st Cp will have the Name Attribute.
+    TreatProgressEvent: Any Control Point which is marked with a
+    "TreatProgressEvent" element causes the Control System to
+    broadcast a "TreatProgress" event. (See schema for
+    "TreatProgress" event for more details.)"""
     subclass = None
     superclass = None
-    def __init__(self, ID=None, B=None, A=None):
+    def __init__(self, TreatProgressEvent=None, SubBeam=None, Energy=None, Mu=None, DRate=None, GantryRtn=None, CollRtn=None, CouchVrt=None, CouchLat=None, CouchLng=None, CouchRtn=None, CouchPit=None, CouchRol=None, Y1=None, Y2=None, X1=None, X2=None, Mlc=None, Phase=None):
         self.original_tagname_ = None
-        self.ID = ID
-        self.B = B
-        self.A = A
-    def factory(*args_, **kwargs_):
-        if MlcType.subclass:
-            return MlcType.subclass(*args_, **kwargs_)
+        self.TreatProgressEvent = TreatProgressEvent
+        self.SubBeam = SubBeam
+        self.Energy = Energy
+        self.Mu = Mu
+        self.validate_unsignedDouble(self.Mu)
+        self.DRate = DRate
+        self.validate_unsignedDouble(self.DRate)
+        self.GantryRtn = GantryRtn
+        self.CollRtn = CollRtn
+        self.CouchVrt = CouchVrt
+        self.CouchLat = CouchLat
+        self.CouchLng = CouchLng
+        self.CouchRtn = CouchRtn
+        self.CouchPit = CouchPit
+        self.CouchRol = CouchRol
+        self.Y1 = Y1
+        self.Y2 = Y2
+        self.X1 = X1
+        self.X2 = X2
+        if Mlc is None:
+            self.Mlc = []
         else:
-            return MlcType(*args_, **kwargs_)
+            self.Mlc = Mlc
+        self.Phase = Phase
+        self.validate_doublePhase(self.Phase)
+    def factory(*args_, **kwargs_):
+        if CurrentSubclassModule_ is not None:
+            subclass = getSubclassFromModule_(
+                CurrentSubclassModule_, Cp)
+            if subclass is not None:
+                return subclass(*args_, **kwargs_)
+        if Cp.subclass:
+            return Cp.subclass(*args_, **kwargs_)
+        else:
+            return Cp(*args_, **kwargs_)
     factory = staticmethod(factory)
-    def get_ID(self): return self.ID
-    def set_ID(self, ID): self.ID = ID
-    def get_B(self): return self.B
-    def set_B(self, B): self.B = B
-    def get_A(self): return self.A
-    def set_A(self, A): self.A = A
+    def get_TreatProgressEvent(self): return self.TreatProgressEvent
+    def set_TreatProgressEvent(self, TreatProgressEvent): self.TreatProgressEvent = TreatProgressEvent
+    def get_SubBeam(self): return self.SubBeam
+    def set_SubBeam(self, SubBeam): self.SubBeam = SubBeam
+    def get_Energy(self): return self.Energy
+    def set_Energy(self, Energy): self.Energy = Energy
+    def get_Mu(self): return self.Mu
+    def set_Mu(self, Mu): self.Mu = Mu
+    def get_DRate(self): return self.DRate
+    def set_DRate(self, DRate): self.DRate = DRate
+    def get_GantryRtn(self): return self.GantryRtn
+    def set_GantryRtn(self, GantryRtn): self.GantryRtn = GantryRtn
+    def get_CollRtn(self): return self.CollRtn
+    def set_CollRtn(self, CollRtn): self.CollRtn = CollRtn
+    def get_CouchVrt(self): return self.CouchVrt
+    def set_CouchVrt(self, CouchVrt): self.CouchVrt = CouchVrt
+    def get_CouchLat(self): return self.CouchLat
+    def set_CouchLat(self, CouchLat): self.CouchLat = CouchLat
+    def get_CouchLng(self): return self.CouchLng
+    def set_CouchLng(self, CouchLng): self.CouchLng = CouchLng
+    def get_CouchRtn(self): return self.CouchRtn
+    def set_CouchRtn(self, CouchRtn): self.CouchRtn = CouchRtn
+    def get_CouchPit(self): return self.CouchPit
+    def set_CouchPit(self, CouchPit): self.CouchPit = CouchPit
+    def get_CouchRol(self): return self.CouchRol
+    def set_CouchRol(self, CouchRol): self.CouchRol = CouchRol
+    def get_Y1(self): return self.Y1
+    def set_Y1(self, Y1): self.Y1 = Y1
+    def get_Y2(self): return self.Y2
+    def set_Y2(self, Y2): self.Y2 = Y2
+    def get_X1(self): return self.X1
+    def set_X1(self, X1): self.X1 = X1
+    def get_X2(self): return self.X2
+    def set_X2(self, X2): self.X2 = X2
+    def get_Mlc(self): return self.Mlc
+    def set_Mlc(self, Mlc): self.Mlc = Mlc
+    def add_Mlc(self, value): self.Mlc.append(value)
+    def insert_Mlc_at(self, index, value): self.Mlc.insert(index, value)
+    def replace_Mlc_at(self, index, value): self.Mlc[index] = value
+    def get_Phase(self): return self.Phase
+    def set_Phase(self, Phase): self.Phase = Phase
+    def validate_unsignedDouble(self, value):
+        # Validate type unsignedDouble, a restriction on xs:double.
+        if value is not None and Validate_simpletypes_:
+            if value < 0:
+                warnings_.warn('Value "%(value)s" does not match xsd minInclusive restriction on unsignedDouble' % {"value" : value} )
+    def validate_doublePhase(self, value):
+        # Validate type doublePhase, a restriction on xs:double.
+        if value is not None and Validate_simpletypes_:
+            if value < 0:
+                warnings_.warn('Value "%(value)s" does not match xsd minInclusive restriction on doublePhase' % {"value" : value} )
+            if value >= 360:
+                warnings_.warn('Value "%(value)s" does not match xsd maxExclusive restriction on doublePhase' % {"value" : value} )
     def hasContent_(self):
         if (
-            self.ID is not None or
-            self.B is not None or
-            self.A is not None
+            self.TreatProgressEvent is not None or
+            self.SubBeam is not None or
+            self.Energy is not None or
+            self.Mu is not None or
+            self.DRate is not None or
+            self.GantryRtn is not None or
+            self.CollRtn is not None or
+            self.CouchVrt is not None or
+            self.CouchLat is not None or
+            self.CouchLng is not None or
+            self.CouchRtn is not None or
+            self.CouchPit is not None or
+            self.CouchRol is not None or
+            self.Y1 is not None or
+            self.Y2 is not None or
+            self.X1 is not None or
+            self.X2 is not None or
+            self.Mlc or
+            self.Phase is not None
         ):
             return True
         else:
             return False
-    def export(self, outfile, level, namespace_='', name_='MlcType', namespacedef_='', pretty_print=True):
+    def export(self, outfile, level, namespace_='', name_='Cp', namespacedef_='', pretty_print=True):
         if pretty_print:
             eol_ = '\n'
         else:
@@ -2452,30 +7141,76 @@ class MlcType(GeneratedsSuper):
         showIndent(outfile, level, pretty_print)
         outfile.write('<%s%s%s' % (namespace_, name_, namespacedef_ and ' ' + namespacedef_ or '', ))
         already_processed = set()
-        self.exportAttributes(outfile, level, already_processed, namespace_, name_='MlcType')
+        self.exportAttributes(outfile, level, already_processed, namespace_, name_='Cp')
         if self.hasContent_():
             outfile.write('>%s' % (eol_, ))
-            self.exportChildren(outfile, level + 1, namespace_='', name_='MlcType', pretty_print=pretty_print)
+            self.exportChildren(outfile, level + 1, namespace_='', name_='Cp', pretty_print=pretty_print)
             showIndent(outfile, level, pretty_print)
             outfile.write('</%s%s>%s' % (namespace_, name_, eol_))
         else:
             outfile.write('/>%s' % (eol_, ))
-    def exportAttributes(self, outfile, level, already_processed, namespace_='', name_='MlcType'):
+    def exportAttributes(self, outfile, level, already_processed, namespace_='', name_='Cp'):
         pass
-    def exportChildren(self, outfile, level, namespace_='', name_='MlcType', fromsubclass_=False, pretty_print=True):
+    def exportChildren(self, outfile, level, namespace_='', name_='Cp', fromsubclass_=False, pretty_print=True):
         if pretty_print:
             eol_ = '\n'
         else:
             eol_ = ''
-        if self.ID is not None:
+        if self.TreatProgressEvent is not None:
             showIndent(outfile, level, pretty_print)
-            outfile.write('<%sID>%s</%sID>%s' % (namespace_, self.gds_format_integer(self.ID, input_name='ID'), namespace_, eol_))
-        if self.B is not None:
+            outfile.write('<%sTreatProgressEvent>%s</%sTreatProgressEvent>%s' % (namespace_, self.gds_encode(self.gds_format_string(quote_xml(self.TreatProgressEvent), input_name='TreatProgressEvent')), namespace_, eol_))
+        if self.SubBeam is not None:
+            self.SubBeam.export(outfile, level, namespace_, name_='SubBeam', pretty_print=pretty_print)
+        if self.Energy is not None:
             showIndent(outfile, level, pretty_print)
-            outfile.write('<%sB>%s</%sB>%s' % (namespace_, self.gds_format_string(quote_xml(self.B).encode(ExternalEncoding), input_name='B'), namespace_, eol_))
-        if self.A is not None:
+            outfile.write('<%sEnergy>%s</%sEnergy>%s' % (namespace_, self.gds_encode(self.gds_format_string(quote_xml(self.Energy), input_name='Energy')), namespace_, eol_))
+        if self.Mu is not None:
             showIndent(outfile, level, pretty_print)
-            outfile.write('<%sA>%s</%sA>%s' % (namespace_, self.gds_format_string(quote_xml(self.A).encode(ExternalEncoding), input_name='A'), namespace_, eol_))
+            outfile.write('<%sMu>%s</%sMu>%s' % (namespace_, self.gds_format_double(self.Mu, input_name='Mu'), namespace_, eol_))
+        if self.DRate is not None:
+            showIndent(outfile, level, pretty_print)
+            outfile.write('<%sDRate>%s</%sDRate>%s' % (namespace_, self.gds_format_double(self.DRate, input_name='DRate'), namespace_, eol_))
+        if self.GantryRtn is not None:
+            showIndent(outfile, level, pretty_print)
+            outfile.write('<%sGantryRtn>%s</%sGantryRtn>%s' % (namespace_, self.gds_format_double(self.GantryRtn, input_name='GantryRtn'), namespace_, eol_))
+        if self.CollRtn is not None:
+            showIndent(outfile, level, pretty_print)
+            outfile.write('<%sCollRtn>%s</%sCollRtn>%s' % (namespace_, self.gds_format_double(self.CollRtn, input_name='CollRtn'), namespace_, eol_))
+        if self.CouchVrt is not None:
+            showIndent(outfile, level, pretty_print)
+            outfile.write('<%sCouchVrt>%s</%sCouchVrt>%s' % (namespace_, self.gds_format_double(self.CouchVrt, input_name='CouchVrt'), namespace_, eol_))
+        if self.CouchLat is not None:
+            showIndent(outfile, level, pretty_print)
+            outfile.write('<%sCouchLat>%s</%sCouchLat>%s' % (namespace_, self.gds_format_double(self.CouchLat, input_name='CouchLat'), namespace_, eol_))
+        if self.CouchLng is not None:
+            showIndent(outfile, level, pretty_print)
+            outfile.write('<%sCouchLng>%s</%sCouchLng>%s' % (namespace_, self.gds_format_double(self.CouchLng, input_name='CouchLng'), namespace_, eol_))
+        if self.CouchRtn is not None:
+            showIndent(outfile, level, pretty_print)
+            outfile.write('<%sCouchRtn>%s</%sCouchRtn>%s' % (namespace_, self.gds_format_double(self.CouchRtn, input_name='CouchRtn'), namespace_, eol_))
+        if self.CouchPit is not None:
+            showIndent(outfile, level, pretty_print)
+            outfile.write('<%sCouchPit>%s</%sCouchPit>%s' % (namespace_, self.gds_format_double(self.CouchPit, input_name='CouchPit'), namespace_, eol_))
+        if self.CouchRol is not None:
+            showIndent(outfile, level, pretty_print)
+            outfile.write('<%sCouchRol>%s</%sCouchRol>%s' % (namespace_, self.gds_format_double(self.CouchRol, input_name='CouchRol'), namespace_, eol_))
+        if self.Y1 is not None:
+            showIndent(outfile, level, pretty_print)
+            outfile.write('<%sY1>%s</%sY1>%s' % (namespace_, self.gds_format_double(self.Y1, input_name='Y1'), namespace_, eol_))
+        if self.Y2 is not None:
+            showIndent(outfile, level, pretty_print)
+            outfile.write('<%sY2>%s</%sY2>%s' % (namespace_, self.gds_format_double(self.Y2, input_name='Y2'), namespace_, eol_))
+        if self.X1 is not None:
+            showIndent(outfile, level, pretty_print)
+            outfile.write('<%sX1>%s</%sX1>%s' % (namespace_, self.gds_format_double(self.X1, input_name='X1'), namespace_, eol_))
+        if self.X2 is not None:
+            showIndent(outfile, level, pretty_print)
+            outfile.write('<%sX2>%s</%sX2>%s' % (namespace_, self.gds_format_double(self.X2, input_name='X2'), namespace_, eol_))
+        for Mlc_ in self.Mlc:
+            Mlc_.export(outfile, level, namespace_, name_='Mlc', pretty_print=pretty_print)
+        if self.Phase is not None:
+            showIndent(outfile, level, pretty_print)
+            outfile.write('<%sPhase>%s</%sPhase>%s' % (namespace_, self.gds_format_double(self.Phase, input_name='Phase'), namespace_, eol_))
     def build(self, node):
         already_processed = set()
         self.buildAttributes(node, node.attrib, already_processed)
@@ -2486,324 +7221,925 @@ class MlcType(GeneratedsSuper):
     def buildAttributes(self, node, attrs, already_processed):
         pass
     def buildChildren(self, child_, node, nodeName_, fromsubclass_=False):
-        if nodeName_ == 'ID':
-            sval_ = child_.text
-            try:
-                ival_ = int(sval_)
-            except (TypeError, ValueError), exp:
-                raise_parse_error(child_, 'requires integer: %s' % exp)
-            ival_ = self.gds_validate_integer(ival_, node, 'ID')
-            self.ID = ival_
-        elif nodeName_ == 'B':
-            B_ = child_.text
-            B_ = self.gds_validate_string(B_, node, 'B')
-            self.B = B_
-        elif nodeName_ == 'A':
-            A_ = child_.text
-            A_ = self.gds_validate_string(A_, node, 'A')
-            self.A = A_
-# end class MlcType
-
-
-class ImagingParametersType(GeneratedsSuper):
-    subclass = None
-    superclass = None
-    def __init__(self, DuringTreatment=None, OutsideTreatment=None, CustomTargetPermission=None, ImagingVelTable=None, LatchBEL=True, LatchKVBEL=True, ImagingPoints=None, ImagingTolerances=None, GatingParameters=None):
-        self.original_tagname_ = None
-        self.DuringTreatment = DuringTreatment
-        self.OutsideTreatment = OutsideTreatment
-        self.CustomTargetPermission = CustomTargetPermission
-        self.ImagingVelTable = ImagingVelTable
-        self.LatchBEL = LatchBEL
-        self.LatchKVBEL = LatchKVBEL
-        self.ImagingPoints = ImagingPoints
-        self.ImagingTolerances = ImagingTolerances
-        self.GatingParameters = GatingParameters
-    def factory(*args_, **kwargs_):
-        if ImagingParametersType.subclass:
-            return ImagingParametersType.subclass(*args_, **kwargs_)
-        else:
-            return ImagingParametersType(*args_, **kwargs_)
-    factory = staticmethod(factory)
-    def get_DuringTreatment(self): return self.DuringTreatment
-    def set_DuringTreatment(self, DuringTreatment): self.DuringTreatment = DuringTreatment
-    def get_OutsideTreatment(self): return self.OutsideTreatment
-    def set_OutsideTreatment(self, OutsideTreatment): self.OutsideTreatment = OutsideTreatment
-    def get_CustomTargetPermission(self): return self.CustomTargetPermission
-    def set_CustomTargetPermission(self, CustomTargetPermission): self.CustomTargetPermission = CustomTargetPermission
-    def get_ImagingVelTable(self): return self.ImagingVelTable
-    def set_ImagingVelTable(self, ImagingVelTable): self.ImagingVelTable = ImagingVelTable
-    def get_LatchBEL(self): return self.LatchBEL
-    def set_LatchBEL(self, LatchBEL): self.LatchBEL = LatchBEL
-    def get_LatchKVBEL(self): return self.LatchKVBEL
-    def set_LatchKVBEL(self, LatchKVBEL): self.LatchKVBEL = LatchKVBEL
-    def get_ImagingPoints(self): return self.ImagingPoints
-    def set_ImagingPoints(self, ImagingPoints): self.ImagingPoints = ImagingPoints
-    def get_ImagingTolerances(self): return self.ImagingTolerances
-    def set_ImagingTolerances(self, ImagingTolerances): self.ImagingTolerances = ImagingTolerances
-    def get_GatingParameters(self): return self.GatingParameters
-    def set_GatingParameters(self, GatingParameters): self.GatingParameters = GatingParameters
-    def hasContent_(self):
-        if (
-            self.DuringTreatment is not None or
-            self.OutsideTreatment is not None or
-            self.CustomTargetPermission is not None or
-            self.ImagingVelTable is not None or
-            self.LatchBEL is not None or
-            self.LatchKVBEL is not None or
-            self.ImagingPoints is not None or
-            self.ImagingTolerances is not None or
-            self.GatingParameters is not None
-        ):
-            return True
-        else:
-            return False
-    def export(self, outfile, level, namespace_='', name_='ImagingParametersType', namespacedef_='', pretty_print=True):
-        if pretty_print:
-            eol_ = '\n'
-        else:
-            eol_ = ''
-        if self.original_tagname_ is not None:
-            name_ = self.original_tagname_
-        showIndent(outfile, level, pretty_print)
-        outfile.write('<%s%s%s' % (namespace_, name_, namespacedef_ and ' ' + namespacedef_ or '', ))
-        already_processed = set()
-        self.exportAttributes(outfile, level, already_processed, namespace_, name_='ImagingParametersType')
-        if self.hasContent_():
-            outfile.write('>%s' % (eol_, ))
-            self.exportChildren(outfile, level + 1, namespace_='', name_='ImagingParametersType', pretty_print=pretty_print)
-            showIndent(outfile, level, pretty_print)
-            outfile.write('</%s%s>%s' % (namespace_, name_, eol_))
-        else:
-            outfile.write('/>%s' % (eol_, ))
-    def exportAttributes(self, outfile, level, already_processed, namespace_='', name_='ImagingParametersType'):
-        pass
-    def exportChildren(self, outfile, level, namespace_='', name_='ImagingParametersType', fromsubclass_=False, pretty_print=True):
-        if pretty_print:
-            eol_ = '\n'
-        else:
-            eol_ = ''
-        if self.DuringTreatment is not None:
-            self.DuringTreatment.export(outfile, level, namespace_, name_='DuringTreatment', pretty_print=pretty_print)
-        if self.OutsideTreatment is not None:
-            self.OutsideTreatment.export(outfile, level, namespace_, name_='OutsideTreatment', pretty_print=pretty_print)
-        if self.CustomTargetPermission is not None:
-            showIndent(outfile, level, pretty_print)
-            outfile.write('<%sCustomTargetPermission>%s</%sCustomTargetPermission>%s' % (namespace_, self.gds_format_boolean(self.CustomTargetPermission, input_name='CustomTargetPermission'), namespace_, eol_))
-        if self.ImagingVelTable is not None:
-            self.ImagingVelTable.export(outfile, level, namespace_, name_='ImagingVelTable', pretty_print=pretty_print)
-        if self.LatchBEL is not None:
-            showIndent(outfile, level, pretty_print)
-            outfile.write('<%sLatchBEL>%s</%sLatchBEL>%s' % (namespace_, self.gds_format_boolean(self.LatchBEL, input_name='LatchBEL'), namespace_, eol_))
-        if self.LatchKVBEL is not None:
-            showIndent(outfile, level, pretty_print)
-            outfile.write('<%sLatchKVBEL>%s</%sLatchKVBEL>%s' % (namespace_, self.gds_format_boolean(self.LatchKVBEL, input_name='LatchKVBEL'), namespace_, eol_))
-        if self.ImagingPoints is not None:
-            self.ImagingPoints.export(outfile, level, namespace_, name_='ImagingPoints', pretty_print=pretty_print)
-        if self.ImagingTolerances is not None:
-            self.ImagingTolerances.export(outfile, level, namespace_, name_='ImagingTolerances', pretty_print=pretty_print)
-        if self.GatingParameters is not None:
-            self.GatingParameters.export(outfile, level, namespace_, name_='GatingParameters', pretty_print=pretty_print)
-    def build(self, node):
-        already_processed = set()
-        self.buildAttributes(node, node.attrib, already_processed)
-        for child in node:
-            nodeName_ = Tag_pattern_.match(child.tag).groups()[-1]
-            self.buildChildren(child, node, nodeName_)
-        return self
-    def buildAttributes(self, node, attrs, already_processed):
-        pass
-    def buildChildren(self, child_, node, nodeName_, fromsubclass_=False):
-        if nodeName_ == 'DuringTreatment':
-            obj_ = DuringTreatmentType.factory()
+        if nodeName_ == 'TreatProgressEvent':
+            TreatProgressEvent_ = child_.text
+            TreatProgressEvent_ = self.gds_validate_string(TreatProgressEvent_, node, 'TreatProgressEvent')
+            self.TreatProgressEvent = TreatProgressEvent_
+        elif nodeName_ == 'SubBeam':
+            obj_ = SubBeamType.factory()
             obj_.build(child_)
-            self.DuringTreatment = obj_
-            obj_.original_tagname_ = 'DuringTreatment'
-        elif nodeName_ == 'OutsideTreatment':
-            obj_ = OutsideTreatmentType.factory()
-            obj_.build(child_)
-            self.OutsideTreatment = obj_
-            obj_.original_tagname_ = 'OutsideTreatment'
-        elif nodeName_ == 'CustomTargetPermission':
-            sval_ = child_.text
-            if sval_ in ('true', '1'):
-                ival_ = True
-            elif sval_ in ('false', '0'):
-                ival_ = False
-            else:
-                raise_parse_error(child_, 'requires boolean')
-            ival_ = self.gds_validate_boolean(ival_, node, 'CustomTargetPermission')
-            self.CustomTargetPermission = ival_
-        elif nodeName_ == 'ImagingVelTable':
-            obj_ = ImagingVelTableType.factory()
-            obj_.build(child_)
-            self.ImagingVelTable = obj_
-            obj_.original_tagname_ = 'ImagingVelTable'
-        elif nodeName_ == 'LatchBEL':
-            sval_ = child_.text
-            if sval_ in ('true', '1'):
-                ival_ = True
-            elif sval_ in ('false', '0'):
-                ival_ = False
-            else:
-                raise_parse_error(child_, 'requires boolean')
-            ival_ = self.gds_validate_boolean(ival_, node, 'LatchBEL')
-            self.LatchBEL = ival_
-        elif nodeName_ == 'LatchKVBEL':
-            sval_ = child_.text
-            if sval_ in ('true', '1'):
-                ival_ = True
-            elif sval_ in ('false', '0'):
-                ival_ = False
-            else:
-                raise_parse_error(child_, 'requires boolean')
-            ival_ = self.gds_validate_boolean(ival_, node, 'LatchKVBEL')
-            self.LatchKVBEL = ival_
-        elif nodeName_ == 'ImagingPoints':
-            obj_ = ImagingPointsType.factory()
-            obj_.build(child_)
-            self.ImagingPoints = obj_
-            obj_.original_tagname_ = 'ImagingPoints'
-        elif nodeName_ == 'ImagingTolerances':
-            obj_ = ImagingTolerancesType.factory()
-            obj_.build(child_)
-            self.ImagingTolerances = obj_
-            obj_.original_tagname_ = 'ImagingTolerances'
-        elif nodeName_ == 'GatingParameters':
-            obj_ = GatingParametersType.factory()
-            obj_.build(child_)
-            self.GatingParameters = obj_
-            obj_.original_tagname_ = 'GatingParameters'
-# end class ImagingParametersType
-
-
-class DuringTreatmentType(GeneratedsSuper):
-    subclass = None
-    superclass = None
-    def __init__(self):
-        self.original_tagname_ = None
-    def factory(*args_, **kwargs_):
-        if DuringTreatmentType.subclass:
-            return DuringTreatmentType.subclass(*args_, **kwargs_)
-        else:
-            return DuringTreatmentType(*args_, **kwargs_)
-    factory = staticmethod(factory)
-    def hasContent_(self):
-        if (
-
-        ):
-            return True
-        else:
-            return False
-    def export(self, outfile, level, namespace_='', name_='DuringTreatmentType', namespacedef_='', pretty_print=True):
-        if pretty_print:
-            eol_ = '\n'
-        else:
-            eol_ = ''
-        if self.original_tagname_ is not None:
-            name_ = self.original_tagname_
-        showIndent(outfile, level, pretty_print)
-        outfile.write('<%s%s%s' % (namespace_, name_, namespacedef_ and ' ' + namespacedef_ or '', ))
-        already_processed = set()
-        self.exportAttributes(outfile, level, already_processed, namespace_, name_='DuringTreatmentType')
-        if self.hasContent_():
-            outfile.write('>%s' % (eol_, ))
-            self.exportChildren(outfile, level + 1, namespace_='', name_='DuringTreatmentType', pretty_print=pretty_print)
-            outfile.write('</%s%s>%s' % (namespace_, name_, eol_))
-        else:
-            outfile.write('/>%s' % (eol_, ))
-    def exportAttributes(self, outfile, level, already_processed, namespace_='', name_='DuringTreatmentType'):
-        pass
-    def exportChildren(self, outfile, level, namespace_='', name_='DuringTreatmentType', fromsubclass_=False, pretty_print=True):
-        pass
-    def build(self, node):
-        already_processed = set()
-        self.buildAttributes(node, node.attrib, already_processed)
-        for child in node:
-            nodeName_ = Tag_pattern_.match(child.tag).groups()[-1]
-            self.buildChildren(child, node, nodeName_)
-        return self
-    def buildAttributes(self, node, attrs, already_processed):
-        pass
-    def buildChildren(self, child_, node, nodeName_, fromsubclass_=False):
-        pass
-# end class DuringTreatmentType
-
-
-class OutsideTreatmentType(GeneratedsSuper):
-    subclass = None
-    superclass = None
-    def __init__(self, MaxMu=None):
-        self.original_tagname_ = None
-        self.MaxMu = MaxMu
-    def factory(*args_, **kwargs_):
-        if OutsideTreatmentType.subclass:
-            return OutsideTreatmentType.subclass(*args_, **kwargs_)
-        else:
-            return OutsideTreatmentType(*args_, **kwargs_)
-    factory = staticmethod(factory)
-    def get_MaxMu(self): return self.MaxMu
-    def set_MaxMu(self, MaxMu): self.MaxMu = MaxMu
-    def hasContent_(self):
-        if (
-            self.MaxMu is not None
-        ):
-            return True
-        else:
-            return False
-    def export(self, outfile, level, namespace_='', name_='OutsideTreatmentType', namespacedef_='', pretty_print=True):
-        if pretty_print:
-            eol_ = '\n'
-        else:
-            eol_ = ''
-        if self.original_tagname_ is not None:
-            name_ = self.original_tagname_
-        showIndent(outfile, level, pretty_print)
-        outfile.write('<%s%s%s' % (namespace_, name_, namespacedef_ and ' ' + namespacedef_ or '', ))
-        already_processed = set()
-        self.exportAttributes(outfile, level, already_processed, namespace_, name_='OutsideTreatmentType')
-        if self.hasContent_():
-            outfile.write('>%s' % (eol_, ))
-            self.exportChildren(outfile, level + 1, namespace_='', name_='OutsideTreatmentType', pretty_print=pretty_print)
-            showIndent(outfile, level, pretty_print)
-            outfile.write('</%s%s>%s' % (namespace_, name_, eol_))
-        else:
-            outfile.write('/>%s' % (eol_, ))
-    def exportAttributes(self, outfile, level, already_processed, namespace_='', name_='OutsideTreatmentType'):
-        pass
-    def exportChildren(self, outfile, level, namespace_='', name_='OutsideTreatmentType', fromsubclass_=False, pretty_print=True):
-        if pretty_print:
-            eol_ = '\n'
-        else:
-            eol_ = ''
-        if self.MaxMu is not None:
-            showIndent(outfile, level, pretty_print)
-            outfile.write('<%sMaxMu>%s</%sMaxMu>%s' % (namespace_, self.gds_format_double(self.MaxMu, input_name='MaxMu'), namespace_, eol_))
-    def build(self, node):
-        already_processed = set()
-        self.buildAttributes(node, node.attrib, already_processed)
-        for child in node:
-            nodeName_ = Tag_pattern_.match(child.tag).groups()[-1]
-            self.buildChildren(child, node, nodeName_)
-        return self
-    def buildAttributes(self, node, attrs, already_processed):
-        pass
-    def buildChildren(self, child_, node, nodeName_, fromsubclass_=False):
-        if nodeName_ == 'MaxMu':
+            self.SubBeam = obj_
+            obj_.original_tagname_ = 'SubBeam'
+        elif nodeName_ == 'Energy':
+            Energy_ = child_.text
+            Energy_ = self.gds_validate_string(Energy_, node, 'Energy')
+            self.Energy = Energy_
+        elif nodeName_ == 'Mu':
             sval_ = child_.text
             try:
                 fval_ = float(sval_)
-            except (TypeError, ValueError), exp:
+            except (TypeError, ValueError) as exp:
                 raise_parse_error(child_, 'requires float or double: %s' % exp)
-            fval_ = self.gds_validate_float(fval_, node, 'MaxMu')
-            self.MaxMu = fval_
-# end class OutsideTreatmentType
+            fval_ = self.gds_validate_float(fval_, node, 'Mu')
+            self.Mu = fval_
+            # validate type unsignedDouble
+            self.validate_unsignedDouble(self.Mu)
+        elif nodeName_ == 'DRate':
+            sval_ = child_.text
+            try:
+                fval_ = float(sval_)
+            except (TypeError, ValueError) as exp:
+                raise_parse_error(child_, 'requires float or double: %s' % exp)
+            fval_ = self.gds_validate_float(fval_, node, 'DRate')
+            self.DRate = fval_
+            # validate type unsignedDouble
+            self.validate_unsignedDouble(self.DRate)
+        elif nodeName_ == 'GantryRtn':
+            sval_ = child_.text
+            try:
+                fval_ = float(sval_)
+            except (TypeError, ValueError) as exp:
+                raise_parse_error(child_, 'requires float or double: %s' % exp)
+            fval_ = self.gds_validate_float(fval_, node, 'GantryRtn')
+            self.GantryRtn = fval_
+        elif nodeName_ == 'CollRtn':
+            sval_ = child_.text
+            try:
+                fval_ = float(sval_)
+            except (TypeError, ValueError) as exp:
+                raise_parse_error(child_, 'requires float or double: %s' % exp)
+            fval_ = self.gds_validate_float(fval_, node, 'CollRtn')
+            self.CollRtn = fval_
+        elif nodeName_ == 'CouchVrt':
+            sval_ = child_.text
+            try:
+                fval_ = float(sval_)
+            except (TypeError, ValueError) as exp:
+                raise_parse_error(child_, 'requires float or double: %s' % exp)
+            fval_ = self.gds_validate_float(fval_, node, 'CouchVrt')
+            self.CouchVrt = fval_
+        elif nodeName_ == 'CouchLat':
+            sval_ = child_.text
+            try:
+                fval_ = float(sval_)
+            except (TypeError, ValueError) as exp:
+                raise_parse_error(child_, 'requires float or double: %s' % exp)
+            fval_ = self.gds_validate_float(fval_, node, 'CouchLat')
+            self.CouchLat = fval_
+        elif nodeName_ == 'CouchLng':
+            sval_ = child_.text
+            try:
+                fval_ = float(sval_)
+            except (TypeError, ValueError) as exp:
+                raise_parse_error(child_, 'requires float or double: %s' % exp)
+            fval_ = self.gds_validate_float(fval_, node, 'CouchLng')
+            self.CouchLng = fval_
+        elif nodeName_ == 'CouchRtn':
+            sval_ = child_.text
+            try:
+                fval_ = float(sval_)
+            except (TypeError, ValueError) as exp:
+                raise_parse_error(child_, 'requires float or double: %s' % exp)
+            fval_ = self.gds_validate_float(fval_, node, 'CouchRtn')
+            self.CouchRtn = fval_
+        elif nodeName_ == 'CouchPit':
+            sval_ = child_.text
+            try:
+                fval_ = float(sval_)
+            except (TypeError, ValueError) as exp:
+                raise_parse_error(child_, 'requires float or double: %s' % exp)
+            fval_ = self.gds_validate_float(fval_, node, 'CouchPit')
+            self.CouchPit = fval_
+        elif nodeName_ == 'CouchRol':
+            sval_ = child_.text
+            try:
+                fval_ = float(sval_)
+            except (TypeError, ValueError) as exp:
+                raise_parse_error(child_, 'requires float or double: %s' % exp)
+            fval_ = self.gds_validate_float(fval_, node, 'CouchRol')
+            self.CouchRol = fval_
+        elif nodeName_ == 'Y1':
+            sval_ = child_.text
+            try:
+                fval_ = float(sval_)
+            except (TypeError, ValueError) as exp:
+                raise_parse_error(child_, 'requires float or double: %s' % exp)
+            fval_ = self.gds_validate_float(fval_, node, 'Y1')
+            self.Y1 = fval_
+        elif nodeName_ == 'Y2':
+            sval_ = child_.text
+            try:
+                fval_ = float(sval_)
+            except (TypeError, ValueError) as exp:
+                raise_parse_error(child_, 'requires float or double: %s' % exp)
+            fval_ = self.gds_validate_float(fval_, node, 'Y2')
+            self.Y2 = fval_
+        elif nodeName_ == 'X1':
+            sval_ = child_.text
+            try:
+                fval_ = float(sval_)
+            except (TypeError, ValueError) as exp:
+                raise_parse_error(child_, 'requires float or double: %s' % exp)
+            fval_ = self.gds_validate_float(fval_, node, 'X1')
+            self.X1 = fval_
+        elif nodeName_ == 'X2':
+            sval_ = child_.text
+            try:
+                fval_ = float(sval_)
+            except (TypeError, ValueError) as exp:
+                raise_parse_error(child_, 'requires float or double: %s' % exp)
+            fval_ = self.gds_validate_float(fval_, node, 'X2')
+            self.X2 = fval_
+        elif nodeName_ == 'Mlc':
+            obj_ = MlcPositionsType.factory()
+            obj_.build(child_)
+            self.Mlc.append(obj_)
+            obj_.original_tagname_ = 'Mlc'
+        elif nodeName_ == 'Phase':
+            sval_ = child_.text
+            try:
+                fval_ = float(sval_)
+            except (TypeError, ValueError) as exp:
+                raise_parse_error(child_, 'requires float or double: %s' % exp)
+            fval_ = self.gds_validate_float(fval_, node, 'Phase')
+            self.Phase = fval_
+            # validate type doublePhase
+            self.validate_doublePhase(self.Phase)
+# end class Cp
 
 
-class ImagingVelTableType(GeneratedsSuper):
+class ControlPoints(GeneratedsSuper):
+    """Segment Treatment Table Cp - A single control point"""
     subclass = None
     superclass = None
-    def __init__(self, GantryRtn=None, CollRtn=None, CouchVrt=None, CouchLat=None, CouchLng=None, CouchRtn=None, X1=None, X2=None, Y1=None, Y2=None):
+    def __init__(self, Cp=None):
+        self.original_tagname_ = None
+        if Cp is None:
+            self.Cp = []
+        else:
+            self.Cp = Cp
+    def factory(*args_, **kwargs_):
+        if CurrentSubclassModule_ is not None:
+            subclass = getSubclassFromModule_(
+                CurrentSubclassModule_, ControlPoints)
+            if subclass is not None:
+                return subclass(*args_, **kwargs_)
+        if ControlPoints.subclass:
+            return ControlPoints.subclass(*args_, **kwargs_)
+        else:
+            return ControlPoints(*args_, **kwargs_)
+    factory = staticmethod(factory)
+    def get_Cp(self): return self.Cp
+    def set_Cp(self, Cp): self.Cp = Cp
+    def add_Cp(self, value): self.Cp.append(value)
+    def insert_Cp_at(self, index, value): self.Cp.insert(index, value)
+    def replace_Cp_at(self, index, value): self.Cp[index] = value
+    def hasContent_(self):
+        if (
+            self.Cp
+        ):
+            return True
+        else:
+            return False
+    def export(self, outfile, level, namespace_='', name_='ControlPoints', namespacedef_='', pretty_print=True):
+        if pretty_print:
+            eol_ = '\n'
+        else:
+            eol_ = ''
+        if self.original_tagname_ is not None:
+            name_ = self.original_tagname_
+        showIndent(outfile, level, pretty_print)
+        outfile.write('<%s%s%s' % (namespace_, name_, namespacedef_ and ' ' + namespacedef_ or '', ))
+        already_processed = set()
+        self.exportAttributes(outfile, level, already_processed, namespace_, name_='ControlPoints')
+        if self.hasContent_():
+            outfile.write('>%s' % (eol_, ))
+            self.exportChildren(outfile, level + 1, namespace_='', name_='ControlPoints', pretty_print=pretty_print)
+            showIndent(outfile, level, pretty_print)
+            outfile.write('</%s%s>%s' % (namespace_, name_, eol_))
+        else:
+            outfile.write('/>%s' % (eol_, ))
+    def exportAttributes(self, outfile, level, already_processed, namespace_='', name_='ControlPoints'):
+        pass
+    def exportChildren(self, outfile, level, namespace_='', name_='ControlPoints', fromsubclass_=False, pretty_print=True):
+        if pretty_print:
+            eol_ = '\n'
+        else:
+            eol_ = ''
+        for Cp_ in self.Cp:
+            Cp_.export(outfile, level, namespace_, name_='Cp', pretty_print=pretty_print)
+    def build(self, node):
+        already_processed = set()
+        self.buildAttributes(node, node.attrib, already_processed)
+        for child in node:
+            nodeName_ = Tag_pattern_.match(child.tag).groups()[-1]
+            self.buildChildren(child, node, nodeName_)
+        return self
+    def buildAttributes(self, node, attrs, already_processed):
+        pass
+    def buildChildren(self, child_, node, nodeName_, fromsubclass_=False):
+        if nodeName_ == 'Cp':
+            obj_ = Cp.factory()
+            obj_.build(child_)
+            self.Cp.append(obj_)
+            obj_.original_tagname_ = 'Cp'
+# end class ControlPoints
+
+
+class ConformityType(GeneratedsSuper):
+    """Define the parameters of the real-time treatment delivery confirmity
+    measure."""
+    subclass = None
+    superclass = None
+    def __init__(self, OverExposure=None, UnderExposure=None):
+        self.original_tagname_ = None
+        self.OverExposure = OverExposure
+        self.validate_unsignedDouble(self.OverExposure)
+        self.UnderExposure = UnderExposure
+        self.validate_unsignedDouble(self.UnderExposure)
+    def factory(*args_, **kwargs_):
+        if CurrentSubclassModule_ is not None:
+            subclass = getSubclassFromModule_(
+                CurrentSubclassModule_, ConformityType)
+            if subclass is not None:
+                return subclass(*args_, **kwargs_)
+        if ConformityType.subclass:
+            return ConformityType.subclass(*args_, **kwargs_)
+        else:
+            return ConformityType(*args_, **kwargs_)
+    factory = staticmethod(factory)
+    def get_OverExposure(self): return self.OverExposure
+    def set_OverExposure(self, OverExposure): self.OverExposure = OverExposure
+    def get_UnderExposure(self): return self.UnderExposure
+    def set_UnderExposure(self, UnderExposure): self.UnderExposure = UnderExposure
+    def validate_unsignedDouble(self, value):
+        # Validate type unsignedDouble, a restriction on xs:double.
+        if value is not None and Validate_simpletypes_:
+            if value < 0:
+                warnings_.warn('Value "%(value)s" does not match xsd minInclusive restriction on unsignedDouble' % {"value" : value} )
+    def hasContent_(self):
+        if (
+            self.OverExposure is not None or
+            self.UnderExposure is not None
+        ):
+            return True
+        else:
+            return False
+    def export(self, outfile, level, namespace_='', name_='ConformityType', namespacedef_='', pretty_print=True):
+        if pretty_print:
+            eol_ = '\n'
+        else:
+            eol_ = ''
+        if self.original_tagname_ is not None:
+            name_ = self.original_tagname_
+        showIndent(outfile, level, pretty_print)
+        outfile.write('<%s%s%s' % (namespace_, name_, namespacedef_ and ' ' + namespacedef_ or '', ))
+        already_processed = set()
+        self.exportAttributes(outfile, level, already_processed, namespace_, name_='ConformityType')
+        if self.hasContent_():
+            outfile.write('>%s' % (eol_, ))
+            self.exportChildren(outfile, level + 1, namespace_='', name_='ConformityType', pretty_print=pretty_print)
+            showIndent(outfile, level, pretty_print)
+            outfile.write('</%s%s>%s' % (namespace_, name_, eol_))
+        else:
+            outfile.write('/>%s' % (eol_, ))
+    def exportAttributes(self, outfile, level, already_processed, namespace_='', name_='ConformityType'):
+        pass
+    def exportChildren(self, outfile, level, namespace_='', name_='ConformityType', fromsubclass_=False, pretty_print=True):
+        if pretty_print:
+            eol_ = '\n'
+        else:
+            eol_ = ''
+        if self.OverExposure is not None:
+            showIndent(outfile, level, pretty_print)
+            outfile.write('<%sOverExposure>%s</%sOverExposure>%s' % (namespace_, self.gds_format_double(self.OverExposure, input_name='OverExposure'), namespace_, eol_))
+        if self.UnderExposure is not None:
+            showIndent(outfile, level, pretty_print)
+            outfile.write('<%sUnderExposure>%s</%sUnderExposure>%s' % (namespace_, self.gds_format_double(self.UnderExposure, input_name='UnderExposure'), namespace_, eol_))
+    def build(self, node):
+        already_processed = set()
+        self.buildAttributes(node, node.attrib, already_processed)
+        for child in node:
+            nodeName_ = Tag_pattern_.match(child.tag).groups()[-1]
+            self.buildChildren(child, node, nodeName_)
+        return self
+    def buildAttributes(self, node, attrs, already_processed):
+        pass
+    def buildChildren(self, child_, node, nodeName_, fromsubclass_=False):
+        if nodeName_ == 'OverExposure':
+            sval_ = child_.text
+            try:
+                fval_ = float(sval_)
+            except (TypeError, ValueError) as exp:
+                raise_parse_error(child_, 'requires float or double: %s' % exp)
+            fval_ = self.gds_validate_float(fval_, node, 'OverExposure')
+            self.OverExposure = fval_
+            # validate type unsignedDouble
+            self.validate_unsignedDouble(self.OverExposure)
+        elif nodeName_ == 'UnderExposure':
+            sval_ = child_.text
+            try:
+                fval_ = float(sval_)
+            except (TypeError, ValueError) as exp:
+                raise_parse_error(child_, 'requires float or double: %s' % exp)
+            fval_ = self.gds_validate_float(fval_, node, 'UnderExposure')
+            self.UnderExposure = fval_
+            # validate type unsignedDouble
+            self.validate_unsignedDouble(self.UnderExposure)
+# end class ConformityType
+
+
+class TrackingAxis(GeneratedsSuper):
+    """Define the axis that is allowed to track."""
+    subclass = None
+    superclass = None
+    def __init__(self, Tol=None, MotionType=None):
+        self.original_tagname_ = None
+        self.Tol = _cast(None, Tol)
+        self.MotionType = _cast(None, MotionType)
+    def factory(*args_, **kwargs_):
+        if CurrentSubclassModule_ is not None:
+            subclass = getSubclassFromModule_(
+                CurrentSubclassModule_, TrackingAxis)
+            if subclass is not None:
+                return subclass(*args_, **kwargs_)
+        if TrackingAxis.subclass:
+            return TrackingAxis.subclass(*args_, **kwargs_)
+        else:
+            return TrackingAxis(*args_, **kwargs_)
+    factory = staticmethod(factory)
+    def get_Tol(self): return self.Tol
+    def set_Tol(self, Tol): self.Tol = Tol
+    def get_MotionType(self): return self.MotionType
+    def set_MotionType(self, MotionType): self.MotionType = MotionType
+    def validate_unsignedDouble(self, value):
+        # Validate type unsignedDouble, a restriction on xs:double.
+        if value is not None and Validate_simpletypes_:
+            if value < 0:
+                warnings_.warn('Value "%(value)s" does not match xsd minInclusive restriction on unsignedDouble' % {"value" : value} )
+    def validate_TrackingMotionType(self, value):
+        # Validate type TrackingMotionType, a restriction on xs:string.
+        if value is not None and Validate_simpletypes_:
+            value = str(value)
+            enumerations = ['target', 'baseline']
+            enumeration_respectee = False
+            for enum in enumerations:
+                if value == enum:
+                    enumeration_respectee = True
+                    break
+            if not enumeration_respectee:
+                warnings_.warn('Value "%(value)s" does not match xsd enumeration restriction on TrackingMotionType' % {"value" : value.encode("utf-8")} )
+    def hasContent_(self):
+        if (
+
+        ):
+            return True
+        else:
+            return False
+    def export(self, outfile, level, namespace_='', name_='TrackingAxis', namespacedef_='', pretty_print=True):
+        if pretty_print:
+            eol_ = '\n'
+        else:
+            eol_ = ''
+        if self.original_tagname_ is not None:
+            name_ = self.original_tagname_
+        showIndent(outfile, level, pretty_print)
+        outfile.write('<%s%s%s' % (namespace_, name_, namespacedef_ and ' ' + namespacedef_ or '', ))
+        already_processed = set()
+        self.exportAttributes(outfile, level, already_processed, namespace_, name_='TrackingAxis')
+        if self.hasContent_():
+            outfile.write('>%s' % (eol_, ))
+            self.exportChildren(outfile, level + 1, namespace_='', name_='TrackingAxis', pretty_print=pretty_print)
+            outfile.write('</%s%s>%s' % (namespace_, name_, eol_))
+        else:
+            outfile.write('/>%s' % (eol_, ))
+    def exportAttributes(self, outfile, level, already_processed, namespace_='', name_='TrackingAxis'):
+        if self.Tol is not None and 'Tol' not in already_processed:
+            already_processed.add('Tol')
+            outfile.write(' Tol=%s' % (quote_attrib(self.Tol), ))
+        if self.MotionType is not None and 'MotionType' not in already_processed:
+            already_processed.add('MotionType')
+            outfile.write(' MotionType=%s' % (quote_attrib(self.MotionType), ))
+    def exportChildren(self, outfile, level, namespace_='', name_='TrackingAxis', fromsubclass_=False, pretty_print=True):
+        pass
+    def build(self, node):
+        already_processed = set()
+        self.buildAttributes(node, node.attrib, already_processed)
+        for child in node:
+            nodeName_ = Tag_pattern_.match(child.tag).groups()[-1]
+            self.buildChildren(child, node, nodeName_)
+        return self
+    def buildAttributes(self, node, attrs, already_processed):
+        value = find_attr_value_('Tol', node)
+        if value is not None and 'Tol' not in already_processed:
+            already_processed.add('Tol')
+            try:
+                self.Tol = float(value)
+            except ValueError as exp:
+                raise ValueError('Bad float/double attribute (Tol): %s' % exp)
+            self.validate_unsignedDouble(self.Tol)    # validate type unsignedDouble
+        value = find_attr_value_('MotionType', node)
+        if value is not None and 'MotionType' not in already_processed:
+            already_processed.add('MotionType')
+            self.MotionType = value
+            self.validate_TrackingMotionType(self.MotionType)    # validate type TrackingMotionType
+    def buildChildren(self, child_, node, nodeName_, fromsubclass_=False):
+        pass
+# end class TrackingAxis
+
+
+class TrackingMLC(GeneratedsSuper):
+    """If this is in the beam, tracking is enabled for the collimation
+    system. Specifying an ExpectedTargetSpeed > 0 will result in
+    circulating leaf pairs in reserve. YTargetRange is an additional
+    paramter for the leaf pairs in reserve which bounds circulation
+    up to the given range in Y direction."""
+    subclass = None
+    superclass = None
+    def __init__(self, MotionType=None, ID=None, OpenUpCarriages=None, ExpectedTargetSpeed=None, YTargetRange=None):
+        self.original_tagname_ = None
+        self.MotionType = _cast(None, MotionType)
+        self.ID = _cast(int, ID)
+        self.OpenUpCarriages = _cast(None, OpenUpCarriages)
+        self.ExpectedTargetSpeed = _cast(None, ExpectedTargetSpeed)
+        self.YTargetRange = _cast(None, YTargetRange)
+    def factory(*args_, **kwargs_):
+        if CurrentSubclassModule_ is not None:
+            subclass = getSubclassFromModule_(
+                CurrentSubclassModule_, TrackingMLC)
+            if subclass is not None:
+                return subclass(*args_, **kwargs_)
+        if TrackingMLC.subclass:
+            return TrackingMLC.subclass(*args_, **kwargs_)
+        else:
+            return TrackingMLC(*args_, **kwargs_)
+    factory = staticmethod(factory)
+    def get_MotionType(self): return self.MotionType
+    def set_MotionType(self, MotionType): self.MotionType = MotionType
+    def get_ID(self): return self.ID
+    def set_ID(self, ID): self.ID = ID
+    def get_OpenUpCarriages(self): return self.OpenUpCarriages
+    def set_OpenUpCarriages(self, OpenUpCarriages): self.OpenUpCarriages = OpenUpCarriages
+    def get_ExpectedTargetSpeed(self): return self.ExpectedTargetSpeed
+    def set_ExpectedTargetSpeed(self, ExpectedTargetSpeed): self.ExpectedTargetSpeed = ExpectedTargetSpeed
+    def get_YTargetRange(self): return self.YTargetRange
+    def set_YTargetRange(self, YTargetRange): self.YTargetRange = YTargetRange
+    def validate_TrackingMotionType(self, value):
+        # Validate type TrackingMotionType, a restriction on xs:string.
+        if value is not None and Validate_simpletypes_:
+            value = str(value)
+            enumerations = ['target', 'baseline']
+            enumeration_respectee = False
+            for enum in enumerations:
+                if value == enum:
+                    enumeration_respectee = True
+                    break
+            if not enumeration_respectee:
+                warnings_.warn('Value "%(value)s" does not match xsd enumeration restriction on TrackingMotionType' % {"value" : value.encode("utf-8")} )
+    def validate_unsignedDouble(self, value):
+        # Validate type unsignedDouble, a restriction on xs:double.
+        if value is not None and Validate_simpletypes_:
+            if value < 0:
+                warnings_.warn('Value "%(value)s" does not match xsd minInclusive restriction on unsignedDouble' % {"value" : value} )
+    def hasContent_(self):
+        if (
+
+        ):
+            return True
+        else:
+            return False
+    def export(self, outfile, level, namespace_='', name_='TrackingMLC', namespacedef_='', pretty_print=True):
+        if pretty_print:
+            eol_ = '\n'
+        else:
+            eol_ = ''
+        if self.original_tagname_ is not None:
+            name_ = self.original_tagname_
+        showIndent(outfile, level, pretty_print)
+        outfile.write('<%s%s%s' % (namespace_, name_, namespacedef_ and ' ' + namespacedef_ or '', ))
+        already_processed = set()
+        self.exportAttributes(outfile, level, already_processed, namespace_, name_='TrackingMLC')
+        if self.hasContent_():
+            outfile.write('>%s' % (eol_, ))
+            self.exportChildren(outfile, level + 1, namespace_='', name_='TrackingMLC', pretty_print=pretty_print)
+            outfile.write('</%s%s>%s' % (namespace_, name_, eol_))
+        else:
+            outfile.write('/>%s' % (eol_, ))
+    def exportAttributes(self, outfile, level, already_processed, namespace_='', name_='TrackingMLC'):
+        if self.MotionType is not None and 'MotionType' not in already_processed:
+            already_processed.add('MotionType')
+            outfile.write(' MotionType=%s' % (quote_attrib(self.MotionType), ))
+        if self.ID is not None and 'ID' not in already_processed:
+            already_processed.add('ID')
+            outfile.write(' ID="%s"' % self.gds_format_integer(self.ID, input_name='ID'))
+        if self.OpenUpCarriages is not None and 'OpenUpCarriages' not in already_processed:
+            already_processed.add('OpenUpCarriages')
+            outfile.write(' OpenUpCarriages=%s' % (quote_attrib(self.OpenUpCarriages), ))
+        if self.ExpectedTargetSpeed is not None and 'ExpectedTargetSpeed' not in already_processed:
+            already_processed.add('ExpectedTargetSpeed')
+            outfile.write(' ExpectedTargetSpeed=%s' % (quote_attrib(self.ExpectedTargetSpeed), ))
+        if self.YTargetRange is not None and 'YTargetRange' not in already_processed:
+            already_processed.add('YTargetRange')
+            outfile.write(' YTargetRange=%s' % (quote_attrib(self.YTargetRange), ))
+    def exportChildren(self, outfile, level, namespace_='', name_='TrackingMLC', fromsubclass_=False, pretty_print=True):
+        pass
+    def build(self, node):
+        already_processed = set()
+        self.buildAttributes(node, node.attrib, already_processed)
+        for child in node:
+            nodeName_ = Tag_pattern_.match(child.tag).groups()[-1]
+            self.buildChildren(child, node, nodeName_)
+        return self
+    def buildAttributes(self, node, attrs, already_processed):
+        value = find_attr_value_('MotionType', node)
+        if value is not None and 'MotionType' not in already_processed:
+            already_processed.add('MotionType')
+            self.MotionType = value
+            self.validate_TrackingMotionType(self.MotionType)    # validate type TrackingMotionType
+        value = find_attr_value_('ID', node)
+        if value is not None and 'ID' not in already_processed:
+            already_processed.add('ID')
+            try:
+                self.ID = int(value)
+            except ValueError as exp:
+                raise_parse_error(node, 'Bad integer attribute: %s' % exp)
+        value = find_attr_value_('OpenUpCarriages', node)
+        if value is not None and 'OpenUpCarriages' not in already_processed:
+            already_processed.add('OpenUpCarriages')
+            try:
+                self.OpenUpCarriages = float(value)
+            except ValueError as exp:
+                raise ValueError('Bad float/double attribute (OpenUpCarriages): %s' % exp)
+            self.validate_unsignedDouble(self.OpenUpCarriages)    # validate type unsignedDouble
+        value = find_attr_value_('ExpectedTargetSpeed', node)
+        if value is not None and 'ExpectedTargetSpeed' not in already_processed:
+            already_processed.add('ExpectedTargetSpeed')
+            try:
+                self.ExpectedTargetSpeed = float(value)
+            except ValueError as exp:
+                raise ValueError('Bad float/double attribute (ExpectedTargetSpeed): %s' % exp)
+            self.validate_unsignedDouble(self.ExpectedTargetSpeed)    # validate type unsignedDouble
+        value = find_attr_value_('YTargetRange', node)
+        if value is not None and 'YTargetRange' not in already_processed:
+            already_processed.add('YTargetRange')
+            try:
+                self.YTargetRange = float(value)
+            except ValueError as exp:
+                raise ValueError('Bad float/double attribute (YTargetRange): %s' % exp)
+            self.validate_unsignedDouble(self.YTargetRange)    # validate type unsignedDouble
+    def buildChildren(self, child_, node, nodeName_, fromsubclass_=False):
+        pass
+# end class TrackingMLC
+
+
+class TrackingPhase(GeneratedsSuper):
+    """If in the beam, phase tracking is enabled. Every control point has
+    to contain valid phase information. Phase is given in degrees
+    [0.0;360.0[. Trajectory execution speed will be adapted to match
+    the plan phase with the online measured phase from XI.
+    MaxPhaseLag is the maximum lag in phase space that is tolerated;
+    if the plan execution lags more behind, the trajectory engine
+    will hold and wait for the next breathing phase."""
+    subclass = None
+    superclass = None
+    def __init__(self, MaxPhaseLag=None):
+        self.original_tagname_ = None
+        self.MaxPhaseLag = _cast(None, MaxPhaseLag)
+    def factory(*args_, **kwargs_):
+        if CurrentSubclassModule_ is not None:
+            subclass = getSubclassFromModule_(
+                CurrentSubclassModule_, TrackingPhase)
+            if subclass is not None:
+                return subclass(*args_, **kwargs_)
+        if TrackingPhase.subclass:
+            return TrackingPhase.subclass(*args_, **kwargs_)
+        else:
+            return TrackingPhase(*args_, **kwargs_)
+    factory = staticmethod(factory)
+    def get_MaxPhaseLag(self): return self.MaxPhaseLag
+    def set_MaxPhaseLag(self, MaxPhaseLag): self.MaxPhaseLag = MaxPhaseLag
+    def validate_doublePhase(self, value):
+        # Validate type doublePhase, a restriction on xs:double.
+        if value is not None and Validate_simpletypes_:
+            if value < 0:
+                warnings_.warn('Value "%(value)s" does not match xsd minInclusive restriction on doublePhase' % {"value" : value} )
+            if value >= 360:
+                warnings_.warn('Value "%(value)s" does not match xsd maxExclusive restriction on doublePhase' % {"value" : value} )
+    def hasContent_(self):
+        if (
+
+        ):
+            return True
+        else:
+            return False
+    def export(self, outfile, level, namespace_='', name_='TrackingPhase', namespacedef_='', pretty_print=True):
+        if pretty_print:
+            eol_ = '\n'
+        else:
+            eol_ = ''
+        if self.original_tagname_ is not None:
+            name_ = self.original_tagname_
+        showIndent(outfile, level, pretty_print)
+        outfile.write('<%s%s%s' % (namespace_, name_, namespacedef_ and ' ' + namespacedef_ or '', ))
+        already_processed = set()
+        self.exportAttributes(outfile, level, already_processed, namespace_, name_='TrackingPhase')
+        if self.hasContent_():
+            outfile.write('>%s' % (eol_, ))
+            self.exportChildren(outfile, level + 1, namespace_='', name_='TrackingPhase', pretty_print=pretty_print)
+            outfile.write('</%s%s>%s' % (namespace_, name_, eol_))
+        else:
+            outfile.write('/>%s' % (eol_, ))
+    def exportAttributes(self, outfile, level, already_processed, namespace_='', name_='TrackingPhase'):
+        if self.MaxPhaseLag is not None and 'MaxPhaseLag' not in already_processed:
+            already_processed.add('MaxPhaseLag')
+            outfile.write(' MaxPhaseLag=%s' % (quote_attrib(self.MaxPhaseLag), ))
+    def exportChildren(self, outfile, level, namespace_='', name_='TrackingPhase', fromsubclass_=False, pretty_print=True):
+        pass
+    def build(self, node):
+        already_processed = set()
+        self.buildAttributes(node, node.attrib, already_processed)
+        for child in node:
+            nodeName_ = Tag_pattern_.match(child.tag).groups()[-1]
+            self.buildChildren(child, node, nodeName_)
+        return self
+    def buildAttributes(self, node, attrs, already_processed):
+        value = find_attr_value_('MaxPhaseLag', node)
+        if value is not None and 'MaxPhaseLag' not in already_processed:
+            already_processed.add('MaxPhaseLag')
+            try:
+                self.MaxPhaseLag = float(value)
+            except ValueError as exp:
+                raise ValueError('Bad float/double attribute (MaxPhaseLag): %s' % exp)
+            self.validate_doublePhase(self.MaxPhaseLag)    # validate type doublePhase
+    def buildChildren(self, child_, node, nodeName_, fromsubclass_=False):
+        pass
+# end class TrackingPhase
+
+
+class TrackingAxisList(GeneratedsSuper):
+    """Define the motion axes that are allowed to track."""
+    subclass = None
+    superclass = None
+    def __init__(self, CouchVrt=None, CouchLat=None, CouchLng=None, Y12=None, X12=None, Mlc=None, Phase=None):
+        self.original_tagname_ = None
+        self.CouchVrt = CouchVrt
+        self.CouchLat = CouchLat
+        self.CouchLng = CouchLng
+        self.Y12 = Y12
+        self.X12 = X12
+        self.Mlc = Mlc
+        self.Phase = Phase
+    def factory(*args_, **kwargs_):
+        if CurrentSubclassModule_ is not None:
+            subclass = getSubclassFromModule_(
+                CurrentSubclassModule_, TrackingAxisList)
+            if subclass is not None:
+                return subclass(*args_, **kwargs_)
+        if TrackingAxisList.subclass:
+            return TrackingAxisList.subclass(*args_, **kwargs_)
+        else:
+            return TrackingAxisList(*args_, **kwargs_)
+    factory = staticmethod(factory)
+    def get_CouchVrt(self): return self.CouchVrt
+    def set_CouchVrt(self, CouchVrt): self.CouchVrt = CouchVrt
+    def get_CouchLat(self): return self.CouchLat
+    def set_CouchLat(self, CouchLat): self.CouchLat = CouchLat
+    def get_CouchLng(self): return self.CouchLng
+    def set_CouchLng(self, CouchLng): self.CouchLng = CouchLng
+    def get_Y12(self): return self.Y12
+    def set_Y12(self, Y12): self.Y12 = Y12
+    def get_X12(self): return self.X12
+    def set_X12(self, X12): self.X12 = X12
+    def get_Mlc(self): return self.Mlc
+    def set_Mlc(self, Mlc): self.Mlc = Mlc
+    def get_Phase(self): return self.Phase
+    def set_Phase(self, Phase): self.Phase = Phase
+    def hasContent_(self):
+        if (
+            self.CouchVrt is not None or
+            self.CouchLat is not None or
+            self.CouchLng is not None or
+            self.Y12 is not None or
+            self.X12 is not None or
+            self.Mlc is not None or
+            self.Phase is not None
+        ):
+            return True
+        else:
+            return False
+    def export(self, outfile, level, namespace_='', name_='TrackingAxisList', namespacedef_='', pretty_print=True):
+        if pretty_print:
+            eol_ = '\n'
+        else:
+            eol_ = ''
+        if self.original_tagname_ is not None:
+            name_ = self.original_tagname_
+        showIndent(outfile, level, pretty_print)
+        outfile.write('<%s%s%s' % (namespace_, name_, namespacedef_ and ' ' + namespacedef_ or '', ))
+        already_processed = set()
+        self.exportAttributes(outfile, level, already_processed, namespace_, name_='TrackingAxisList')
+        if self.hasContent_():
+            outfile.write('>%s' % (eol_, ))
+            self.exportChildren(outfile, level + 1, namespace_='', name_='TrackingAxisList', pretty_print=pretty_print)
+            showIndent(outfile, level, pretty_print)
+            outfile.write('</%s%s>%s' % (namespace_, name_, eol_))
+        else:
+            outfile.write('/>%s' % (eol_, ))
+    def exportAttributes(self, outfile, level, already_processed, namespace_='', name_='TrackingAxisList'):
+        pass
+    def exportChildren(self, outfile, level, namespace_='', name_='TrackingAxisList', fromsubclass_=False, pretty_print=True):
+        if pretty_print:
+            eol_ = '\n'
+        else:
+            eol_ = ''
+        if self.CouchVrt is not None:
+            self.CouchVrt.export(outfile, level, namespace_, name_='CouchVrt', pretty_print=pretty_print)
+        if self.CouchLat is not None:
+            self.CouchLat.export(outfile, level, namespace_, name_='CouchLat', pretty_print=pretty_print)
+        if self.CouchLng is not None:
+            self.CouchLng.export(outfile, level, namespace_, name_='CouchLng', pretty_print=pretty_print)
+        if self.Y12 is not None:
+            self.Y12.export(outfile, level, namespace_, name_='Y12', pretty_print=pretty_print)
+        if self.X12 is not None:
+            self.X12.export(outfile, level, namespace_, name_='X12', pretty_print=pretty_print)
+        if self.Mlc is not None:
+            self.Mlc.export(outfile, level, namespace_, name_='Mlc', pretty_print=pretty_print)
+        if self.Phase is not None:
+            self.Phase.export(outfile, level, namespace_, name_='Phase', pretty_print=pretty_print)
+    def build(self, node):
+        already_processed = set()
+        self.buildAttributes(node, node.attrib, already_processed)
+        for child in node:
+            nodeName_ = Tag_pattern_.match(child.tag).groups()[-1]
+            self.buildChildren(child, node, nodeName_)
+        return self
+    def buildAttributes(self, node, attrs, already_processed):
+        pass
+    def buildChildren(self, child_, node, nodeName_, fromsubclass_=False):
+        if nodeName_ == 'CouchVrt':
+            obj_ = TrackingAxis.factory()
+            obj_.build(child_)
+            self.CouchVrt = obj_
+            obj_.original_tagname_ = 'CouchVrt'
+        elif nodeName_ == 'CouchLat':
+            obj_ = TrackingAxis.factory()
+            obj_.build(child_)
+            self.CouchLat = obj_
+            obj_.original_tagname_ = 'CouchLat'
+        elif nodeName_ == 'CouchLng':
+            obj_ = TrackingAxis.factory()
+            obj_.build(child_)
+            self.CouchLng = obj_
+            obj_.original_tagname_ = 'CouchLng'
+        elif nodeName_ == 'Y12':
+            obj_ = TrackingAxis.factory()
+            obj_.build(child_)
+            self.Y12 = obj_
+            obj_.original_tagname_ = 'Y12'
+        elif nodeName_ == 'X12':
+            obj_ = TrackingAxis.factory()
+            obj_.build(child_)
+            self.X12 = obj_
+            obj_.original_tagname_ = 'X12'
+        elif nodeName_ == 'Mlc':
+            obj_ = TrackingMLC.factory()
+            obj_.build(child_)
+            self.Mlc = obj_
+            obj_.original_tagname_ = 'Mlc'
+        elif nodeName_ == 'Phase':
+            obj_ = TrackingPhase.factory()
+            obj_.build(child_)
+            self.Phase = obj_
+            obj_.original_tagname_ = 'Phase'
+# end class TrackingAxisList
+
+
+class Tracking(GeneratedsSuper):
+    """Define the tracking enable status plus the tracking capability
+    ratio. The following rules are enforced: - couch axes require
+    either the axis Tol or the ConformityTol to be set - jaw
+    tracking (X12 and Y12) requires MLC tracking (Mlc) - Mlc
+    tracking requires ConformityTol to be set - any tracking axis
+    must have at least initial positions in the first control point
+    - if ConformityTol is specified there must be at least initial
+    positions of Mlc and jaws. Tracking capability ratio range
+    between 0 and 1.0, with 1.0 means tracking trajectory would be
+    generated with full capabilities of axes."""
+    subclass = None
+    superclass = None
+    def __init__(self, Axes=None, ConformityTol=None, InitialCapabilityRatio=None):
+        self.original_tagname_ = None
+        self.Axes = Axes
+        self.ConformityTol = ConformityTol
+        self.InitialCapabilityRatio = InitialCapabilityRatio
+        self.validate_doubleRatio(self.InitialCapabilityRatio)
+    def factory(*args_, **kwargs_):
+        if CurrentSubclassModule_ is not None:
+            subclass = getSubclassFromModule_(
+                CurrentSubclassModule_, Tracking)
+            if subclass is not None:
+                return subclass(*args_, **kwargs_)
+        if Tracking.subclass:
+            return Tracking.subclass(*args_, **kwargs_)
+        else:
+            return Tracking(*args_, **kwargs_)
+    factory = staticmethod(factory)
+    def get_Axes(self): return self.Axes
+    def set_Axes(self, Axes): self.Axes = Axes
+    def get_ConformityTol(self): return self.ConformityTol
+    def set_ConformityTol(self, ConformityTol): self.ConformityTol = ConformityTol
+    def get_InitialCapabilityRatio(self): return self.InitialCapabilityRatio
+    def set_InitialCapabilityRatio(self, InitialCapabilityRatio): self.InitialCapabilityRatio = InitialCapabilityRatio
+    def validate_doubleRatio(self, value):
+        # Validate type doubleRatio, a restriction on xs:double.
+        if value is not None and Validate_simpletypes_:
+            if value < 0:
+                warnings_.warn('Value "%(value)s" does not match xsd minInclusive restriction on doubleRatio' % {"value" : value} )
+            if value > 1:
+                warnings_.warn('Value "%(value)s" does not match xsd maxInclusive restriction on doubleRatio' % {"value" : value} )
+    def hasContent_(self):
+        if (
+            self.Axes is not None or
+            self.ConformityTol is not None or
+            self.InitialCapabilityRatio is not None
+        ):
+            return True
+        else:
+            return False
+    def export(self, outfile, level, namespace_='', name_='Tracking', namespacedef_='', pretty_print=True):
+        if pretty_print:
+            eol_ = '\n'
+        else:
+            eol_ = ''
+        if self.original_tagname_ is not None:
+            name_ = self.original_tagname_
+        showIndent(outfile, level, pretty_print)
+        outfile.write('<%s%s%s' % (namespace_, name_, namespacedef_ and ' ' + namespacedef_ or '', ))
+        already_processed = set()
+        self.exportAttributes(outfile, level, already_processed, namespace_, name_='Tracking')
+        if self.hasContent_():
+            outfile.write('>%s' % (eol_, ))
+            self.exportChildren(outfile, level + 1, namespace_='', name_='Tracking', pretty_print=pretty_print)
+            showIndent(outfile, level, pretty_print)
+            outfile.write('</%s%s>%s' % (namespace_, name_, eol_))
+        else:
+            outfile.write('/>%s' % (eol_, ))
+    def exportAttributes(self, outfile, level, already_processed, namespace_='', name_='Tracking'):
+        pass
+    def exportChildren(self, outfile, level, namespace_='', name_='Tracking', fromsubclass_=False, pretty_print=True):
+        if pretty_print:
+            eol_ = '\n'
+        else:
+            eol_ = ''
+        if self.Axes is not None:
+            self.Axes.export(outfile, level, namespace_, name_='Axes', pretty_print=pretty_print)
+        if self.ConformityTol is not None:
+            self.ConformityTol.export(outfile, level, namespace_, name_='ConformityTol', pretty_print=pretty_print)
+        if self.InitialCapabilityRatio is not None:
+            showIndent(outfile, level, pretty_print)
+            outfile.write('<%sInitialCapabilityRatio>%s</%sInitialCapabilityRatio>%s' % (namespace_, self.gds_format_double(self.InitialCapabilityRatio, input_name='InitialCapabilityRatio'), namespace_, eol_))
+    def build(self, node):
+        already_processed = set()
+        self.buildAttributes(node, node.attrib, already_processed)
+        for child in node:
+            nodeName_ = Tag_pattern_.match(child.tag).groups()[-1]
+            self.buildChildren(child, node, nodeName_)
+        return self
+    def buildAttributes(self, node, attrs, already_processed):
+        pass
+    def buildChildren(self, child_, node, nodeName_, fromsubclass_=False):
+        if nodeName_ == 'Axes':
+            obj_ = TrackingAxisList.factory()
+            obj_.build(child_)
+            self.Axes = obj_
+            obj_.original_tagname_ = 'Axes'
+        elif nodeName_ == 'ConformityTol':
+            obj_ = ConformityType.factory()
+            obj_.build(child_)
+            self.ConformityTol = obj_
+            obj_.original_tagname_ = 'ConformityTol'
+        elif nodeName_ == 'InitialCapabilityRatio':
+            sval_ = child_.text
+            try:
+                fval_ = float(sval_)
+            except (TypeError, ValueError) as exp:
+                raise_parse_error(child_, 'requires float or double: %s' % exp)
+            fval_ = self.gds_validate_float(fval_, node, 'InitialCapabilityRatio')
+            self.InitialCapabilityRatio = fval_
+            # validate type doubleRatio
+            self.validate_doubleRatio(self.InitialCapabilityRatio)
+# end class Tracking
+
+
+class TolTable(GeneratedsSuper):
+    """Tolerance Table RULES: 1. If an individual axis has a specified zero
+    tolerance value or a missing tolerance element, the Control
+    System will impose its tight internal tolerance on that axis. 2.
+    If the entire tolerance table is missing, the Control System
+    will impose its tight internal tolerance on all axes."""
+    subclass = None
+    superclass = None
+    def __init__(self, GantryRtn=None, CollRtn=None, CouchVrt=None, CouchLat=None, CouchLng=None, CouchRtn=None, CouchPit=None, CouchRol=None, Y12=None, X12=None):
         self.original_tagname_ = None
         self.GantryRtn = GantryRtn
         self.CollRtn = CollRtn
@@ -2811,15 +8147,20 @@ class ImagingVelTableType(GeneratedsSuper):
         self.CouchLat = CouchLat
         self.CouchLng = CouchLng
         self.CouchRtn = CouchRtn
-        self.X1 = X1
-        self.X2 = X2
-        self.Y1 = Y1
-        self.Y2 = Y2
+        self.CouchPit = CouchPit
+        self.CouchRol = CouchRol
+        self.Y12 = Y12
+        self.X12 = X12
     def factory(*args_, **kwargs_):
-        if ImagingVelTableType.subclass:
-            return ImagingVelTableType.subclass(*args_, **kwargs_)
+        if CurrentSubclassModule_ is not None:
+            subclass = getSubclassFromModule_(
+                CurrentSubclassModule_, TolTable)
+            if subclass is not None:
+                return subclass(*args_, **kwargs_)
+        if TolTable.subclass:
+            return TolTable.subclass(*args_, **kwargs_)
         else:
-            return ImagingVelTableType(*args_, **kwargs_)
+            return TolTable(*args_, **kwargs_)
     factory = staticmethod(factory)
     def get_GantryRtn(self): return self.GantryRtn
     def set_GantryRtn(self, GantryRtn): self.GantryRtn = GantryRtn
@@ -2833,14 +8174,14 @@ class ImagingVelTableType(GeneratedsSuper):
     def set_CouchLng(self, CouchLng): self.CouchLng = CouchLng
     def get_CouchRtn(self): return self.CouchRtn
     def set_CouchRtn(self, CouchRtn): self.CouchRtn = CouchRtn
-    def get_X1(self): return self.X1
-    def set_X1(self, X1): self.X1 = X1
-    def get_X2(self): return self.X2
-    def set_X2(self, X2): self.X2 = X2
-    def get_Y1(self): return self.Y1
-    def set_Y1(self, Y1): self.Y1 = Y1
-    def get_Y2(self): return self.Y2
-    def set_Y2(self, Y2): self.Y2 = Y2
+    def get_CouchPit(self): return self.CouchPit
+    def set_CouchPit(self, CouchPit): self.CouchPit = CouchPit
+    def get_CouchRol(self): return self.CouchRol
+    def set_CouchRol(self, CouchRol): self.CouchRol = CouchRol
+    def get_Y12(self): return self.Y12
+    def set_Y12(self, Y12): self.Y12 = Y12
+    def get_X12(self): return self.X12
+    def set_X12(self, X12): self.X12 = X12
     def hasContent_(self):
         if (
             self.GantryRtn is not None or
@@ -2849,15 +8190,15 @@ class ImagingVelTableType(GeneratedsSuper):
             self.CouchLat is not None or
             self.CouchLng is not None or
             self.CouchRtn is not None or
-            self.X1 is not None or
-            self.X2 is not None or
-            self.Y1 is not None or
-            self.Y2 is not None
+            self.CouchPit is not None or
+            self.CouchRol is not None or
+            self.Y12 is not None or
+            self.X12 is not None
         ):
             return True
         else:
             return False
-    def export(self, outfile, level, namespace_='', name_='ImagingVelTableType', namespacedef_='', pretty_print=True):
+    def export(self, outfile, level, namespace_='', name_='TolTable', namespacedef_='', pretty_print=True):
         if pretty_print:
             eol_ = '\n'
         else:
@@ -2867,17 +8208,17 @@ class ImagingVelTableType(GeneratedsSuper):
         showIndent(outfile, level, pretty_print)
         outfile.write('<%s%s%s' % (namespace_, name_, namespacedef_ and ' ' + namespacedef_ or '', ))
         already_processed = set()
-        self.exportAttributes(outfile, level, already_processed, namespace_, name_='ImagingVelTableType')
+        self.exportAttributes(outfile, level, already_processed, namespace_, name_='TolTable')
         if self.hasContent_():
             outfile.write('>%s' % (eol_, ))
-            self.exportChildren(outfile, level + 1, namespace_='', name_='ImagingVelTableType', pretty_print=pretty_print)
+            self.exportChildren(outfile, level + 1, namespace_='', name_='TolTable', pretty_print=pretty_print)
             showIndent(outfile, level, pretty_print)
             outfile.write('</%s%s>%s' % (namespace_, name_, eol_))
         else:
             outfile.write('/>%s' % (eol_, ))
-    def exportAttributes(self, outfile, level, already_processed, namespace_='', name_='ImagingVelTableType'):
+    def exportAttributes(self, outfile, level, already_processed, namespace_='', name_='TolTable'):
         pass
-    def exportChildren(self, outfile, level, namespace_='', name_='ImagingVelTableType', fromsubclass_=False, pretty_print=True):
+    def exportChildren(self, outfile, level, namespace_='', name_='TolTable', fromsubclass_=False, pretty_print=True):
         if pretty_print:
             eol_ = '\n'
         else:
@@ -2900,6 +8241,235 @@ class ImagingVelTableType(GeneratedsSuper):
         if self.CouchRtn is not None:
             showIndent(outfile, level, pretty_print)
             outfile.write('<%sCouchRtn>%s</%sCouchRtn>%s' % (namespace_, self.gds_format_double(self.CouchRtn, input_name='CouchRtn'), namespace_, eol_))
+        if self.CouchPit is not None:
+            showIndent(outfile, level, pretty_print)
+            outfile.write('<%sCouchPit>%s</%sCouchPit>%s' % (namespace_, self.gds_format_double(self.CouchPit, input_name='CouchPit'), namespace_, eol_))
+        if self.CouchRol is not None:
+            showIndent(outfile, level, pretty_print)
+            outfile.write('<%sCouchRol>%s</%sCouchRol>%s' % (namespace_, self.gds_format_double(self.CouchRol, input_name='CouchRol'), namespace_, eol_))
+        if self.Y12 is not None:
+            showIndent(outfile, level, pretty_print)
+            outfile.write('<%sY12>%s</%sY12>%s' % (namespace_, self.gds_format_double(self.Y12, input_name='Y12'), namespace_, eol_))
+        if self.X12 is not None:
+            showIndent(outfile, level, pretty_print)
+            outfile.write('<%sX12>%s</%sX12>%s' % (namespace_, self.gds_format_double(self.X12, input_name='X12'), namespace_, eol_))
+    def build(self, node):
+        already_processed = set()
+        self.buildAttributes(node, node.attrib, already_processed)
+        for child in node:
+            nodeName_ = Tag_pattern_.match(child.tag).groups()[-1]
+            self.buildChildren(child, node, nodeName_)
+        return self
+    def buildAttributes(self, node, attrs, already_processed):
+        pass
+    def buildChildren(self, child_, node, nodeName_, fromsubclass_=False):
+        if nodeName_ == 'GantryRtn':
+            sval_ = child_.text
+            try:
+                fval_ = float(sval_)
+            except (TypeError, ValueError) as exp:
+                raise_parse_error(child_, 'requires float or double: %s' % exp)
+            fval_ = self.gds_validate_float(fval_, node, 'GantryRtn')
+            self.GantryRtn = fval_
+        elif nodeName_ == 'CollRtn':
+            sval_ = child_.text
+            try:
+                fval_ = float(sval_)
+            except (TypeError, ValueError) as exp:
+                raise_parse_error(child_, 'requires float or double: %s' % exp)
+            fval_ = self.gds_validate_float(fval_, node, 'CollRtn')
+            self.CollRtn = fval_
+        elif nodeName_ == 'CouchVrt':
+            sval_ = child_.text
+            try:
+                fval_ = float(sval_)
+            except (TypeError, ValueError) as exp:
+                raise_parse_error(child_, 'requires float or double: %s' % exp)
+            fval_ = self.gds_validate_float(fval_, node, 'CouchVrt')
+            self.CouchVrt = fval_
+        elif nodeName_ == 'CouchLat':
+            sval_ = child_.text
+            try:
+                fval_ = float(sval_)
+            except (TypeError, ValueError) as exp:
+                raise_parse_error(child_, 'requires float or double: %s' % exp)
+            fval_ = self.gds_validate_float(fval_, node, 'CouchLat')
+            self.CouchLat = fval_
+        elif nodeName_ == 'CouchLng':
+            sval_ = child_.text
+            try:
+                fval_ = float(sval_)
+            except (TypeError, ValueError) as exp:
+                raise_parse_error(child_, 'requires float or double: %s' % exp)
+            fval_ = self.gds_validate_float(fval_, node, 'CouchLng')
+            self.CouchLng = fval_
+        elif nodeName_ == 'CouchRtn':
+            sval_ = child_.text
+            try:
+                fval_ = float(sval_)
+            except (TypeError, ValueError) as exp:
+                raise_parse_error(child_, 'requires float or double: %s' % exp)
+            fval_ = self.gds_validate_float(fval_, node, 'CouchRtn')
+            self.CouchRtn = fval_
+        elif nodeName_ == 'CouchPit':
+            sval_ = child_.text
+            try:
+                fval_ = float(sval_)
+            except (TypeError, ValueError) as exp:
+                raise_parse_error(child_, 'requires float or double: %s' % exp)
+            fval_ = self.gds_validate_float(fval_, node, 'CouchPit')
+            self.CouchPit = fval_
+        elif nodeName_ == 'CouchRol':
+            sval_ = child_.text
+            try:
+                fval_ = float(sval_)
+            except (TypeError, ValueError) as exp:
+                raise_parse_error(child_, 'requires float or double: %s' % exp)
+            fval_ = self.gds_validate_float(fval_, node, 'CouchRol')
+            self.CouchRol = fval_
+        elif nodeName_ == 'Y12':
+            sval_ = child_.text
+            try:
+                fval_ = float(sval_)
+            except (TypeError, ValueError) as exp:
+                raise_parse_error(child_, 'requires float or double: %s' % exp)
+            fval_ = self.gds_validate_float(fval_, node, 'Y12')
+            self.Y12 = fval_
+        elif nodeName_ == 'X12':
+            sval_ = child_.text
+            try:
+                fval_ = float(sval_)
+            except (TypeError, ValueError) as exp:
+                raise_parse_error(child_, 'requires float or double: %s' % exp)
+            fval_ = self.gds_validate_float(fval_, node, 'X12')
+            self.X12 = fval_
+# end class TolTable
+
+
+class VelTable(GeneratedsSuper):
+    """Max Velocity Table: This table can be used to specify top velocities
+    of axes to be used in the treatment. RULES: 1. If an individual
+    axis has a specified max velocity value, then the Control System
+    will use the smaller of the specified max velocity and the
+    maximum supported max velocity of that axis."""
+    subclass = None
+    superclass = None
+    def __init__(self, GantryRtn=None, CollRtn=None, CouchVrt=None, CouchLat=None, CouchLng=None, CouchRtn=None, CouchPit=None, CouchRol=None, X1=None, X2=None, Y1=None, Y2=None):
+        self.original_tagname_ = None
+        self.GantryRtn = GantryRtn
+        self.CollRtn = CollRtn
+        self.CouchVrt = CouchVrt
+        self.CouchLat = CouchLat
+        self.CouchLng = CouchLng
+        self.CouchRtn = CouchRtn
+        self.CouchPit = CouchPit
+        self.CouchRol = CouchRol
+        self.X1 = X1
+        self.X2 = X2
+        self.Y1 = Y1
+        self.Y2 = Y2
+    def factory(*args_, **kwargs_):
+        if CurrentSubclassModule_ is not None:
+            subclass = getSubclassFromModule_(
+                CurrentSubclassModule_, VelTable)
+            if subclass is not None:
+                return subclass(*args_, **kwargs_)
+        if VelTable.subclass:
+            return VelTable.subclass(*args_, **kwargs_)
+        else:
+            return VelTable(*args_, **kwargs_)
+    factory = staticmethod(factory)
+    def get_GantryRtn(self): return self.GantryRtn
+    def set_GantryRtn(self, GantryRtn): self.GantryRtn = GantryRtn
+    def get_CollRtn(self): return self.CollRtn
+    def set_CollRtn(self, CollRtn): self.CollRtn = CollRtn
+    def get_CouchVrt(self): return self.CouchVrt
+    def set_CouchVrt(self, CouchVrt): self.CouchVrt = CouchVrt
+    def get_CouchLat(self): return self.CouchLat
+    def set_CouchLat(self, CouchLat): self.CouchLat = CouchLat
+    def get_CouchLng(self): return self.CouchLng
+    def set_CouchLng(self, CouchLng): self.CouchLng = CouchLng
+    def get_CouchRtn(self): return self.CouchRtn
+    def set_CouchRtn(self, CouchRtn): self.CouchRtn = CouchRtn
+    def get_CouchPit(self): return self.CouchPit
+    def set_CouchPit(self, CouchPit): self.CouchPit = CouchPit
+    def get_CouchRol(self): return self.CouchRol
+    def set_CouchRol(self, CouchRol): self.CouchRol = CouchRol
+    def get_X1(self): return self.X1
+    def set_X1(self, X1): self.X1 = X1
+    def get_X2(self): return self.X2
+    def set_X2(self, X2): self.X2 = X2
+    def get_Y1(self): return self.Y1
+    def set_Y1(self, Y1): self.Y1 = Y1
+    def get_Y2(self): return self.Y2
+    def set_Y2(self, Y2): self.Y2 = Y2
+    def hasContent_(self):
+        if (
+            self.GantryRtn is not None or
+            self.CollRtn is not None or
+            self.CouchVrt is not None or
+            self.CouchLat is not None or
+            self.CouchLng is not None or
+            self.CouchRtn is not None or
+            self.CouchPit is not None or
+            self.CouchRol is not None or
+            self.X1 is not None or
+            self.X2 is not None or
+            self.Y1 is not None or
+            self.Y2 is not None
+        ):
+            return True
+        else:
+            return False
+    def export(self, outfile, level, namespace_='', name_='VelTable', namespacedef_='', pretty_print=True):
+        if pretty_print:
+            eol_ = '\n'
+        else:
+            eol_ = ''
+        if self.original_tagname_ is not None:
+            name_ = self.original_tagname_
+        showIndent(outfile, level, pretty_print)
+        outfile.write('<%s%s%s' % (namespace_, name_, namespacedef_ and ' ' + namespacedef_ or '', ))
+        already_processed = set()
+        self.exportAttributes(outfile, level, already_processed, namespace_, name_='VelTable')
+        if self.hasContent_():
+            outfile.write('>%s' % (eol_, ))
+            self.exportChildren(outfile, level + 1, namespace_='', name_='VelTable', pretty_print=pretty_print)
+            showIndent(outfile, level, pretty_print)
+            outfile.write('</%s%s>%s' % (namespace_, name_, eol_))
+        else:
+            outfile.write('/>%s' % (eol_, ))
+    def exportAttributes(self, outfile, level, already_processed, namespace_='', name_='VelTable'):
+        pass
+    def exportChildren(self, outfile, level, namespace_='', name_='VelTable', fromsubclass_=False, pretty_print=True):
+        if pretty_print:
+            eol_ = '\n'
+        else:
+            eol_ = ''
+        if self.GantryRtn is not None:
+            showIndent(outfile, level, pretty_print)
+            outfile.write('<%sGantryRtn>%s</%sGantryRtn>%s' % (namespace_, self.gds_format_double(self.GantryRtn, input_name='GantryRtn'), namespace_, eol_))
+        if self.CollRtn is not None:
+            showIndent(outfile, level, pretty_print)
+            outfile.write('<%sCollRtn>%s</%sCollRtn>%s' % (namespace_, self.gds_format_double(self.CollRtn, input_name='CollRtn'), namespace_, eol_))
+        if self.CouchVrt is not None:
+            showIndent(outfile, level, pretty_print)
+            outfile.write('<%sCouchVrt>%s</%sCouchVrt>%s' % (namespace_, self.gds_format_double(self.CouchVrt, input_name='CouchVrt'), namespace_, eol_))
+        if self.CouchLat is not None:
+            showIndent(outfile, level, pretty_print)
+            outfile.write('<%sCouchLat>%s</%sCouchLat>%s' % (namespace_, self.gds_format_double(self.CouchLat, input_name='CouchLat'), namespace_, eol_))
+        if self.CouchLng is not None:
+            showIndent(outfile, level, pretty_print)
+            outfile.write('<%sCouchLng>%s</%sCouchLng>%s' % (namespace_, self.gds_format_double(self.CouchLng, input_name='CouchLng'), namespace_, eol_))
+        if self.CouchRtn is not None:
+            showIndent(outfile, level, pretty_print)
+            outfile.write('<%sCouchRtn>%s</%sCouchRtn>%s' % (namespace_, self.gds_format_double(self.CouchRtn, input_name='CouchRtn'), namespace_, eol_))
+        if self.CouchPit is not None:
+            showIndent(outfile, level, pretty_print)
+            outfile.write('<%sCouchPit>%s</%sCouchPit>%s' % (namespace_, self.gds_format_double(self.CouchPit, input_name='CouchPit'), namespace_, eol_))
+        if self.CouchRol is not None:
+            showIndent(outfile, level, pretty_print)
+            outfile.write('<%sCouchRol>%s</%sCouchRol>%s' % (namespace_, self.gds_format_double(self.CouchRol, input_name='CouchRol'), namespace_, eol_))
         if self.X1 is not None:
             showIndent(outfile, level, pretty_print)
             outfile.write('<%sX1>%s</%sX1>%s' % (namespace_, self.gds_format_double(self.X1, input_name='X1'), namespace_, eol_))
@@ -2926,7 +8496,7 @@ class ImagingVelTableType(GeneratedsSuper):
             sval_ = child_.text
             try:
                 fval_ = float(sval_)
-            except (TypeError, ValueError), exp:
+            except (TypeError, ValueError) as exp:
                 raise_parse_error(child_, 'requires float or double: %s' % exp)
             fval_ = self.gds_validate_float(fval_, node, 'GantryRtn')
             self.GantryRtn = fval_
@@ -2934,7 +8504,7 @@ class ImagingVelTableType(GeneratedsSuper):
             sval_ = child_.text
             try:
                 fval_ = float(sval_)
-            except (TypeError, ValueError), exp:
+            except (TypeError, ValueError) as exp:
                 raise_parse_error(child_, 'requires float or double: %s' % exp)
             fval_ = self.gds_validate_float(fval_, node, 'CollRtn')
             self.CollRtn = fval_
@@ -2942,7 +8512,7 @@ class ImagingVelTableType(GeneratedsSuper):
             sval_ = child_.text
             try:
                 fval_ = float(sval_)
-            except (TypeError, ValueError), exp:
+            except (TypeError, ValueError) as exp:
                 raise_parse_error(child_, 'requires float or double: %s' % exp)
             fval_ = self.gds_validate_float(fval_, node, 'CouchVrt')
             self.CouchVrt = fval_
@@ -2950,7 +8520,7 @@ class ImagingVelTableType(GeneratedsSuper):
             sval_ = child_.text
             try:
                 fval_ = float(sval_)
-            except (TypeError, ValueError), exp:
+            except (TypeError, ValueError) as exp:
                 raise_parse_error(child_, 'requires float or double: %s' % exp)
             fval_ = self.gds_validate_float(fval_, node, 'CouchLat')
             self.CouchLat = fval_
@@ -2958,7 +8528,7 @@ class ImagingVelTableType(GeneratedsSuper):
             sval_ = child_.text
             try:
                 fval_ = float(sval_)
-            except (TypeError, ValueError), exp:
+            except (TypeError, ValueError) as exp:
                 raise_parse_error(child_, 'requires float or double: %s' % exp)
             fval_ = self.gds_validate_float(fval_, node, 'CouchLng')
             self.CouchLng = fval_
@@ -2966,15 +8536,31 @@ class ImagingVelTableType(GeneratedsSuper):
             sval_ = child_.text
             try:
                 fval_ = float(sval_)
-            except (TypeError, ValueError), exp:
+            except (TypeError, ValueError) as exp:
                 raise_parse_error(child_, 'requires float or double: %s' % exp)
             fval_ = self.gds_validate_float(fval_, node, 'CouchRtn')
             self.CouchRtn = fval_
+        elif nodeName_ == 'CouchPit':
+            sval_ = child_.text
+            try:
+                fval_ = float(sval_)
+            except (TypeError, ValueError) as exp:
+                raise_parse_error(child_, 'requires float or double: %s' % exp)
+            fval_ = self.gds_validate_float(fval_, node, 'CouchPit')
+            self.CouchPit = fval_
+        elif nodeName_ == 'CouchRol':
+            sval_ = child_.text
+            try:
+                fval_ = float(sval_)
+            except (TypeError, ValueError) as exp:
+                raise_parse_error(child_, 'requires float or double: %s' % exp)
+            fval_ = self.gds_validate_float(fval_, node, 'CouchRol')
+            self.CouchRol = fval_
         elif nodeName_ == 'X1':
             sval_ = child_.text
             try:
                 fval_ = float(sval_)
-            except (TypeError, ValueError), exp:
+            except (TypeError, ValueError) as exp:
                 raise_parse_error(child_, 'requires float or double: %s' % exp)
             fval_ = self.gds_validate_float(fval_, node, 'X1')
             self.X1 = fval_
@@ -2982,7 +8568,7 @@ class ImagingVelTableType(GeneratedsSuper):
             sval_ = child_.text
             try:
                 fval_ = float(sval_)
-            except (TypeError, ValueError), exp:
+            except (TypeError, ValueError) as exp:
                 raise_parse_error(child_, 'requires float or double: %s' % exp)
             fval_ = self.gds_validate_float(fval_, node, 'X2')
             self.X2 = fval_
@@ -2990,7 +8576,7 @@ class ImagingVelTableType(GeneratedsSuper):
             sval_ = child_.text
             try:
                 fval_ = float(sval_)
-            except (TypeError, ValueError), exp:
+            except (TypeError, ValueError) as exp:
                 raise_parse_error(child_, 'requires float or double: %s' % exp)
             fval_ = self.gds_validate_float(fval_, node, 'Y1')
             self.Y1 = fval_
@@ -2998,41 +8584,59 @@ class ImagingVelTableType(GeneratedsSuper):
             sval_ = child_.text
             try:
                 fval_ = float(sval_)
-            except (TypeError, ValueError), exp:
+            except (TypeError, ValueError) as exp:
                 raise_parse_error(child_, 'requires float or double: %s' % exp)
             fval_ = self.gds_validate_float(fval_, node, 'Y2')
             self.Y2 = fval_
-# end class ImagingVelTableType
+# end class VelTable
 
 
-class ImagingPointsType(GeneratedsSuper):
+class Accs(GeneratedsSuper):
+    """The planned Accessory Codes for each slot. RULES: 1. A missing
+    element for a slot means that ANY accessory can be installed in
+    the slot without causing an interlock; i.e. "don't care". 2. The
+    value '0' (zero) in a slot means that no accessory must be
+    installed in the slot. 3. Any other integer value in a slot
+    means that an accessory with that accessory code must be
+    installed in that slot."""
     subclass = None
     superclass = None
-    def __init__(self, ImagingPoint=None):
+    def __init__(self, Acc1=None, Acc2=None, Acc3=None, Acc4=None):
         self.original_tagname_ = None
-        if ImagingPoint is None:
-            self.ImagingPoint = []
-        else:
-            self.ImagingPoint = ImagingPoint
+        self.Acc1 = Acc1
+        self.Acc2 = Acc2
+        self.Acc3 = Acc3
+        self.Acc4 = Acc4
     def factory(*args_, **kwargs_):
-        if ImagingPointsType.subclass:
-            return ImagingPointsType.subclass(*args_, **kwargs_)
+        if CurrentSubclassModule_ is not None:
+            subclass = getSubclassFromModule_(
+                CurrentSubclassModule_, Accs)
+            if subclass is not None:
+                return subclass(*args_, **kwargs_)
+        if Accs.subclass:
+            return Accs.subclass(*args_, **kwargs_)
         else:
-            return ImagingPointsType(*args_, **kwargs_)
+            return Accs(*args_, **kwargs_)
     factory = staticmethod(factory)
-    def get_ImagingPoint(self): return self.ImagingPoint
-    def set_ImagingPoint(self, ImagingPoint): self.ImagingPoint = ImagingPoint
-    def add_ImagingPoint(self, value): self.ImagingPoint.append(value)
-    def insert_ImagingPoint_at(self, index, value): self.ImagingPoint.insert(index, value)
-    def replace_ImagingPoint_at(self, index, value): self.ImagingPoint[index] = value
+    def get_Acc1(self): return self.Acc1
+    def set_Acc1(self, Acc1): self.Acc1 = Acc1
+    def get_Acc2(self): return self.Acc2
+    def set_Acc2(self, Acc2): self.Acc2 = Acc2
+    def get_Acc3(self): return self.Acc3
+    def set_Acc3(self, Acc3): self.Acc3 = Acc3
+    def get_Acc4(self): return self.Acc4
+    def set_Acc4(self, Acc4): self.Acc4 = Acc4
     def hasContent_(self):
         if (
-            self.ImagingPoint
+            self.Acc1 is not None or
+            self.Acc2 is not None or
+            self.Acc3 is not None or
+            self.Acc4 is not None
         ):
             return True
         else:
             return False
-    def export(self, outfile, level, namespace_='', name_='ImagingPointsType', namespacedef_='', pretty_print=True):
+    def export(self, outfile, level, namespace_='', name_='Accs', namespacedef_='', pretty_print=True):
         if pretty_print:
             eol_ = '\n'
         else:
@@ -3042,23 +8646,33 @@ class ImagingPointsType(GeneratedsSuper):
         showIndent(outfile, level, pretty_print)
         outfile.write('<%s%s%s' % (namespace_, name_, namespacedef_ and ' ' + namespacedef_ or '', ))
         already_processed = set()
-        self.exportAttributes(outfile, level, already_processed, namespace_, name_='ImagingPointsType')
+        self.exportAttributes(outfile, level, already_processed, namespace_, name_='Accs')
         if self.hasContent_():
             outfile.write('>%s' % (eol_, ))
-            self.exportChildren(outfile, level + 1, namespace_='', name_='ImagingPointsType', pretty_print=pretty_print)
+            self.exportChildren(outfile, level + 1, namespace_='', name_='Accs', pretty_print=pretty_print)
             showIndent(outfile, level, pretty_print)
             outfile.write('</%s%s>%s' % (namespace_, name_, eol_))
         else:
             outfile.write('/>%s' % (eol_, ))
-    def exportAttributes(self, outfile, level, already_processed, namespace_='', name_='ImagingPointsType'):
+    def exportAttributes(self, outfile, level, already_processed, namespace_='', name_='Accs'):
         pass
-    def exportChildren(self, outfile, level, namespace_='', name_='ImagingPointsType', fromsubclass_=False, pretty_print=True):
+    def exportChildren(self, outfile, level, namespace_='', name_='Accs', fromsubclass_=False, pretty_print=True):
         if pretty_print:
             eol_ = '\n'
         else:
             eol_ = ''
-        for ImagingPoint_ in self.ImagingPoint:
-            ImagingPoint_.export(outfile, level, namespace_, name_='ImagingPoint', pretty_print=pretty_print)
+        if self.Acc1 is not None:
+            showIndent(outfile, level, pretty_print)
+            outfile.write('<%sAcc1>%s</%sAcc1>%s' % (namespace_, self.gds_format_integer(self.Acc1, input_name='Acc1'), namespace_, eol_))
+        if self.Acc2 is not None:
+            showIndent(outfile, level, pretty_print)
+            outfile.write('<%sAcc2>%s</%sAcc2>%s' % (namespace_, self.gds_format_integer(self.Acc2, input_name='Acc2'), namespace_, eol_))
+        if self.Acc3 is not None:
+            showIndent(outfile, level, pretty_print)
+            outfile.write('<%sAcc3>%s</%sAcc3>%s' % (namespace_, self.gds_format_integer(self.Acc3, input_name='Acc3'), namespace_, eol_))
+        if self.Acc4 is not None:
+            showIndent(outfile, level, pretty_print)
+            outfile.write('<%sAcc4>%s</%sAcc4>%s' % (namespace_, self.gds_format_integer(self.Acc4, input_name='Acc4'), namespace_, eol_))
     def build(self, node):
         already_processed = set()
         self.buildAttributes(node, node.attrib, already_processed)
@@ -3069,1433 +8683,86 @@ class ImagingPointsType(GeneratedsSuper):
     def buildAttributes(self, node, attrs, already_processed):
         pass
     def buildChildren(self, child_, node, nodeName_, fromsubclass_=False):
-        if nodeName_ == 'ImagingPoint':
-            obj_ = ImagingPointType.factory()
-            obj_.build(child_)
-            self.ImagingPoint.append(obj_)
-            obj_.original_tagname_ = 'ImagingPoint'
-# end class ImagingPointsType
-
-
-class ImagingPointType(GeneratedsSuper):
-    subclass = None
-    superclass = None
-    def __init__(self, Cp=None, Acquisition=None, AcquisitionStart=None, AcquisitionStop=None, KvFilters=None, KvBlades=None, Mvd=None, Kvd=None, Kvs=None, MvdAfter=None, KvdAfter=None, KvsAfter=None):
-        self.original_tagname_ = None
-        self.Cp = Cp
-        if Acquisition is None:
-            self.Acquisition = []
-        else:
-            self.Acquisition = Acquisition
-        if AcquisitionStart is None:
-            self.AcquisitionStart = []
-        else:
-            self.AcquisitionStart = AcquisitionStart
-        if AcquisitionStop is None:
-            self.AcquisitionStop = []
-        else:
-            self.AcquisitionStop = AcquisitionStop
-        self.KvFilters = KvFilters
-        self.KvBlades = KvBlades
-        self.Mvd = Mvd
-        self.Kvd = Kvd
-        self.Kvs = Kvs
-        self.MvdAfter = MvdAfter
-        self.KvdAfter = KvdAfter
-        self.KvsAfter = KvsAfter
-    def factory(*args_, **kwargs_):
-        if ImagingPointType.subclass:
-            return ImagingPointType.subclass(*args_, **kwargs_)
-        else:
-            return ImagingPointType(*args_, **kwargs_)
-    factory = staticmethod(factory)
-    def get_Cp(self): return self.Cp
-    def set_Cp(self, Cp): self.Cp = Cp
-    def get_Acquisition(self): return self.Acquisition
-    def set_Acquisition(self, Acquisition): self.Acquisition = Acquisition
-    def add_Acquisition(self, value): self.Acquisition.append(value)
-    def insert_Acquisition_at(self, index, value): self.Acquisition.insert(index, value)
-    def replace_Acquisition_at(self, index, value): self.Acquisition[index] = value
-    def get_AcquisitionStart(self): return self.AcquisitionStart
-    def set_AcquisitionStart(self, AcquisitionStart): self.AcquisitionStart = AcquisitionStart
-    def add_AcquisitionStart(self, value): self.AcquisitionStart.append(value)
-    def insert_AcquisitionStart_at(self, index, value): self.AcquisitionStart.insert(index, value)
-    def replace_AcquisitionStart_at(self, index, value): self.AcquisitionStart[index] = value
-    def get_AcquisitionStop(self): return self.AcquisitionStop
-    def set_AcquisitionStop(self, AcquisitionStop): self.AcquisitionStop = AcquisitionStop
-    def add_AcquisitionStop(self, value): self.AcquisitionStop.append(value)
-    def insert_AcquisitionStop_at(self, index, value): self.AcquisitionStop.insert(index, value)
-    def replace_AcquisitionStop_at(self, index, value): self.AcquisitionStop[index] = value
-    def get_KvFilters(self): return self.KvFilters
-    def set_KvFilters(self, KvFilters): self.KvFilters = KvFilters
-    def get_KvBlades(self): return self.KvBlades
-    def set_KvBlades(self, KvBlades): self.KvBlades = KvBlades
-    def get_Mvd(self): return self.Mvd
-    def set_Mvd(self, Mvd): self.Mvd = Mvd
-    def get_Kvd(self): return self.Kvd
-    def set_Kvd(self, Kvd): self.Kvd = Kvd
-    def get_Kvs(self): return self.Kvs
-    def set_Kvs(self, Kvs): self.Kvs = Kvs
-    def get_MvdAfter(self): return self.MvdAfter
-    def set_MvdAfter(self, MvdAfter): self.MvdAfter = MvdAfter
-    def get_KvdAfter(self): return self.KvdAfter
-    def set_KvdAfter(self, KvdAfter): self.KvdAfter = KvdAfter
-    def get_KvsAfter(self): return self.KvsAfter
-    def set_KvsAfter(self, KvsAfter): self.KvsAfter = KvsAfter
-    def hasContent_(self):
-        if (
-            self.Cp is not None or
-            self.Acquisition or
-            self.AcquisitionStart or
-            self.AcquisitionStop or
-            self.KvFilters is not None or
-            self.KvBlades is not None or
-            self.Mvd is not None or
-            self.Kvd is not None or
-            self.Kvs is not None or
-            self.MvdAfter is not None or
-            self.KvdAfter is not None or
-            self.KvsAfter is not None
-        ):
-            return True
-        else:
-            return False
-    def export(self, outfile, level, namespace_='', name_='ImagingPointType', namespacedef_='', pretty_print=True):
-        if pretty_print:
-            eol_ = '\n'
-        else:
-            eol_ = ''
-        if self.original_tagname_ is not None:
-            name_ = self.original_tagname_
-        showIndent(outfile, level, pretty_print)
-        outfile.write('<%s%s%s' % (namespace_, name_, namespacedef_ and ' ' + namespacedef_ or '', ))
-        already_processed = set()
-        self.exportAttributes(outfile, level, already_processed, namespace_, name_='ImagingPointType')
-        if self.hasContent_():
-            outfile.write('>%s' % (eol_, ))
-            self.exportChildren(outfile, level + 1, namespace_='', name_='ImagingPointType', pretty_print=pretty_print)
-            showIndent(outfile, level, pretty_print)
-            outfile.write('</%s%s>%s' % (namespace_, name_, eol_))
-        else:
-            outfile.write('/>%s' % (eol_, ))
-    def exportAttributes(self, outfile, level, already_processed, namespace_='', name_='ImagingPointType'):
-        pass
-    def exportChildren(self, outfile, level, namespace_='', name_='ImagingPointType', fromsubclass_=False, pretty_print=True):
-        if pretty_print:
-            eol_ = '\n'
-        else:
-            eol_ = ''
-        if self.Cp is not None:
-            showIndent(outfile, level, pretty_print)
-            outfile.write('<%sCp>%s</%sCp>%s' % (namespace_, self.gds_format_double(self.Cp, input_name='Cp'), namespace_, eol_))
-        for Acquisition_ in self.Acquisition:
-            Acquisition_.export(outfile, level, namespace_, name_='Acquisition', pretty_print=pretty_print)
-        for AcquisitionStart_ in self.AcquisitionStart:
-            AcquisitionStart_.export(outfile, level, namespace_, name_='AcquisitionStart', pretty_print=pretty_print)
-        for AcquisitionStop_ in self.AcquisitionStop:
-            AcquisitionStop_.export(outfile, level, namespace_, name_='AcquisitionStop', pretty_print=pretty_print)
-        if self.KvFilters is not None:
-            self.KvFilters.export(outfile, level, namespace_, name_='KvFilters', pretty_print=pretty_print)
-        if self.KvBlades is not None:
-            self.KvBlades.export(outfile, level, namespace_, name_='KvBlades', pretty_print=pretty_print)
-        if self.Mvd is not None:
-            self.Mvd.export(outfile, level, namespace_, name_='Mvd', pretty_print=pretty_print)
-        if self.Kvd is not None:
-            self.Kvd.export(outfile, level, namespace_, name_='Kvd', pretty_print=pretty_print)
-        if self.Kvs is not None:
-            self.Kvs.export(outfile, level, namespace_, name_='Kvs', pretty_print=pretty_print)
-        if self.MvdAfter is not None:
-            self.MvdAfter.export(outfile, level, namespace_, name_='MvdAfter', pretty_print=pretty_print)
-        if self.KvdAfter is not None:
-            self.KvdAfter.export(outfile, level, namespace_, name_='KvdAfter', pretty_print=pretty_print)
-        if self.KvsAfter is not None:
-            self.KvsAfter.export(outfile, level, namespace_, name_='KvsAfter', pretty_print=pretty_print)
-    def build(self, node):
-        already_processed = set()
-        self.buildAttributes(node, node.attrib, already_processed)
-        for child in node:
-            nodeName_ = Tag_pattern_.match(child.tag).groups()[-1]
-            self.buildChildren(child, node, nodeName_)
-        return self
-    def buildAttributes(self, node, attrs, already_processed):
-        pass
-    def buildChildren(self, child_, node, nodeName_, fromsubclass_=False):
-        if nodeName_ == 'Cp':
-            sval_ = child_.text
-            try:
-                fval_ = float(sval_)
-            except (TypeError, ValueError), exp:
-                raise_parse_error(child_, 'requires float or double: %s' % exp)
-            fval_ = self.gds_validate_float(fval_, node, 'Cp')
-            self.Cp = fval_
-        elif nodeName_ == 'Acquisition':
-            obj_ = Acquisition.factory()
-            obj_.build(child_)
-            self.Acquisition.append(obj_)
-            obj_.original_tagname_ = 'Acquisition'
-        elif nodeName_ == 'AcquisitionStart':
-            obj_ = Acquisition.factory()
-            obj_.build(child_)
-            self.AcquisitionStart.append(obj_)
-            obj_.original_tagname_ = 'AcquisitionStart'
-        elif nodeName_ == 'AcquisitionStop':
-            obj_ = Acquisition.factory()
-            obj_.build(child_)
-            self.AcquisitionStop.append(obj_)
-            obj_.original_tagname_ = 'AcquisitionStop'
-        elif nodeName_ == 'KvFilters':
-            obj_ = KvFiltersType.factory()
-            obj_.build(child_)
-            self.KvFilters = obj_
-            obj_.original_tagname_ = 'KvFilters'
-        elif nodeName_ == 'KvBlades':
-            obj_ = KvBladesType.factory()
-            obj_.build(child_)
-            self.KvBlades = obj_
-            obj_.original_tagname_ = 'KvBlades'
-        elif nodeName_ == 'Mvd':
-            obj_ = ArmPositionsType.factory()
-            obj_.build(child_)
-            self.Mvd = obj_
-            obj_.original_tagname_ = 'Mvd'
-        elif nodeName_ == 'Kvd':
-            obj_ = ArmPositionsType.factory()
-            obj_.build(child_)
-            self.Kvd = obj_
-            obj_.original_tagname_ = 'Kvd'
-        elif nodeName_ == 'Kvs':
-            obj_ = ArmPositionsType.factory()
-            obj_.build(child_)
-            self.Kvs = obj_
-            obj_.original_tagname_ = 'Kvs'
-        elif nodeName_ == 'MvdAfter':
-            obj_ = ArmPositionsType.factory()
-            obj_.build(child_)
-            self.MvdAfter = obj_
-            obj_.original_tagname_ = 'MvdAfter'
-        elif nodeName_ == 'KvdAfter':
-            obj_ = ArmPositionsType.factory()
-            obj_.build(child_)
-            self.KvdAfter = obj_
-            obj_.original_tagname_ = 'KvdAfter'
-        elif nodeName_ == 'KvsAfter':
-            obj_ = ArmPositionsType.factory()
-            obj_.build(child_)
-            self.KvsAfter = obj_
-            obj_.original_tagname_ = 'KvsAfter'
-# end class ImagingPointType
-
-
-class KvFiltersType(GeneratedsSuper):
-    subclass = None
-    superclass = None
-    def __init__(self, Shape=None, Foil=None):
-        self.original_tagname_ = None
-        self.Shape = Shape
-        self.Foil = Foil
-    def factory(*args_, **kwargs_):
-        if KvFiltersType.subclass:
-            return KvFiltersType.subclass(*args_, **kwargs_)
-        else:
-            return KvFiltersType(*args_, **kwargs_)
-    factory = staticmethod(factory)
-    def get_Shape(self): return self.Shape
-    def set_Shape(self, Shape): self.Shape = Shape
-    def get_Foil(self): return self.Foil
-    def set_Foil(self, Foil): self.Foil = Foil
-    def validate_KvFilterType(self, value):
-        # Validate type KvFilterType, a restriction on xs:integer.
-        pass
-    def hasContent_(self):
-        if (
-            self.Shape is not None or
-            self.Foil is not None
-        ):
-            return True
-        else:
-            return False
-    def export(self, outfile, level, namespace_='', name_='KvFiltersType', namespacedef_='', pretty_print=True):
-        if pretty_print:
-            eol_ = '\n'
-        else:
-            eol_ = ''
-        if self.original_tagname_ is not None:
-            name_ = self.original_tagname_
-        showIndent(outfile, level, pretty_print)
-        outfile.write('<%s%s%s' % (namespace_, name_, namespacedef_ and ' ' + namespacedef_ or '', ))
-        already_processed = set()
-        self.exportAttributes(outfile, level, already_processed, namespace_, name_='KvFiltersType')
-        if self.hasContent_():
-            outfile.write('>%s' % (eol_, ))
-            self.exportChildren(outfile, level + 1, namespace_='', name_='KvFiltersType', pretty_print=pretty_print)
-            showIndent(outfile, level, pretty_print)
-            outfile.write('</%s%s>%s' % (namespace_, name_, eol_))
-        else:
-            outfile.write('/>%s' % (eol_, ))
-    def exportAttributes(self, outfile, level, already_processed, namespace_='', name_='KvFiltersType'):
-        pass
-    def exportChildren(self, outfile, level, namespace_='', name_='KvFiltersType', fromsubclass_=False, pretty_print=True):
-        if pretty_print:
-            eol_ = '\n'
-        else:
-            eol_ = ''
-        if self.Shape is not None:
-            showIndent(outfile, level, pretty_print)
-            outfile.write('<%sShape>%s</%sShape>%s' % (namespace_, self.gds_format_integer(self.Shape, input_name='Shape'), namespace_, eol_))
-        if self.Foil is not None:
-            showIndent(outfile, level, pretty_print)
-            outfile.write('<%sFoil>%s</%sFoil>%s' % (namespace_, self.gds_format_integer(self.Foil, input_name='Foil'), namespace_, eol_))
-    def build(self, node):
-        already_processed = set()
-        self.buildAttributes(node, node.attrib, already_processed)
-        for child in node:
-            nodeName_ = Tag_pattern_.match(child.tag).groups()[-1]
-            self.buildChildren(child, node, nodeName_)
-        return self
-    def buildAttributes(self, node, attrs, already_processed):
-        pass
-    def buildChildren(self, child_, node, nodeName_, fromsubclass_=False):
-        if nodeName_ == 'Shape':
+        if nodeName_ == 'Acc1':
             sval_ = child_.text
             try:
                 ival_ = int(sval_)
-            except (TypeError, ValueError), exp:
+            except (TypeError, ValueError) as exp:
                 raise_parse_error(child_, 'requires integer: %s' % exp)
-            ival_ = self.gds_validate_integer(ival_, node, 'Shape')
-            self.Shape = ival_
-            self.validate_KvFilterType(self.Shape)    # validate type KvFilterType
-        elif nodeName_ == 'Foil':
+            ival_ = self.gds_validate_integer(ival_, node, 'Acc1')
+            self.Acc1 = ival_
+        elif nodeName_ == 'Acc2':
             sval_ = child_.text
             try:
                 ival_ = int(sval_)
-            except (TypeError, ValueError), exp:
+            except (TypeError, ValueError) as exp:
                 raise_parse_error(child_, 'requires integer: %s' % exp)
-            ival_ = self.gds_validate_integer(ival_, node, 'Foil')
-            self.Foil = ival_
-            self.validate_KvFilterType(self.Foil)    # validate type KvFilterType
-# end class KvFiltersType
+            ival_ = self.gds_validate_integer(ival_, node, 'Acc2')
+            self.Acc2 = ival_
+        elif nodeName_ == 'Acc3':
+            sval_ = child_.text
+            try:
+                ival_ = int(sval_)
+            except (TypeError, ValueError) as exp:
+                raise_parse_error(child_, 'requires integer: %s' % exp)
+            ival_ = self.gds_validate_integer(ival_, node, 'Acc3')
+            self.Acc3 = ival_
+        elif nodeName_ == 'Acc4':
+            sval_ = child_.text
+            try:
+                ival_ = int(sval_)
+            except (TypeError, ValueError) as exp:
+                raise_parse_error(child_, 'requires integer: %s' % exp)
+            ival_ = self.gds_validate_integer(ival_, node, 'Acc4')
+            self.Acc4 = ival_
+# end class Accs
 
 
-class KvBladesType(GeneratedsSuper):
+class Dev(GeneratedsSuper):
+    """The planned mode flags for the particular beam hold device. This
+    schema should be able to accommodate EXGI, which is an external
+    gating device, or any other beam hold device and define its
+    usage connected directly to the BGM. MVBeamImpactFlag : This
+    beam hold device does hold the treatment beam if true.
+    MotionImpactFlag : This beam hold device does stop motion if
+    true. Table of possible combinations : ¦ MV Beam Impact ¦ Motion
+    Impact ---------------------------------------------------
+    Outside Treatment ¦ False ¦ False ¦ True¦ False ¦ False¦ True ¦
+    True¦ True
+    -----------------------------------------------------------
+    During Treatment ¦ False ¦ False ¦ True ¦ True | True | False If
+    MVBeamImapct or MotionImpact are not present, then they default
+    to true. SyncStop is an experimental features, which ramps down
+    the plan execution including the beam before the beam hold state
+    is reached. Use with MVBeamImpact=false (since BGM delays beam-
+    hold until told by SPV), and MotionImpact=true."""
     subclass = None
     superclass = None
-    def __init__(self, Tracking=None, Positions=None):
-        self.original_tagname_ = None
-        self.Tracking = Tracking
-        self.Positions = Positions
-    def factory(*args_, **kwargs_):
-        if KvBladesType.subclass:
-            return KvBladesType.subclass(*args_, **kwargs_)
-        else:
-            return KvBladesType(*args_, **kwargs_)
-    factory = staticmethod(factory)
-    def get_Tracking(self): return self.Tracking
-    def set_Tracking(self, Tracking): self.Tracking = Tracking
-    def get_Positions(self): return self.Positions
-    def set_Positions(self, Positions): self.Positions = Positions
-    def hasContent_(self):
-        if (
-            self.Tracking is not None or
-            self.Positions is not None
-        ):
-            return True
-        else:
-            return False
-    def export(self, outfile, level, namespace_='', name_='KvBladesType', namespacedef_='', pretty_print=True):
-        if pretty_print:
-            eol_ = '\n'
-        else:
-            eol_ = ''
-        if self.original_tagname_ is not None:
-            name_ = self.original_tagname_
-        showIndent(outfile, level, pretty_print)
-        outfile.write('<%s%s%s' % (namespace_, name_, namespacedef_ and ' ' + namespacedef_ or '', ))
-        already_processed = set()
-        self.exportAttributes(outfile, level, already_processed, namespace_, name_='KvBladesType')
-        if self.hasContent_():
-            outfile.write('>%s' % (eol_, ))
-            self.exportChildren(outfile, level + 1, namespace_='', name_='KvBladesType', pretty_print=pretty_print)
-            showIndent(outfile, level, pretty_print)
-            outfile.write('</%s%s>%s' % (namespace_, name_, eol_))
-        else:
-            outfile.write('/>%s' % (eol_, ))
-    def exportAttributes(self, outfile, level, already_processed, namespace_='', name_='KvBladesType'):
-        pass
-    def exportChildren(self, outfile, level, namespace_='', name_='KvBladesType', fromsubclass_=False, pretty_print=True):
-        if pretty_print:
-            eol_ = '\n'
-        else:
-            eol_ = ''
-        if self.Tracking is not None:
-            showIndent(outfile, level, pretty_print)
-            outfile.write('<%sTracking>%s</%sTracking>%s' % (namespace_, self.gds_format_boolean(self.Tracking, input_name='Tracking'), namespace_, eol_))
-        if self.Positions is not None:
-            self.Positions.export(outfile, level, namespace_, name_='Positions', pretty_print=pretty_print)
-    def build(self, node):
-        already_processed = set()
-        self.buildAttributes(node, node.attrib, already_processed)
-        for child in node:
-            nodeName_ = Tag_pattern_.match(child.tag).groups()[-1]
-            self.buildChildren(child, node, nodeName_)
-        return self
-    def buildAttributes(self, node, attrs, already_processed):
-        pass
-    def buildChildren(self, child_, node, nodeName_, fromsubclass_=False):
-        if nodeName_ == 'Tracking':
-            sval_ = child_.text
-            if sval_ in ('true', '1'):
-                ival_ = True
-            elif sval_ in ('false', '0'):
-                ival_ = False
-            else:
-                raise_parse_error(child_, 'requires boolean')
-            ival_ = self.gds_validate_boolean(ival_, node, 'Tracking')
-            self.Tracking = ival_
-        elif nodeName_ == 'Positions':
-            obj_ = PositionsType.factory()
-            obj_.build(child_)
-            self.Positions = obj_
-            obj_.original_tagname_ = 'Positions'
-# end class KvBladesType
-
-
-class PositionsType(GeneratedsSuper):
-    subclass = None
-    superclass = None
-    def __init__(self, KVX1=None, KVX2=None, KVY1=None, KVY2=None):
-        self.original_tagname_ = None
-        self.KVX1 = KVX1
-        self.KVX2 = KVX2
-        self.KVY1 = KVY1
-        self.KVY2 = KVY2
-    def factory(*args_, **kwargs_):
-        if PositionsType.subclass:
-            return PositionsType.subclass(*args_, **kwargs_)
-        else:
-            return PositionsType(*args_, **kwargs_)
-    factory = staticmethod(factory)
-    def get_KVX1(self): return self.KVX1
-    def set_KVX1(self, KVX1): self.KVX1 = KVX1
-    def get_KVX2(self): return self.KVX2
-    def set_KVX2(self, KVX2): self.KVX2 = KVX2
-    def get_KVY1(self): return self.KVY1
-    def set_KVY1(self, KVY1): self.KVY1 = KVY1
-    def get_KVY2(self): return self.KVY2
-    def set_KVY2(self, KVY2): self.KVY2 = KVY2
-    def validate_DoubleNone(self, value):
-        # Validate type DoubleNone, a restriction on None.
-        pass
-    def hasContent_(self):
-        if (
-            self.KVX1 is not None or
-            self.KVX2 is not None or
-            self.KVY1 is not None or
-            self.KVY2 is not None
-        ):
-            return True
-        else:
-            return False
-    def export(self, outfile, level, namespace_='', name_='PositionsType', namespacedef_='', pretty_print=True):
-        if pretty_print:
-            eol_ = '\n'
-        else:
-            eol_ = ''
-        if self.original_tagname_ is not None:
-            name_ = self.original_tagname_
-        showIndent(outfile, level, pretty_print)
-        outfile.write('<%s%s%s' % (namespace_, name_, namespacedef_ and ' ' + namespacedef_ or '', ))
-        already_processed = set()
-        self.exportAttributes(outfile, level, already_processed, namespace_, name_='PositionsType')
-        if self.hasContent_():
-            outfile.write('>%s' % (eol_, ))
-            self.exportChildren(outfile, level + 1, namespace_='', name_='PositionsType', pretty_print=pretty_print)
-            showIndent(outfile, level, pretty_print)
-            outfile.write('</%s%s>%s' % (namespace_, name_, eol_))
-        else:
-            outfile.write('/>%s' % (eol_, ))
-    def exportAttributes(self, outfile, level, already_processed, namespace_='', name_='PositionsType'):
-        pass
-    def exportChildren(self, outfile, level, namespace_='', name_='PositionsType', fromsubclass_=False, pretty_print=True):
-        if pretty_print:
-            eol_ = '\n'
-        else:
-            eol_ = ''
-        if self.KVX1 is not None:
-            showIndent(outfile, level, pretty_print)
-            outfile.write('<%sKVX1>%s</%sKVX1>%s' % (namespace_, self.gds_format_string(quote_xml(self.KVX1).encode(ExternalEncoding), input_name='KVX1'), namespace_, eol_))
-        if self.KVX2 is not None:
-            showIndent(outfile, level, pretty_print)
-            outfile.write('<%sKVX2>%s</%sKVX2>%s' % (namespace_, self.gds_format_string(quote_xml(self.KVX2).encode(ExternalEncoding), input_name='KVX2'), namespace_, eol_))
-        if self.KVY1 is not None:
-            showIndent(outfile, level, pretty_print)
-            outfile.write('<%sKVY1>%s</%sKVY1>%s' % (namespace_, self.gds_format_string(quote_xml(self.KVY1).encode(ExternalEncoding), input_name='KVY1'), namespace_, eol_))
-        if self.KVY2 is not None:
-            showIndent(outfile, level, pretty_print)
-            outfile.write('<%sKVY2>%s</%sKVY2>%s' % (namespace_, self.gds_format_string(quote_xml(self.KVY2).encode(ExternalEncoding), input_name='KVY2'), namespace_, eol_))
-    def build(self, node):
-        already_processed = set()
-        self.buildAttributes(node, node.attrib, already_processed)
-        for child in node:
-            nodeName_ = Tag_pattern_.match(child.tag).groups()[-1]
-            self.buildChildren(child, node, nodeName_)
-        return self
-    def buildAttributes(self, node, attrs, already_processed):
-        pass
-    def buildChildren(self, child_, node, nodeName_, fromsubclass_=False):
-        if nodeName_ == 'KVX1':
-            KVX1_ = child_.text
-            KVX1_ = self.gds_validate_string(KVX1_, node, 'KVX1')
-            self.KVX1 = KVX1_
-            self.validate_DoubleNone(self.KVX1)    # validate type DoubleNone
-        elif nodeName_ == 'KVX2':
-            KVX2_ = child_.text
-            KVX2_ = self.gds_validate_string(KVX2_, node, 'KVX2')
-            self.KVX2 = KVX2_
-            self.validate_DoubleNone(self.KVX2)    # validate type DoubleNone
-        elif nodeName_ == 'KVY1':
-            KVY1_ = child_.text
-            KVY1_ = self.gds_validate_string(KVY1_, node, 'KVY1')
-            self.KVY1 = KVY1_
-            self.validate_DoubleNone(self.KVY1)    # validate type DoubleNone
-        elif nodeName_ == 'KVY2':
-            KVY2_ = child_.text
-            KVY2_ = self.gds_validate_string(KVY2_, node, 'KVY2')
-            self.KVY2 = KVY2_
-            self.validate_DoubleNone(self.KVY2)    # validate type DoubleNone
-# end class PositionsType
-
-
-class ImagingTolerancesType(GeneratedsSuper):
-    subclass = None
-    superclass = None
-    def __init__(self, Mvd=None, Kvd=None, Kvs=None, KvBlades=None):
-        self.original_tagname_ = None
-        self.Mvd = Mvd
-        self.Kvd = Kvd
-        self.Kvs = Kvs
-        self.KvBlades = KvBlades
-    def factory(*args_, **kwargs_):
-        if ImagingTolerancesType.subclass:
-            return ImagingTolerancesType.subclass(*args_, **kwargs_)
-        else:
-            return ImagingTolerancesType(*args_, **kwargs_)
-    factory = staticmethod(factory)
-    def get_Mvd(self): return self.Mvd
-    def set_Mvd(self, Mvd): self.Mvd = Mvd
-    def get_Kvd(self): return self.Kvd
-    def set_Kvd(self, Kvd): self.Kvd = Kvd
-    def get_Kvs(self): return self.Kvs
-    def set_Kvs(self, Kvs): self.Kvs = Kvs
-    def get_KvBlades(self): return self.KvBlades
-    def set_KvBlades(self, KvBlades): self.KvBlades = KvBlades
-    def hasContent_(self):
-        if (
-            self.Mvd is not None or
-            self.Kvd is not None or
-            self.Kvs is not None or
-            self.KvBlades is not None
-        ):
-            return True
-        else:
-            return False
-    def export(self, outfile, level, namespace_='', name_='ImagingTolerancesType', namespacedef_='', pretty_print=True):
-        if pretty_print:
-            eol_ = '\n'
-        else:
-            eol_ = ''
-        if self.original_tagname_ is not None:
-            name_ = self.original_tagname_
-        showIndent(outfile, level, pretty_print)
-        outfile.write('<%s%s%s' % (namespace_, name_, namespacedef_ and ' ' + namespacedef_ or '', ))
-        already_processed = set()
-        self.exportAttributes(outfile, level, already_processed, namespace_, name_='ImagingTolerancesType')
-        if self.hasContent_():
-            outfile.write('>%s' % (eol_, ))
-            self.exportChildren(outfile, level + 1, namespace_='', name_='ImagingTolerancesType', pretty_print=pretty_print)
-            showIndent(outfile, level, pretty_print)
-            outfile.write('</%s%s>%s' % (namespace_, name_, eol_))
-        else:
-            outfile.write('/>%s' % (eol_, ))
-    def exportAttributes(self, outfile, level, already_processed, namespace_='', name_='ImagingTolerancesType'):
-        pass
-    def exportChildren(self, outfile, level, namespace_='', name_='ImagingTolerancesType', fromsubclass_=False, pretty_print=True):
-        if pretty_print:
-            eol_ = '\n'
-        else:
-            eol_ = ''
-        if self.Mvd is not None:
-            self.Mvd.export(outfile, level, namespace_, name_='Mvd', pretty_print=pretty_print)
-        if self.Kvd is not None:
-            self.Kvd.export(outfile, level, namespace_, name_='Kvd', pretty_print=pretty_print)
-        if self.Kvs is not None:
-            self.Kvs.export(outfile, level, namespace_, name_='Kvs', pretty_print=pretty_print)
-        if self.KvBlades is not None:
-            self.KvBlades.export(outfile, level, namespace_, name_='KvBlades', pretty_print=pretty_print)
-    def build(self, node):
-        already_processed = set()
-        self.buildAttributes(node, node.attrib, already_processed)
-        for child in node:
-            nodeName_ = Tag_pattern_.match(child.tag).groups()[-1]
-            self.buildChildren(child, node, nodeName_)
-        return self
-    def buildAttributes(self, node, attrs, already_processed):
-        pass
-    def buildChildren(self, child_, node, nodeName_, fromsubclass_=False):
-        if nodeName_ == 'Mvd':
-            obj_ = ArmTolerances.factory()
-            obj_.build(child_)
-            self.Mvd = obj_
-            obj_.original_tagname_ = 'Mvd'
-        elif nodeName_ == 'Kvd':
-            obj_ = ArmTolerances.factory()
-            obj_.build(child_)
-            self.Kvd = obj_
-            obj_.original_tagname_ = 'Kvd'
-        elif nodeName_ == 'Kvs':
-            obj_ = ArmTolerances.factory()
-            obj_.build(child_)
-            self.Kvs = obj_
-            obj_.original_tagname_ = 'Kvs'
-        elif nodeName_ == 'KvBlades':
-            obj_ = KvBladesType1.factory()
-            obj_.build(child_)
-            self.KvBlades = obj_
-            obj_.original_tagname_ = 'KvBlades'
-# end class ImagingTolerancesType
-
-
-class KvBladesType1(GeneratedsSuper):
-    subclass = None
-    superclass = None
-    def __init__(self, KVY1=None, KVY2=None, KVX1=None, KVX2=None):
-        self.original_tagname_ = None
-        self.KVY1 = KVY1
-        self.KVY2 = KVY2
-        self.KVX1 = KVX1
-        self.KVX2 = KVX2
-    def factory(*args_, **kwargs_):
-        if KvBladesType1.subclass:
-            return KvBladesType1.subclass(*args_, **kwargs_)
-        else:
-            return KvBladesType1(*args_, **kwargs_)
-    factory = staticmethod(factory)
-    def get_KVY1(self): return self.KVY1
-    def set_KVY1(self, KVY1): self.KVY1 = KVY1
-    def get_KVY2(self): return self.KVY2
-    def set_KVY2(self, KVY2): self.KVY2 = KVY2
-    def get_KVX1(self): return self.KVX1
-    def set_KVX1(self, KVX1): self.KVX1 = KVX1
-    def get_KVX2(self): return self.KVX2
-    def set_KVX2(self, KVX2): self.KVX2 = KVX2
-    def hasContent_(self):
-        if (
-            self.KVY1 is not None or
-            self.KVY2 is not None or
-            self.KVX1 is not None or
-            self.KVX2 is not None
-        ):
-            return True
-        else:
-            return False
-    def export(self, outfile, level, namespace_='', name_='KvBladesType1', namespacedef_='', pretty_print=True):
-        if pretty_print:
-            eol_ = '\n'
-        else:
-            eol_ = ''
-        if self.original_tagname_ is not None:
-            name_ = self.original_tagname_
-        showIndent(outfile, level, pretty_print)
-        outfile.write('<%s%s%s' % (namespace_, name_, namespacedef_ and ' ' + namespacedef_ or '', ))
-        already_processed = set()
-        self.exportAttributes(outfile, level, already_processed, namespace_, name_='KvBladesType1')
-        if self.hasContent_():
-            outfile.write('>%s' % (eol_, ))
-            self.exportChildren(outfile, level + 1, namespace_='', name_='KvBladesType1', pretty_print=pretty_print)
-            showIndent(outfile, level, pretty_print)
-            outfile.write('</%s%s>%s' % (namespace_, name_, eol_))
-        else:
-            outfile.write('/>%s' % (eol_, ))
-    def exportAttributes(self, outfile, level, already_processed, namespace_='', name_='KvBladesType1'):
-        pass
-    def exportChildren(self, outfile, level, namespace_='', name_='KvBladesType1', fromsubclass_=False, pretty_print=True):
-        if pretty_print:
-            eol_ = '\n'
-        else:
-            eol_ = ''
-        if self.KVY1 is not None:
-            showIndent(outfile, level, pretty_print)
-            outfile.write('<%sKVY1>%s</%sKVY1>%s' % (namespace_, self.gds_format_double(self.KVY1, input_name='KVY1'), namespace_, eol_))
-        if self.KVY2 is not None:
-            showIndent(outfile, level, pretty_print)
-            outfile.write('<%sKVY2>%s</%sKVY2>%s' % (namespace_, self.gds_format_double(self.KVY2, input_name='KVY2'), namespace_, eol_))
-        if self.KVX1 is not None:
-            showIndent(outfile, level, pretty_print)
-            outfile.write('<%sKVX1>%s</%sKVX1>%s' % (namespace_, self.gds_format_double(self.KVX1, input_name='KVX1'), namespace_, eol_))
-        if self.KVX2 is not None:
-            showIndent(outfile, level, pretty_print)
-            outfile.write('<%sKVX2>%s</%sKVX2>%s' % (namespace_, self.gds_format_double(self.KVX2, input_name='KVX2'), namespace_, eol_))
-    def build(self, node):
-        already_processed = set()
-        self.buildAttributes(node, node.attrib, already_processed)
-        for child in node:
-            nodeName_ = Tag_pattern_.match(child.tag).groups()[-1]
-            self.buildChildren(child, node, nodeName_)
-        return self
-    def buildAttributes(self, node, attrs, already_processed):
-        pass
-    def buildChildren(self, child_, node, nodeName_, fromsubclass_=False):
-        if nodeName_ == 'KVY1':
-            sval_ = child_.text
-            try:
-                fval_ = float(sval_)
-            except (TypeError, ValueError), exp:
-                raise_parse_error(child_, 'requires float or double: %s' % exp)
-            fval_ = self.gds_validate_float(fval_, node, 'KVY1')
-            self.KVY1 = fval_
-        elif nodeName_ == 'KVY2':
-            sval_ = child_.text
-            try:
-                fval_ = float(sval_)
-            except (TypeError, ValueError), exp:
-                raise_parse_error(child_, 'requires float or double: %s' % exp)
-            fval_ = self.gds_validate_float(fval_, node, 'KVY2')
-            self.KVY2 = fval_
-        elif nodeName_ == 'KVX1':
-            sval_ = child_.text
-            try:
-                fval_ = float(sval_)
-            except (TypeError, ValueError), exp:
-                raise_parse_error(child_, 'requires float or double: %s' % exp)
-            fval_ = self.gds_validate_float(fval_, node, 'KVX1')
-            self.KVX1 = fval_
-        elif nodeName_ == 'KVX2':
-            sval_ = child_.text
-            try:
-                fval_ = float(sval_)
-            except (TypeError, ValueError), exp:
-                raise_parse_error(child_, 'requires float or double: %s' % exp)
-            fval_ = self.gds_validate_float(fval_, node, 'KVX2')
-            self.KVX2 = fval_
-# end class KvBladesType1
-
-
-class GatingParametersType(GeneratedsSuper):
-    subclass = None
-    superclass = None
-    def __init__(self, Source=None, Filter=None, QualityThreshold=None, KVGating=None, Position=None, Orientation=None, GatingWindow=None, MVAcquisitionTrigger=None, KVAcquisitionTrigger=None):
-        self.original_tagname_ = None
-        self.Source = Source
-        self.Filter = Filter
-        self.QualityThreshold = QualityThreshold
-        self.KVGating = KVGating
-        self.Position = Position
-        self.Orientation = Orientation
-        if GatingWindow is None:
-            self.GatingWindow = []
-        else:
-            self.GatingWindow = GatingWindow
-        if MVAcquisitionTrigger is None:
-            self.MVAcquisitionTrigger = []
-        else:
-            self.MVAcquisitionTrigger = MVAcquisitionTrigger
-        if KVAcquisitionTrigger is None:
-            self.KVAcquisitionTrigger = []
-        else:
-            self.KVAcquisitionTrigger = KVAcquisitionTrigger
-    def factory(*args_, **kwargs_):
-        if GatingParametersType.subclass:
-            return GatingParametersType.subclass(*args_, **kwargs_)
-        else:
-            return GatingParametersType(*args_, **kwargs_)
-    factory = staticmethod(factory)
-    def get_Source(self): return self.Source
-    def set_Source(self, Source): self.Source = Source
-    def get_Filter(self): return self.Filter
-    def set_Filter(self, Filter): self.Filter = Filter
-    def get_QualityThreshold(self): return self.QualityThreshold
-    def set_QualityThreshold(self, QualityThreshold): self.QualityThreshold = QualityThreshold
-    def get_KVGating(self): return self.KVGating
-    def set_KVGating(self, KVGating): self.KVGating = KVGating
-    def get_Position(self): return self.Position
-    def set_Position(self, Position): self.Position = Position
-    def get_Orientation(self): return self.Orientation
-    def set_Orientation(self, Orientation): self.Orientation = Orientation
-    def get_GatingWindow(self): return self.GatingWindow
-    def set_GatingWindow(self, GatingWindow): self.GatingWindow = GatingWindow
-    def add_GatingWindow(self, value): self.GatingWindow.append(value)
-    def insert_GatingWindow_at(self, index, value): self.GatingWindow.insert(index, value)
-    def replace_GatingWindow_at(self, index, value): self.GatingWindow[index] = value
-    def get_MVAcquisitionTrigger(self): return self.MVAcquisitionTrigger
-    def set_MVAcquisitionTrigger(self, MVAcquisitionTrigger): self.MVAcquisitionTrigger = MVAcquisitionTrigger
-    def add_MVAcquisitionTrigger(self, value): self.MVAcquisitionTrigger.append(value)
-    def insert_MVAcquisitionTrigger_at(self, index, value): self.MVAcquisitionTrigger.insert(index, value)
-    def replace_MVAcquisitionTrigger_at(self, index, value): self.MVAcquisitionTrigger[index] = value
-    def get_KVAcquisitionTrigger(self): return self.KVAcquisitionTrigger
-    def set_KVAcquisitionTrigger(self, KVAcquisitionTrigger): self.KVAcquisitionTrigger = KVAcquisitionTrigger
-    def add_KVAcquisitionTrigger(self, value): self.KVAcquisitionTrigger.append(value)
-    def insert_KVAcquisitionTrigger_at(self, index, value): self.KVAcquisitionTrigger.insert(index, value)
-    def replace_KVAcquisitionTrigger_at(self, index, value): self.KVAcquisitionTrigger[index] = value
-    def hasContent_(self):
-        if (
-            self.Source is not None or
-            self.Filter is not None or
-            self.QualityThreshold is not None or
-            self.KVGating is not None or
-            self.Position is not None or
-            self.Orientation is not None or
-            self.GatingWindow or
-            self.MVAcquisitionTrigger or
-            self.KVAcquisitionTrigger
-        ):
-            return True
-        else:
-            return False
-    def export(self, outfile, level, namespace_='', name_='GatingParametersType', namespacedef_='', pretty_print=True):
-        if pretty_print:
-            eol_ = '\n'
-        else:
-            eol_ = ''
-        if self.original_tagname_ is not None:
-            name_ = self.original_tagname_
-        showIndent(outfile, level, pretty_print)
-        outfile.write('<%s%s%s' % (namespace_, name_, namespacedef_ and ' ' + namespacedef_ or '', ))
-        already_processed = set()
-        self.exportAttributes(outfile, level, already_processed, namespace_, name_='GatingParametersType')
-        if self.hasContent_():
-            outfile.write('>%s' % (eol_, ))
-            self.exportChildren(outfile, level + 1, namespace_='', name_='GatingParametersType', pretty_print=pretty_print)
-            showIndent(outfile, level, pretty_print)
-            outfile.write('</%s%s>%s' % (namespace_, name_, eol_))
-        else:
-            outfile.write('/>%s' % (eol_, ))
-    def exportAttributes(self, outfile, level, already_processed, namespace_='', name_='GatingParametersType'):
-        pass
-    def exportChildren(self, outfile, level, namespace_='', name_='GatingParametersType', fromsubclass_=False, pretty_print=True):
-        if pretty_print:
-            eol_ = '\n'
-        else:
-            eol_ = ''
-        if self.Source is not None:
-            showIndent(outfile, level, pretty_print)
-            outfile.write('<%sSource>%s</%sSource>%s' % (namespace_, self.gds_format_string(quote_xml(self.Source).encode(ExternalEncoding), input_name='Source'), namespace_, eol_))
-        if self.Filter is not None:
-            showIndent(outfile, level, pretty_print)
-            outfile.write('<%sFilter>%s</%sFilter>%s' % (namespace_, self.gds_format_string(quote_xml(self.Filter).encode(ExternalEncoding), input_name='Filter'), namespace_, eol_))
-        if self.QualityThreshold is not None:
-            showIndent(outfile, level, pretty_print)
-            outfile.write('<%sQualityThreshold>%s</%sQualityThreshold>%s' % (namespace_, self.gds_format_double(self.QualityThreshold, input_name='QualityThreshold'), namespace_, eol_))
-        if self.KVGating is not None:
-            showIndent(outfile, level, pretty_print)
-            outfile.write('<%sKVGating>%s</%sKVGating>%s' % (namespace_, self.gds_format_boolean(self.KVGating, input_name='KVGating'), namespace_, eol_))
-        if self.Position is not None:
-            self.Position.export(outfile, level, namespace_, name_='Position', pretty_print=pretty_print)
-        if self.Orientation is not None:
-            self.Orientation.export(outfile, level, namespace_, name_='Orientation', pretty_print=pretty_print)
-        for GatingWindow_ in self.GatingWindow:
-            GatingWindow_.export(outfile, level, namespace_, name_='GatingWindow', pretty_print=pretty_print)
-        for MVAcquisitionTrigger_ in self.MVAcquisitionTrigger:
-            MVAcquisitionTrigger_.export(outfile, level, namespace_, name_='MVAcquisitionTrigger', pretty_print=pretty_print)
-        for KVAcquisitionTrigger_ in self.KVAcquisitionTrigger:
-            KVAcquisitionTrigger_.export(outfile, level, namespace_, name_='KVAcquisitionTrigger', pretty_print=pretty_print)
-    def build(self, node):
-        already_processed = set()
-        self.buildAttributes(node, node.attrib, already_processed)
-        for child in node:
-            nodeName_ = Tag_pattern_.match(child.tag).groups()[-1]
-            self.buildChildren(child, node, nodeName_)
-        return self
-    def buildAttributes(self, node, attrs, already_processed):
-        pass
-    def buildChildren(self, child_, node, nodeName_, fromsubclass_=False):
-        if nodeName_ == 'Source':
-            Source_ = child_.text
-            Source_ = self.gds_validate_string(Source_, node, 'Source')
-            self.Source = Source_
-        elif nodeName_ == 'Filter':
-            Filter_ = child_.text
-            Filter_ = self.gds_validate_string(Filter_, node, 'Filter')
-            self.Filter = Filter_
-        elif nodeName_ == 'QualityThreshold':
-            sval_ = child_.text
-            try:
-                fval_ = float(sval_)
-            except (TypeError, ValueError), exp:
-                raise_parse_error(child_, 'requires float or double: %s' % exp)
-            fval_ = self.gds_validate_float(fval_, node, 'QualityThreshold')
-            self.QualityThreshold = fval_
-        elif nodeName_ == 'KVGating':
-            sval_ = child_.text
-            if sval_ in ('true', '1'):
-                ival_ = True
-            elif sval_ in ('false', '0'):
-                ival_ = False
-            else:
-                raise_parse_error(child_, 'requires boolean')
-            ival_ = self.gds_validate_boolean(ival_, node, 'KVGating')
-            self.KVGating = ival_
-        elif nodeName_ == 'Position':
-            obj_ = PositionType.factory()
-            obj_.build(child_)
-            self.Position = obj_
-            obj_.original_tagname_ = 'Position'
-        elif nodeName_ == 'Orientation':
-            obj_ = OrientationType.factory()
-            obj_.build(child_)
-            self.Orientation = obj_
-            obj_.original_tagname_ = 'Orientation'
-        elif nodeName_ == 'GatingWindow':
-            obj_ = GatingWindowType.factory()
-            obj_.build(child_)
-            self.GatingWindow.append(obj_)
-            obj_.original_tagname_ = 'GatingWindow'
-        elif nodeName_ == 'MVAcquisitionTrigger':
-            obj_ = MVAcquisitionTriggerType.factory()
-            obj_.build(child_)
-            self.MVAcquisitionTrigger.append(obj_)
-            obj_.original_tagname_ = 'MVAcquisitionTrigger'
-        elif nodeName_ == 'KVAcquisitionTrigger':
-            obj_ = KVAcquisitionTriggerType.factory()
-            obj_.build(child_)
-            self.KVAcquisitionTrigger.append(obj_)
-            obj_.original_tagname_ = 'KVAcquisitionTrigger'
-# end class GatingParametersType
-
-
-class PositionType(GeneratedsSuper):
-    subclass = None
-    superclass = None
-    def __init__(self, X=None, Y=None, Z=None):
-        self.original_tagname_ = None
-        self.X = X
-        self.Y = Y
-        self.Z = Z
-    def factory(*args_, **kwargs_):
-        if PositionType.subclass:
-            return PositionType.subclass(*args_, **kwargs_)
-        else:
-            return PositionType(*args_, **kwargs_)
-    factory = staticmethod(factory)
-    def get_X(self): return self.X
-    def set_X(self, X): self.X = X
-    def get_Y(self): return self.Y
-    def set_Y(self, Y): self.Y = Y
-    def get_Z(self): return self.Z
-    def set_Z(self, Z): self.Z = Z
-    def hasContent_(self):
-        if (
-            self.X is not None or
-            self.Y is not None or
-            self.Z is not None
-        ):
-            return True
-        else:
-            return False
-    def export(self, outfile, level, namespace_='', name_='PositionType', namespacedef_='', pretty_print=True):
-        if pretty_print:
-            eol_ = '\n'
-        else:
-            eol_ = ''
-        if self.original_tagname_ is not None:
-            name_ = self.original_tagname_
-        showIndent(outfile, level, pretty_print)
-        outfile.write('<%s%s%s' % (namespace_, name_, namespacedef_ and ' ' + namespacedef_ or '', ))
-        already_processed = set()
-        self.exportAttributes(outfile, level, already_processed, namespace_, name_='PositionType')
-        if self.hasContent_():
-            outfile.write('>%s' % (eol_, ))
-            self.exportChildren(outfile, level + 1, namespace_='', name_='PositionType', pretty_print=pretty_print)
-            showIndent(outfile, level, pretty_print)
-            outfile.write('</%s%s>%s' % (namespace_, name_, eol_))
-        else:
-            outfile.write('/>%s' % (eol_, ))
-    def exportAttributes(self, outfile, level, already_processed, namespace_='', name_='PositionType'):
-        pass
-    def exportChildren(self, outfile, level, namespace_='', name_='PositionType', fromsubclass_=False, pretty_print=True):
-        if pretty_print:
-            eol_ = '\n'
-        else:
-            eol_ = ''
-        if self.X is not None:
-            showIndent(outfile, level, pretty_print)
-            outfile.write('<%sX>%s</%sX>%s' % (namespace_, self.gds_format_double(self.X, input_name='X'), namespace_, eol_))
-        if self.Y is not None:
-            showIndent(outfile, level, pretty_print)
-            outfile.write('<%sY>%s</%sY>%s' % (namespace_, self.gds_format_double(self.Y, input_name='Y'), namespace_, eol_))
-        if self.Z is not None:
-            showIndent(outfile, level, pretty_print)
-            outfile.write('<%sZ>%s</%sZ>%s' % (namespace_, self.gds_format_double(self.Z, input_name='Z'), namespace_, eol_))
-    def build(self, node):
-        already_processed = set()
-        self.buildAttributes(node, node.attrib, already_processed)
-        for child in node:
-            nodeName_ = Tag_pattern_.match(child.tag).groups()[-1]
-            self.buildChildren(child, node, nodeName_)
-        return self
-    def buildAttributes(self, node, attrs, already_processed):
-        pass
-    def buildChildren(self, child_, node, nodeName_, fromsubclass_=False):
-        if nodeName_ == 'X':
-            sval_ = child_.text
-            try:
-                fval_ = float(sval_)
-            except (TypeError, ValueError), exp:
-                raise_parse_error(child_, 'requires float or double: %s' % exp)
-            fval_ = self.gds_validate_float(fval_, node, 'X')
-            self.X = fval_
-        elif nodeName_ == 'Y':
-            sval_ = child_.text
-            try:
-                fval_ = float(sval_)
-            except (TypeError, ValueError), exp:
-                raise_parse_error(child_, 'requires float or double: %s' % exp)
-            fval_ = self.gds_validate_float(fval_, node, 'Y')
-            self.Y = fval_
-        elif nodeName_ == 'Z':
-            sval_ = child_.text
-            try:
-                fval_ = float(sval_)
-            except (TypeError, ValueError), exp:
-                raise_parse_error(child_, 'requires float or double: %s' % exp)
-            fval_ = self.gds_validate_float(fval_, node, 'Z')
-            self.Z = fval_
-# end class PositionType
-
-
-class OrientationType(GeneratedsSuper):
-    subclass = None
-    superclass = None
-    def __init__(self, Qx=None, Qy=None, Qz=None, Q0=None):
-        self.original_tagname_ = None
-        self.Qx = Qx
-        self.Qy = Qy
-        self.Qz = Qz
-        self.Q0 = Q0
-    def factory(*args_, **kwargs_):
-        if OrientationType.subclass:
-            return OrientationType.subclass(*args_, **kwargs_)
-        else:
-            return OrientationType(*args_, **kwargs_)
-    factory = staticmethod(factory)
-    def get_Qx(self): return self.Qx
-    def set_Qx(self, Qx): self.Qx = Qx
-    def get_Qy(self): return self.Qy
-    def set_Qy(self, Qy): self.Qy = Qy
-    def get_Qz(self): return self.Qz
-    def set_Qz(self, Qz): self.Qz = Qz
-    def get_Q0(self): return self.Q0
-    def set_Q0(self, Q0): self.Q0 = Q0
-    def hasContent_(self):
-        if (
-            self.Qx is not None or
-            self.Qy is not None or
-            self.Qz is not None or
-            self.Q0 is not None
-        ):
-            return True
-        else:
-            return False
-    def export(self, outfile, level, namespace_='', name_='OrientationType', namespacedef_='', pretty_print=True):
-        if pretty_print:
-            eol_ = '\n'
-        else:
-            eol_ = ''
-        if self.original_tagname_ is not None:
-            name_ = self.original_tagname_
-        showIndent(outfile, level, pretty_print)
-        outfile.write('<%s%s%s' % (namespace_, name_, namespacedef_ and ' ' + namespacedef_ or '', ))
-        already_processed = set()
-        self.exportAttributes(outfile, level, already_processed, namespace_, name_='OrientationType')
-        if self.hasContent_():
-            outfile.write('>%s' % (eol_, ))
-            self.exportChildren(outfile, level + 1, namespace_='', name_='OrientationType', pretty_print=pretty_print)
-            showIndent(outfile, level, pretty_print)
-            outfile.write('</%s%s>%s' % (namespace_, name_, eol_))
-        else:
-            outfile.write('/>%s' % (eol_, ))
-    def exportAttributes(self, outfile, level, already_processed, namespace_='', name_='OrientationType'):
-        pass
-    def exportChildren(self, outfile, level, namespace_='', name_='OrientationType', fromsubclass_=False, pretty_print=True):
-        if pretty_print:
-            eol_ = '\n'
-        else:
-            eol_ = ''
-        if self.Qx is not None:
-            showIndent(outfile, level, pretty_print)
-            outfile.write('<%sQx>%s</%sQx>%s' % (namespace_, self.gds_format_double(self.Qx, input_name='Qx'), namespace_, eol_))
-        if self.Qy is not None:
-            showIndent(outfile, level, pretty_print)
-            outfile.write('<%sQy>%s</%sQy>%s' % (namespace_, self.gds_format_double(self.Qy, input_name='Qy'), namespace_, eol_))
-        if self.Qz is not None:
-            showIndent(outfile, level, pretty_print)
-            outfile.write('<%sQz>%s</%sQz>%s' % (namespace_, self.gds_format_double(self.Qz, input_name='Qz'), namespace_, eol_))
-        if self.Q0 is not None:
-            showIndent(outfile, level, pretty_print)
-            outfile.write('<%sQ0>%s</%sQ0>%s' % (namespace_, self.gds_format_double(self.Q0, input_name='Q0'), namespace_, eol_))
-    def build(self, node):
-        already_processed = set()
-        self.buildAttributes(node, node.attrib, already_processed)
-        for child in node:
-            nodeName_ = Tag_pattern_.match(child.tag).groups()[-1]
-            self.buildChildren(child, node, nodeName_)
-        return self
-    def buildAttributes(self, node, attrs, already_processed):
-        pass
-    def buildChildren(self, child_, node, nodeName_, fromsubclass_=False):
-        if nodeName_ == 'Qx':
-            sval_ = child_.text
-            try:
-                fval_ = float(sval_)
-            except (TypeError, ValueError), exp:
-                raise_parse_error(child_, 'requires float or double: %s' % exp)
-            fval_ = self.gds_validate_float(fval_, node, 'Qx')
-            self.Qx = fval_
-        elif nodeName_ == 'Qy':
-            sval_ = child_.text
-            try:
-                fval_ = float(sval_)
-            except (TypeError, ValueError), exp:
-                raise_parse_error(child_, 'requires float or double: %s' % exp)
-            fval_ = self.gds_validate_float(fval_, node, 'Qy')
-            self.Qy = fval_
-        elif nodeName_ == 'Qz':
-            sval_ = child_.text
-            try:
-                fval_ = float(sval_)
-            except (TypeError, ValueError), exp:
-                raise_parse_error(child_, 'requires float or double: %s' % exp)
-            fval_ = self.gds_validate_float(fval_, node, 'Qz')
-            self.Qz = fval_
-        elif nodeName_ == 'Q0':
-            sval_ = child_.text
-            try:
-                fval_ = float(sval_)
-            except (TypeError, ValueError), exp:
-                raise_parse_error(child_, 'requires float or double: %s' % exp)
-            fval_ = self.gds_validate_float(fval_, node, 'Q0')
-            self.Q0 = fval_
-# end class OrientationType
-
-
-class GatingWindowType(GeneratedsSuper):
-    subclass = None
-    superclass = None
-    def __init__(self, Axis=None, Entry=None, Exit=None, EntryDelay=None, FaultOnExit=None):
-        self.original_tagname_ = None
-        self.Axis = Axis
-        self.Entry = Entry
-        self.Exit = Exit
-        self.EntryDelay = EntryDelay
-        self.FaultOnExit = FaultOnExit
-    def factory(*args_, **kwargs_):
-        if GatingWindowType.subclass:
-            return GatingWindowType.subclass(*args_, **kwargs_)
-        else:
-            return GatingWindowType(*args_, **kwargs_)
-    factory = staticmethod(factory)
-    def get_Axis(self): return self.Axis
-    def set_Axis(self, Axis): self.Axis = Axis
-    def get_Entry(self): return self.Entry
-    def set_Entry(self, Entry): self.Entry = Entry
-    def get_Exit(self): return self.Exit
-    def set_Exit(self, Exit): self.Exit = Exit
-    def get_EntryDelay(self): return self.EntryDelay
-    def set_EntryDelay(self, EntryDelay): self.EntryDelay = EntryDelay
-    def get_FaultOnExit(self): return self.FaultOnExit
-    def set_FaultOnExit(self, FaultOnExit): self.FaultOnExit = FaultOnExit
-    def hasContent_(self):
-        if (
-            self.Axis is not None or
-            self.Entry is not None or
-            self.Exit is not None or
-            self.EntryDelay is not None or
-            self.FaultOnExit is not None
-        ):
-            return True
-        else:
-            return False
-    def export(self, outfile, level, namespace_='', name_='GatingWindowType', namespacedef_='', pretty_print=True):
-        if pretty_print:
-            eol_ = '\n'
-        else:
-            eol_ = ''
-        if self.original_tagname_ is not None:
-            name_ = self.original_tagname_
-        showIndent(outfile, level, pretty_print)
-        outfile.write('<%s%s%s' % (namespace_, name_, namespacedef_ and ' ' + namespacedef_ or '', ))
-        already_processed = set()
-        self.exportAttributes(outfile, level, already_processed, namespace_, name_='GatingWindowType')
-        if self.hasContent_():
-            outfile.write('>%s' % (eol_, ))
-            self.exportChildren(outfile, level + 1, namespace_='', name_='GatingWindowType', pretty_print=pretty_print)
-            showIndent(outfile, level, pretty_print)
-            outfile.write('</%s%s>%s' % (namespace_, name_, eol_))
-        else:
-            outfile.write('/>%s' % (eol_, ))
-    def exportAttributes(self, outfile, level, already_processed, namespace_='', name_='GatingWindowType'):
-        pass
-    def exportChildren(self, outfile, level, namespace_='', name_='GatingWindowType', fromsubclass_=False, pretty_print=True):
-        if pretty_print:
-            eol_ = '\n'
-        else:
-            eol_ = ''
-        if self.Axis is not None:
-            showIndent(outfile, level, pretty_print)
-            outfile.write('<%sAxis>%s</%sAxis>%s' % (namespace_, self.gds_format_string(quote_xml(self.Axis).encode(ExternalEncoding), input_name='Axis'), namespace_, eol_))
-        if self.Entry is not None:
-            showIndent(outfile, level, pretty_print)
-            outfile.write('<%sEntry>%s</%sEntry>%s' % (namespace_, self.gds_format_double(self.Entry, input_name='Entry'), namespace_, eol_))
-        if self.Exit is not None:
-            showIndent(outfile, level, pretty_print)
-            outfile.write('<%sExit>%s</%sExit>%s' % (namespace_, self.gds_format_double(self.Exit, input_name='Exit'), namespace_, eol_))
-        if self.EntryDelay is not None:
-            showIndent(outfile, level, pretty_print)
-            outfile.write('<%sEntryDelay>%s</%sEntryDelay>%s' % (namespace_, self.gds_format_double(self.EntryDelay, input_name='EntryDelay'), namespace_, eol_))
-        if self.FaultOnExit is not None:
-            showIndent(outfile, level, pretty_print)
-            outfile.write('<%sFaultOnExit>%s</%sFaultOnExit>%s' % (namespace_, self.gds_format_boolean(self.FaultOnExit, input_name='FaultOnExit'), namespace_, eol_))
-    def build(self, node):
-        already_processed = set()
-        self.buildAttributes(node, node.attrib, already_processed)
-        for child in node:
-            nodeName_ = Tag_pattern_.match(child.tag).groups()[-1]
-            self.buildChildren(child, node, nodeName_)
-        return self
-    def buildAttributes(self, node, attrs, already_processed):
-        pass
-    def buildChildren(self, child_, node, nodeName_, fromsubclass_=False):
-        if nodeName_ == 'Axis':
-            Axis_ = child_.text
-            Axis_ = self.gds_validate_string(Axis_, node, 'Axis')
-            self.Axis = Axis_
-        elif nodeName_ == 'Entry':
-            sval_ = child_.text
-            try:
-                fval_ = float(sval_)
-            except (TypeError, ValueError), exp:
-                raise_parse_error(child_, 'requires float or double: %s' % exp)
-            fval_ = self.gds_validate_float(fval_, node, 'Entry')
-            self.Entry = fval_
-        elif nodeName_ == 'Exit':
-            sval_ = child_.text
-            try:
-                fval_ = float(sval_)
-            except (TypeError, ValueError), exp:
-                raise_parse_error(child_, 'requires float or double: %s' % exp)
-            fval_ = self.gds_validate_float(fval_, node, 'Exit')
-            self.Exit = fval_
-        elif nodeName_ == 'EntryDelay':
-            sval_ = child_.text
-            try:
-                fval_ = float(sval_)
-            except (TypeError, ValueError), exp:
-                raise_parse_error(child_, 'requires float or double: %s' % exp)
-            fval_ = self.gds_validate_float(fval_, node, 'EntryDelay')
-            self.EntryDelay = fval_
-        elif nodeName_ == 'FaultOnExit':
-            sval_ = child_.text
-            if sval_ in ('true', '1'):
-                ival_ = True
-            elif sval_ in ('false', '0'):
-                ival_ = False
-            else:
-                raise_parse_error(child_, 'requires boolean')
-            ival_ = self.gds_validate_boolean(ival_, node, 'FaultOnExit')
-            self.FaultOnExit = ival_
-# end class GatingWindowType
-
-
-class MVAcquisitionTriggerType(AcquisitionTrigger):
-    subclass = None
-    superclass = AcquisitionTrigger
-    def __init__(self, TriggerDelay=None, TriggerOnEnter=None, TriggerOnExit=None, SingleTrigger=None):
-        self.original_tagname_ = None
-        super(MVAcquisitionTriggerType, self).__init__(TriggerDelay, TriggerOnEnter, TriggerOnExit, SingleTrigger, )
-    def factory(*args_, **kwargs_):
-        if MVAcquisitionTriggerType.subclass:
-            return MVAcquisitionTriggerType.subclass(*args_, **kwargs_)
-        else:
-            return MVAcquisitionTriggerType(*args_, **kwargs_)
-    factory = staticmethod(factory)
-    def hasContent_(self):
-        if (
-            super(MVAcquisitionTriggerType, self).hasContent_()
-        ):
-            return True
-        else:
-            return False
-    def export(self, outfile, level, namespace_='', name_='MVAcquisitionTriggerType', namespacedef_='', pretty_print=True):
-        if pretty_print:
-            eol_ = '\n'
-        else:
-            eol_ = ''
-        if self.original_tagname_ is not None:
-            name_ = self.original_tagname_
-        showIndent(outfile, level, pretty_print)
-        outfile.write('<%s%s%s' % (namespace_, name_, namespacedef_ and ' ' + namespacedef_ or '', ))
-        already_processed = set()
-        self.exportAttributes(outfile, level, already_processed, namespace_, name_='MVAcquisitionTriggerType')
-        if self.hasContent_():
-            outfile.write('>%s' % (eol_, ))
-            self.exportChildren(outfile, level + 1, namespace_='', name_='MVAcquisitionTriggerType', pretty_print=pretty_print)
-            showIndent(outfile, level, pretty_print)
-            outfile.write('</%s%s>%s' % (namespace_, name_, eol_))
-        else:
-            outfile.write('/>%s' % (eol_, ))
-    def exportAttributes(self, outfile, level, already_processed, namespace_='', name_='MVAcquisitionTriggerType'):
-        super(MVAcquisitionTriggerType, self).exportAttributes(outfile, level, already_processed, namespace_, name_='MVAcquisitionTriggerType')
-    def exportChildren(self, outfile, level, namespace_='', name_='MVAcquisitionTriggerType', fromsubclass_=False, pretty_print=True):
-        super(MVAcquisitionTriggerType, self).exportChildren(outfile, level, namespace_, name_, True, pretty_print=pretty_print)
-    def build(self, node):
-        already_processed = set()
-        self.buildAttributes(node, node.attrib, already_processed)
-        for child in node:
-            nodeName_ = Tag_pattern_.match(child.tag).groups()[-1]
-            self.buildChildren(child, node, nodeName_)
-        return self
-    def buildAttributes(self, node, attrs, already_processed):
-        super(MVAcquisitionTriggerType, self).buildAttributes(node, attrs, already_processed)
-    def buildChildren(self, child_, node, nodeName_, fromsubclass_=False):
-        super(MVAcquisitionTriggerType, self).buildChildren(child_, node, nodeName_, True)
-        pass
-# end class MVAcquisitionTriggerType
-
-
-class KVAcquisitionTriggerType(AcquisitionTrigger):
-    subclass = None
-    superclass = AcquisitionTrigger
-    def __init__(self, TriggerDelay=None, TriggerOnEnter=None, TriggerOnExit=None, SingleTrigger=None):
-        self.original_tagname_ = None
-        super(KVAcquisitionTriggerType, self).__init__(TriggerDelay, TriggerOnEnter, TriggerOnExit, SingleTrigger, )
-    def factory(*args_, **kwargs_):
-        if KVAcquisitionTriggerType.subclass:
-            return KVAcquisitionTriggerType.subclass(*args_, **kwargs_)
-        else:
-            return KVAcquisitionTriggerType(*args_, **kwargs_)
-    factory = staticmethod(factory)
-    def hasContent_(self):
-        if (
-            super(KVAcquisitionTriggerType, self).hasContent_()
-        ):
-            return True
-        else:
-            return False
-    def export(self, outfile, level, namespace_='', name_='KVAcquisitionTriggerType', namespacedef_='', pretty_print=True):
-        if pretty_print:
-            eol_ = '\n'
-        else:
-            eol_ = ''
-        if self.original_tagname_ is not None:
-            name_ = self.original_tagname_
-        showIndent(outfile, level, pretty_print)
-        outfile.write('<%s%s%s' % (namespace_, name_, namespacedef_ and ' ' + namespacedef_ or '', ))
-        already_processed = set()
-        self.exportAttributes(outfile, level, already_processed, namespace_, name_='KVAcquisitionTriggerType')
-        if self.hasContent_():
-            outfile.write('>%s' % (eol_, ))
-            self.exportChildren(outfile, level + 1, namespace_='', name_='KVAcquisitionTriggerType', pretty_print=pretty_print)
-            showIndent(outfile, level, pretty_print)
-            outfile.write('</%s%s>%s' % (namespace_, name_, eol_))
-        else:
-            outfile.write('/>%s' % (eol_, ))
-    def exportAttributes(self, outfile, level, already_processed, namespace_='', name_='KVAcquisitionTriggerType'):
-        super(KVAcquisitionTriggerType, self).exportAttributes(outfile, level, already_processed, namespace_, name_='KVAcquisitionTriggerType')
-    def exportChildren(self, outfile, level, namespace_='', name_='KVAcquisitionTriggerType', fromsubclass_=False, pretty_print=True):
-        super(KVAcquisitionTriggerType, self).exportChildren(outfile, level, namespace_, name_, True, pretty_print=pretty_print)
-    def build(self, node):
-        already_processed = set()
-        self.buildAttributes(node, node.attrib, already_processed)
-        for child in node:
-            nodeName_ = Tag_pattern_.match(child.tag).groups()[-1]
-            self.buildChildren(child, node, nodeName_)
-        return self
-    def buildAttributes(self, node, attrs, already_processed):
-        super(KVAcquisitionTriggerType, self).buildAttributes(node, attrs, already_processed)
-    def buildChildren(self, child_, node, nodeName_, fromsubclass_=False):
-        super(KVAcquisitionTriggerType, self).buildChildren(child_, node, nodeName_, True)
-        pass
-# end class KVAcquisitionTriggerType
-
-
-class BeamHoldDevicesType(GeneratedsSuper):
-    subclass = None
-    superclass = None
-    def __init__(self, Dev=None):
-        self.original_tagname_ = None
-        self.Dev = Dev
-    def factory(*args_, **kwargs_):
-        if BeamHoldDevicesType.subclass:
-            return BeamHoldDevicesType.subclass(*args_, **kwargs_)
-        else:
-            return BeamHoldDevicesType(*args_, **kwargs_)
-    factory = staticmethod(factory)
-    def get_Dev(self): return self.Dev
-    def set_Dev(self, Dev): self.Dev = Dev
-    def hasContent_(self):
-        if (
-            self.Dev is not None
-        ):
-            return True
-        else:
-            return False
-    def export(self, outfile, level, namespace_='', name_='BeamHoldDevicesType', namespacedef_='', pretty_print=True):
-        if pretty_print:
-            eol_ = '\n'
-        else:
-            eol_ = ''
-        if self.original_tagname_ is not None:
-            name_ = self.original_tagname_
-        showIndent(outfile, level, pretty_print)
-        outfile.write('<%s%s%s' % (namespace_, name_, namespacedef_ and ' ' + namespacedef_ or '', ))
-        already_processed = set()
-        self.exportAttributes(outfile, level, already_processed, namespace_, name_='BeamHoldDevicesType')
-        if self.hasContent_():
-            outfile.write('>%s' % (eol_, ))
-            self.exportChildren(outfile, level + 1, namespace_='', name_='BeamHoldDevicesType', pretty_print=pretty_print)
-            showIndent(outfile, level, pretty_print)
-            outfile.write('</%s%s>%s' % (namespace_, name_, eol_))
-        else:
-            outfile.write('/>%s' % (eol_, ))
-    def exportAttributes(self, outfile, level, already_processed, namespace_='', name_='BeamHoldDevicesType'):
-        pass
-    def exportChildren(self, outfile, level, namespace_='', name_='BeamHoldDevicesType', fromsubclass_=False, pretty_print=True):
-        if pretty_print:
-            eol_ = '\n'
-        else:
-            eol_ = ''
-        if self.Dev is not None:
-            self.Dev.export(outfile, level, namespace_, name_='Dev', pretty_print=pretty_print)
-    def build(self, node):
-        already_processed = set()
-        self.buildAttributes(node, node.attrib, already_processed)
-        for child in node:
-            nodeName_ = Tag_pattern_.match(child.tag).groups()[-1]
-            self.buildChildren(child, node, nodeName_)
-        return self
-    def buildAttributes(self, node, attrs, already_processed):
-        pass
-    def buildChildren(self, child_, node, nodeName_, fromsubclass_=False):
-        if nodeName_ == 'Dev':
-            obj_ = DevType.factory()
-            obj_.build(child_)
-            self.Dev = obj_
-            obj_.original_tagname_ = 'Dev'
-# end class BeamHoldDevicesType
-
-
-class DevType(GeneratedsSuper):
-    subclass = None
-    superclass = None
-    def __init__(self, Id=None):
+    def __init__(self, Id=None, MVBeamImpact=None, MotionImpact=None, SyncStop=None):
         self.original_tagname_ = None
         self.Id = _cast(int, Id)
+        self.MVBeamImpact = _cast(bool, MVBeamImpact)
+        self.MotionImpact = _cast(bool, MotionImpact)
+        self.SyncStop = _cast(bool, SyncStop)
     def factory(*args_, **kwargs_):
-        if DevType.subclass:
-            return DevType.subclass(*args_, **kwargs_)
+        if CurrentSubclassModule_ is not None:
+            subclass = getSubclassFromModule_(
+                CurrentSubclassModule_, Dev)
+            if subclass is not None:
+                return subclass(*args_, **kwargs_)
+        if Dev.subclass:
+            return Dev.subclass(*args_, **kwargs_)
         else:
-            return DevType(*args_, **kwargs_)
+            return Dev(*args_, **kwargs_)
     factory = staticmethod(factory)
     def get_Id(self): return self.Id
     def set_Id(self, Id): self.Id = Id
+    def get_MVBeamImpact(self): return self.MVBeamImpact
+    def set_MVBeamImpact(self, MVBeamImpact): self.MVBeamImpact = MVBeamImpact
+    def get_MotionImpact(self): return self.MotionImpact
+    def set_MotionImpact(self, MotionImpact): self.MotionImpact = MotionImpact
+    def get_SyncStop(self): return self.SyncStop
+    def set_SyncStop(self, SyncStop): self.SyncStop = SyncStop
     def hasContent_(self):
         if (
 
@@ -4503,7 +8770,7 @@ class DevType(GeneratedsSuper):
             return True
         else:
             return False
-    def export(self, outfile, level, namespace_='', name_='DevType', namespacedef_='', pretty_print=True):
+    def export(self, outfile, level, namespace_='', name_='Dev', namespacedef_='', pretty_print=True):
         if pretty_print:
             eol_ = '\n'
         else:
@@ -4513,18 +8780,27 @@ class DevType(GeneratedsSuper):
         showIndent(outfile, level, pretty_print)
         outfile.write('<%s%s%s' % (namespace_, name_, namespacedef_ and ' ' + namespacedef_ or '', ))
         already_processed = set()
-        self.exportAttributes(outfile, level, already_processed, namespace_, name_='DevType')
+        self.exportAttributes(outfile, level, already_processed, namespace_, name_='Dev')
         if self.hasContent_():
             outfile.write('>%s' % (eol_, ))
-            self.exportChildren(outfile, level + 1, namespace_='', name_='DevType', pretty_print=pretty_print)
+            self.exportChildren(outfile, level + 1, namespace_='', name_='Dev', pretty_print=pretty_print)
             outfile.write('</%s%s>%s' % (namespace_, name_, eol_))
         else:
             outfile.write('/>%s' % (eol_, ))
-    def exportAttributes(self, outfile, level, already_processed, namespace_='', name_='DevType'):
+    def exportAttributes(self, outfile, level, already_processed, namespace_='', name_='Dev'):
         if self.Id is not None and 'Id' not in already_processed:
             already_processed.add('Id')
             outfile.write(' Id="%s"' % self.gds_format_integer(self.Id, input_name='Id'))
-    def exportChildren(self, outfile, level, namespace_='', name_='DevType', fromsubclass_=False, pretty_print=True):
+        if self.MVBeamImpact is not None and 'MVBeamImpact' not in already_processed:
+            already_processed.add('MVBeamImpact')
+            outfile.write(' MVBeamImpact="%s"' % self.gds_format_boolean(self.MVBeamImpact, input_name='MVBeamImpact'))
+        if self.MotionImpact is not None and 'MotionImpact' not in already_processed:
+            already_processed.add('MotionImpact')
+            outfile.write(' MotionImpact="%s"' % self.gds_format_boolean(self.MotionImpact, input_name='MotionImpact'))
+        if self.SyncStop is not None and 'SyncStop' not in already_processed:
+            already_processed.add('SyncStop')
+            outfile.write(' SyncStop="%s"' % self.gds_format_boolean(self.SyncStop, input_name='SyncStop'))
+    def exportChildren(self, outfile, level, namespace_='', name_='Dev', fromsubclass_=False, pretty_print=True):
         pass
     def build(self, node):
         already_processed = set()
@@ -4539,1398 +8815,410 @@ class DevType(GeneratedsSuper):
             already_processed.add('Id')
             try:
                 self.Id = int(value)
-            except ValueError, exp:
+            except ValueError as exp:
                 raise_parse_error(node, 'Bad integer attribute: %s' % exp)
-    def buildChildren(self, child_, node, nodeName_, fromsubclass_=False):
-        pass
-# end class DevType
-
-
-class AcquisitionSpecsType(GeneratedsSuper):
-    subclass = None
-    superclass = None
-    def __init__(self, Handshake=None, KV=None, MVDose=None, Gating=None):
-        self.original_tagname_ = None
-        self.Handshake = Handshake
-        self.KV = KV
-        self.MVDose = MVDose
-        self.Gating = Gating
-    def factory(*args_, **kwargs_):
-        if AcquisitionSpecsType.subclass:
-            return AcquisitionSpecsType.subclass(*args_, **kwargs_)
-        else:
-            return AcquisitionSpecsType(*args_, **kwargs_)
-    factory = staticmethod(factory)
-    def get_Handshake(self): return self.Handshake
-    def set_Handshake(self, Handshake): self.Handshake = Handshake
-    def get_KV(self): return self.KV
-    def set_KV(self, KV): self.KV = KV
-    def get_MVDose(self): return self.MVDose
-    def set_MVDose(self, MVDose): self.MVDose = MVDose
-    def get_Gating(self): return self.Gating
-    def set_Gating(self, Gating): self.Gating = Gating
-    def validate_GatingType(self, value):
-        # Validate type GatingType, a restriction on xs:string.
-        pass
-    def hasContent_(self):
-        if (
-            self.Handshake is not None or
-            self.KV is not None or
-            self.MVDose is not None or
-            self.Gating is not None
-        ):
-            return True
-        else:
-            return False
-    def export(self, outfile, level, namespace_='', name_='AcquisitionSpecsType', namespacedef_='', pretty_print=True):
-        if pretty_print:
-            eol_ = '\n'
-        else:
-            eol_ = ''
-        if self.original_tagname_ is not None:
-            name_ = self.original_tagname_
-        showIndent(outfile, level, pretty_print)
-        outfile.write('<%s%s%s' % (namespace_, name_, namespacedef_ and ' ' + namespacedef_ or '', ))
-        already_processed = set()
-        self.exportAttributes(outfile, level, already_processed, namespace_, name_='AcquisitionSpecsType')
-        if self.hasContent_():
-            outfile.write('>%s' % (eol_, ))
-            self.exportChildren(outfile, level + 1, namespace_='', name_='AcquisitionSpecsType', pretty_print=pretty_print)
-            showIndent(outfile, level, pretty_print)
-            outfile.write('</%s%s>%s' % (namespace_, name_, eol_))
-        else:
-            outfile.write('/>%s' % (eol_, ))
-    def exportAttributes(self, outfile, level, already_processed, namespace_='', name_='AcquisitionSpecsType'):
-        pass
-    def exportChildren(self, outfile, level, namespace_='', name_='AcquisitionSpecsType', fromsubclass_=False, pretty_print=True):
-        if pretty_print:
-            eol_ = '\n'
-        else:
-            eol_ = ''
-        if self.Handshake is not None:
-            showIndent(outfile, level, pretty_print)
-            outfile.write('<%sHandshake>%s</%sHandshake>%s' % (namespace_, self.gds_format_boolean(self.Handshake, input_name='Handshake'), namespace_, eol_))
-        if self.KV is not None:
-            showIndent(outfile, level, pretty_print)
-            outfile.write('<%sKV>%s</%sKV>%s' % (namespace_, self.gds_format_boolean(self.KV, input_name='KV'), namespace_, eol_))
-        if self.MVDose is not None:
-            showIndent(outfile, level, pretty_print)
-            outfile.write('<%sMVDose>%s</%sMVDose>%s' % (namespace_, self.gds_format_double(self.MVDose, input_name='MVDose'), namespace_, eol_))
-        if self.Gating is not None:
-            showIndent(outfile, level, pretty_print)
-            outfile.write('<%sGating>%s</%sGating>%s' % (namespace_, self.gds_format_string(quote_xml(self.Gating).encode(ExternalEncoding), input_name='Gating'), namespace_, eol_))
-    def build(self, node):
-        already_processed = set()
-        self.buildAttributes(node, node.attrib, already_processed)
-        for child in node:
-            nodeName_ = Tag_pattern_.match(child.tag).groups()[-1]
-            self.buildChildren(child, node, nodeName_)
-        return self
-    def buildAttributes(self, node, attrs, already_processed):
-        pass
-    def buildChildren(self, child_, node, nodeName_, fromsubclass_=False):
-        if nodeName_ == 'Handshake':
-            sval_ = child_.text
-            if sval_ in ('true', '1'):
-                ival_ = True
-            elif sval_ in ('false', '0'):
-                ival_ = False
+        value = find_attr_value_('MVBeamImpact', node)
+        if value is not None and 'MVBeamImpact' not in already_processed:
+            already_processed.add('MVBeamImpact')
+            if value in ('true', '1'):
+                self.MVBeamImpact = True
+            elif value in ('false', '0'):
+                self.MVBeamImpact = False
             else:
-                raise_parse_error(child_, 'requires boolean')
-            ival_ = self.gds_validate_boolean(ival_, node, 'Handshake')
-            self.Handshake = ival_
-        elif nodeName_ == 'KV':
-            sval_ = child_.text
-            if sval_ in ('true', '1'):
-                ival_ = True
-            elif sval_ in ('false', '0'):
-                ival_ = False
+                raise_parse_error(node, 'Bad boolean attribute')
+        value = find_attr_value_('MotionImpact', node)
+        if value is not None and 'MotionImpact' not in already_processed:
+            already_processed.add('MotionImpact')
+            if value in ('true', '1'):
+                self.MotionImpact = True
+            elif value in ('false', '0'):
+                self.MotionImpact = False
             else:
-                raise_parse_error(child_, 'requires boolean')
-            ival_ = self.gds_validate_boolean(ival_, node, 'KV')
-            self.KV = ival_
-        elif nodeName_ == 'MVDose':
-            sval_ = child_.text
-            try:
-                fval_ = float(sval_)
-            except (TypeError, ValueError), exp:
-                raise_parse_error(child_, 'requires float or double: %s' % exp)
-            fval_ = self.gds_validate_float(fval_, node, 'MVDose')
-            self.MVDose = fval_
-        elif nodeName_ == 'Gating':
-            Gating_ = child_.text
-            Gating_ = self.gds_validate_string(Gating_, node, 'Gating')
-            self.Gating = Gating_
-            self.validate_GatingType(self.Gating)    # validate type GatingType
-# end class AcquisitionSpecsType
-
-
-class AcquisitionParametersType(GeneratedsSuper):
-    subclass = None
-    superclass = None
-    def __init__(self, ImageMode=None, AcquisitionMode=None, CalibrationSet=None, ImageDestination=None, NotificationDestination=None, Movie=None, RaiseFault=None, Cache=None, HistogramRoi=None, MV=None, KV=None):
-        self.original_tagname_ = None
-        self.ImageMode = ImageMode
-        self.AcquisitionMode = AcquisitionMode
-        self.CalibrationSet = CalibrationSet
-        if ImageDestination is None:
-            self.ImageDestination = []
-        else:
-            self.ImageDestination = ImageDestination
-        if NotificationDestination is None:
-            self.NotificationDestination = []
-        else:
-            self.NotificationDestination = NotificationDestination
-        self.Movie = Movie
-        self.RaiseFault = RaiseFault
-        self.Cache = Cache
-        self.HistogramRoi = HistogramRoi
-        self.MV = MV
-        self.KV = KV
-    def factory(*args_, **kwargs_):
-        if AcquisitionParametersType.subclass:
-            return AcquisitionParametersType.subclass(*args_, **kwargs_)
-        else:
-            return AcquisitionParametersType(*args_, **kwargs_)
-    factory = staticmethod(factory)
-    def get_ImageMode(self): return self.ImageMode
-    def set_ImageMode(self, ImageMode): self.ImageMode = ImageMode
-    def get_AcquisitionMode(self): return self.AcquisitionMode
-    def set_AcquisitionMode(self, AcquisitionMode): self.AcquisitionMode = AcquisitionMode
-    def get_CalibrationSet(self): return self.CalibrationSet
-    def set_CalibrationSet(self, CalibrationSet): self.CalibrationSet = CalibrationSet
-    def get_ImageDestination(self): return self.ImageDestination
-    def set_ImageDestination(self, ImageDestination): self.ImageDestination = ImageDestination
-    def add_ImageDestination(self, value): self.ImageDestination.append(value)
-    def insert_ImageDestination_at(self, index, value): self.ImageDestination.insert(index, value)
-    def replace_ImageDestination_at(self, index, value): self.ImageDestination[index] = value
-    def get_NotificationDestination(self): return self.NotificationDestination
-    def set_NotificationDestination(self, NotificationDestination): self.NotificationDestination = NotificationDestination
-    def add_NotificationDestination(self, value): self.NotificationDestination.append(value)
-    def insert_NotificationDestination_at(self, index, value): self.NotificationDestination.insert(index, value)
-    def replace_NotificationDestination_at(self, index, value): self.NotificationDestination[index] = value
-    def get_Movie(self): return self.Movie
-    def set_Movie(self, Movie): self.Movie = Movie
-    def get_RaiseFault(self): return self.RaiseFault
-    def set_RaiseFault(self, RaiseFault): self.RaiseFault = RaiseFault
-    def get_Cache(self): return self.Cache
-    def set_Cache(self, Cache): self.Cache = Cache
-    def get_HistogramRoi(self): return self.HistogramRoi
-    def set_HistogramRoi(self, HistogramRoi): self.HistogramRoi = HistogramRoi
-    def get_MV(self): return self.MV
-    def set_MV(self, MV): self.MV = MV
-    def get_KV(self): return self.KV
-    def set_KV(self, KV): self.KV = KV
-    def hasContent_(self):
-        if (
-            self.ImageMode is not None or
-            self.AcquisitionMode is not None or
-            self.CalibrationSet is not None or
-            self.ImageDestination or
-            self.NotificationDestination or
-            self.Movie is not None or
-            self.RaiseFault is not None or
-            self.Cache is not None or
-            self.HistogramRoi is not None or
-            self.MV is not None or
-            self.KV is not None
-        ):
-            return True
-        else:
-            return False
-    def export(self, outfile, level, namespace_='', name_='AcquisitionParametersType', namespacedef_='', pretty_print=True):
-        if pretty_print:
-            eol_ = '\n'
-        else:
-            eol_ = ''
-        if self.original_tagname_ is not None:
-            name_ = self.original_tagname_
-        showIndent(outfile, level, pretty_print)
-        outfile.write('<%s%s%s' % (namespace_, name_, namespacedef_ and ' ' + namespacedef_ or '', ))
-        already_processed = set()
-        self.exportAttributes(outfile, level, already_processed, namespace_, name_='AcquisitionParametersType')
-        if self.hasContent_():
-            outfile.write('>%s' % (eol_, ))
-            self.exportChildren(outfile, level + 1, namespace_='', name_='AcquisitionParametersType', pretty_print=pretty_print)
-            showIndent(outfile, level, pretty_print)
-            outfile.write('</%s%s>%s' % (namespace_, name_, eol_))
-        else:
-            outfile.write('/>%s' % (eol_, ))
-    def exportAttributes(self, outfile, level, already_processed, namespace_='', name_='AcquisitionParametersType'):
-        pass
-    def exportChildren(self, outfile, level, namespace_='', name_='AcquisitionParametersType', fromsubclass_=False, pretty_print=True):
-        if pretty_print:
-            eol_ = '\n'
-        else:
-            eol_ = ''
-        if self.ImageMode is not None:
-            self.ImageMode.export(outfile, level, namespace_, name_='ImageMode', pretty_print=pretty_print)
-        if self.AcquisitionMode is not None:
-            self.AcquisitionMode.export(outfile, level, namespace_, name_='AcquisitionMode', pretty_print=pretty_print)
-        if self.CalibrationSet is not None:
-            showIndent(outfile, level, pretty_print)
-            outfile.write('<%sCalibrationSet>%s</%sCalibrationSet>%s' % (namespace_, self.gds_format_string(quote_xml(self.CalibrationSet).encode(ExternalEncoding), input_name='CalibrationSet'), namespace_, eol_))
-        for ImageDestination_ in self.ImageDestination:
-            showIndent(outfile, level, pretty_print)
-            outfile.write('<%sImageDestination>%s</%sImageDestination>%s' % (namespace_, self.gds_format_string(quote_xml(ImageDestination_).encode(ExternalEncoding), input_name='ImageDestination'), namespace_, eol_))
-        for NotificationDestination_ in self.NotificationDestination:
-            showIndent(outfile, level, pretty_print)
-            outfile.write('<%sNotificationDestination>%s</%sNotificationDestination>%s' % (namespace_, self.gds_format_string(quote_xml(NotificationDestination_).encode(ExternalEncoding), input_name='NotificationDestination'), namespace_, eol_))
-        if self.Movie is not None:
-            self.Movie.export(outfile, level, namespace_, name_='Movie', pretty_print=pretty_print)
-        if self.RaiseFault is not None:
-            showIndent(outfile, level, pretty_print)
-            outfile.write('<%sRaiseFault>%s</%sRaiseFault>%s' % (namespace_, self.gds_format_boolean(self.RaiseFault, input_name='RaiseFault'), namespace_, eol_))
-        if self.Cache is not None:
-            showIndent(outfile, level, pretty_print)
-            outfile.write('<%sCache>%s</%sCache>%s' % (namespace_, self.gds_format_boolean(self.Cache, input_name='Cache'), namespace_, eol_))
-        if self.HistogramRoi is not None:
-            self.HistogramRoi.export(outfile, level, namespace_, name_='HistogramRoi', pretty_print=pretty_print)
-        if self.MV is not None:
-            self.MV.export(outfile, level, namespace_, name_='MV', pretty_print=pretty_print)
-        if self.KV is not None:
-            self.KV.export(outfile, level, namespace_, name_='KV', pretty_print=pretty_print)
-    def build(self, node):
-        already_processed = set()
-        self.buildAttributes(node, node.attrib, already_processed)
-        for child in node:
-            nodeName_ = Tag_pattern_.match(child.tag).groups()[-1]
-            self.buildChildren(child, node, nodeName_)
-        return self
-    def buildAttributes(self, node, attrs, already_processed):
-        pass
-    def buildChildren(self, child_, node, nodeName_, fromsubclass_=False):
-        if nodeName_ == 'ImageMode':
-            obj_ = ImageModeType.factory()
-            obj_.build(child_)
-            self.ImageMode = obj_
-            obj_.original_tagname_ = 'ImageMode'
-        elif nodeName_ == 'AcquisitionMode':
-            obj_ = AcquisitionModeType.factory()
-            obj_.build(child_)
-            self.AcquisitionMode = obj_
-            obj_.original_tagname_ = 'AcquisitionMode'
-        elif nodeName_ == 'CalibrationSet':
-            CalibrationSet_ = child_.text
-            CalibrationSet_ = self.gds_validate_string(CalibrationSet_, node, 'CalibrationSet')
-            self.CalibrationSet = CalibrationSet_
-        elif nodeName_ == 'ImageDestination':
-            ImageDestination_ = child_.text
-            ImageDestination_ = self.gds_validate_string(ImageDestination_, node, 'ImageDestination')
-            self.ImageDestination.append(ImageDestination_)
-        elif nodeName_ == 'NotificationDestination':
-            NotificationDestination_ = child_.text
-            NotificationDestination_ = self.gds_validate_string(NotificationDestination_, node, 'NotificationDestination')
-            self.NotificationDestination.append(NotificationDestination_)
-        elif nodeName_ == 'Movie':
-            obj_ = MovieType.factory()
-            obj_.build(child_)
-            self.Movie = obj_
-            obj_.original_tagname_ = 'Movie'
-        elif nodeName_ == 'RaiseFault':
-            sval_ = child_.text
-            if sval_ in ('true', '1'):
-                ival_ = True
-            elif sval_ in ('false', '0'):
-                ival_ = False
+                raise_parse_error(node, 'Bad boolean attribute')
+        value = find_attr_value_('SyncStop', node)
+        if value is not None and 'SyncStop' not in already_processed:
+            already_processed.add('SyncStop')
+            if value in ('true', '1'):
+                self.SyncStop = True
+            elif value in ('false', '0'):
+                self.SyncStop = False
             else:
-                raise_parse_error(child_, 'requires boolean')
-            ival_ = self.gds_validate_boolean(ival_, node, 'RaiseFault')
-            self.RaiseFault = ival_
-        elif nodeName_ == 'Cache':
-            sval_ = child_.text
-            if sval_ in ('true', '1'):
-                ival_ = True
-            elif sval_ in ('false', '0'):
-                ival_ = False
-            else:
-                raise_parse_error(child_, 'requires boolean')
-            ival_ = self.gds_validate_boolean(ival_, node, 'Cache')
-            self.Cache = ival_
-        elif nodeName_ == 'HistogramRoi':
-            obj_ = HistogramRoiType.factory()
+                raise_parse_error(node, 'Bad boolean attribute')
+    def buildChildren(self, child_, node, nodeName_, fromsubclass_=False):
+        pass
+# end class Dev
+
+
+class BeamHoldDevices(GeneratedsSuper):
+    """The planned beam hold devices. RULES: 1. A missing beam hold device
+    means that the beam hold devie must not be ready. 2. A present
+    beam hold device must be ready 3. The MV beam gets held if the
+    beam hold device requests to held the beam. 4. Id attribute
+    specifies the id of the beam hold device (number between 0 and
+    15)"""
+    subclass = None
+    superclass = None
+    def __init__(self, Dev=None):
+        self.original_tagname_ = None
+        if Dev is None:
+            self.Dev = []
+        else:
+            self.Dev = Dev
+    def factory(*args_, **kwargs_):
+        if CurrentSubclassModule_ is not None:
+            subclass = getSubclassFromModule_(
+                CurrentSubclassModule_, BeamHoldDevices)
+            if subclass is not None:
+                return subclass(*args_, **kwargs_)
+        if BeamHoldDevices.subclass:
+            return BeamHoldDevices.subclass(*args_, **kwargs_)
+        else:
+            return BeamHoldDevices(*args_, **kwargs_)
+    factory = staticmethod(factory)
+    def get_Dev(self): return self.Dev
+    def set_Dev(self, Dev): self.Dev = Dev
+    def add_Dev(self, value): self.Dev.append(value)
+    def insert_Dev_at(self, index, value): self.Dev.insert(index, value)
+    def replace_Dev_at(self, index, value): self.Dev[index] = value
+    def hasContent_(self):
+        if (
+            self.Dev
+        ):
+            return True
+        else:
+            return False
+    def export(self, outfile, level, namespace_='', name_='BeamHoldDevices', namespacedef_='', pretty_print=True):
+        if pretty_print:
+            eol_ = '\n'
+        else:
+            eol_ = ''
+        if self.original_tagname_ is not None:
+            name_ = self.original_tagname_
+        showIndent(outfile, level, pretty_print)
+        outfile.write('<%s%s%s' % (namespace_, name_, namespacedef_ and ' ' + namespacedef_ or '', ))
+        already_processed = set()
+        self.exportAttributes(outfile, level, already_processed, namespace_, name_='BeamHoldDevices')
+        if self.hasContent_():
+            outfile.write('>%s' % (eol_, ))
+            self.exportChildren(outfile, level + 1, namespace_='', name_='BeamHoldDevices', pretty_print=pretty_print)
+            showIndent(outfile, level, pretty_print)
+            outfile.write('</%s%s>%s' % (namespace_, name_, eol_))
+        else:
+            outfile.write('/>%s' % (eol_, ))
+    def exportAttributes(self, outfile, level, already_processed, namespace_='', name_='BeamHoldDevices'):
+        pass
+    def exportChildren(self, outfile, level, namespace_='', name_='BeamHoldDevices', fromsubclass_=False, pretty_print=True):
+        if pretty_print:
+            eol_ = '\n'
+        else:
+            eol_ = ''
+        for Dev_ in self.Dev:
+            Dev_.export(outfile, level, namespace_, name_='Dev', pretty_print=pretty_print)
+    def build(self, node):
+        already_processed = set()
+        self.buildAttributes(node, node.attrib, already_processed)
+        for child in node:
+            nodeName_ = Tag_pattern_.match(child.tag).groups()[-1]
+            self.buildChildren(child, node, nodeName_)
+        return self
+    def buildAttributes(self, node, attrs, already_processed):
+        pass
+    def buildChildren(self, child_, node, nodeName_, fromsubclass_=False):
+        if nodeName_ == 'Dev':
+            obj_ = Dev.factory()
             obj_.build(child_)
-            self.HistogramRoi = obj_
-            obj_.original_tagname_ = 'HistogramRoi'
-        elif nodeName_ == 'MV':
-            obj_ = MVType.factory()
+            self.Dev.append(obj_)
+            obj_.original_tagname_ = 'Dev'
+# end class BeamHoldDevices
+
+
+class SetBeam(GeneratedsSuper):
+    """The root element of the research beam Id - unique Beam ID TolTable -
+    the tolerance table for the beam ControlPoints - the set of
+    control points for the beam"""
+    subclass = None
+    superclass = None
+    def __init__(self, SchemaVersion=None, Id=None, GUID=None, TrajectoryUploadInfo=None, TreatmentMode=None, MLCModel=None, TolTable=None, VelTable=None, Accs=None, ControlPoints=None, ImagingParameters=None, BeamHoldDevices=None, Tracking=None):
+        self.original_tagname_ = None
+        self.SchemaVersion = SchemaVersion
+        self.Id = Id
+        self.GUID = GUID
+        self.TrajectoryUploadInfo = TrajectoryUploadInfo
+        self.TreatmentMode = TreatmentMode
+        self.validate_TreatmentModeType(self.TreatmentMode)
+        self.MLCModel = MLCModel
+        self.validate_MLCModelType(self.MLCModel)
+        self.TolTable = TolTable
+        self.VelTable = VelTable
+        self.Accs = Accs
+        self.ControlPoints = ControlPoints
+        self.ImagingParameters = ImagingParameters
+        self.BeamHoldDevices = BeamHoldDevices
+        self.Tracking = Tracking
+    def factory(*args_, **kwargs_):
+        if CurrentSubclassModule_ is not None:
+            subclass = getSubclassFromModule_(
+                CurrentSubclassModule_, SetBeam)
+            if subclass is not None:
+                return subclass(*args_, **kwargs_)
+        if SetBeam.subclass:
+            return SetBeam.subclass(*args_, **kwargs_)
+        else:
+            return SetBeam(*args_, **kwargs_)
+    factory = staticmethod(factory)
+    def get_SchemaVersion(self): return self.SchemaVersion
+    def set_SchemaVersion(self, SchemaVersion): self.SchemaVersion = SchemaVersion
+    def get_Id(self): return self.Id
+    def set_Id(self, Id): self.Id = Id
+    def get_GUID(self): return self.GUID
+    def set_GUID(self, GUID): self.GUID = GUID
+    def get_TrajectoryUploadInfo(self): return self.TrajectoryUploadInfo
+    def set_TrajectoryUploadInfo(self, TrajectoryUploadInfo): self.TrajectoryUploadInfo = TrajectoryUploadInfo
+    def get_TreatmentMode(self): return self.TreatmentMode
+    def set_TreatmentMode(self, TreatmentMode): self.TreatmentMode = TreatmentMode
+    def get_MLCModel(self): return self.MLCModel
+    def set_MLCModel(self, MLCModel): self.MLCModel = MLCModel
+    def get_TolTable(self): return self.TolTable
+    def set_TolTable(self, TolTable): self.TolTable = TolTable
+    def get_VelTable(self): return self.VelTable
+    def set_VelTable(self, VelTable): self.VelTable = VelTable
+    def get_Accs(self): return self.Accs
+    def set_Accs(self, Accs): self.Accs = Accs
+    def get_ControlPoints(self): return self.ControlPoints
+    def set_ControlPoints(self, ControlPoints): self.ControlPoints = ControlPoints
+    def get_ImagingParameters(self): return self.ImagingParameters
+    def set_ImagingParameters(self, ImagingParameters): self.ImagingParameters = ImagingParameters
+    def get_BeamHoldDevices(self): return self.BeamHoldDevices
+    def set_BeamHoldDevices(self, BeamHoldDevices): self.BeamHoldDevices = BeamHoldDevices
+    def get_Tracking(self): return self.Tracking
+    def set_Tracking(self, Tracking): self.Tracking = Tracking
+    def validate_TreatmentModeType(self, value):
+        # Validate type TreatmentModeType, a restriction on xs:string.
+        if value is not None and Validate_simpletypes_:
+            value = str(value)
+            enumerations = ['FTM', 'ISTM', 'QATM', 'QATM_VERIFICATION', 'MCTM']
+            enumeration_respectee = False
+            for enum in enumerations:
+                if value == enum:
+                    enumeration_respectee = True
+                    break
+            if not enumeration_respectee:
+                warnings_.warn('Value "%(value)s" does not match xsd enumeration restriction on TreatmentModeType' % {"value" : value.encode("utf-8")} )
+    def validate_MLCModelType(self, value):
+        # Validate type MLCModelType, a restriction on xs:string.
+        if value is not None and Validate_simpletypes_:
+            value = str(value)
+            enumerations = ['NDS80', 'NDS120', 'NDS120HD']
+            enumeration_respectee = False
+            for enum in enumerations:
+                if value == enum:
+                    enumeration_respectee = True
+                    break
+            if not enumeration_respectee:
+                warnings_.warn('Value "%(value)s" does not match xsd enumeration restriction on MLCModelType' % {"value" : value.encode("utf-8")} )
+    def hasContent_(self):
+        if (
+            self.SchemaVersion is not None or
+            self.Id is not None or
+            self.GUID is not None or
+            self.TrajectoryUploadInfo is not None or
+            self.TreatmentMode is not None or
+            self.MLCModel is not None or
+            self.TolTable is not None or
+            self.VelTable is not None or
+            self.Accs is not None or
+            self.ControlPoints is not None or
+            self.ImagingParameters is not None or
+            self.BeamHoldDevices is not None or
+            self.Tracking is not None
+        ):
+            return True
+        else:
+            return False
+    def export(self, outfile, level, namespace_='', name_='SetBeam', namespacedef_='', pretty_print=True):
+        if pretty_print:
+            eol_ = '\n'
+        else:
+            eol_ = ''
+        if self.original_tagname_ is not None:
+            name_ = self.original_tagname_
+        showIndent(outfile, level, pretty_print)
+        outfile.write('<%s%s%s' % (namespace_, name_, namespacedef_ and ' ' + namespacedef_ or '', ))
+        already_processed = set()
+        self.exportAttributes(outfile, level, already_processed, namespace_, name_='SetBeam')
+        if self.hasContent_():
+            outfile.write('>%s' % (eol_, ))
+            self.exportChildren(outfile, level + 1, namespace_='', name_='SetBeam', pretty_print=pretty_print)
+            showIndent(outfile, level, pretty_print)
+            outfile.write('</%s%s>%s' % (namespace_, name_, eol_))
+        else:
+            outfile.write('/>%s' % (eol_, ))
+    def exportAttributes(self, outfile, level, already_processed, namespace_='', name_='SetBeam'):
+        pass
+    def exportChildren(self, outfile, level, namespace_='', name_='SetBeam', fromsubclass_=False, pretty_print=True):
+        if pretty_print:
+            eol_ = '\n'
+        else:
+            eol_ = ''
+        if self.SchemaVersion is not None:
+            showIndent(outfile, level, pretty_print)
+            outfile.write('<%sSchemaVersion>%s</%sSchemaVersion>%s' % (namespace_, self.gds_encode(self.gds_format_string(quote_xml(self.SchemaVersion), input_name='SchemaVersion')), namespace_, eol_))
+        if self.Id is not None:
+            showIndent(outfile, level, pretty_print)
+            outfile.write('<%sId>%s</%sId>%s' % (namespace_, self.gds_format_integer(self.Id, input_name='Id'), namespace_, eol_))
+        if self.GUID is not None:
+            showIndent(outfile, level, pretty_print)
+            outfile.write('<%sGUID>%s</%sGUID>%s' % (namespace_, self.gds_encode(self.gds_format_string(quote_xml(self.GUID), input_name='GUID')), namespace_, eol_))
+        if self.TrajectoryUploadInfo is not None:
+            showIndent(outfile, level, pretty_print)
+            outfile.write('<%sTrajectoryUploadInfo>%s</%sTrajectoryUploadInfo>%s' % (namespace_, self.gds_encode(self.gds_format_string(quote_xml(self.TrajectoryUploadInfo), input_name='TrajectoryUploadInfo')), namespace_, eol_))
+        if self.TreatmentMode is not None:
+            showIndent(outfile, level, pretty_print)
+            outfile.write('<%sTreatmentMode>%s</%sTreatmentMode>%s' % (namespace_, self.gds_encode(self.gds_format_string(quote_xml(self.TreatmentMode), input_name='TreatmentMode')), namespace_, eol_))
+        if self.MLCModel is not None:
+            showIndent(outfile, level, pretty_print)
+            outfile.write('<%sMLCModel>%s</%sMLCModel>%s' % (namespace_, self.gds_encode(self.gds_format_string(quote_xml(self.MLCModel), input_name='MLCModel')), namespace_, eol_))
+        if self.TolTable is not None:
+            self.TolTable.export(outfile, level, namespace_, name_='TolTable', pretty_print=pretty_print)
+        if self.VelTable is not None:
+            self.VelTable.export(outfile, level, namespace_, name_='VelTable', pretty_print=pretty_print)
+        if self.Accs is not None:
+            self.Accs.export(outfile, level, namespace_, name_='Accs', pretty_print=pretty_print)
+        if self.ControlPoints is not None:
+            self.ControlPoints.export(outfile, level, namespace_, name_='ControlPoints', pretty_print=pretty_print)
+        if self.ImagingParameters is not None:
+            self.ImagingParameters.export(outfile, level, namespace_, name_='ImagingParameters', pretty_print=pretty_print)
+        if self.BeamHoldDevices is not None:
+            self.BeamHoldDevices.export(outfile, level, namespace_, name_='BeamHoldDevices', pretty_print=pretty_print)
+        if self.Tracking is not None:
+            self.Tracking.export(outfile, level, namespace_, name_='Tracking', pretty_print=pretty_print)
+    def build(self, node):
+        already_processed = set()
+        self.buildAttributes(node, node.attrib, already_processed)
+        for child in node:
+            nodeName_ = Tag_pattern_.match(child.tag).groups()[-1]
+            self.buildChildren(child, node, nodeName_)
+        return self
+    def buildAttributes(self, node, attrs, already_processed):
+        pass
+    def buildChildren(self, child_, node, nodeName_, fromsubclass_=False):
+        if nodeName_ == 'SchemaVersion':
+            SchemaVersion_ = child_.text
+            SchemaVersion_ = self.gds_validate_string(SchemaVersion_, node, 'SchemaVersion')
+            self.SchemaVersion = SchemaVersion_
+        elif nodeName_ == 'Id':
+            sval_ = child_.text
+            try:
+                ival_ = int(sval_)
+            except (TypeError, ValueError) as exp:
+                raise_parse_error(child_, 'requires integer: %s' % exp)
+            ival_ = self.gds_validate_integer(ival_, node, 'Id')
+            self.Id = ival_
+        elif nodeName_ == 'GUID':
+            GUID_ = child_.text
+            GUID_ = self.gds_validate_string(GUID_, node, 'GUID')
+            self.GUID = GUID_
+        elif nodeName_ == 'TrajectoryUploadInfo':
+            TrajectoryUploadInfo_ = child_.text
+            TrajectoryUploadInfo_ = self.gds_validate_string(TrajectoryUploadInfo_, node, 'TrajectoryUploadInfo')
+            self.TrajectoryUploadInfo = TrajectoryUploadInfo_
+        elif nodeName_ == 'TreatmentMode':
+            TreatmentMode_ = child_.text
+            TreatmentMode_ = self.gds_validate_string(TreatmentMode_, node, 'TreatmentMode')
+            self.TreatmentMode = TreatmentMode_
+            # validate type TreatmentModeType
+            self.validate_TreatmentModeType(self.TreatmentMode)
+        elif nodeName_ == 'MLCModel':
+            MLCModel_ = child_.text
+            MLCModel_ = self.gds_validate_string(MLCModel_, node, 'MLCModel')
+            self.MLCModel = MLCModel_
+            # validate type MLCModelType
+            self.validate_MLCModelType(self.MLCModel)
+        elif nodeName_ == 'TolTable':
+            obj_ = TolTable.factory()
             obj_.build(child_)
-            self.MV = obj_
-            obj_.original_tagname_ = 'MV'
-        elif nodeName_ == 'KV':
-            obj_ = KVType.factory()
+            self.TolTable = obj_
+            obj_.original_tagname_ = 'TolTable'
+        elif nodeName_ == 'VelTable':
+            obj_ = VelTable.factory()
             obj_.build(child_)
-            self.KV = obj_
-            obj_.original_tagname_ = 'KV'
-# end class AcquisitionParametersType
-
-
-class ImageModeType(GeneratedsSuper):
-    subclass = None
-    superclass = None
-    def __init__(self, id=None, Overwrite=None):
-        self.original_tagname_ = None
-        self.id = _cast(None, id)
-        if Overwrite is None:
-            self.Overwrite = []
-        else:
-            self.Overwrite = Overwrite
-    def factory(*args_, **kwargs_):
-        if ImageModeType.subclass:
-            return ImageModeType.subclass(*args_, **kwargs_)
-        else:
-            return ImageModeType(*args_, **kwargs_)
-    factory = staticmethod(factory)
-    def get_Overwrite(self): return self.Overwrite
-    def set_Overwrite(self, Overwrite): self.Overwrite = Overwrite
-    def add_Overwrite(self, value): self.Overwrite.append(value)
-    def insert_Overwrite_at(self, index, value): self.Overwrite.insert(index, value)
-    def replace_Overwrite_at(self, index, value): self.Overwrite[index] = value
-    def get_id(self): return self.id
-    def set_id(self, id): self.id = id
-    def hasContent_(self):
-        if (
-            self.Overwrite
-        ):
-            return True
-        else:
-            return False
-    def export(self, outfile, level, namespace_='', name_='ImageModeType', namespacedef_='', pretty_print=True):
-        if pretty_print:
-            eol_ = '\n'
-        else:
-            eol_ = ''
-        if self.original_tagname_ is not None:
-            name_ = self.original_tagname_
-        showIndent(outfile, level, pretty_print)
-        outfile.write('<%s%s%s' % (namespace_, name_, namespacedef_ and ' ' + namespacedef_ or '', ))
-        already_processed = set()
-        self.exportAttributes(outfile, level, already_processed, namespace_, name_='ImageModeType')
-        if self.hasContent_():
-            outfile.write('>%s' % (eol_, ))
-            self.exportChildren(outfile, level + 1, namespace_='', name_='ImageModeType', pretty_print=pretty_print)
-            showIndent(outfile, level, pretty_print)
-            outfile.write('</%s%s>%s' % (namespace_, name_, eol_))
-        else:
-            outfile.write('/>%s' % (eol_, ))
-    def exportAttributes(self, outfile, level, already_processed, namespace_='', name_='ImageModeType'):
-        if self.id is not None and 'id' not in already_processed:
-            already_processed.add('id')
-            outfile.write(' id=%s' % (self.gds_format_string(quote_attrib(self.id).encode(ExternalEncoding), input_name='id'), ))
-    def exportChildren(self, outfile, level, namespace_='', name_='ImageModeType', fromsubclass_=False, pretty_print=True):
-        if pretty_print:
-            eol_ = '\n'
-        else:
-            eol_ = ''
-        for Overwrite_ in self.Overwrite:
-            Overwrite_.export(outfile, level, namespace_, name_='Overwrite', pretty_print=pretty_print)
-    def build(self, node):
-        already_processed = set()
-        self.buildAttributes(node, node.attrib, already_processed)
-        for child in node:
-            nodeName_ = Tag_pattern_.match(child.tag).groups()[-1]
-            self.buildChildren(child, node, nodeName_)
-        return self
-    def buildAttributes(self, node, attrs, already_processed):
-        value = find_attr_value_('id', node)
-        if value is not None and 'id' not in already_processed:
-            already_processed.add('id')
-            self.id = value
-    def buildChildren(self, child_, node, nodeName_, fromsubclass_=False):
-        if nodeName_ == 'Overwrite':
-            obj_ = OverwriteType.factory()
+            self.VelTable = obj_
+            obj_.original_tagname_ = 'VelTable'
+        elif nodeName_ == 'Accs':
+            obj_ = Accs.factory()
             obj_.build(child_)
-            self.Overwrite.append(obj_)
-            obj_.original_tagname_ = 'Overwrite'
-# end class ImageModeType
-
-
-class OverwriteType(GeneratedsSuper):
-    subclass = None
-    superclass = None
-    def __init__(self, parameter=None, valueOf_=None):
-        self.original_tagname_ = None
-        self.parameter = _cast(None, parameter)
-        self.valueOf_ = valueOf_
-    def factory(*args_, **kwargs_):
-        if OverwriteType.subclass:
-            return OverwriteType.subclass(*args_, **kwargs_)
-        else:
-            return OverwriteType(*args_, **kwargs_)
-    factory = staticmethod(factory)
-    def get_parameter(self): return self.parameter
-    def set_parameter(self, parameter): self.parameter = parameter
-    def get_valueOf_(self): return self.valueOf_
-    def set_valueOf_(self, valueOf_): self.valueOf_ = valueOf_
-    def hasContent_(self):
-        if (
-            self.valueOf_
-        ):
-            return True
-        else:
-            return False
-    def export(self, outfile, level, namespace_='', name_='OverwriteType', namespacedef_='', pretty_print=True):
-        if pretty_print:
-            eol_ = '\n'
-        else:
-            eol_ = ''
-        if self.original_tagname_ is not None:
-            name_ = self.original_tagname_
-        showIndent(outfile, level, pretty_print)
-        outfile.write('<%s%s%s' % (namespace_, name_, namespacedef_ and ' ' + namespacedef_ or '', ))
-        already_processed = set()
-        self.exportAttributes(outfile, level, already_processed, namespace_, name_='OverwriteType')
-        if self.hasContent_():
-            outfile.write('>')
-            outfile.write(str(self.valueOf_).encode(ExternalEncoding))
-            self.exportChildren(outfile, level + 1, namespace_='', name_='OverwriteType', pretty_print=pretty_print)
-            outfile.write('</%s%s>%s' % (namespace_, name_, eol_))
-        else:
-            outfile.write('/>%s' % (eol_, ))
-    def exportAttributes(self, outfile, level, already_processed, namespace_='', name_='OverwriteType'):
-        if self.parameter is not None and 'parameter' not in already_processed:
-            already_processed.add('parameter')
-            outfile.write(' parameter=%s' % (self.gds_format_string(quote_attrib(self.parameter).encode(ExternalEncoding), input_name='parameter'), ))
-    def exportChildren(self, outfile, level, namespace_='', name_='OverwriteType', fromsubclass_=False, pretty_print=True):
-        pass
-    def build(self, node):
-        already_processed = set()
-        self.buildAttributes(node, node.attrib, already_processed)
-        self.valueOf_ = get_all_text_(node)
-        for child in node:
-            nodeName_ = Tag_pattern_.match(child.tag).groups()[-1]
-            self.buildChildren(child, node, nodeName_)
-        return self
-    def buildAttributes(self, node, attrs, already_processed):
-        value = find_attr_value_('parameter', node)
-        if value is not None and 'parameter' not in already_processed:
-            already_processed.add('parameter')
-            self.parameter = value
-    def buildChildren(self, child_, node, nodeName_, fromsubclass_=False):
-        pass
-# end class OverwriteType
-
-
-class AcquisitionModeType(GeneratedsSuper):
-    subclass = None
-    superclass = None
-    def __init__(self, id=None, Overwrite=None):
-        self.original_tagname_ = None
-        self.id = _cast(None, id)
-        if Overwrite is None:
-            self.Overwrite = []
-        else:
-            self.Overwrite = Overwrite
-    def factory(*args_, **kwargs_):
-        if AcquisitionModeType.subclass:
-            return AcquisitionModeType.subclass(*args_, **kwargs_)
-        else:
-            return AcquisitionModeType(*args_, **kwargs_)
-    factory = staticmethod(factory)
-    def get_Overwrite(self): return self.Overwrite
-    def set_Overwrite(self, Overwrite): self.Overwrite = Overwrite
-    def add_Overwrite(self, value): self.Overwrite.append(value)
-    def insert_Overwrite_at(self, index, value): self.Overwrite.insert(index, value)
-    def replace_Overwrite_at(self, index, value): self.Overwrite[index] = value
-    def get_id(self): return self.id
-    def set_id(self, id): self.id = id
-    def hasContent_(self):
-        if (
-            self.Overwrite
-        ):
-            return True
-        else:
-            return False
-    def export(self, outfile, level, namespace_='', name_='AcquisitionModeType', namespacedef_='', pretty_print=True):
-        if pretty_print:
-            eol_ = '\n'
-        else:
-            eol_ = ''
-        if self.original_tagname_ is not None:
-            name_ = self.original_tagname_
-        showIndent(outfile, level, pretty_print)
-        outfile.write('<%s%s%s' % (namespace_, name_, namespacedef_ and ' ' + namespacedef_ or '', ))
-        already_processed = set()
-        self.exportAttributes(outfile, level, already_processed, namespace_, name_='AcquisitionModeType')
-        if self.hasContent_():
-            outfile.write('>%s' % (eol_, ))
-            self.exportChildren(outfile, level + 1, namespace_='', name_='AcquisitionModeType', pretty_print=pretty_print)
-            showIndent(outfile, level, pretty_print)
-            outfile.write('</%s%s>%s' % (namespace_, name_, eol_))
-        else:
-            outfile.write('/>%s' % (eol_, ))
-    def exportAttributes(self, outfile, level, already_processed, namespace_='', name_='AcquisitionModeType'):
-        if self.id is not None and 'id' not in already_processed:
-            already_processed.add('id')
-            outfile.write(' id=%s' % (self.gds_format_string(quote_attrib(self.id).encode(ExternalEncoding), input_name='id'), ))
-    def exportChildren(self, outfile, level, namespace_='', name_='AcquisitionModeType', fromsubclass_=False, pretty_print=True):
-        if pretty_print:
-            eol_ = '\n'
-        else:
-            eol_ = ''
-        for Overwrite_ in self.Overwrite:
-            Overwrite_.export(outfile, level, namespace_, name_='Overwrite', pretty_print=pretty_print)
-    def build(self, node):
-        already_processed = set()
-        self.buildAttributes(node, node.attrib, already_processed)
-        for child in node:
-            nodeName_ = Tag_pattern_.match(child.tag).groups()[-1]
-            self.buildChildren(child, node, nodeName_)
-        return self
-    def buildAttributes(self, node, attrs, already_processed):
-        value = find_attr_value_('id', node)
-        if value is not None and 'id' not in already_processed:
-            already_processed.add('id')
-            self.id = value
-    def buildChildren(self, child_, node, nodeName_, fromsubclass_=False):
-        if nodeName_ == 'Overwrite':
-            obj_ = OverwriteType2.factory()
+            self.Accs = obj_
+            obj_.original_tagname_ = 'Accs'
+        elif nodeName_ == 'ControlPoints':
+            obj_ = ControlPoints.factory()
             obj_.build(child_)
-            self.Overwrite.append(obj_)
-            obj_.original_tagname_ = 'Overwrite'
-# end class AcquisitionModeType
-
-
-class OverwriteType2(GeneratedsSuper):
-    subclass = None
-    superclass = None
-    def __init__(self, parameter=None, valueOf_=None):
-        self.original_tagname_ = None
-        self.parameter = _cast(None, parameter)
-        self.valueOf_ = valueOf_
-    def factory(*args_, **kwargs_):
-        if OverwriteType2.subclass:
-            return OverwriteType2.subclass(*args_, **kwargs_)
-        else:
-            return OverwriteType2(*args_, **kwargs_)
-    factory = staticmethod(factory)
-    def get_parameter(self): return self.parameter
-    def set_parameter(self, parameter): self.parameter = parameter
-    def get_valueOf_(self): return self.valueOf_
-    def set_valueOf_(self, valueOf_): self.valueOf_ = valueOf_
-    def hasContent_(self):
-        if (
-            self.valueOf_
-        ):
-            return True
-        else:
-            return False
-    def export(self, outfile, level, namespace_='', name_='OverwriteType2', namespacedef_='', pretty_print=True):
-        if pretty_print:
-            eol_ = '\n'
-        else:
-            eol_ = ''
-        if self.original_tagname_ is not None:
-            name_ = self.original_tagname_
-        showIndent(outfile, level, pretty_print)
-        outfile.write('<%s%s%s' % (namespace_, name_, namespacedef_ and ' ' + namespacedef_ or '', ))
-        already_processed = set()
-        self.exportAttributes(outfile, level, already_processed, namespace_, name_='OverwriteType2')
-        if self.hasContent_():
-            outfile.write('>')
-            outfile.write(str(self.valueOf_).encode(ExternalEncoding))
-            self.exportChildren(outfile, level + 1, namespace_='', name_='OverwriteType2', pretty_print=pretty_print)
-            outfile.write('</%s%s>%s' % (namespace_, name_, eol_))
-        else:
-            outfile.write('/>%s' % (eol_, ))
-    def exportAttributes(self, outfile, level, already_processed, namespace_='', name_='OverwriteType2'):
-        if self.parameter is not None and 'parameter' not in already_processed:
-            already_processed.add('parameter')
-            outfile.write(' parameter=%s' % (self.gds_format_string(quote_attrib(self.parameter).encode(ExternalEncoding), input_name='parameter'), ))
-    def exportChildren(self, outfile, level, namespace_='', name_='OverwriteType2', fromsubclass_=False, pretty_print=True):
-        pass
-    def build(self, node):
-        already_processed = set()
-        self.buildAttributes(node, node.attrib, already_processed)
-        self.valueOf_ = get_all_text_(node)
-        for child in node:
-            nodeName_ = Tag_pattern_.match(child.tag).groups()[-1]
-            self.buildChildren(child, node, nodeName_)
-        return self
-    def buildAttributes(self, node, attrs, already_processed):
-        value = find_attr_value_('parameter', node)
-        if value is not None and 'parameter' not in already_processed:
-            already_processed.add('parameter')
-            self.parameter = value
-    def buildChildren(self, child_, node, nodeName_, fromsubclass_=False):
-        pass
-# end class OverwriteType2
-
-
-class MovieType(GeneratedsSuper):
-    subclass = None
-    superclass = None
-    def __init__(self, Destination=None, Parameters=None):
-        self.original_tagname_ = None
-        self.Destination = Destination
-        self.Parameters = Parameters
-    def factory(*args_, **kwargs_):
-        if MovieType.subclass:
-            return MovieType.subclass(*args_, **kwargs_)
-        else:
-            return MovieType(*args_, **kwargs_)
-    factory = staticmethod(factory)
-    def get_Destination(self): return self.Destination
-    def set_Destination(self, Destination): self.Destination = Destination
-    def get_Parameters(self): return self.Parameters
-    def set_Parameters(self, Parameters): self.Parameters = Parameters
-    def hasContent_(self):
-        if (
-            self.Destination is not None or
-            self.Parameters is not None
-        ):
-            return True
-        else:
-            return False
-    def export(self, outfile, level, namespace_='', name_='MovieType', namespacedef_='', pretty_print=True):
-        if pretty_print:
-            eol_ = '\n'
-        else:
-            eol_ = ''
-        if self.original_tagname_ is not None:
-            name_ = self.original_tagname_
-        showIndent(outfile, level, pretty_print)
-        outfile.write('<%s%s%s' % (namespace_, name_, namespacedef_ and ' ' + namespacedef_ or '', ))
-        already_processed = set()
-        self.exportAttributes(outfile, level, already_processed, namespace_, name_='MovieType')
-        if self.hasContent_():
-            outfile.write('>%s' % (eol_, ))
-            self.exportChildren(outfile, level + 1, namespace_='', name_='MovieType', pretty_print=pretty_print)
-            showIndent(outfile, level, pretty_print)
-            outfile.write('</%s%s>%s' % (namespace_, name_, eol_))
-        else:
-            outfile.write('/>%s' % (eol_, ))
-    def exportAttributes(self, outfile, level, already_processed, namespace_='', name_='MovieType'):
-        pass
-    def exportChildren(self, outfile, level, namespace_='', name_='MovieType', fromsubclass_=False, pretty_print=True):
-        if pretty_print:
-            eol_ = '\n'
-        else:
-            eol_ = ''
-        if self.Destination is not None:
-            showIndent(outfile, level, pretty_print)
-            outfile.write('<%sDestination>%s</%sDestination>%s' % (namespace_, self.gds_format_string(quote_xml(self.Destination).encode(ExternalEncoding), input_name='Destination'), namespace_, eol_))
-        if self.Parameters is not None:
-            self.Parameters.export(outfile, level, namespace_, name_='Parameters', pretty_print=pretty_print)
-    def build(self, node):
-        already_processed = set()
-        self.buildAttributes(node, node.attrib, already_processed)
-        for child in node:
-            nodeName_ = Tag_pattern_.match(child.tag).groups()[-1]
-            self.buildChildren(child, node, nodeName_)
-        return self
-    def buildAttributes(self, node, attrs, already_processed):
-        pass
-    def buildChildren(self, child_, node, nodeName_, fromsubclass_=False):
-        if nodeName_ == 'Destination':
-            Destination_ = child_.text
-            Destination_ = self.gds_validate_string(Destination_, node, 'Destination')
-            self.Destination = Destination_
-        elif nodeName_ == 'Parameters':
-            obj_ = ParametersType.factory()
+            self.ControlPoints = obj_
+            obj_.original_tagname_ = 'ControlPoints'
+        elif nodeName_ == 'ImagingParameters':
+            obj_ = ImagingParameters.factory()
             obj_.build(child_)
-            self.Parameters = obj_
-            obj_.original_tagname_ = 'Parameters'
-# end class MovieType
-
-
-class ParametersType(GeneratedsSuper):
-    subclass = None
-    superclass = None
-    def __init__(self, width=None, height=None, frameRate=None, crop=None, invert=None, pixelValue0=None, pixelValue255=None, cutOff=None, weight=None):
-        self.original_tagname_ = None
-        self.width = width
-        self.height = height
-        self.frameRate = frameRate
-        self.crop = crop
-        self.invert = invert
-        self.pixelValue0 = pixelValue0
-        self.pixelValue255 = pixelValue255
-        self.cutOff = cutOff
-        self.weight = weight
-    def factory(*args_, **kwargs_):
-        if ParametersType.subclass:
-            return ParametersType.subclass(*args_, **kwargs_)
-        else:
-            return ParametersType(*args_, **kwargs_)
-    factory = staticmethod(factory)
-    def get_width(self): return self.width
-    def set_width(self, width): self.width = width
-    def get_height(self): return self.height
-    def set_height(self, height): self.height = height
-    def get_frameRate(self): return self.frameRate
-    def set_frameRate(self, frameRate): self.frameRate = frameRate
-    def get_crop(self): return self.crop
-    def set_crop(self, crop): self.crop = crop
-    def get_invert(self): return self.invert
-    def set_invert(self, invert): self.invert = invert
-    def get_pixelValue0(self): return self.pixelValue0
-    def set_pixelValue0(self, pixelValue0): self.pixelValue0 = pixelValue0
-    def get_pixelValue255(self): return self.pixelValue255
-    def set_pixelValue255(self, pixelValue255): self.pixelValue255 = pixelValue255
-    def get_cutOff(self): return self.cutOff
-    def set_cutOff(self, cutOff): self.cutOff = cutOff
-    def get_weight(self): return self.weight
-    def set_weight(self, weight): self.weight = weight
-    def hasContent_(self):
-        if (
-            self.width is not None or
-            self.height is not None or
-            self.frameRate is not None or
-            self.crop is not None or
-            self.invert is not None or
-            self.pixelValue0 is not None or
-            self.pixelValue255 is not None or
-            self.cutOff is not None or
-            self.weight is not None
-        ):
-            return True
-        else:
-            return False
-    def export(self, outfile, level, namespace_='', name_='ParametersType', namespacedef_='', pretty_print=True):
-        if pretty_print:
-            eol_ = '\n'
-        else:
-            eol_ = ''
-        if self.original_tagname_ is not None:
-            name_ = self.original_tagname_
-        showIndent(outfile, level, pretty_print)
-        outfile.write('<%s%s%s' % (namespace_, name_, namespacedef_ and ' ' + namespacedef_ or '', ))
-        already_processed = set()
-        self.exportAttributes(outfile, level, already_processed, namespace_, name_='ParametersType')
-        if self.hasContent_():
-            outfile.write('>%s' % (eol_, ))
-            self.exportChildren(outfile, level + 1, namespace_='', name_='ParametersType', pretty_print=pretty_print)
-            showIndent(outfile, level, pretty_print)
-            outfile.write('</%s%s>%s' % (namespace_, name_, eol_))
-        else:
-            outfile.write('/>%s' % (eol_, ))
-    def exportAttributes(self, outfile, level, already_processed, namespace_='', name_='ParametersType'):
-        pass
-    def exportChildren(self, outfile, level, namespace_='', name_='ParametersType', fromsubclass_=False, pretty_print=True):
-        if pretty_print:
-            eol_ = '\n'
-        else:
-            eol_ = ''
-        if self.width is not None:
-            showIndent(outfile, level, pretty_print)
-            outfile.write('<%swidth>%s</%swidth>%s' % (namespace_, self.gds_format_integer(self.width, input_name='width'), namespace_, eol_))
-        if self.height is not None:
-            showIndent(outfile, level, pretty_print)
-            outfile.write('<%sheight>%s</%sheight>%s' % (namespace_, self.gds_format_integer(self.height, input_name='height'), namespace_, eol_))
-        if self.frameRate is not None:
-            showIndent(outfile, level, pretty_print)
-            outfile.write('<%sframeRate>%s</%sframeRate>%s' % (namespace_, self.gds_format_double(self.frameRate, input_name='frameRate'), namespace_, eol_))
-        if self.crop is not None:
-            showIndent(outfile, level, pretty_print)
-            outfile.write('<%scrop>%s</%scrop>%s' % (namespace_, self.gds_format_boolean(self.crop, input_name='crop'), namespace_, eol_))
-        if self.invert is not None:
-            showIndent(outfile, level, pretty_print)
-            outfile.write('<%sinvert>%s</%sinvert>%s' % (namespace_, self.gds_format_boolean(self.invert, input_name='invert'), namespace_, eol_))
-        if self.pixelValue0 is not None:
-            showIndent(outfile, level, pretty_print)
-            outfile.write('<%spixelValue0>%s</%spixelValue0>%s' % (namespace_, self.gds_format_integer(self.pixelValue0, input_name='pixelValue0'), namespace_, eol_))
-        if self.pixelValue255 is not None:
-            showIndent(outfile, level, pretty_print)
-            outfile.write('<%spixelValue255>%s</%spixelValue255>%s' % (namespace_, self.gds_format_integer(self.pixelValue255, input_name='pixelValue255'), namespace_, eol_))
-        if self.cutOff is not None:
-            showIndent(outfile, level, pretty_print)
-            outfile.write('<%scutOff>%s</%scutOff>%s' % (namespace_, self.gds_format_integer(self.cutOff, input_name='cutOff'), namespace_, eol_))
-        if self.weight is not None:
-            showIndent(outfile, level, pretty_print)
-            outfile.write('<%sweight>%s</%sweight>%s' % (namespace_, self.gds_format_double(self.weight, input_name='weight'), namespace_, eol_))
-    def build(self, node):
-        already_processed = set()
-        self.buildAttributes(node, node.attrib, already_processed)
-        for child in node:
-            nodeName_ = Tag_pattern_.match(child.tag).groups()[-1]
-            self.buildChildren(child, node, nodeName_)
-        return self
-    def buildAttributes(self, node, attrs, already_processed):
-        pass
-    def buildChildren(self, child_, node, nodeName_, fromsubclass_=False):
-        if nodeName_ == 'width':
-            sval_ = child_.text
-            try:
-                ival_ = int(sval_)
-            except (TypeError, ValueError), exp:
-                raise_parse_error(child_, 'requires integer: %s' % exp)
-            ival_ = self.gds_validate_integer(ival_, node, 'width')
-            self.width = ival_
-        elif nodeName_ == 'height':
-            sval_ = child_.text
-            try:
-                ival_ = int(sval_)
-            except (TypeError, ValueError), exp:
-                raise_parse_error(child_, 'requires integer: %s' % exp)
-            ival_ = self.gds_validate_integer(ival_, node, 'height')
-            self.height = ival_
-        elif nodeName_ == 'frameRate':
-            sval_ = child_.text
-            try:
-                fval_ = float(sval_)
-            except (TypeError, ValueError), exp:
-                raise_parse_error(child_, 'requires float or double: %s' % exp)
-            fval_ = self.gds_validate_float(fval_, node, 'frameRate')
-            self.frameRate = fval_
-        elif nodeName_ == 'crop':
-            sval_ = child_.text
-            if sval_ in ('true', '1'):
-                ival_ = True
-            elif sval_ in ('false', '0'):
-                ival_ = False
-            else:
-                raise_parse_error(child_, 'requires boolean')
-            ival_ = self.gds_validate_boolean(ival_, node, 'crop')
-            self.crop = ival_
-        elif nodeName_ == 'invert':
-            sval_ = child_.text
-            if sval_ in ('true', '1'):
-                ival_ = True
-            elif sval_ in ('false', '0'):
-                ival_ = False
-            else:
-                raise_parse_error(child_, 'requires boolean')
-            ival_ = self.gds_validate_boolean(ival_, node, 'invert')
-            self.invert = ival_
-        elif nodeName_ == 'pixelValue0':
-            sval_ = child_.text
-            try:
-                ival_ = int(sval_)
-            except (TypeError, ValueError), exp:
-                raise_parse_error(child_, 'requires integer: %s' % exp)
-            ival_ = self.gds_validate_integer(ival_, node, 'pixelValue0')
-            self.pixelValue0 = ival_
-        elif nodeName_ == 'pixelValue255':
-            sval_ = child_.text
-            try:
-                ival_ = int(sval_)
-            except (TypeError, ValueError), exp:
-                raise_parse_error(child_, 'requires integer: %s' % exp)
-            ival_ = self.gds_validate_integer(ival_, node, 'pixelValue255')
-            self.pixelValue255 = ival_
-        elif nodeName_ == 'cutOff':
-            sval_ = child_.text
-            try:
-                ival_ = int(sval_)
-            except (TypeError, ValueError), exp:
-                raise_parse_error(child_, 'requires integer: %s' % exp)
-            ival_ = self.gds_validate_integer(ival_, node, 'cutOff')
-            self.cutOff = ival_
-        elif nodeName_ == 'weight':
-            sval_ = child_.text
-            try:
-                fval_ = float(sval_)
-            except (TypeError, ValueError), exp:
-                raise_parse_error(child_, 'requires float or double: %s' % exp)
-            fval_ = self.gds_validate_float(fval_, node, 'weight')
-            self.weight = fval_
-# end class ParametersType
-
-
-class HistogramRoiType(GeneratedsSuper):
-    subclass = None
-    superclass = None
-    def __init__(self, X1=None, Y1=None, X2=None, Y2=None):
-        self.original_tagname_ = None
-        self.X1 = X1
-        self.Y1 = Y1
-        self.X2 = X2
-        self.Y2 = Y2
-    def factory(*args_, **kwargs_):
-        if HistogramRoiType.subclass:
-            return HistogramRoiType.subclass(*args_, **kwargs_)
-        else:
-            return HistogramRoiType(*args_, **kwargs_)
-    factory = staticmethod(factory)
-    def get_X1(self): return self.X1
-    def set_X1(self, X1): self.X1 = X1
-    def get_Y1(self): return self.Y1
-    def set_Y1(self, Y1): self.Y1 = Y1
-    def get_X2(self): return self.X2
-    def set_X2(self, X2): self.X2 = X2
-    def get_Y2(self): return self.Y2
-    def set_Y2(self, Y2): self.Y2 = Y2
-    def hasContent_(self):
-        if (
-            self.X1 is not None or
-            self.Y1 is not None or
-            self.X2 is not None or
-            self.Y2 is not None
-        ):
-            return True
-        else:
-            return False
-    def export(self, outfile, level, namespace_='', name_='HistogramRoiType', namespacedef_='', pretty_print=True):
-        if pretty_print:
-            eol_ = '\n'
-        else:
-            eol_ = ''
-        if self.original_tagname_ is not None:
-            name_ = self.original_tagname_
-        showIndent(outfile, level, pretty_print)
-        outfile.write('<%s%s%s' % (namespace_, name_, namespacedef_ and ' ' + namespacedef_ or '', ))
-        already_processed = set()
-        self.exportAttributes(outfile, level, already_processed, namespace_, name_='HistogramRoiType')
-        if self.hasContent_():
-            outfile.write('>%s' % (eol_, ))
-            self.exportChildren(outfile, level + 1, namespace_='', name_='HistogramRoiType', pretty_print=pretty_print)
-            showIndent(outfile, level, pretty_print)
-            outfile.write('</%s%s>%s' % (namespace_, name_, eol_))
-        else:
-            outfile.write('/>%s' % (eol_, ))
-    def exportAttributes(self, outfile, level, already_processed, namespace_='', name_='HistogramRoiType'):
-        pass
-    def exportChildren(self, outfile, level, namespace_='', name_='HistogramRoiType', fromsubclass_=False, pretty_print=True):
-        if pretty_print:
-            eol_ = '\n'
-        else:
-            eol_ = ''
-        if self.X1 is not None:
-            showIndent(outfile, level, pretty_print)
-            outfile.write('<%sX1>%s</%sX1>%s' % (namespace_, self.gds_format_integer(self.X1, input_name='X1'), namespace_, eol_))
-        if self.Y1 is not None:
-            showIndent(outfile, level, pretty_print)
-            outfile.write('<%sY1>%s</%sY1>%s' % (namespace_, self.gds_format_integer(self.Y1, input_name='Y1'), namespace_, eol_))
-        if self.X2 is not None:
-            showIndent(outfile, level, pretty_print)
-            outfile.write('<%sX2>%s</%sX2>%s' % (namespace_, self.gds_format_integer(self.X2, input_name='X2'), namespace_, eol_))
-        if self.Y2 is not None:
-            showIndent(outfile, level, pretty_print)
-            outfile.write('<%sY2>%s</%sY2>%s' % (namespace_, self.gds_format_integer(self.Y2, input_name='Y2'), namespace_, eol_))
-    def build(self, node):
-        already_processed = set()
-        self.buildAttributes(node, node.attrib, already_processed)
-        for child in node:
-            nodeName_ = Tag_pattern_.match(child.tag).groups()[-1]
-            self.buildChildren(child, node, nodeName_)
-        return self
-    def buildAttributes(self, node, attrs, already_processed):
-        pass
-    def buildChildren(self, child_, node, nodeName_, fromsubclass_=False):
-        if nodeName_ == 'X1':
-            sval_ = child_.text
-            try:
-                ival_ = int(sval_)
-            except (TypeError, ValueError), exp:
-                raise_parse_error(child_, 'requires integer: %s' % exp)
-            ival_ = self.gds_validate_integer(ival_, node, 'X1')
-            self.X1 = ival_
-        elif nodeName_ == 'Y1':
-            sval_ = child_.text
-            try:
-                ival_ = int(sval_)
-            except (TypeError, ValueError), exp:
-                raise_parse_error(child_, 'requires integer: %s' % exp)
-            ival_ = self.gds_validate_integer(ival_, node, 'Y1')
-            self.Y1 = ival_
-        elif nodeName_ == 'X2':
-            sval_ = child_.text
-            try:
-                ival_ = int(sval_)
-            except (TypeError, ValueError), exp:
-                raise_parse_error(child_, 'requires integer: %s' % exp)
-            ival_ = self.gds_validate_integer(ival_, node, 'X2')
-            self.X2 = ival_
-        elif nodeName_ == 'Y2':
-            sval_ = child_.text
-            try:
-                ival_ = int(sval_)
-            except (TypeError, ValueError), exp:
-                raise_parse_error(child_, 'requires integer: %s' % exp)
-            ival_ = self.gds_validate_integer(ival_, node, 'Y2')
-            self.Y2 = ival_
-# end class HistogramRoiType
-
-
-class MVType(GeneratedsSuper):
-    subclass = None
-    superclass = None
-    def __init__(self, Energy=None, DoseRate=None):
-        self.original_tagname_ = None
-        self.Energy = Energy
-        self.DoseRate = DoseRate
-    def factory(*args_, **kwargs_):
-        if MVType.subclass:
-            return MVType.subclass(*args_, **kwargs_)
-        else:
-            return MVType(*args_, **kwargs_)
-    factory = staticmethod(factory)
-    def get_Energy(self): return self.Energy
-    def set_Energy(self, Energy): self.Energy = Energy
-    def get_DoseRate(self): return self.DoseRate
-    def set_DoseRate(self, DoseRate): self.DoseRate = DoseRate
-    def hasContent_(self):
-        if (
-            self.Energy is not None or
-            self.DoseRate is not None
-        ):
-            return True
-        else:
-            return False
-    def export(self, outfile, level, namespace_='', name_='MVType', namespacedef_='', pretty_print=True):
-        if pretty_print:
-            eol_ = '\n'
-        else:
-            eol_ = ''
-        if self.original_tagname_ is not None:
-            name_ = self.original_tagname_
-        showIndent(outfile, level, pretty_print)
-        outfile.write('<%s%s%s' % (namespace_, name_, namespacedef_ and ' ' + namespacedef_ or '', ))
-        already_processed = set()
-        self.exportAttributes(outfile, level, already_processed, namespace_, name_='MVType')
-        if self.hasContent_():
-            outfile.write('>%s' % (eol_, ))
-            self.exportChildren(outfile, level + 1, namespace_='', name_='MVType', pretty_print=pretty_print)
-            showIndent(outfile, level, pretty_print)
-            outfile.write('</%s%s>%s' % (namespace_, name_, eol_))
-        else:
-            outfile.write('/>%s' % (eol_, ))
-    def exportAttributes(self, outfile, level, already_processed, namespace_='', name_='MVType'):
-        pass
-    def exportChildren(self, outfile, level, namespace_='', name_='MVType', fromsubclass_=False, pretty_print=True):
-        if pretty_print:
-            eol_ = '\n'
-        else:
-            eol_ = ''
-        if self.Energy is not None:
-            showIndent(outfile, level, pretty_print)
-            outfile.write('<%sEnergy>%s</%sEnergy>%s' % (namespace_, self.gds_format_string(quote_xml(self.Energy).encode(ExternalEncoding), input_name='Energy'), namespace_, eol_))
-        if self.DoseRate is not None:
-            showIndent(outfile, level, pretty_print)
-            outfile.write('<%sDoseRate>%s</%sDoseRate>%s' % (namespace_, self.gds_format_double(self.DoseRate, input_name='DoseRate'), namespace_, eol_))
-    def build(self, node):
-        already_processed = set()
-        self.buildAttributes(node, node.attrib, already_processed)
-        for child in node:
-            nodeName_ = Tag_pattern_.match(child.tag).groups()[-1]
-            self.buildChildren(child, node, nodeName_)
-        return self
-    def buildAttributes(self, node, attrs, already_processed):
-        pass
-    def buildChildren(self, child_, node, nodeName_, fromsubclass_=False):
-        if nodeName_ == 'Energy':
-            Energy_ = child_.text
-            Energy_ = self.gds_validate_string(Energy_, node, 'Energy')
-            self.Energy = Energy_
-        elif nodeName_ == 'DoseRate':
-            sval_ = child_.text
-            try:
-                fval_ = float(sval_)
-            except (TypeError, ValueError), exp:
-                raise_parse_error(child_, 'requires float or double: %s' % exp)
-            fval_ = self.gds_validate_float(fval_, node, 'DoseRate')
-            self.DoseRate = fval_
-# end class MVType
-
-
-class KVType(GeneratedsSuper):
-    subclass = None
-    superclass = None
-    def __init__(self, KiloVolts=None, MilliAmperes=None, MilliSeconds=None, eFocalSpot='Large', eFluoroLevelControl='Low', AutoBrightnessControl=False):
-        self.original_tagname_ = None
-        self.KiloVolts = KiloVolts
-        self.MilliAmperes = MilliAmperes
-        self.MilliSeconds = MilliSeconds
-        self.eFocalSpot = eFocalSpot
-        self.eFluoroLevelControl = eFluoroLevelControl
-        self.AutoBrightnessControl = AutoBrightnessControl
-    def factory(*args_, **kwargs_):
-        if KVType.subclass:
-            return KVType.subclass(*args_, **kwargs_)
-        else:
-            return KVType(*args_, **kwargs_)
-    factory = staticmethod(factory)
-    def get_KiloVolts(self): return self.KiloVolts
-    def set_KiloVolts(self, KiloVolts): self.KiloVolts = KiloVolts
-    def get_MilliAmperes(self): return self.MilliAmperes
-    def set_MilliAmperes(self, MilliAmperes): self.MilliAmperes = MilliAmperes
-    def get_MilliSeconds(self): return self.MilliSeconds
-    def set_MilliSeconds(self, MilliSeconds): self.MilliSeconds = MilliSeconds
-    def get_eFocalSpot(self): return self.eFocalSpot
-    def set_eFocalSpot(self, eFocalSpot): self.eFocalSpot = eFocalSpot
-    def get_eFluoroLevelControl(self): return self.eFluoroLevelControl
-    def set_eFluoroLevelControl(self, eFluoroLevelControl): self.eFluoroLevelControl = eFluoroLevelControl
-    def get_AutoBrightnessControl(self): return self.AutoBrightnessControl
-    def set_AutoBrightnessControl(self, AutoBrightnessControl): self.AutoBrightnessControl = AutoBrightnessControl
-    def validate_eFocalSpotType(self, value):
-        # Validate type eFocalSpotType, a restriction on xs:string.
-        pass
-    def validate_eFluoroLevelControlType(self, value):
-        # Validate type eFluoroLevelControlType, a restriction on xs:string.
-        pass
-    def hasContent_(self):
-        if (
-            self.KiloVolts is not None or
-            self.MilliAmperes is not None or
-            self.MilliSeconds is not None or
-            self.eFocalSpot is not None or
-            self.eFluoroLevelControl is not None or
-            self.AutoBrightnessControl is not None
-        ):
-            return True
-        else:
-            return False
-    def export(self, outfile, level, namespace_='', name_='KVType', namespacedef_='', pretty_print=True):
-        if pretty_print:
-            eol_ = '\n'
-        else:
-            eol_ = ''
-        if self.original_tagname_ is not None:
-            name_ = self.original_tagname_
-        showIndent(outfile, level, pretty_print)
-        outfile.write('<%s%s%s' % (namespace_, name_, namespacedef_ and ' ' + namespacedef_ or '', ))
-        already_processed = set()
-        self.exportAttributes(outfile, level, already_processed, namespace_, name_='KVType')
-        if self.hasContent_():
-            outfile.write('>%s' % (eol_, ))
-            self.exportChildren(outfile, level + 1, namespace_='', name_='KVType', pretty_print=pretty_print)
-            showIndent(outfile, level, pretty_print)
-            outfile.write('</%s%s>%s' % (namespace_, name_, eol_))
-        else:
-            outfile.write('/>%s' % (eol_, ))
-    def exportAttributes(self, outfile, level, already_processed, namespace_='', name_='KVType'):
-        pass
-    def exportChildren(self, outfile, level, namespace_='', name_='KVType', fromsubclass_=False, pretty_print=True):
-        if pretty_print:
-            eol_ = '\n'
-        else:
-            eol_ = ''
-        if self.KiloVolts is not None:
-            showIndent(outfile, level, pretty_print)
-            outfile.write('<%sKiloVolts>%s</%sKiloVolts>%s' % (namespace_, self.gds_format_double(self.KiloVolts, input_name='KiloVolts'), namespace_, eol_))
-        if self.MilliAmperes is not None:
-            showIndent(outfile, level, pretty_print)
-            outfile.write('<%sMilliAmperes>%s</%sMilliAmperes>%s' % (namespace_, self.gds_format_double(self.MilliAmperes, input_name='MilliAmperes'), namespace_, eol_))
-        if self.MilliSeconds is not None:
-            showIndent(outfile, level, pretty_print)
-            outfile.write('<%sMilliSeconds>%s</%sMilliSeconds>%s' % (namespace_, self.gds_format_double(self.MilliSeconds, input_name='MilliSeconds'), namespace_, eol_))
-        if self.eFocalSpot is not None:
-            showIndent(outfile, level, pretty_print)
-            outfile.write('<%seFocalSpot>%s</%seFocalSpot>%s' % (namespace_, self.gds_format_string(quote_xml(self.eFocalSpot).encode(ExternalEncoding), input_name='eFocalSpot'), namespace_, eol_))
-        if self.eFluoroLevelControl is not None:
-            showIndent(outfile, level, pretty_print)
-            outfile.write('<%seFluoroLevelControl>%s</%seFluoroLevelControl>%s' % (namespace_, self.gds_format_string(quote_xml(self.eFluoroLevelControl).encode(ExternalEncoding), input_name='eFluoroLevelControl'), namespace_, eol_))
-        if self.AutoBrightnessControl is not None:
-            showIndent(outfile, level, pretty_print)
-            outfile.write('<%sAutoBrightnessControl>%s</%sAutoBrightnessControl>%s' % (namespace_, self.gds_format_boolean(self.AutoBrightnessControl, input_name='AutoBrightnessControl'), namespace_, eol_))
-    def build(self, node):
-        already_processed = set()
-        self.buildAttributes(node, node.attrib, already_processed)
-        for child in node:
-            nodeName_ = Tag_pattern_.match(child.tag).groups()[-1]
-            self.buildChildren(child, node, nodeName_)
-        return self
-    def buildAttributes(self, node, attrs, already_processed):
-        pass
-    def buildChildren(self, child_, node, nodeName_, fromsubclass_=False):
-        if nodeName_ == 'KiloVolts':
-            sval_ = child_.text
-            try:
-                fval_ = float(sval_)
-            except (TypeError, ValueError), exp:
-                raise_parse_error(child_, 'requires float or double: %s' % exp)
-            fval_ = self.gds_validate_float(fval_, node, 'KiloVolts')
-            self.KiloVolts = fval_
-        elif nodeName_ == 'MilliAmperes':
-            sval_ = child_.text
-            try:
-                fval_ = float(sval_)
-            except (TypeError, ValueError), exp:
-                raise_parse_error(child_, 'requires float or double: %s' % exp)
-            fval_ = self.gds_validate_float(fval_, node, 'MilliAmperes')
-            self.MilliAmperes = fval_
-        elif nodeName_ == 'MilliSeconds':
-            sval_ = child_.text
-            try:
-                fval_ = float(sval_)
-            except (TypeError, ValueError), exp:
-                raise_parse_error(child_, 'requires float or double: %s' % exp)
-            fval_ = self.gds_validate_float(fval_, node, 'MilliSeconds')
-            self.MilliSeconds = fval_
-        elif nodeName_ == 'eFocalSpot':
-            eFocalSpot_ = child_.text
-            eFocalSpot_ = self.gds_validate_string(eFocalSpot_, node, 'eFocalSpot')
-            self.eFocalSpot = eFocalSpot_
-            self.validate_eFocalSpotType(self.eFocalSpot)    # validate type eFocalSpotType
-        elif nodeName_ == 'eFluoroLevelControl':
-            eFluoroLevelControl_ = child_.text
-            eFluoroLevelControl_ = self.gds_validate_string(eFluoroLevelControl_, node, 'eFluoroLevelControl')
-            self.eFluoroLevelControl = eFluoroLevelControl_
-            self.validate_eFluoroLevelControlType(self.eFluoroLevelControl)    # validate type eFluoroLevelControlType
-        elif nodeName_ == 'AutoBrightnessControl':
-            sval_ = child_.text
-            if sval_ in ('true', '1'):
-                ival_ = True
-            elif sval_ in ('false', '0'):
-                ival_ = False
-            else:
-                raise_parse_error(child_, 'requires boolean')
-            ival_ = self.gds_validate_boolean(ival_, node, 'AutoBrightnessControl')
-            self.AutoBrightnessControl = ival_
-# end class KVType
-
-
-class PositionsType3(GeneratedsSuper):
-    subclass = None
-    superclass = None
-    def __init__(self, Lat=None, Lng=None, Vrt=None, Pitch=None):
-        self.original_tagname_ = None
-        self.Lat = Lat
-        self.Lng = Lng
-        self.Vrt = Vrt
-        self.Pitch = Pitch
-    def factory(*args_, **kwargs_):
-        if PositionsType3.subclass:
-            return PositionsType3.subclass(*args_, **kwargs_)
-        else:
-            return PositionsType3(*args_, **kwargs_)
-    factory = staticmethod(factory)
-    def get_Lat(self): return self.Lat
-    def set_Lat(self, Lat): self.Lat = Lat
-    def get_Lng(self): return self.Lng
-    def set_Lng(self, Lng): self.Lng = Lng
-    def get_Vrt(self): return self.Vrt
-    def set_Vrt(self, Vrt): self.Vrt = Vrt
-    def get_Pitch(self): return self.Pitch
-    def set_Pitch(self, Pitch): self.Pitch = Pitch
-    def hasContent_(self):
-        if (
-            self.Lat is not None or
-            self.Lng is not None or
-            self.Vrt is not None or
-            self.Pitch is not None
-        ):
-            return True
-        else:
-            return False
-    def export(self, outfile, level, namespace_='', name_='PositionsType3', namespacedef_='', pretty_print=True):
-        if pretty_print:
-            eol_ = '\n'
-        else:
-            eol_ = ''
-        if self.original_tagname_ is not None:
-            name_ = self.original_tagname_
-        showIndent(outfile, level, pretty_print)
-        outfile.write('<%s%s%s' % (namespace_, name_, namespacedef_ and ' ' + namespacedef_ or '', ))
-        already_processed = set()
-        self.exportAttributes(outfile, level, already_processed, namespace_, name_='PositionsType3')
-        if self.hasContent_():
-            outfile.write('>%s' % (eol_, ))
-            self.exportChildren(outfile, level + 1, namespace_='', name_='PositionsType3', pretty_print=pretty_print)
-            showIndent(outfile, level, pretty_print)
-            outfile.write('</%s%s>%s' % (namespace_, name_, eol_))
-        else:
-            outfile.write('/>%s' % (eol_, ))
-    def exportAttributes(self, outfile, level, already_processed, namespace_='', name_='PositionsType3'):
-        pass
-    def exportChildren(self, outfile, level, namespace_='', name_='PositionsType3', fromsubclass_=False, pretty_print=True):
-        if pretty_print:
-            eol_ = '\n'
-        else:
-            eol_ = ''
-        if self.Lat is not None:
-            showIndent(outfile, level, pretty_print)
-            outfile.write('<%sLat>%s</%sLat>%s' % (namespace_, self.gds_format_double(self.Lat, input_name='Lat'), namespace_, eol_))
-        if self.Lng is not None:
-            showIndent(outfile, level, pretty_print)
-            outfile.write('<%sLng>%s</%sLng>%s' % (namespace_, self.gds_format_double(self.Lng, input_name='Lng'), namespace_, eol_))
-        if self.Vrt is not None:
-            showIndent(outfile, level, pretty_print)
-            outfile.write('<%sVrt>%s</%sVrt>%s' % (namespace_, self.gds_format_double(self.Vrt, input_name='Vrt'), namespace_, eol_))
-        if self.Pitch is not None:
-            showIndent(outfile, level, pretty_print)
-            outfile.write('<%sPitch>%s</%sPitch>%s' % (namespace_, self.gds_format_double(self.Pitch, input_name='Pitch'), namespace_, eol_))
-    def build(self, node):
-        already_processed = set()
-        self.buildAttributes(node, node.attrib, already_processed)
-        for child in node:
-            nodeName_ = Tag_pattern_.match(child.tag).groups()[-1]
-            self.buildChildren(child, node, nodeName_)
-        return self
-    def buildAttributes(self, node, attrs, already_processed):
-        pass
-    def buildChildren(self, child_, node, nodeName_, fromsubclass_=False):
-        if nodeName_ == 'Lat':
-            sval_ = child_.text
-            try:
-                fval_ = float(sval_)
-            except (TypeError, ValueError), exp:
-                raise_parse_error(child_, 'requires float or double: %s' % exp)
-            fval_ = self.gds_validate_float(fval_, node, 'Lat')
-            self.Lat = fval_
-        elif nodeName_ == 'Lng':
-            sval_ = child_.text
-            try:
-                fval_ = float(sval_)
-            except (TypeError, ValueError), exp:
-                raise_parse_error(child_, 'requires float or double: %s' % exp)
-            fval_ = self.gds_validate_float(fval_, node, 'Lng')
-            self.Lng = fval_
-        elif nodeName_ == 'Vrt':
-            sval_ = child_.text
-            try:
-                fval_ = float(sval_)
-            except (TypeError, ValueError), exp:
-                raise_parse_error(child_, 'requires float or double: %s' % exp)
-            fval_ = self.gds_validate_float(fval_, node, 'Vrt')
-            self.Vrt = fval_
-        elif nodeName_ == 'Pitch':
-            sval_ = child_.text
-            try:
-                fval_ = float(sval_)
-            except (TypeError, ValueError), exp:
-                raise_parse_error(child_, 'requires float or double: %s' % exp)
-            fval_ = self.gds_validate_float(fval_, node, 'Pitch')
-            self.Pitch = fval_
-# end class PositionsType3
+            self.ImagingParameters = obj_
+            obj_.original_tagname_ = 'ImagingParameters'
+        elif nodeName_ == 'BeamHoldDevices':
+            obj_ = BeamHoldDevices.factory()
+            obj_.build(child_)
+            self.BeamHoldDevices = obj_
+            obj_.original_tagname_ = 'BeamHoldDevices'
+        elif nodeName_ == 'Tracking':
+            obj_ = Tracking.factory()
+            obj_.build(child_)
+            self.Tracking = obj_
+            obj_.original_tagname_ = 'Tracking'
+# end class SetBeam
 
 
 GDSClassesMapping = {
-    'Parameters': ParametersType,
     'AcquisitionStart': Acquisition,
-    'HistogramRoi': HistogramRoiType,
-    'Movie': MovieType,
-    'MvdAfter': ArmPositionsType,
-    'Position': PositionType,
-    'KvBlades': KvBladesType1,
-    'AcquisitionMode': AcquisitionModeType,
-    'KvFilters': KvFiltersType,
-    'KvsAfter': ArmPositionsType,
-    'Kvd': ArmTolerances,
-    'ImagingParameters': ImagingParametersType,
-    'VelTable': VelTableType,
-    'ImagingTolerances': ImagingTolerancesType,
-    'KVAcquisitionTrigger': KVAcquisitionTriggerType,
-    'DuringTreatment': DuringTreatmentType,
-    'SubBeam': SubBeamType,
-    'MV': MVType,
-    'Kvs': ArmTolerances,
-    'AcquisitionParameters': AcquisitionParametersType,
-    'AcquisitionSpecs': AcquisitionSpecsType,
-    'Overwrite': OverwriteType2,
-    'Mlc': MlcType,
     'AcquisitionStop': Acquisition,
-    'Tracking': TrackingType,
-    'ImagingPoints': ImagingPointsType,
-    'GatingWindow': GatingWindowType,
-    'Positions': PositionsType,
-    'GatingParameters': GatingParametersType,
-    'Dev': DevType,
+    'AmplitudeDirection_model': Vector,
+    'AmplitudeFit': AmplitudeFitSurrogateModel,
+    'Axes': TrackingAxisList,
+    'AxisX': Vector,
+    'AxisY': Vector,
+    'AxisZ': Vector,
+    'Basic': BasicMotionCompensation,
+    'ConformityTol': ConformityType,
+    'CouchLat': TrackingAxis,
+    'CouchLng': TrackingAxis,
+    'CouchVrt': TrackingAxis,
+    'Gating': GatingMotionModel,
+    'GlobalActionWindows': ActionWindows,
+    'KV': AcquisitionTrigger,
+    'KvBlades': KvBladePositionsType,
+    'KvFilters': KvFiltersPositionType,
+    'Kvd': ArmPositionsType,
     'KvdAfter': ArmPositionsType,
-    'OutsideTreatment': OutsideTreatmentType,
-    'Mvd': ArmTolerances,
-    'ImageMode': ImageModeType,
-    'ImagingPoint': ImagingPointType,
-    'ControlPoints': ControlPointsType,
-    'BeamHoldDevices': BeamHoldDevicesType,
-    'Orientation': OrientationType,
-    'ImagingVelTable': ImagingVelTableType,
-    'TolTable': TolTableType,
-    'KV': KVType,
-    'MVAcquisitionTrigger': MVAcquisitionTriggerType,
-    'Cp': CpType,
-    'Accs': AccsType,
+    'Kvs': ArmPositionsType,
+    'KvsAfter': ArmPositionsType,
+    'MV': AcquisitionTrigger,
+    'MarkerToleranceRadius': MarkerDefinitionToleranceRadius,
+    'MarkerToleranceVolume': MarkerDefinitionToleranceVolume,
+    'Markers': MarkerDefinitions,
+    'Mlc': TrackingMLC,
+    'ModelSystem_pinned': Placement,
+    'Mvd': ArmPositionsType,
+    'MvdAfter': ArmPositionsType,
+    'Origin': Vector,
+    'Overwrite': ModeOverwrite,
+    'Parameters': MovieParameters,
+    'Phase': TrackingPhase,
+    'PlugIn': MotionCompensationPlugIn,
+    'Positions': BladePositionsType,
+    'Restriction_model': Vector,
+    'Segmental': ActionWindow,
+    'SubBeam': SubBeamType,
+    'TargetPosition_surrogate': Placement,
+    'TrackingActionWindows': ActionWindows,
+    'X': FitData,
+    'X12': TrackingAxis,
+    'Y': FitData,
+    'Y12': TrackingAxis,
+    'Z': FitData,
 }
 
 
@@ -5940,7 +9228,7 @@ Usage: python <Parser>.py [ -s ] <in_xml_file>
 
 
 def usage():
-    print USAGE_TEXT
+    print(USAGE_TEXT)
     sys.exit(1)
 
 
@@ -5953,7 +9241,8 @@ def get_root_tag(node):
 
 
 def parse(inFileName, silence=False):
-    doc = parsexml_(inFileName)
+    parser = None
+    doc = parsexml_(inFileName, parser)
     rootNode = doc.getroot()
     rootTag, rootClass = get_root_tag(rootNode)
     if rootClass is None:
@@ -5973,7 +9262,8 @@ def parse(inFileName, silence=False):
 
 
 def parseEtree(inFileName, silence=False):
-    doc = parsexml_(inFileName)
+    parser = None
+    doc = parsexml_(inFileName, parser)
     rootNode = doc.getroot()
     rootTag, rootClass = get_root_tag(rootNode)
     if rootClass is None:
@@ -5997,7 +9287,8 @@ def parseEtree(inFileName, silence=False):
 
 def parseString(inString, silence=False):
     from StringIO import StringIO
-    doc = parsexml_(StringIO(inString))
+    parser = None
+    doc = parsexml_(StringIO(inString), parser)
     rootNode = doc.getroot()
     rootTag, rootClass = get_root_tag(rootNode)
     if rootClass is None:
@@ -6016,7 +9307,8 @@ def parseString(inString, silence=False):
 
 
 def parseLiteral(inFileName, silence=False):
-    doc = parsexml_(inFileName)
+    parser = None
+    doc = parsexml_(inFileName, parser)
     rootNode = doc.getroot()
     rootTag, rootClass = get_root_tag(rootNode)
     if rootClass is None:
@@ -6049,49 +9341,74 @@ if __name__ == '__main__':
 
 
 __all__ = [
-    "AccsType",
+    "Accs",
     "Acquisition",
-    "AcquisitionModeType",
-    "AcquisitionParametersType",
-    "AcquisitionSpecsType",
+    "AcquisitionMode",
+    "AcquisitionParameters",
+    "AcquisitionSpecs",
     "AcquisitionTrigger",
+    "AcquisitionTriggers",
+    "ActionWindow",
+    "ActionWindows",
+    "AmplitudeFitSurrogateModel",
+    "ArmAxes",
+    "ArmAxesType",
     "ArmPositionsType",
     "ArmTolerances",
-    "BeamHoldDevicesType",
-    "ControlPointsType",
-    "CpType",
-    "DevType",
-    "DuringTreatmentType",
-    "GatingParametersType",
-    "GatingWindowType",
-    "HistogramRoiType",
-    "ImageModeType",
-    "ImagingParametersType",
-    "ImagingPointType",
-    "ImagingPointsType",
-    "ImagingTolerancesType",
-    "ImagingVelTableType",
-    "KVAcquisitionTriggerType",
-    "KVType",
-    "KvBladesType",
-    "KvBladesType1",
-    "KvFiltersType",
-    "MVAcquisitionTriggerType",
-    "MVType",
-    "MlcType",
-    "MovieType",
-    "OrientationType",
-    "OutsideTreatmentType",
-    "OverwriteType",
-    "OverwriteType2",
-    "ParametersType",
-    "PositionType",
-    "PositionsType",
-    "PositionsType3",
+    "BasicMotionCompensation",
+    "BasicMotionModel",
+    "BasicSurrogateModel",
+    "BeamHoldDevices",
+    "BladePositionsType",
+    "Coefficients",
+    "ConformityType",
+    "ControlPoints",
+    "Cp",
+    "Dev",
+    "DuringTreatment",
+    "FitData",
+    "GatingMotionModel",
+    "HistogramRoi",
+    "ImageMode",
+    "ImageProcessing",
+    "ImagingParameters",
+    "ImagingPoint",
+    "ImagingPoints",
+    "ImagingTolerances",
+    "KVParameters",
+    "KvBladePositionsType",
+    "KvBladesTolerances",
+    "KvFiltersPositionType",
+    "MVParameters",
+    "MarkerDefinition",
+    "MarkerDefinitionToleranceRadius",
+    "MarkerDefinitionToleranceVolume",
+    "MarkerDefinitions",
+    "MlcPositionsType",
+    "ModeOverwrite",
+    "ModelSystem",
+    "MotionCompensation",
+    "MotionCompensationPlugIn",
+    "MotionManagementParameters",
+    "MotionModel",
+    "MotionModelPlugIn",
+    "Movie",
+    "MovieParameters",
+    "OutsideTreatment",
+    "Placement",
     "SetBeam",
     "SubBeamType",
-    "TolTableType",
-    "TrackingType",
+    "SurrogateModel",
+    "SurrogateModelPlugIn",
+    "TolTable",
+    "Tracking",
+    "TrackingAxis",
+    "TrackingAxisList",
+    "TrackingMLC",
+    "TrackingPhase",
+    "TrackingSource",
     "VarianResearchBeam",
-    "VelTableType"
+    "Vector",
+    "VelTable",
+    "iTools"
 ]

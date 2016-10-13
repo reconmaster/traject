@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 
 #
-# Generated Sun Nov 23 10:37:22 2014 by generateDS.py version 2.13a.
+# Generated Thu Oct 13 15:29:06 2016 by generateDS.py version 2.23a.
 #
 # Command line options:
 #   ('--export', 'write')
@@ -12,69 +12,23 @@
 #   DeveloperModeSchema.xsd
 #
 # Command line:
-#   /home/amdavis/.local/bin/generateDS.py --export="write" -o "developer_mode.py" -s "developer_modes_subs.py" DeveloperModeSchema.xsd
+#   /home/amdavis/.virtualenvs/traject/bin/generateDS.py --export="write" -o "developer_mode.py" -s "developer_modes_subs.py" DeveloperModeSchema.xsd
 #
 # Current working directory (os.getcwd()):
 #   traject
 #
 
 import sys
+from lxml import etree as etree_
 
 import ??? as supermod
 
-etree_ = None
-Verbose_import_ = False
-(
-    XMLParser_import_none, XMLParser_import_lxml,
-    XMLParser_import_elementtree
-) = range(3)
-XMLParser_import_library = None
-try:
-    # lxml
-    from lxml import etree as etree_
-    XMLParser_import_library = XMLParser_import_lxml
-    if Verbose_import_:
-        print("running with lxml.etree")
-except ImportError:
-    try:
-        # cElementTree from Python 2.5+
-        import xml.etree.cElementTree as etree_
-        XMLParser_import_library = XMLParser_import_elementtree
-        if Verbose_import_:
-            print("running with cElementTree on Python 2.5+")
-    except ImportError:
-        try:
-            # ElementTree from Python 2.5+
-            import xml.etree.ElementTree as etree_
-            XMLParser_import_library = XMLParser_import_elementtree
-            if Verbose_import_:
-                print("running with ElementTree on Python 2.5+")
-        except ImportError:
-            try:
-                # normal cElementTree install
-                import cElementTree as etree_
-                XMLParser_import_library = XMLParser_import_elementtree
-                if Verbose_import_:
-                    print("running with cElementTree")
-            except ImportError:
-                try:
-                    # normal ElementTree install
-                    import elementtree.ElementTree as etree_
-                    XMLParser_import_library = XMLParser_import_elementtree
-                    if Verbose_import_:
-                        print("running with ElementTree")
-                except ImportError:
-                    raise ImportError(
-                        "Failed to import ElementTree from any known place")
-
-
-def parsexml_(*args, **kwargs):
-    if (XMLParser_import_library == XMLParser_import_lxml and
-            'parser' not in kwargs):
+def parsexml_(infile, parser=None, **kwargs):
+    if parser is None:
         # Use the lxml ElementTree compatible parser so that, e.g.,
         #   we ignore comments.
-        kwargs['parser'] = etree_.ETCompatXMLParser()
-    doc = etree_.parse(*args, **kwargs)
+        parser = etree_.ETCompatXMLParser()
+    doc = etree_.parse(infile, parser=parser, **kwargs)
     return doc
 
 #
@@ -95,25 +49,39 @@ supermod.VarianResearchBeam.subclass = VarianResearchBeamSub
 # end class VarianResearchBeamSub
 
 
-class SetBeamSub(supermod.SetBeam):
-    def __init__(self, SchemaVersion=None, Id=None, GUID=None, TreatmentMode=None, MLCModel=None, Tracking=None, TolTable=None, VelTable=None, Accs=None, ControlPoints=None, ImagingParameters=None, BeamHoldDevices=None):
-        super(SetBeamSub, self).__init__(SchemaVersion, Id, GUID, TreatmentMode, MLCModel, Tracking, TolTable, VelTable, Accs, ControlPoints, ImagingParameters, BeamHoldDevices, )
-supermod.SetBeam.subclass = SetBeamSub
-# end class SetBeamSub
+class ArmAxesTypeSub(supermod.ArmAxesType):
+    def __init__(self, Lat=None, Lng=None, Vrt=None, Pitch=None):
+        super(ArmAxesTypeSub, self).__init__(Lat, Lng, Vrt, Pitch, )
+supermod.ArmAxesType.subclass = ArmAxesTypeSub
+# end class ArmAxesTypeSub
 
 
-class AcquisitionSub(supermod.Acquisition):
-    def __init__(self, AcquisitionId=None, AcquisitionSpecs=None, AcquisitionParameters=None):
-        super(AcquisitionSub, self).__init__(AcquisitionId, AcquisitionSpecs, AcquisitionParameters, )
-supermod.Acquisition.subclass = AcquisitionSub
-# end class AcquisitionSub
+class KvFiltersPositionTypeSub(supermod.KvFiltersPositionType):
+    def __init__(self, Shape=None, Foil=None):
+        super(KvFiltersPositionTypeSub, self).__init__(Shape, Foil, )
+supermod.KvFiltersPositionType.subclass = KvFiltersPositionTypeSub
+# end class KvFiltersPositionTypeSub
 
 
-class ArmPositionsTypeSub(supermod.ArmPositionsType):
-    def __init__(self, SpecialPosition=None, Positions=None):
-        super(ArmPositionsTypeSub, self).__init__(SpecialPosition, Positions, )
-supermod.ArmPositionsType.subclass = ArmPositionsTypeSub
-# end class ArmPositionsTypeSub
+class BladePositionsTypeSub(supermod.BladePositionsType):
+    def __init__(self, KVX1=None, KVX2=None, KVY1=None, KVY2=None):
+        super(BladePositionsTypeSub, self).__init__(KVX1, KVX2, KVY1, KVY2, )
+supermod.BladePositionsType.subclass = BladePositionsTypeSub
+# end class BladePositionsTypeSub
+
+
+class ImagingTolerancesSub(supermod.ImagingTolerances):
+    def __init__(self, Mvd=None, Kvd=None, Kvs=None, KvBlades=None):
+        super(ImagingTolerancesSub, self).__init__(Mvd, Kvd, Kvs, KvBlades, )
+supermod.ImagingTolerances.subclass = ImagingTolerancesSub
+# end class ImagingTolerancesSub
+
+
+class KvBladesTolerancesSub(supermod.KvBladesTolerances):
+    def __init__(self, KVY1=None, KVY2=None, KVX1=None, KVX2=None):
+        super(KvBladesTolerancesSub, self).__init__(KVY1, KVY2, KVX1, KVX2, )
+supermod.KvBladesTolerances.subclass = KvBladesTolerancesSub
+# end class KvBladesTolerancesSub
 
 
 class ArmTolerancesSub(supermod.ArmTolerances):
@@ -123,53 +91,340 @@ supermod.ArmTolerances.subclass = ArmTolerancesSub
 # end class ArmTolerancesSub
 
 
+class ArmPositionsTypeSub(supermod.ArmPositionsType):
+    def __init__(self, SpecialPosition=None, Positions=None):
+        super(ArmPositionsTypeSub, self).__init__(SpecialPosition, Positions, )
+supermod.ArmPositionsType.subclass = ArmPositionsTypeSub
+# end class ArmPositionsTypeSub
+
+
+class KvBladePositionsTypeSub(supermod.KvBladePositionsType):
+    def __init__(self, Tracking=None, Positions=None):
+        super(KvBladePositionsTypeSub, self).__init__(Tracking, Positions, )
+supermod.KvBladePositionsType.subclass = KvBladePositionsTypeSub
+# end class KvBladePositionsTypeSub
+
+
+class ArmAxesSub(supermod.ArmAxes):
+    def __init__(self, Lat=None, Lng=None, Vrt=None, Pitch=None):
+        super(ArmAxesSub, self).__init__(Lat, Lng, Vrt, Pitch, )
+supermod.ArmAxes.subclass = ArmAxesSub
+# end class ArmAxesSub
+
+
+class ImageModeSub(supermod.ImageMode):
+    def __init__(self, id=None, Overwrite=None):
+        super(ImageModeSub, self).__init__(id, Overwrite, )
+supermod.ImageMode.subclass = ImageModeSub
+# end class ImageModeSub
+
+
+class AcquisitionModeSub(supermod.AcquisitionMode):
+    def __init__(self, id=None, Overwrite=None):
+        super(AcquisitionModeSub, self).__init__(id, Overwrite, )
+supermod.AcquisitionMode.subclass = AcquisitionModeSub
+# end class AcquisitionModeSub
+
+
+class ModeOverwriteSub(supermod.ModeOverwrite):
+    def __init__(self, parameter=None, valueOf_=None):
+        super(ModeOverwriteSub, self).__init__(parameter, valueOf_, )
+supermod.ModeOverwrite.subclass = ModeOverwriteSub
+# end class ModeOverwriteSub
+
+
+class MovieSub(supermod.Movie):
+    def __init__(self, Destination=None, Parameters=None):
+        super(MovieSub, self).__init__(Destination, Parameters, )
+supermod.Movie.subclass = MovieSub
+# end class MovieSub
+
+
+class MovieParametersSub(supermod.MovieParameters):
+    def __init__(self, Width=None, Height=None, FrameRate=None, Crop=None, Invert=None, PixelValue0=None, PixelValue255=None, CutOff=None, Weight=None):
+        super(MovieParametersSub, self).__init__(Width, Height, FrameRate, Crop, Invert, PixelValue0, PixelValue255, CutOff, Weight, )
+supermod.MovieParameters.subclass = MovieParametersSub
+# end class MovieParametersSub
+
+
+class HistogramRoiSub(supermod.HistogramRoi):
+    def __init__(self, X1=None, Y1=None, X2=None, Y2=None):
+        super(HistogramRoiSub, self).__init__(X1, Y1, X2, Y2, )
+supermod.HistogramRoi.subclass = HistogramRoiSub
+# end class HistogramRoiSub
+
+
+class ImageProcessingSub(supermod.ImageProcessing):
+    def __init__(self, Timeout=0, ModeId=None, AutoBeamOff=None, ConfidenceThreshold=None, Markers=None):
+        super(ImageProcessingSub, self).__init__(Timeout, ModeId, AutoBeamOff, ConfidenceThreshold, Markers, )
+supermod.ImageProcessing.subclass = ImageProcessingSub
+# end class ImageProcessingSub
+
+
+class MarkerDefinitionsSub(supermod.MarkerDefinitions):
+    def __init__(self, MarkerToleranceRadius=None, MarkerToleranceVolume=None):
+        super(MarkerDefinitionsSub, self).__init__(MarkerToleranceRadius, MarkerToleranceVolume, )
+supermod.MarkerDefinitions.subclass = MarkerDefinitionsSub
+# end class MarkerDefinitionsSub
+
+
+class MarkerDefinitionSub(supermod.MarkerDefinition):
+    def __init__(self, Id=None, X=None, Y=None, Z=None, extensiontype_=None):
+        super(MarkerDefinitionSub, self).__init__(Id, X, Y, Z, extensiontype_, )
+supermod.MarkerDefinition.subclass = MarkerDefinitionSub
+# end class MarkerDefinitionSub
+
+
+class MarkerDefinitionToleranceRadiusSub(supermod.MarkerDefinitionToleranceRadius):
+    def __init__(self, Id=None, X=None, Y=None, Z=None, ToleranceRadius=None):
+        super(MarkerDefinitionToleranceRadiusSub, self).__init__(Id, X, Y, Z, ToleranceRadius, )
+supermod.MarkerDefinitionToleranceRadius.subclass = MarkerDefinitionToleranceRadiusSub
+# end class MarkerDefinitionToleranceRadiusSub
+
+
+class MarkerDefinitionToleranceVolumeSub(supermod.MarkerDefinitionToleranceVolume):
+    def __init__(self, Id=None, X=None, Y=None, Z=None, Vertices=None, Indices=None):
+        super(MarkerDefinitionToleranceVolumeSub, self).__init__(Id, X, Y, Z, Vertices, Indices, )
+supermod.MarkerDefinitionToleranceVolume.subclass = MarkerDefinitionToleranceVolumeSub
+# end class MarkerDefinitionToleranceVolumeSub
+
+
+class MVParametersSub(supermod.MVParameters):
+    def __init__(self, Energy=None, DoseRate=None):
+        super(MVParametersSub, self).__init__(Energy, DoseRate, )
+supermod.MVParameters.subclass = MVParametersSub
+# end class MVParametersSub
+
+
+class KVParametersSub(supermod.KVParameters):
+    def __init__(self, KiloVolts=None, MilliAmperes=None, MilliSeconds=None, FocalSpot='Large', FluoroLevelControl='Low', AutoBrightnessControl=False, DoseRecording=True, FrameRate=0):
+        super(KVParametersSub, self).__init__(KiloVolts, MilliAmperes, MilliSeconds, FocalSpot, FluoroLevelControl, AutoBrightnessControl, DoseRecording, FrameRate, )
+supermod.KVParameters.subclass = KVParametersSub
+# end class KVParametersSub
+
+
+class AcquisitionParametersSub(supermod.AcquisitionParameters):
+    def __init__(self, ImageMode=None, AcquisitionMode=None, CalibrationSet=None, ImageDestination=None, NotificationDestination=None, Movie=None, RaiseFault=None, Cache=None, HistogramRoi=None, ImageProcessing=None, MV=None, KV=None):
+        super(AcquisitionParametersSub, self).__init__(ImageMode, AcquisitionMode, CalibrationSet, ImageDestination, NotificationDestination, Movie, RaiseFault, Cache, HistogramRoi, ImageProcessing, MV, KV, )
+supermod.AcquisitionParameters.subclass = AcquisitionParametersSub
+# end class AcquisitionParametersSub
+
+
+class VectorSub(supermod.Vector):
+    def __init__(self, X=None, Y=None, Z=None):
+        super(VectorSub, self).__init__(X, Y, Z, )
+supermod.Vector.subclass = VectorSub
+# end class VectorSub
+
+
+class PlacementSub(supermod.Placement):
+    def __init__(self, Origin=None, AxisX=None, AxisY=None, AxisZ=None):
+        super(PlacementSub, self).__init__(Origin, AxisX, AxisY, AxisZ, )
+supermod.Placement.subclass = PlacementSub
+# end class PlacementSub
+
+
+class CoefficientsSub(supermod.Coefficients):
+    def __init__(self, a0=None, a1=None, a2=None, a3=None):
+        super(CoefficientsSub, self).__init__(a0, a1, a2, a3, )
+supermod.Coefficients.subclass = CoefficientsSub
+# end class CoefficientsSub
+
+
+class FitDataSub(supermod.FitData):
+    def __init__(self, FitType=None, Coefficients=None):
+        super(FitDataSub, self).__init__(FitType, Coefficients, )
+supermod.FitData.subclass = FitDataSub
+# end class FitDataSub
+
+
+class ModelSystemSub(supermod.ModelSystem):
+    def __init__(self, ModelSystem_pinned=None, CouchLat=None, CouchLng=None, CouchVrt=None, CouchRtn=None, CouchPit=None, CouchRol=None):
+        super(ModelSystemSub, self).__init__(ModelSystem_pinned, CouchLat, CouchLng, CouchVrt, CouchRtn, CouchPit, CouchRol, )
+supermod.ModelSystem.subclass = ModelSystemSub
+# end class ModelSystemSub
+
+
+class BasicSurrogateModelSub(supermod.BasicSurrogateModel):
+    def __init__(self, TargetPosition_surrogate=None):
+        super(BasicSurrogateModelSub, self).__init__(TargetPosition_surrogate, )
+supermod.BasicSurrogateModel.subclass = BasicSurrogateModelSub
+# end class BasicSurrogateModelSub
+
+
+class AmplitudeFitSurrogateModelSub(supermod.AmplitudeFitSurrogateModel):
+    def __init__(self, X=None, Y=None, Z=None):
+        super(AmplitudeFitSurrogateModelSub, self).__init__(X, Y, Z, )
+supermod.AmplitudeFitSurrogateModel.subclass = AmplitudeFitSurrogateModelSub
+# end class AmplitudeFitSurrogateModelSub
+
+
+class SurrogateModelPlugInSub(supermod.SurrogateModelPlugIn):
+    def __init__(self, module=None, name=None, anytypeobjs_=None):
+        super(SurrogateModelPlugInSub, self).__init__(module, name, anytypeobjs_, )
+supermod.SurrogateModelPlugIn.subclass = SurrogateModelPlugInSub
+# end class SurrogateModelPlugInSub
+
+
+class SurrogateModelSub(supermod.SurrogateModel):
+    def __init__(self, Basic=None, AmplitudeFit=None, PlugIn=None):
+        super(SurrogateModelSub, self).__init__(Basic, AmplitudeFit, PlugIn, )
+supermod.SurrogateModel.subclass = SurrogateModelSub
+# end class SurrogateModelSub
+
+
+class BasicMotionModelSub(supermod.BasicMotionModel):
+    def __init__(self):
+        super(BasicMotionModelSub, self).__init__()
+supermod.BasicMotionModel.subclass = BasicMotionModelSub
+# end class BasicMotionModelSub
+
+
+class GatingMotionModelSub(supermod.GatingMotionModel):
+    def __init__(self, AmplitudeDirection_model=None):
+        super(GatingMotionModelSub, self).__init__(AmplitudeDirection_model, )
+supermod.GatingMotionModel.subclass = GatingMotionModelSub
+# end class GatingMotionModelSub
+
+
+class MotionModelPlugInSub(supermod.MotionModelPlugIn):
+    def __init__(self, module=None, name=None, anytypeobjs_=None):
+        super(MotionModelPlugInSub, self).__init__(module, name, anytypeobjs_, )
+supermod.MotionModelPlugIn.subclass = MotionModelPlugInSub
+# end class MotionModelPlugInSub
+
+
+class MotionModelSub(supermod.MotionModel):
+    def __init__(self, Basic=None, Gating=None, PlugIn=None):
+        super(MotionModelSub, self).__init__(Basic, Gating, PlugIn, )
+supermod.MotionModel.subclass = MotionModelSub
+# end class MotionModelSub
+
+
 class AcquisitionTriggerSub(supermod.AcquisitionTrigger):
-    def __init__(self, TriggerDelay=None, TriggerOnEnter=None, TriggerOnExit=None, SingleTrigger=None, extensiontype_=None):
-        super(AcquisitionTriggerSub, self).__init__(TriggerDelay, TriggerOnEnter, TriggerOnExit, SingleTrigger, extensiontype_, )
+    def __init__(self, TriggerDelay=0, TriggerOnEnter=True, TriggerOnExit=False, SingleTrigger=True):
+        super(AcquisitionTriggerSub, self).__init__(TriggerDelay, TriggerOnEnter, TriggerOnExit, SingleTrigger, )
 supermod.AcquisitionTrigger.subclass = AcquisitionTriggerSub
 # end class AcquisitionTriggerSub
 
 
-class TrackingTypeSub(supermod.TrackingType):
-    def __init__(self, TrackingEnabled=None, CapabilityRatio=None):
-        super(TrackingTypeSub, self).__init__(TrackingEnabled, CapabilityRatio, )
-supermod.TrackingType.subclass = TrackingTypeSub
-# end class TrackingTypeSub
+class AcquisitionTriggersSub(supermod.AcquisitionTriggers):
+    def __init__(self, MV=None, KV=None):
+        super(AcquisitionTriggersSub, self).__init__(MV, KV, )
+supermod.AcquisitionTriggers.subclass = AcquisitionTriggersSub
+# end class AcquisitionTriggersSub
 
 
-class TolTableTypeSub(supermod.TolTableType):
-    def __init__(self, GantryRtn=None, CollRtn=None, CouchVrt=None, CouchLat=None, CouchLng=None, CouchRtn=None, Y12=None, X12=None):
-        super(TolTableTypeSub, self).__init__(GantryRtn, CollRtn, CouchVrt, CouchLat, CouchLng, CouchRtn, Y12, X12, )
-supermod.TolTableType.subclass = TolTableTypeSub
-# end class TolTableTypeSub
+class ActionWindowSub(supermod.ActionWindow):
+    def __init__(self, axis=None, MVBeamImpact=True, KVBeamImpact=False, MotionCompensationImpact=False, LowerLimit=None, UpperLimit=None, Delta=None, EntryDelay=0, LingerTimeout=0, FaultOnExit=False, AcquisitionTriggers=None):
+        super(ActionWindowSub, self).__init__(axis, MVBeamImpact, KVBeamImpact, MotionCompensationImpact, LowerLimit, UpperLimit, Delta, EntryDelay, LingerTimeout, FaultOnExit, AcquisitionTriggers, )
+supermod.ActionWindow.subclass = ActionWindowSub
+# end class ActionWindowSub
 
 
-class VelTableTypeSub(supermod.VelTableType):
-    def __init__(self, GantryRtn=None, CollRtn=None, CouchVrt=None, CouchLat=None, CouchLng=None, CouchRtn=None, X1=None, X2=None, Y1=None, Y2=None):
-        super(VelTableTypeSub, self).__init__(GantryRtn, CollRtn, CouchVrt, CouchLat, CouchLng, CouchRtn, X1, X2, Y1, Y2, )
-supermod.VelTableType.subclass = VelTableTypeSub
-# end class VelTableTypeSub
+class ActionWindowsSub(supermod.ActionWindows):
+    def __init__(self, Basic=None, Segmental=None):
+        super(ActionWindowsSub, self).__init__(Basic, Segmental, )
+supermod.ActionWindows.subclass = ActionWindowsSub
+# end class ActionWindowsSub
 
 
-class AccsTypeSub(supermod.AccsType):
-    def __init__(self, Acc1=None, Acc2=None, Acc3=None, Acc4=None):
-        super(AccsTypeSub, self).__init__(Acc1, Acc2, Acc3, Acc4, )
-supermod.AccsType.subclass = AccsTypeSub
-# end class AccsTypeSub
+class BasicMotionCompensationSub(supermod.BasicMotionCompensation):
+    def __init__(self, TrackingSource=None, CompensateRotation=False, Restriction_model=None):
+        super(BasicMotionCompensationSub, self).__init__(TrackingSource, CompensateRotation, Restriction_model, )
+supermod.BasicMotionCompensation.subclass = BasicMotionCompensationSub
+# end class BasicMotionCompensationSub
 
 
-class ControlPointsTypeSub(supermod.ControlPointsType):
-    def __init__(self, Cp=None):
-        super(ControlPointsTypeSub, self).__init__(Cp, )
-supermod.ControlPointsType.subclass = ControlPointsTypeSub
-# end class ControlPointsTypeSub
+class MotionCompensationPlugInSub(supermod.MotionCompensationPlugIn):
+    def __init__(self, module=None, name=None, anytypeobjs_=None):
+        super(MotionCompensationPlugInSub, self).__init__(module, name, anytypeobjs_, )
+supermod.MotionCompensationPlugIn.subclass = MotionCompensationPlugInSub
+# end class MotionCompensationPlugInSub
 
 
-class CpTypeSub(supermod.CpType):
-    def __init__(self, TreatProgressEvent=None, SubBeam=None, Energy=None, Mu=None, DRate=None, GantryRtn=None, CollRtn=None, CouchVrt=None, CouchLat=None, CouchLng=None, CouchRtn=None, Y1=None, Y2=None, X1=None, X2=None, Mlc=None):
-        super(CpTypeSub, self).__init__(TreatProgressEvent, SubBeam, Energy, Mu, DRate, GantryRtn, CollRtn, CouchVrt, CouchLat, CouchLng, CouchRtn, Y1, Y2, X1, X2, Mlc, )
-supermod.CpType.subclass = CpTypeSub
-# end class CpTypeSub
+class MotionCompensationSub(supermod.MotionCompensation):
+    def __init__(self, Basic=None, PlugIn=None):
+        super(MotionCompensationSub, self).__init__(Basic, PlugIn, )
+supermod.MotionCompensation.subclass = MotionCompensationSub
+# end class MotionCompensationSub
+
+
+class TrackingSourceSub(supermod.TrackingSource):
+    def __init__(self, id=None, AcquisitionParameters=None, SurrogateModel=None, MotionModel=None, TrackingActionWindows=None):
+        super(TrackingSourceSub, self).__init__(id, AcquisitionParameters, SurrogateModel, MotionModel, TrackingActionWindows, )
+supermod.TrackingSource.subclass = TrackingSourceSub
+# end class TrackingSourceSub
+
+
+class MotionManagementParametersSub(supermod.MotionManagementParameters):
+    def __init__(self, ModelSystem=None, TrackingSource=None, MotionCompensation=None, GlobalActionWindows=None):
+        super(MotionManagementParametersSub, self).__init__(ModelSystem, TrackingSource, MotionCompensation, GlobalActionWindows, )
+supermod.MotionManagementParameters.subclass = MotionManagementParametersSub
+# end class MotionManagementParametersSub
+
+
+class iToolsSub(supermod.iTools):
+    def __init__(self, anytypeobjs_=None):
+        super(iToolsSub, self).__init__(anytypeobjs_, )
+supermod.iTools.subclass = iToolsSub
+# end class iToolsSub
+
+
+class ImagingPointsSub(supermod.ImagingPoints):
+    def __init__(self, ImagingPoint=None):
+        super(ImagingPointsSub, self).__init__(ImagingPoint, )
+supermod.ImagingPoints.subclass = ImagingPointsSub
+# end class ImagingPointsSub
+
+
+class ImagingPointSub(supermod.ImagingPoint):
+    def __init__(self, Cp=None, Acquisition=None, AcquisitionStart=None, AcquisitionStop=None, KvFilters=None, KvBlades=None, Mvd=None, Kvd=None, Kvs=None, MvdAfter=None, KvdAfter=None, KvsAfter=None):
+        super(ImagingPointSub, self).__init__(Cp, Acquisition, AcquisitionStart, AcquisitionStop, KvFilters, KvBlades, Mvd, Kvd, Kvs, MvdAfter, KvdAfter, KvsAfter, )
+supermod.ImagingPoint.subclass = ImagingPointSub
+# end class ImagingPointSub
+
+
+class AcquisitionSub(supermod.Acquisition):
+    def __init__(self, AcquisitionId=None, AcquisitionSpecs=None, AcquisitionParameters=None):
+        super(AcquisitionSub, self).__init__(AcquisitionId, AcquisitionSpecs, AcquisitionParameters, )
+supermod.Acquisition.subclass = AcquisitionSub
+# end class AcquisitionSub
+
+
+class AcquisitionSpecsSub(supermod.AcquisitionSpecs):
+    def __init__(self, Handshake=None, KV=None, MVDose=None):
+        super(AcquisitionSpecsSub, self).__init__(Handshake, KV, MVDose, )
+supermod.AcquisitionSpecs.subclass = AcquisitionSpecsSub
+# end class AcquisitionSpecsSub
+
+
+class DuringTreatmentSub(supermod.DuringTreatment):
+    def __init__(self):
+        super(DuringTreatmentSub, self).__init__()
+supermod.DuringTreatment.subclass = DuringTreatmentSub
+# end class DuringTreatmentSub
+
+
+class OutsideTreatmentSub(supermod.OutsideTreatment):
+    def __init__(self, MaxMu=None):
+        super(OutsideTreatmentSub, self).__init__(MaxMu, )
+supermod.OutsideTreatment.subclass = OutsideTreatmentSub
+# end class OutsideTreatmentSub
+
+
+class ImagingParametersSub(supermod.ImagingParameters):
+    def __init__(self, DuringTreatment=None, OutsideTreatment=None, LatchBEL=True, LatchKVBEL=True, ImagingPoints=None, ImagingTolerances=None, MotionManagementParameters=None, iTools=None):
+        super(ImagingParametersSub, self).__init__(DuringTreatment, OutsideTreatment, LatchBEL, LatchKVBEL, ImagingPoints, ImagingTolerances, MotionManagementParameters, iTools, )
+supermod.ImagingParameters.subclass = ImagingParametersSub
+# end class ImagingParametersSub
+
+
+class MlcPositionsTypeSub(supermod.MlcPositionsType):
+    def __init__(self, ID=None, B=None, A=None):
+        super(MlcPositionsTypeSub, self).__init__(ID, B, A, )
+supermod.MlcPositionsType.subclass = MlcPositionsTypeSub
+# end class MlcPositionsTypeSub
 
 
 class SubBeamTypeSub(supermod.SubBeamType):
@@ -179,228 +434,102 @@ supermod.SubBeamType.subclass = SubBeamTypeSub
 # end class SubBeamTypeSub
 
 
-class MlcTypeSub(supermod.MlcType):
-    def __init__(self, ID=None, B=None, A=None):
-        super(MlcTypeSub, self).__init__(ID, B, A, )
-supermod.MlcType.subclass = MlcTypeSub
-# end class MlcTypeSub
+class CpSub(supermod.Cp):
+    def __init__(self, TreatProgressEvent=None, SubBeam=None, Energy=None, Mu=None, DRate=None, GantryRtn=None, CollRtn=None, CouchVrt=None, CouchLat=None, CouchLng=None, CouchRtn=None, CouchPit=None, CouchRol=None, Y1=None, Y2=None, X1=None, X2=None, Mlc=None, Phase=None):
+        super(CpSub, self).__init__(TreatProgressEvent, SubBeam, Energy, Mu, DRate, GantryRtn, CollRtn, CouchVrt, CouchLat, CouchLng, CouchRtn, CouchPit, CouchRol, Y1, Y2, X1, X2, Mlc, Phase, )
+supermod.Cp.subclass = CpSub
+# end class CpSub
 
 
-class ImagingParametersTypeSub(supermod.ImagingParametersType):
-    def __init__(self, DuringTreatment=None, OutsideTreatment=None, CustomTargetPermission=False, ImagingVelTable=None, LatchBEL=True, LatchKVBEL=True, ImagingPoints=None, ImagingTolerances=None, GatingParameters=None):
-        super(ImagingParametersTypeSub, self).__init__(DuringTreatment, OutsideTreatment, CustomTargetPermission, ImagingVelTable, LatchBEL, LatchKVBEL, ImagingPoints, ImagingTolerances, GatingParameters, )
-supermod.ImagingParametersType.subclass = ImagingParametersTypeSub
-# end class ImagingParametersTypeSub
+class ControlPointsSub(supermod.ControlPoints):
+    def __init__(self, Cp=None):
+        super(ControlPointsSub, self).__init__(Cp, )
+supermod.ControlPoints.subclass = ControlPointsSub
+# end class ControlPointsSub
 
 
-class DuringTreatmentTypeSub(supermod.DuringTreatmentType):
-    def __init__(self):
-        super(DuringTreatmentTypeSub, self).__init__()
-supermod.DuringTreatmentType.subclass = DuringTreatmentTypeSub
-# end class DuringTreatmentTypeSub
+class ConformityTypeSub(supermod.ConformityType):
+    def __init__(self, OverExposure=None, UnderExposure=None):
+        super(ConformityTypeSub, self).__init__(OverExposure, UnderExposure, )
+supermod.ConformityType.subclass = ConformityTypeSub
+# end class ConformityTypeSub
 
 
-class OutsideTreatmentTypeSub(supermod.OutsideTreatmentType):
-    def __init__(self, MaxMu=None):
-        super(OutsideTreatmentTypeSub, self).__init__(MaxMu, )
-supermod.OutsideTreatmentType.subclass = OutsideTreatmentTypeSub
-# end class OutsideTreatmentTypeSub
+class TrackingAxisSub(supermod.TrackingAxis):
+    def __init__(self, Tol=None, MotionType=None):
+        super(TrackingAxisSub, self).__init__(Tol, MotionType, )
+supermod.TrackingAxis.subclass = TrackingAxisSub
+# end class TrackingAxisSub
 
 
-class ImagingVelTableTypeSub(supermod.ImagingVelTableType):
-    def __init__(self, GantryRtn=None, CollRtn=None, CouchVrt=None, CouchLat=None, CouchLng=None, CouchRtn=None, X1=None, X2=None, Y1=None, Y2=None):
-        super(ImagingVelTableTypeSub, self).__init__(GantryRtn, CollRtn, CouchVrt, CouchLat, CouchLng, CouchRtn, X1, X2, Y1, Y2, )
-supermod.ImagingVelTableType.subclass = ImagingVelTableTypeSub
-# end class ImagingVelTableTypeSub
+class TrackingMLCSub(supermod.TrackingMLC):
+    def __init__(self, MotionType=None, ID=None, OpenUpCarriages=None, ExpectedTargetSpeed=None, YTargetRange=None):
+        super(TrackingMLCSub, self).__init__(MotionType, ID, OpenUpCarriages, ExpectedTargetSpeed, YTargetRange, )
+supermod.TrackingMLC.subclass = TrackingMLCSub
+# end class TrackingMLCSub
 
 
-class ImagingPointsTypeSub(supermod.ImagingPointsType):
-    def __init__(self, ImagingPoint=None):
-        super(ImagingPointsTypeSub, self).__init__(ImagingPoint, )
-supermod.ImagingPointsType.subclass = ImagingPointsTypeSub
-# end class ImagingPointsTypeSub
+class TrackingPhaseSub(supermod.TrackingPhase):
+    def __init__(self, MaxPhaseLag=None):
+        super(TrackingPhaseSub, self).__init__(MaxPhaseLag, )
+supermod.TrackingPhase.subclass = TrackingPhaseSub
+# end class TrackingPhaseSub
 
 
-class ImagingPointTypeSub(supermod.ImagingPointType):
-    def __init__(self, Cp=None, Acquisition=None, AcquisitionStart=None, AcquisitionStop=None, KvFilters=None, KvBlades=None, Mvd=None, Kvd=None, Kvs=None, MvdAfter=None, KvdAfter=None, KvsAfter=None):
-        super(ImagingPointTypeSub, self).__init__(Cp, Acquisition, AcquisitionStart, AcquisitionStop, KvFilters, KvBlades, Mvd, Kvd, Kvs, MvdAfter, KvdAfter, KvsAfter, )
-supermod.ImagingPointType.subclass = ImagingPointTypeSub
-# end class ImagingPointTypeSub
+class TrackingAxisListSub(supermod.TrackingAxisList):
+    def __init__(self, CouchVrt=None, CouchLat=None, CouchLng=None, Y12=None, X12=None, Mlc=None, Phase=None):
+        super(TrackingAxisListSub, self).__init__(CouchVrt, CouchLat, CouchLng, Y12, X12, Mlc, Phase, )
+supermod.TrackingAxisList.subclass = TrackingAxisListSub
+# end class TrackingAxisListSub
 
 
-class KvFiltersTypeSub(supermod.KvFiltersType):
-    def __init__(self, Shape=None, Foil=None):
-        super(KvFiltersTypeSub, self).__init__(Shape, Foil, )
-supermod.KvFiltersType.subclass = KvFiltersTypeSub
-# end class KvFiltersTypeSub
+class TrackingSub(supermod.Tracking):
+    def __init__(self, Axes=None, ConformityTol=None, InitialCapabilityRatio=None):
+        super(TrackingSub, self).__init__(Axes, ConformityTol, InitialCapabilityRatio, )
+supermod.Tracking.subclass = TrackingSub
+# end class TrackingSub
 
 
-class KvBladesTypeSub(supermod.KvBladesType):
-    def __init__(self, Tracking=None, Positions=None):
-        super(KvBladesTypeSub, self).__init__(Tracking, Positions, )
-supermod.KvBladesType.subclass = KvBladesTypeSub
-# end class KvBladesTypeSub
+class TolTableSub(supermod.TolTable):
+    def __init__(self, GantryRtn=None, CollRtn=None, CouchVrt=None, CouchLat=None, CouchLng=None, CouchRtn=None, CouchPit=None, CouchRol=None, Y12=None, X12=None):
+        super(TolTableSub, self).__init__(GantryRtn, CollRtn, CouchVrt, CouchLat, CouchLng, CouchRtn, CouchPit, CouchRol, Y12, X12, )
+supermod.TolTable.subclass = TolTableSub
+# end class TolTableSub
 
 
-class PositionsTypeSub(supermod.PositionsType):
-    def __init__(self, KVX1=None, KVX2=None, KVY1=None, KVY2=None):
-        super(PositionsTypeSub, self).__init__(KVX1, KVX2, KVY1, KVY2, )
-supermod.PositionsType.subclass = PositionsTypeSub
-# end class PositionsTypeSub
+class VelTableSub(supermod.VelTable):
+    def __init__(self, GantryRtn=None, CollRtn=None, CouchVrt=None, CouchLat=None, CouchLng=None, CouchRtn=None, CouchPit=None, CouchRol=None, X1=None, X2=None, Y1=None, Y2=None):
+        super(VelTableSub, self).__init__(GantryRtn, CollRtn, CouchVrt, CouchLat, CouchLng, CouchRtn, CouchPit, CouchRol, X1, X2, Y1, Y2, )
+supermod.VelTable.subclass = VelTableSub
+# end class VelTableSub
 
 
-class ImagingTolerancesTypeSub(supermod.ImagingTolerancesType):
-    def __init__(self, Mvd=None, Kvd=None, Kvs=None, KvBlades=None):
-        super(ImagingTolerancesTypeSub, self).__init__(Mvd, Kvd, Kvs, KvBlades, )
-supermod.ImagingTolerancesType.subclass = ImagingTolerancesTypeSub
-# end class ImagingTolerancesTypeSub
+class AccsSub(supermod.Accs):
+    def __init__(self, Acc1=None, Acc2=None, Acc3=None, Acc4=None):
+        super(AccsSub, self).__init__(Acc1, Acc2, Acc3, Acc4, )
+supermod.Accs.subclass = AccsSub
+# end class AccsSub
 
 
-class KvBladesType1Sub(supermod.KvBladesType1):
-    def __init__(self, KVY1=None, KVY2=None, KVX1=None, KVX2=None):
-        super(KvBladesType1Sub, self).__init__(KVY1, KVY2, KVX1, KVX2, )
-supermod.KvBladesType1.subclass = KvBladesType1Sub
-# end class KvBladesType1Sub
+class DevSub(supermod.Dev):
+    def __init__(self, Id=None, MVBeamImpact=None, MotionImpact=None, SyncStop=None):
+        super(DevSub, self).__init__(Id, MVBeamImpact, MotionImpact, SyncStop, )
+supermod.Dev.subclass = DevSub
+# end class DevSub
 
 
-class GatingParametersTypeSub(supermod.GatingParametersType):
-    def __init__(self, Source=None, Filter=None, QualityThreshold=None, KVGating=None, Position=None, Orientation=None, GatingWindow=None, MVAcquisitionTrigger=None, KVAcquisitionTrigger=None):
-        super(GatingParametersTypeSub, self).__init__(Source, Filter, QualityThreshold, KVGating, Position, Orientation, GatingWindow, MVAcquisitionTrigger, KVAcquisitionTrigger, )
-supermod.GatingParametersType.subclass = GatingParametersTypeSub
-# end class GatingParametersTypeSub
-
-
-class PositionTypeSub(supermod.PositionType):
-    def __init__(self, X=None, Y=None, Z=None):
-        super(PositionTypeSub, self).__init__(X, Y, Z, )
-supermod.PositionType.subclass = PositionTypeSub
-# end class PositionTypeSub
-
-
-class OrientationTypeSub(supermod.OrientationType):
-    def __init__(self, Qx=None, Qy=None, Qz=None, Q0=None):
-        super(OrientationTypeSub, self).__init__(Qx, Qy, Qz, Q0, )
-supermod.OrientationType.subclass = OrientationTypeSub
-# end class OrientationTypeSub
-
-
-class GatingWindowTypeSub(supermod.GatingWindowType):
-    def __init__(self, Axis=None, Entry=None, Exit=None, EntryDelay=None, FaultOnExit=None):
-        super(GatingWindowTypeSub, self).__init__(Axis, Entry, Exit, EntryDelay, FaultOnExit, )
-supermod.GatingWindowType.subclass = GatingWindowTypeSub
-# end class GatingWindowTypeSub
-
-
-class MVAcquisitionTriggerTypeSub(supermod.MVAcquisitionTriggerType):
-    def __init__(self, TriggerDelay=None, TriggerOnEnter=None, TriggerOnExit=None, SingleTrigger=None):
-        super(MVAcquisitionTriggerTypeSub, self).__init__(TriggerDelay, TriggerOnEnter, TriggerOnExit, SingleTrigger, )
-supermod.MVAcquisitionTriggerType.subclass = MVAcquisitionTriggerTypeSub
-# end class MVAcquisitionTriggerTypeSub
-
-
-class KVAcquisitionTriggerTypeSub(supermod.KVAcquisitionTriggerType):
-    def __init__(self, TriggerDelay=None, TriggerOnEnter=None, TriggerOnExit=None, SingleTrigger=None):
-        super(KVAcquisitionTriggerTypeSub, self).__init__(TriggerDelay, TriggerOnEnter, TriggerOnExit, SingleTrigger, )
-supermod.KVAcquisitionTriggerType.subclass = KVAcquisitionTriggerTypeSub
-# end class KVAcquisitionTriggerTypeSub
-
-
-class BeamHoldDevicesTypeSub(supermod.BeamHoldDevicesType):
+class BeamHoldDevicesSub(supermod.BeamHoldDevices):
     def __init__(self, Dev=None):
-        super(BeamHoldDevicesTypeSub, self).__init__(Dev, )
-supermod.BeamHoldDevicesType.subclass = BeamHoldDevicesTypeSub
-# end class BeamHoldDevicesTypeSub
+        super(BeamHoldDevicesSub, self).__init__(Dev, )
+supermod.BeamHoldDevices.subclass = BeamHoldDevicesSub
+# end class BeamHoldDevicesSub
 
 
-class DevTypeSub(supermod.DevType):
-    def __init__(self, Id=None):
-        super(DevTypeSub, self).__init__(Id, )
-supermod.DevType.subclass = DevTypeSub
-# end class DevTypeSub
-
-
-class AcquisitionSpecsTypeSub(supermod.AcquisitionSpecsType):
-    def __init__(self, Handshake=None, KV=None, MVDose=None, Gating=None):
-        super(AcquisitionSpecsTypeSub, self).__init__(Handshake, KV, MVDose, Gating, )
-supermod.AcquisitionSpecsType.subclass = AcquisitionSpecsTypeSub
-# end class AcquisitionSpecsTypeSub
-
-
-class AcquisitionParametersTypeSub(supermod.AcquisitionParametersType):
-    def __init__(self, ImageMode=None, AcquisitionMode=None, CalibrationSet=None, ImageDestination=None, NotificationDestination=None, Movie=None, RaiseFault=None, Cache=None, HistogramRoi=None, MV=None, KV=None):
-        super(AcquisitionParametersTypeSub, self).__init__(ImageMode, AcquisitionMode, CalibrationSet, ImageDestination, NotificationDestination, Movie, RaiseFault, Cache, HistogramRoi, MV, KV, )
-supermod.AcquisitionParametersType.subclass = AcquisitionParametersTypeSub
-# end class AcquisitionParametersTypeSub
-
-
-class ImageModeTypeSub(supermod.ImageModeType):
-    def __init__(self, id=None, Overwrite=None):
-        super(ImageModeTypeSub, self).__init__(id, Overwrite, )
-supermod.ImageModeType.subclass = ImageModeTypeSub
-# end class ImageModeTypeSub
-
-
-class OverwriteTypeSub(supermod.OverwriteType):
-    def __init__(self, parameter=None, valueOf_=None):
-        super(OverwriteTypeSub, self).__init__(parameter, valueOf_, )
-supermod.OverwriteType.subclass = OverwriteTypeSub
-# end class OverwriteTypeSub
-
-
-class AcquisitionModeTypeSub(supermod.AcquisitionModeType):
-    def __init__(self, id=None, Overwrite=None):
-        super(AcquisitionModeTypeSub, self).__init__(id, Overwrite, )
-supermod.AcquisitionModeType.subclass = AcquisitionModeTypeSub
-# end class AcquisitionModeTypeSub
-
-
-class OverwriteType2Sub(supermod.OverwriteType2):
-    def __init__(self, parameter=None, valueOf_=None):
-        super(OverwriteType2Sub, self).__init__(parameter, valueOf_, )
-supermod.OverwriteType2.subclass = OverwriteType2Sub
-# end class OverwriteType2Sub
-
-
-class MovieTypeSub(supermod.MovieType):
-    def __init__(self, Destination=None, Parameters=None):
-        super(MovieTypeSub, self).__init__(Destination, Parameters, )
-supermod.MovieType.subclass = MovieTypeSub
-# end class MovieTypeSub
-
-
-class ParametersTypeSub(supermod.ParametersType):
-    def __init__(self, width=None, height=None, frameRate=None, crop=None, invert=None, pixelValue0=None, pixelValue255=None, cutOff=None, weight=None):
-        super(ParametersTypeSub, self).__init__(width, height, frameRate, crop, invert, pixelValue0, pixelValue255, cutOff, weight, )
-supermod.ParametersType.subclass = ParametersTypeSub
-# end class ParametersTypeSub
-
-
-class HistogramRoiTypeSub(supermod.HistogramRoiType):
-    def __init__(self, X1=None, Y1=None, X2=None, Y2=None):
-        super(HistogramRoiTypeSub, self).__init__(X1, Y1, X2, Y2, )
-supermod.HistogramRoiType.subclass = HistogramRoiTypeSub
-# end class HistogramRoiTypeSub
-
-
-class MVTypeSub(supermod.MVType):
-    def __init__(self, Energy=None, DoseRate=None):
-        super(MVTypeSub, self).__init__(Energy, DoseRate, )
-supermod.MVType.subclass = MVTypeSub
-# end class MVTypeSub
-
-
-class KVTypeSub(supermod.KVType):
-    def __init__(self, KiloVolts=None, MilliAmperes=None, MilliSeconds=None, eFocalSpot='Large', eFluoroLevelControl='Low', AutoBrightnessControl=False):
-        super(KVTypeSub, self).__init__(KiloVolts, MilliAmperes, MilliSeconds, eFocalSpot, eFluoroLevelControl, AutoBrightnessControl, )
-supermod.KVType.subclass = KVTypeSub
-# end class KVTypeSub
-
-
-class PositionsType3Sub(supermod.PositionsType3):
-    def __init__(self, Lat=None, Lng=None, Vrt=None, Pitch=None):
-        super(PositionsType3Sub, self).__init__(Lat, Lng, Vrt, Pitch, )
-supermod.PositionsType3.subclass = PositionsType3Sub
-# end class PositionsType3Sub
+class SetBeamSub(supermod.SetBeam):
+    def __init__(self, SchemaVersion=None, Id=None, GUID=None, TrajectoryUploadInfo=None, TreatmentMode=None, MLCModel=None, TolTable=None, VelTable=None, Accs=None, ControlPoints=None, ImagingParameters=None, BeamHoldDevices=None, Tracking=None):
+        super(SetBeamSub, self).__init__(SchemaVersion, Id, GUID, TrajectoryUploadInfo, TreatmentMode, MLCModel, TolTable, VelTable, Accs, ControlPoints, ImagingParameters, BeamHoldDevices, Tracking, )
+supermod.SetBeam.subclass = SetBeamSub
+# end class SetBeamSub
 
 
 def get_root_tag(node):
@@ -413,7 +542,8 @@ def get_root_tag(node):
 
 
 def parse(inFilename, silence=False):
-    doc = parsexml_(inFilename)
+    parser = None
+    doc = parsexml_(inFilename, parser)
     rootNode = doc.getroot()
     rootTag, rootClass = get_root_tag(rootNode)
     if rootClass is None:
@@ -433,7 +563,8 @@ def parse(inFilename, silence=False):
 
 
 def parseEtree(inFilename, silence=False):
-    doc = parsexml_(inFilename)
+    parser = None
+    doc = parsexml_(inFilename, parser)
     rootNode = doc.getroot()
     rootTag, rootClass = get_root_tag(rootNode)
     if rootClass is None:
@@ -457,7 +588,8 @@ def parseEtree(inFilename, silence=False):
 
 def parseString(inString, silence=False):
     from StringIO import StringIO
-    doc = parsexml_(StringIO(inString))
+    parser = None
+    doc = parsexml_(StringIO(inString), parser)
     rootNode = doc.getroot()
     rootTag, rootClass = get_root_tag(rootNode)
     if rootClass is None:
@@ -476,7 +608,8 @@ def parseString(inString, silence=False):
 
 
 def parseLiteral(inFilename, silence=False):
-    doc = parsexml_(inFilename)
+    parser = None
+    doc = parsexml_(inFilename, parser)
     rootNode = doc.getroot()
     rootTag, rootClass = get_root_tag(rootNode)
     if rootClass is None:
@@ -501,7 +634,7 @@ Usage: python ???.py <infilename>
 
 
 def usage():
-    print USAGE_TEXT
+    print(USAGE_TEXT)
     sys.exit(1)
 
 
