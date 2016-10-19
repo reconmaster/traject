@@ -1,7 +1,7 @@
 #+OPTIONS: ':nil *:t -:t ::t <:t H:3 \n:nil ^:t arch:headline
 #+OPTIONS: author:t c:nil creator:nil d:(not "LOGBOOK") date:t e:t
-#+OPTIONS: email:nil f:t inline:t num:t p:nil pri:nil prop:nil stat:t
-#+OPTIONS: tags:t tasks:t tex:t timestamp:t title:t toc:t todo:t |:t
+#+OPTIONS: email:nil f:t inline:t num:nil p:nil pri:nil prop:nil stat:t
+#+OPTIONS: tags:t tasks:t tex:t timestamp:t title:t toc:nil todo:t |:t
 #+TITLE: traject: generate Developer Mode 2.0 trajectories
 #+DATE:
 #+AUTHOR: Andrew M. Davis
@@ -15,17 +15,53 @@
   :ID:       c0e0603e-7d7d-4b09-8c21-3621789af4a7
   :END:
 General software for managing trajectories and the interface with
-TrueBeam's Developer Mode. Most of the functionality of the code,
-classes, and methods are tracked within the docstrings of the code.
-This file is mainly to keep track of the overall code design and ideas
-that remain to be implemented.
-
+TrueBeam's Developer Mode. Control points as used with developer mode
+are implemented here with python interface. The xml schema used to
+build the xml data structure that is used for writing the new xml
+control scripts.
 * Installation
   :PROPERTIES:
   :ID:       eaccc350-7cc4-44ca-8974-55cf0e146246
   :END:
-
 ** Dependencies
    :PROPERTIES:
    :ID:       e0162040-8f2b-4e2a-90eb-a9ae6e6fcc89
    :END:
+*** [[https://pythonhosted.org/generateDS/][generateDS]]
+    :PROPERTIES:
+    :ID:       b98d38c7-f2ed-4f43-9338-084112d96aba
+    :END:
+This package is used to update the python class from the xml schema.
+*** [[http://matplotlib.org/][matplotlib]]
+    :PROPERTIES:
+    :ID:       9f27f93c-4c34-4a7f-bac0-ad3d2b0eaa50
+    :END:
+Used for visualization
+*** [[http://www.numpy.org/][numpy]]
+    :PROPERTIES:
+    :ID:       a076b858-f81f-412e-87e9-edec0026e328
+    :END:
+The heavy lifting.
+** Virtual Environment
+   :PROPERTIES:
+   :ID:       0a2d9ed1-7b8d-4b22-be7b-ca41f0f5bfcd
+   :END:
+I develop/run this in a virtual environment. If not using, just make
+sure you have numpy and matplotlib available to your environment.
+
+#+BEGIN_SRC sh
+mkvirtualenv -p /usr/bin/python2 traject && pip install -U pip
+
+pip install matplotlib
+pip install git+https://github.com/PySide/pyside-setup.git
+#+END_SRC
+* Update to New Schema
+  :PROPERTIES:
+  :ID:       3dd7aaaf-8ca6-49af-9b34-aebb0d148d38
+  :END:
+When building the beamxml class from a new scheam, the class can be
+(re-)generated using the following:
+
+#+BEGIN_SRC sh
+generateDS.py --export="write" -o "developer_mode.py" -s "developer_modes_subs.py" DeveloperModeSchema.xsd
+#+END_SRC
