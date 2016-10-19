@@ -27,11 +27,20 @@ control scripts.
    :PROPERTIES:
    :ID:       e0162040-8f2b-4e2a-90eb-a9ae6e6fcc89
    :END:
+#+BEGIN_SRC sh
+pip install lxml matplotlib sympy
+#+END_SRC
 *** [[https://pythonhosted.org/generateDS/][generateDS]]
     :PROPERTIES:
     :ID:       b98d38c7-f2ed-4f43-9338-084112d96aba
     :END:
-This package is used to update the python class from the xml schema.
+This package is used to update the developer mode python class from
+the xml schema.
+*** [[http://lxml.de/][lxml]]
+    :PROPERTIES:
+    :ID:       06b1900a-21e8-4f57-83a9-3f86d7cd4c9e
+    :END:
+Library for using xml files in python
 *** [[http://matplotlib.org/][matplotlib]]
     :PROPERTIES:
     :ID:       9f27f93c-4c34-4a7f-bac0-ad3d2b0eaa50
@@ -42,6 +51,11 @@ Used for visualization
     :ID:       a076b858-f81f-412e-87e9-edec0026e328
     :END:
 The heavy lifting.
+*** [[http://www.sympy.org/en/index.html][sympy]]
+    :PROPERTIES:
+    :ID:       76e7c495-9d2e-459e-8bdc-da76508b5400
+    :END:
+Symbolic math package
 ** Virtual Environment
    :PROPERTIES:
    :ID:       0a2d9ed1-7b8d-4b22-be7b-ca41f0f5bfcd
@@ -55,13 +69,17 @@ mkvirtualenv -p /usr/bin/python2 traject && pip install -U pip
 pip install matplotlib
 pip install git+https://github.com/PySide/pyside-setup.git
 #+END_SRC
-* Update to New Schema
+* Change Schema Version
   :PROPERTIES:
   :ID:       3dd7aaaf-8ca6-49af-9b34-aebb0d148d38
   :END:
-When building the beamxml class from a new scheam, the class can be
-(re-)generated using the following:
+When building the Developer Mode class from a new scheam, the class
+can be (re-)generated using the following in the traject/traject
+folder:
 
-#+BEGIN_SRC sh
-generateDS.py --export="write" -o "developer_mode.py" -s "developer_modes_subs.py" DeveloperModeSchema.xsd
+#+BEGIN_SRC sh :dir traject :output raw
+ln -sf ResearchBeam_HE20.xsd schema/ResearchBeam.xsd
+generateDS.py --export="write" -o "developer_mode.py" -s "developer_modes_subs.py" schema/VarianResearchBeam.xsd
 #+END_SRC
+
+#+RESULTS:

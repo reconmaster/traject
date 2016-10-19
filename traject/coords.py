@@ -1,4 +1,7 @@
-# coords.py
+# -*- coding: utf-8 -*-
+"""Class for managing coordinates
+
+"""
 
 import numpy as np
 # import transformations
@@ -8,6 +11,7 @@ class Coords(object):
     """Class for mapping general vectors into world coordinates.
 
     """
+
     def __init__(self, lat=np.zeros(1), lng=np.zeros(1),
                  vrt=np.zeros(1), basis="iec"):
         """Setup initial arrays of coordinate values
@@ -44,10 +48,10 @@ class Coords(object):
         """
         if (self._basis == "iec"):
             self.r = np.column_stack((self._lat, self._lng,
-                                     self._vrt))
+                                      self._vrt))
         elif (self._basis == "dicom"):
-            self.r = np.column_stack((self._lat, -1*self._vrt,
-                                     self._lng))
+            self.r = np.column_stack((self._lat, -1 * self._vrt,
+                                      self._lng))
         else:
             raise Exception("Invalid basis flag")
 

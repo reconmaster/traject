@@ -86,8 +86,10 @@ TODO
 
 Requirements
 ============
-* `Numpy 1.8.2 <http://www.numpy.org>`_
-* `Transformations.py 2013.06.29 <http://www.lfd.uci.edu/~gohlke/>`_
+* `lxml 3.6.4 <http://lxml.de/>`_
+* `matplotlib 1.5.3 <http://www.matplotlib.org>`_
+* `numpy 1.11.2 <http://www.numpy.org>`_
+* `sympy 1.0 <http://www.sympy.org>`_
 
 Examples
 ========

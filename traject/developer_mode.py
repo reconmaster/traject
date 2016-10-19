@@ -2,7 +2,7 @@
 # -*- coding: utf-8 -*-
 
 #
-# Generated Thu Oct 13 15:29:04 2016 by generateDS.py version 2.23a.
+# Generated Wed Oct 19 15:23:46 2016 by generateDS.py version 2.23a.
 #
 # Command line options:
 #   ('--export', 'write')
@@ -10,10 +10,10 @@
 #   ('-s', 'developer_modes_subs.py')
 #
 # Command line arguments:
-#   DeveloperModeSchema.xsd
+#   schema/VarianResearchBeam.xsd
 #
 # Command line:
-#   /home/amdavis/.virtualenvs/traject/bin/generateDS.py --export="write" -o "developer_mode.py" -s "developer_modes_subs.py" DeveloperModeSchema.xsd
+#   /home/amdavis/.virtualenvs/traject/bin/generateDS.py --export="write" -o "developer_mode.py" -s "developer_modes_subs.py" schema/VarianResearchBeam.xsd
 #
 # Current working directory (os.getcwd()):
 #   traject
@@ -3219,7 +3219,7 @@ class AcquisitionParameters(GeneratedsSuper):
     Service and only every few second one of these frame is stored
     into the gallery. NotificationDestination: -
     NotificationDestination : Tracking data are sent to this
-    notification destination Movie: - MovieDestination: This is the
+    notification destination Movie: - MovieDestination : This is the
     default destination for movie encoding"""
     subclass = None
     superclass = None
@@ -4965,9 +4965,11 @@ class ActionWindow(GeneratedsSuper):
     time does not stop while the treatment beam is held. The unit
     for the treatment time is seconds. - ConformityIndexOverArea : -
     ConformityIndexUnderArea : The supported tracking axis ID's are:
-    - Amplitude - Phase - Quality - Target_fixed.X : Target motion
-    on X axis in fix system [cm] - Target_fixed.Y : Target motion on
-    Y axis in fix system [cm] - Target_fixed.Z : Target motion on Z
+    - Amplitude : Motion amplitude of model [cm] - Phase : Motion
+    phase of model [degree, 0-360] - Quality : Quality of actual
+    motion (in model system) - Target_fixed.X : Target motion on X
+    axis in fix system [cm] - Target_fixed.Y : Target motion on Y
+    axis in fix system [cm] - Target_fixed.Z : Target motion on Z
     axis in fix system [cm] - Target_fixed.R : Target radial motion
     in fix system [cm] - Target_fixed.AngleX : Target motion around
     X axis in fix system [degree] - Target_fixed.AngleY : Target
@@ -5599,7 +5601,8 @@ class TrackingSource(GeneratedsSuper):
     AcquisitionParameters : Defines the acquisition specific
     settings as image mode name. SurrogateModel : Model definition
     of the surrogate. MotionModel : Model definition of the motion.
-    TrackingActionWindows : Action windows which are related"""
+    TrackingActionWindows : Action windows which are related to this
+    tracking source (see description of ActionWindow)"""
     subclass = None
     superclass = None
     def __init__(self, id=None, AcquisitionParameters=None, SurrogateModel=None, MotionModel=None, TrackingActionWindows=None):
@@ -5987,8 +5990,8 @@ class ImagingPoint(GeneratedsSuper):
     indices 3 and 4. In case of a beam group (or superbeam), Cp
     refers to the fractional control point index of the combined
     beam. Example: Beam group with 3 beams. First beam has 5 control
-    points:0 ≤ Cp ≤ 4. Second beam has 2 control points:5 ≤ Cp ≤ 6.
-    Third beam has 3 control points:7 ≤ Cp ≤ 9."""
+    points: 0 ≤ Cp ≤ 4. Second beam has 2 control points: 5 ≤ Cp ≤
+    6. Third beam has 3 control points: 7 ≤ Cp ≤ 9."""
     subclass = None
     superclass = None
     def __init__(self, Cp=None, Acquisition=None, AcquisitionStart=None, AcquisitionStop=None, KvFilters=None, KvBlades=None, Mvd=None, Kvd=None, Kvs=None, MvdAfter=None, KvdAfter=None, KvsAfter=None):
@@ -6837,12 +6840,11 @@ class MlcPositionsType(GeneratedsSuper):
 
 
 class SubBeamType(GeneratedsSuper):
-    """Indicates the start of a new "Sub" Beam Seq - sequence number of
-    the"Sub" Beam within the Group (0,1,2,...) Name = name of the
-    "Sub" Beam within the Group MaxRadTime = maximum radiation time
-    for this Sub beam (in seconds). The controller also calulates
-    the nominal radiation time. The smaller of the two values is
-    used."""
+    """Indicates the start of a new "Sub" Beam Seq - sequence number of the
+    "Sub" Beam within the Group (0,1,2,...) Name = name of the "Sub"
+    Beam within the Group MaxRadTime = maximum radiation time for
+    this Sub beam (in seconds). The controller also calulates the
+    nominal radiation time. The smaller of the two values is used."""
     subclass = None
     superclass = None
     def __init__(self, Seq=None, SubbeamGUID=None, Name=None, MaxRadTime=None, TrackingTrainingOnly=None):
@@ -8727,8 +8729,8 @@ class Dev(GeneratedsSuper):
     MotionImpactFlag : This beam hold device does stop motion if
     true. Table of possible combinations : ¦ MV Beam Impact ¦ Motion
     Impact ---------------------------------------------------
-    Outside Treatment ¦ False ¦ False ¦ True¦ False ¦ False¦ True ¦
-    True¦ True
+    Outside Treatment ¦ False ¦ False ¦ True ¦ False ¦ False ¦ True
+    ¦ True ¦ True
     -----------------------------------------------------------
     During Treatment ¦ False ¦ False ¦ True ¦ True | True | False If
     MVBeamImapct or MotionImpact are not present, then they default

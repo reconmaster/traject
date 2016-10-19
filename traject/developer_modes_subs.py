@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 
 #
-# Generated Thu Oct 13 15:29:06 2016 by generateDS.py version 2.23a.
+# Generated Wed Oct 19 15:23:48 2016 by generateDS.py version 2.23a.
 #
 # Command line options:
 #   ('--export', 'write')
@@ -9,10 +9,10 @@
 #   ('-s', 'developer_modes_subs.py')
 #
 # Command line arguments:
-#   DeveloperModeSchema.xsd
+#   schema/VarianResearchBeam.xsd
 #
 # Command line:
-#   /home/amdavis/.virtualenvs/traject/bin/generateDS.py --export="write" -o "developer_mode.py" -s "developer_modes_subs.py" DeveloperModeSchema.xsd
+#   /home/amdavis/.virtualenvs/traject/bin/generateDS.py --export="write" -o "developer_mode.py" -s "developer_modes_subs.py" schema/VarianResearchBeam.xsd
 #
 # Current working directory (os.getcwd()):
 #   traject

@@ -3,8 +3,8 @@
 
 import os
 import unittest
-from ..beamxml import *
-from ..trajects import *
+from traject.beamxml import *
+from traject.trajects import *
 
 
 class TestBeamXML(unittest.TestCase):
@@ -55,7 +55,7 @@ class TestBeamXML(unittest.TestCase):
                          get_Lng(), -5.)
 
         # write test xml file for verification
-        #self.bxml.write_xml()
+        # self.bxml.write_xml()
 
 
 if __name__ == '__main__':

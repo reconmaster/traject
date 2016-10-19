@@ -6,13 +6,14 @@ included to interface with the Developer Mode scans on TrueBeam
 """
 
 import numpy as np
+
+import matplotlib as mpl
 import matplotlib.pyplot as plt
+from mpl_toolkits.mplot3d import Axes3D
 
 import control_points
 import coords
 import system_config
-
-import plots
 
 
 ###################################
@@ -152,9 +153,6 @@ class Trajectory(object):
         txt_width  -- (default 470) width in pts of document
         frac_width -- (default 1) fraction of page width
         """
-        from mpl_toolkits.mplot3d import Axes3D
-
-        import matplotlib as mpl
 
         if self.vis_traj is None:
             self.vis_traj = plots.Plot(txt_width, frac_width)
