@@ -1,10 +1,12 @@
+# -*- coding: utf-8 -*-
 """Tests for traject.beamxml module
+
 """
 
-import os
 import unittest
-from traject.beamxml import *
-from traject.trajects import *
+
+from traject.beamxml import BeamXML
+from traject.trajects import Trajectory
 
 
 class TestBeamXML(unittest.TestCase):

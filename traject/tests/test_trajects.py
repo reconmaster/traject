@@ -1,9 +1,11 @@
+# -*- coding: utf-8 -*-
 """Tests for the traject.trajects module."""
 
 import unittest
+
 import numpy as np
 
-from ..trajects import *
+from traject.trajects import Trajectory
 
 
 class TestTrajectory(unittest.TestCase):
