@@ -4,7 +4,7 @@ setup(name='traject',
       version='1.0.0',
       packages=find_packages(),
 
-      install_requires=['generateDS>=2.23', 'matplotlib>=1.5'],
+      # install_requires=['matplotlib>=1.5'],
 
       # entry_points={
       #     'console_scripts': [

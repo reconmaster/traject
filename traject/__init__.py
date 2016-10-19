@@ -1,6 +1,6 @@
 # Traject, the CBCT Trajectory Library
 
-# Copyright (c) 2014, Andrew Davis
+# Copyright (c) 2014, Andrew M. Davis
 # Produced at the University of Chicago
 # All rights reserved.
 #
@@ -82,7 +82,7 @@ TODO
 :Organization:
   University of Chicago
 
-:Version: 2014.11.05
+:Version: 2016.10.01
 
 Requirements
 ============
@@ -95,7 +95,7 @@ Add some doctests here
 
 """
 
-__version__ = '2014.11.05'
+__version__ = '2016.10.01'
 __docformat__ = 'restructuredtext en'
 __all__ = []
 

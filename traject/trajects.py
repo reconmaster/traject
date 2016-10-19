@@ -25,10 +25,6 @@ class Trajectory(object):
     parameterization. This can include the frame vector array and
     anything else that is used in all of the trajectories.
 
-    .. todo:: First develop code for just the source. Then modify so
-              that the detector position can be described too (i.e. as
-              a position of the detector's center).
-
     .. todo:: General trajectory should be expressed as a piecewise
               function over time where the components are compiled
               from rotation or translation.
@@ -176,8 +172,8 @@ class Trajectory(object):
         # TODO use time or velocity to map color
         N = r.shape[0]
         cn = mpl.colors.Normalize(0, N)
-        for j in xrange(N-1):
-            ax.plot(r[j:j+2, 0], r[j:j+2, 1], r[j:j+2, 2],
+        for j in xrange(N - 1):
+            ax.plot(r[j:j + 2, 0], r[j:j + 2, 1], r[j:j + 2, 2],
                     color=plt.cm.cool(cn(j)), linewidth=3.0)
 
         if basis == 'iec':
