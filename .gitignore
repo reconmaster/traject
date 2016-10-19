@@ -1,6 +1,5 @@
 *.pyc
 *#*
-*.png
 /scratch/
 /.DS_Store
 /README.html
