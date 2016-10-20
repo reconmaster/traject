@@ -1,5 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <xs:schema xmlns:VMSHET="xsd.os.varian.com/HET" xmlns:xs="http://www.w3.org/2001/XMLSchema">
+
+
   <!--
   ***************************************************************************************
   ***
@@ -7,35 +9,38 @@
   ***
   ***************************************************************************************
   -->
+
   <xs:simpleType name="unsignedDouble">
     <xs:annotation>
       <xs:documentation>
         xs:double restricted zero and positive double.
-    </xs:documentation>
-  </xs:annotation>
-  <xs:restriction base="xs:double">
-    <xs:minInclusive value="0"/>
-  </xs:restriction>
-</xs:simpleType>
-<xs:simpleType name="NoneValue">
-  <xs:annotation>
-    <xs:documentation>
-      The "none" value string.
-    </xs:documentation>
-  </xs:annotation>
-  <xs:restriction base="xs:string">
-    <xs:enumeration value="none" />
-  </xs:restriction>
-</xs:simpleType>
-<xs:simpleType name="DoubleNone">
-  <xs:annotation>
-    <xs:documentation>
-      xs:double extended to include
-the value "none".
+      </xs:documentation>
+    </xs:annotation>
+    <xs:restriction base="xs:double">
+      <xs:minInclusive value="0"/>
+    </xs:restriction>
+  </xs:simpleType>
+
+  <xs:simpleType name="NoneValue">
+    <xs:annotation>
+      <xs:documentation>
+        The "none" value string.
+      </xs:documentation>
+    </xs:annotation>
+    <xs:restriction base="xs:string">
+      <xs:enumeration value="none" />
+    </xs:restriction>
+  </xs:simpleType>
+
+  <xs:simpleType name="DoubleNone">
+    <xs:annotation>
+      <xs:documentation>
+        xs:double extended to include the value "none".
       </xs:documentation>
     </xs:annotation>
     <xs:union memberTypes="xs:double NoneValue  " />
   </xs:simpleType>
+
   <xs:simpleType name="doubleRatio">
     <xs:annotation>
       <xs:documentation>
@@ -46,7 +51,8 @@ the value "none".
       <xs:minInclusive value="0"/>
       <xs:maxInclusive value="1"/>
     </xs:restriction>
-</xs:simpleType>
+  </xs:simpleType>
+
   <xs:simpleType name="doublePhase">
     <xs:annotation>
       <xs:documentation>
@@ -58,9 +64,13 @@ the value "none".
       <xs:maxExclusive value="360"/>
     </xs:restriction>
   </xs:simpleType>
-<!-- *************************************************************************************** ***
-*** System Wide Simple Type Definition
-*** ***************************************************************************************
+
+  <!--
+    ***************************************************************************************
+    ***
+    ***  System Wide Simple Type Definition
+    ***
+    ***************************************************************************************
   -->
   <xs:simpleType name="TreatmentModeType">
     <xs:annotation>
@@ -68,7 +78,7 @@ the value "none".
         Possible TreatmentMode values defined in restrictions below.
       </xs:documentation>
     </xs:annotation>
-    <xs:restriction base="xs:string">
+    <xs:restriction	base="xs:string">
       <xs:enumeration value="FTM"/>
       <xs:enumeration value="ISTM"/>
       <xs:enumeration value="QATM"/>
@@ -76,6 +86,7 @@ the value "none".
       <xs:enumeration value="MCTM"/>
     </xs:restriction>
   </xs:simpleType>
+
   <!--
   ***************************************************************************************
   ***
@@ -83,6 +94,7 @@ the value "none".
   ***
   ***************************************************************************************
   -->
+
   <xs:simpleType name="KvFilterType">
     <xs:annotation>
       <xs:documentation>
@@ -94,12 +106,13 @@ the value "none".
       <xs:maxInclusive value="2" />
     </xs:restriction>
   </xs:simpleType>
+
   <xs:simpleType name="SpecialPositionType">
     <xs:annotation>
       <xs:documentation>
         Predefined positions for arms:
         Position Type:
-	   retracted - arm is in a pre-defined fully retracted position.
+        retracted - arm is in a pre-defined fully retracted position.
         extended  - arm is either in a pre-defined extended position, or in a pre-defined
                     clinical area (the Vrt and Lng coordinates are within a pre-defined
                     polygon where the image can be taken according to the treatment plan).
@@ -114,10 +127,11 @@ the value "none".
       <xs:enumeration value="none" />
     </xs:restriction>
   </xs:simpleType>
+
   <xs:complexType name="ArmAxesType">
     <xs:annotation>
       <xs:documentation>
-		Arm axes clinical positions; units in cm / deg.
+        Arm axes clinical positions; units in cm / deg.
       </xs:documentation>
     </xs:annotation>
     <xs:all>
@@ -127,12 +141,14 @@ the value "none".
       <xs:element name="Pitch" type="DoubleNone" minOccurs="1" maxOccurs="1" />
     </xs:all>
   </xs:complexType>
+
   <xs:complexType name="KvFiltersPositionType">
     <xs:all>
       <xs:element name="Shape" type="KvFilterType" minOccurs="0" maxOccurs="1" />
       <xs:element name="Foil" type="KvFilterType" minOccurs="0" maxOccurs="1" />
     </xs:all>
   </xs:complexType>
+
   <xs:complexType name="BladePositionsType">
     <xs:annotation>
       <xs:documentation>
@@ -147,6 +163,7 @@ the value "none".
       <xs:element minOccurs="1" maxOccurs="1" name="KVY2" type="DoubleNone" />
     </xs:all>
   </xs:complexType>
+
   <xs:complexType name="ImagingTolerances">
     <xs:annotation>
       <xs:documentation>
@@ -161,6 +178,7 @@ the value "none".
       <xs:element minOccurs="0" maxOccurs="1" name="KvBlades" type="KvBladesTolerances" />
     </xs:sequence>
   </xs:complexType>
+
   <xs:complexType name="KvBladesTolerances">
     <xs:annotation>
       <xs:documentation>
@@ -175,6 +193,7 @@ the value "none".
       <xs:element name="KVX2" type="xs:double" minOccurs="1" maxOccurs="1" />
     </xs:sequence>
   </xs:complexType>
+
   <xs:complexType name="ArmTolerances">
     <xs:annotation>
       <xs:documentation>
@@ -182,19 +201,21 @@ the value "none".
       </xs:documentation>
     </xs:annotation>
     <xs:sequence>
-<!--units are deg or cm-->
+      <!--units are deg or cm-->
       <xs:element name="Lat" type="xs:double" minOccurs="1" maxOccurs="1" />
       <xs:element name="Lng" type="xs:double" minOccurs="1" maxOccurs="1" />
       <xs:element name="Vrt" type="xs:double" minOccurs="1" maxOccurs="1" />
       <xs:element name="Pitch" type="xs:double" minOccurs="1" maxOccurs="1" />
     </xs:sequence>
   </xs:complexType>
+
   <xs:complexType name="ArmPositionsType">
     <xs:choice>
       <xs:element name="SpecialPosition" type="SpecialPositionType" minOccurs="0" maxOccurs="1" />
       <xs:element name="Positions" type="ArmAxes" minOccurs="0" maxOccurs="1" />
     </xs:choice>
   </xs:complexType>
+
   <xs:complexType name="KvBladePositionsType">
     <xs:annotation>
       <xs:documentation>
@@ -208,11 +229,12 @@ the value "none".
       </xs:choice>
     </xs:sequence>
   </xs:complexType>
+
   <xs:complexType name="ArmAxes">
     <xs:annotation>
-<xs:documentation>
-Axes definitions for a working position of an arm.
-</xs:documentation>
+      <xs:documentation>
+        Axes definitions for a working position of an arm.
+      </xs:documentation>
     </xs:annotation>
     <xs:sequence>
       <!--units are deg or cm-->
@@ -222,6 +244,7 @@ Axes definitions for a working position of an arm.
       <xs:element minOccurs="1" maxOccurs="1" name="Pitch" type="xs:double" />
     </xs:sequence>
   </xs:complexType>
+
   <!--
   ***************************************************************************************
   ***
@@ -229,18 +252,21 @@ Axes definitions for a working position of an arm.
   ***
   ***************************************************************************************
   -->
+
   <xs:complexType name="ImageMode">
     <xs:sequence>
       <xs:element minOccurs="0" maxOccurs="unbounded" name="Overwrite" type="ModeOverwrite" />
     </xs:sequence>
     <xs:attribute name="id" type="xs:string" use="required" />
   </xs:complexType>
+
   <xs:complexType name="AcquisitionMode">
     <xs:sequence>
       <xs:element minOccurs="0" maxOccurs="unbounded" name="Overwrite" type="ModeOverwrite" />
     </xs:sequence>
     <xs:attribute name="id" type="xs:string" use="required" />
   </xs:complexType>
+
   <xs:complexType name="ModeOverwrite">
     <xs:simpleContent>
       <xs:extension base="xs:string">
@@ -248,12 +274,14 @@ Axes definitions for a working position of an arm.
       </xs:extension>
     </xs:simpleContent>
   </xs:complexType>
+
   <xs:complexType name="Movie">
     <xs:sequence>
       <xs:element minOccurs="0" maxOccurs="1" name="Destination" type="xs:string" />
       <xs:element minOccurs="0" maxOccurs="1" name="Parameters" type="MovieParameters" />
     </xs:sequence>
   </xs:complexType>
+
   <xs:complexType name="MovieParameters">
     <xs:sequence>
       <xs:element minOccurs="0" maxOccurs="1" name="Width" type="xs:int" />
@@ -267,6 +295,7 @@ Axes definitions for a working position of an arm.
       <xs:element minOccurs="0" maxOccurs="1" name="Weight" type="xs:double" />
     </xs:sequence>
   </xs:complexType>
+
   <xs:complexType name="HistogramRoi">
     <xs:sequence>
       <xs:element minOccurs="1" maxOccurs="1" name="X1" type="xs:int" />
@@ -275,12 +304,14 @@ Axes definitions for a working position of an arm.
       <xs:element minOccurs="1" maxOccurs="1" name="Y2" type="xs:int" />
     </xs:sequence>
   </xs:complexType>
+
   <xs:simpleType name="EFocalSpot">
     <xs:restriction base="xs:string">
       <xs:enumeration value="Small"/>
       <xs:enumeration value="Large"/>
     </xs:restriction>
   </xs:simpleType>
+
   <xs:simpleType name="EFluoroLevelControl">
     <xs:restriction base="xs:string">
       <xs:enumeration value="None"/>
@@ -288,6 +319,7 @@ Axes definitions for a working position of an arm.
       <xs:enumeration value="High"/>
     </xs:restriction>
   </xs:simpleType>
+
   <xs:complexType name="ImageProcessing">
     <xs:sequence>
       <xs:element minOccurs="1" maxOccurs="1" name="Timeout" type="xs:unsignedInt" default="0"/>
@@ -297,12 +329,15 @@ Axes definitions for a working position of an arm.
       <xs:element minOccurs="1" maxOccurs="1" name="Markers" type="MarkerDefinitions" />
     </xs:sequence>
   </xs:complexType>
+
+
   <xs:complexType name="MarkerDefinitions">
     <xs:choice minOccurs="1" maxOccurs="unbounded">
       <xs:element name="MarkerToleranceRadius" type="MarkerDefinitionToleranceRadius"/>
       <xs:element name="MarkerToleranceVolume" type="MarkerDefinitionToleranceVolume" />
     </xs:choice>
   </xs:complexType>
+
   <xs:complexType name="MarkerDefinition">
     <xs:sequence>
       <xs:element minOccurs="1" maxOccurs="1" name="Id" type="xs:string" />
@@ -311,6 +346,7 @@ Axes definitions for a working position of an arm.
       <xs:element minOccurs="1" maxOccurs="1" name="Z" type="xs:double" />
     </xs:sequence>
   </xs:complexType>
+
   <xs:complexType name="MarkerDefinitionToleranceRadius">
     <xs:complexContent>
       <xs:extension base="MarkerDefinition">
@@ -320,6 +356,7 @@ Axes definitions for a working position of an arm.
       </xs:extension>
     </xs:complexContent>
   </xs:complexType>
+
   <xs:complexType name="MarkerDefinitionToleranceVolume">
     <xs:complexContent>
       <xs:extension base="MarkerDefinition">
@@ -330,12 +367,14 @@ Axes definitions for a working position of an arm.
       </xs:extension>
     </xs:complexContent>
   </xs:complexType>
+
   <xs:complexType name="MVParameters">
     <xs:sequence>
       <xs:element minOccurs="0" maxOccurs="1" name="Energy" type="xs:string" />
       <xs:element minOccurs="0" maxOccurs="1" name="DoseRate" type="xs:double" />
     </xs:sequence>
   </xs:complexType>
+
   <xs:complexType name="KVParameters">
     <xs:sequence>
       <xs:element minOccurs="1" maxOccurs="1" name="KiloVolts" type="xs:double" />
@@ -343,11 +382,13 @@ Axes definitions for a working position of an arm.
       <xs:element minOccurs="1" maxOccurs="1" name="MilliSeconds" type="xs:double" />
       <xs:element minOccurs="0" maxOccurs="1" name="FocalSpot" type="EFocalSpot" default="Large"/>
       <xs:element minOccurs="0" maxOccurs="1" name="FluoroLevelControl" type="EFluoroLevelControl" default="Low"/>
-      <xs:element minOccurs="0" maxOccurs="1" name="AutoBrightnessControl" type="xs:boolean" default="false"/>
+      <xs:element minOccurs="0" maxOccurs="1" name="AutoBrightnessControl" type="xs:boolean" default="false" />
       <xs:element minOccurs="0" maxOccurs="1" name="DoseRecording" type="xs:boolean" default="true" />
       <xs:element minOccurs="0" maxOccurs="1" name="FrameRate" type="xs:int" default="0"/>
     </xs:sequence>
   </xs:complexType>
+
+
   <xs:complexType name="AcquisitionParameters">
     <xs:annotation>
       <xs:documentation>
@@ -366,9 +407,10 @@ Axes definitions for a working position of an arm.
                                                 gallery.
       NotificationDestination:
                         - NotificationDestination : Tracking data are sent to this
-                        							notification destination
-	 Movie:
-      			    - MovieDestination: This is the default destination for movie encoding
+                                                    notification destination
+      Movie:
+                        - MovieDestination    : This is the default destination
+                                                for movie encoding
       </xs:documentation>
     </xs:annotation>
     <xs:sequence>
@@ -388,6 +430,7 @@ Axes definitions for a working position of an arm.
       </xs:choice>
     </xs:sequence>
   </xs:complexType>
+
   <!--
   ***************************************************************************************
   ***
@@ -395,6 +438,7 @@ Axes definitions for a working position of an arm.
   ***
   ***************************************************************************************
   -->
+
   <xs:complexType name="Vector">
     <xs:annotation>
       <xs:documentation>
@@ -408,6 +452,7 @@ Axes definitions for a working position of an arm.
       <xs:element minOccurs="1" maxOccurs="1" name="Z" type="xs:double" />
     </xs:sequence>
   </xs:complexType>
+
   <xs:complexType name="Placement">
     <xs:annotation>
       <xs:documentation>
@@ -426,11 +471,12 @@ Axes definitions for a working position of an arm.
       <xs:element minOccurs="0" maxOccurs="1" name="AxisZ" type="Vector" />
     </xs:sequence>
   </xs:complexType>
+
   <xs:complexType name="Coefficients">
     <xs:annotation>
       <xs:documentation>
         Coefficients for the amplitude fit model. For polynomial fits, a0... are used.
- 	   For planar fit, the equation is a0 + a1*amplitude + a2*rate.
+        For planar fit, the equation is a0 + a1*amplitude + a2*rate.
       </xs:documentation>
     </xs:annotation>
     <xs:sequence>
@@ -440,6 +486,7 @@ Axes definitions for a working position of an arm.
       <xs:element minOccurs="0" maxOccurs="1" name="a3" type="xs:double" />
     </xs:sequence>
   </xs:complexType>
+
   <xs:complexType name="FitData">
     <xs:annotation>
       <xs:documentation>
@@ -457,52 +504,57 @@ Axes definitions for a working position of an arm.
       <xs:element minOccurs="1" maxOccurs="1" name="Coefficients" type="Coefficients" />
     </xs:sequence>
   </xs:complexType>
+
   <!-- Model system -->
+
   <xs:complexType name="ModelSystem">
     <xs:annotation>
       <xs:documentation>
-		The model system defines the relation between the fixed room system
-		and the model system. The model system is always pinned to the couch.
-		This means if the target moves with the couch the target position in
-		the model system does not change.
-		The couch position (lateral, longitudinal, vertical, rotation, pitch and roll)
-		are in cm. If the couch position is not defined system is pinned to:
-		  - The defined couch position of the first control point
-		  - Or if there is not definition in the first control point
-              it pins to the current couch position while loading this research beam
+       The model system defines the relation between the fixed room system
+       and the model system. The model system is always pinned to the couch.
+       This means if the target moves with the couch the target position in
+       the model system does not change.
+       The couch position (lateral, longitudinal, vertical, rotation, pitch and roll)
+       are in cm. If the couch position is not defined system is pinned to:
+          - The defined couch position of the first control point
+          - Or if there is not definition in the first control point
+            it pins to the current couch position while loading this research beam
       </xs:documentation>
     </xs:annotation>
     <xs:sequence>
-	<xs:element minOccurs="1" maxOccurs="1" name="ModelSystem_pinned" type="Placement" />
-	<xs:element name="CouchLat" minOccurs="0" maxOccurs="1" type="xs:double" />
-	<xs:element name="CouchLng" minOccurs="0" maxOccurs="1" type="xs:double" />
-	<xs:element name="CouchVrt" minOccurs="0" maxOccurs="1" type="xs:double" />
-	<xs:element name="CouchRtn" minOccurs="0" maxOccurs="1" type="xs:double" />
-	<xs:element name="CouchPit" minOccurs="0" maxOccurs="1" type="xs:double" />
-	<xs:element name="CouchRol" minOccurs="0" maxOccurs="1" type="xs:double" />
+      <xs:element minOccurs="1" maxOccurs="1" name="ModelSystem_pinned" type="Placement" />
+      <xs:element name="CouchLat" minOccurs="0" maxOccurs="1" type="xs:double" />
+      <xs:element name="CouchLng" minOccurs="0" maxOccurs="1" type="xs:double" />
+      <xs:element name="CouchVrt" minOccurs="0" maxOccurs="1" type="xs:double" />
+      <xs:element name="CouchRtn" minOccurs="0" maxOccurs="1" type="xs:double" />
+      <xs:element name="CouchPit" minOccurs="0" maxOccurs="1" type="xs:double" />
+      <xs:element name="CouchRol" minOccurs="0" maxOccurs="1" type="xs:double" />
     </xs:sequence>
   </xs:complexType>
+
   <!-- Surrogate models -->
+
   <xs:complexType name="BasicSurrogateModel">
     <xs:annotation>
       <xs:documentation>
-		The basic surrogate model defines a fix relation between the surrogate and the target.
-		The relation TargetPosition_surrogate is defined in the fixed room system.
-		By default the target position is equal to the surrogate
-		position (identity for TargetPosition_surrogate).
+      The basic surrogate model defines a fix relation between the surrogate
+      and the target. The relation TargetPosition_surrogate is defined in
+      the fixed room system.
+      By default the target position is equal to the surrogate
+      position (identity for TargetPosition_surrogate).
       </xs:documentation>
     </xs:annotation>
     <xs:sequence>
       <xs:element minOccurs="0" maxOccurs="1" name="TargetPosition_surrogate" type="Placement" />
     </xs:sequence>
   </xs:complexType>
+
   <xs:complexType name="AmplitudeFitSurrogateModel">
     <xs:annotation>
-	 <xs:documentation>
-		The amplitude fit model maps the amplitude (and rate) of the motion model onto an internal axis.
-		For each axis, a different fit can be given, see FitData comment for the equation.
-		The surrogate model is executed in the couch-pinned model coordinate system, as defined by model
-		system.
+      <xs:documentation>
+        The amplitude fit model maps the amplitude (and rate) of the motion model onto an internal axis.
+        For each axis, a different fit can be given, see FitData comment for the equation.
+        The surrogate model is executed in the couch-pinned model coordinate system, as defined by model system.
       </xs:documentation>
     </xs:annotation>
     <xs:sequence>
@@ -511,10 +563,11 @@ Axes definitions for a working position of an arm.
       <xs:element minOccurs="1" maxOccurs="1" name="Z" type="FitData" />
     </xs:sequence>
   </xs:complexType>
+
   <xs:complexType name="SurrogateModelPlugIn">
     <xs:annotation>
       <xs:documentation>
-        Surrogate model plugin is an engineering only option
+      Surrogate model plugin is an engineering only option
       </xs:documentation>
     </xs:annotation>
     <xs:sequence>
@@ -523,10 +576,11 @@ Axes definitions for a working position of an arm.
     <xs:attribute name="module" type="xs:string" use="required" />
     <xs:attribute name="name" type="xs:string" use="required" />
   </xs:complexType>
+
   <xs:complexType name="SurrogateModel">
     <xs:annotation>
       <xs:documentation>
-        The surrogate model defines the relation between the surrogate and the target.
+      The surrogate model defines the relation between the surrogate and the target.
       </xs:documentation>
     </xs:annotation>
     <xs:sequence>
@@ -537,33 +591,38 @@ Axes definitions for a working position of an arm.
       </xs:choice>
     </xs:sequence>
   </xs:complexType>
+
   <!-- Motion models -->
+
   <xs:complexType name="BasicMotionModel">
     <xs:annotation>
       <xs:documentation>
-  The basic motion model does not detect any amplitude, phase or quality
+      The basic motion model does not detect any amplitude, phase or quality
       of the breathing pattern.
       </xs:documentation>
     </xs:annotation>
   </xs:complexType>
+
   <xs:complexType name="GatingMotionModel">
     <xs:annotation>
-	<xs:documentation>
-		The gating motion model calculated the amplitude, phase and quality of
-		the breathing pattern by using SmartBreath. Furthermore the last max inhale and exhale,
-		the running average of max exhale, running average of
-		inhale and exhale period and the number of detected inhale peaks are reported.
-		By default the amplitude direction is the Z axis in the model system.
-	</xs:documentation>
+      <xs:documentation>
+      The gating motion model calculated the amplitude, phase and quality of
+      the breathing pattern by using SmartBreath. Furthermore the last max inhale
+      and exhale, the running average of max exhale, running average of
+      inhale and exhale period and the number of detected inhale peaks are
+      reported.
+      By default the amplitude direction is the Z axis in the model system.
+      </xs:documentation>
     </xs:annotation>
     <xs:sequence>
       <xs:element minOccurs="0" maxOccurs="1" name="AmplitudeDirection_model" type="Vector" />
     </xs:sequence>
   </xs:complexType>
+
   <xs:complexType name="MotionModelPlugIn">
     <xs:annotation>
       <xs:documentation>
-      	Motion model plugin is an engineering only option
+      Motion model plugin is an engineering only option
       </xs:documentation>
     </xs:annotation>
     <xs:sequence>
@@ -572,12 +631,13 @@ Axes definitions for a working position of an arm.
     <xs:attribute name="module" type="xs:string" use="required" />
     <xs:attribute name="name" type="xs:string" use="required" />
   </xs:complexType>
+
   <xs:complexType name="MotionModel">
     <xs:annotation>
       <xs:documentation>
-      	The selected motion model defines how the current breathing motion
-      	is detected. See the description of each specific motion model for
-      	further information.
+      The selected motion model defines how the current breathing motion
+      is detected. See the description of each specific motion model for
+      further information.
       </xs:documentation>
     </xs:annotation>
     <xs:sequence>
@@ -588,31 +648,35 @@ Axes definitions for a working position of an arm.
       </xs:choice>
     </xs:sequence>
   </xs:complexType>
+
   <!-- Action windows -->
- <xs:complexType name="AcquisitionTrigger">
+
+  <xs:complexType name="AcquisitionTrigger">
     <xs:annotation>
       <xs:documentation>
-       TriggerDelay   : Delay in sec before a trigger is released.
-       TriggerOnEnter : Send a trigger on enter window
-       TriggerOnExit  : Send a trigger on exit window
-       SingleTrigger  : If true a trigger is only sent once for the whole acquisition.
-      			    If false a trigger is sent every time if the
-                     	 window is enter or exit (depending on TriggerOnEnter
-                     	 and TriggerOnExit).
-    </xs:documentation>
-  </xs:annotation>
-  <xs:sequence>
-    <xs:element minOccurs="0" maxOccurs="1" name="TriggerDelay" type="xs:double" default="0" />
-    <xs:element minOccurs="0" maxOccurs="1" name="TriggerOnEnter" type="xs:boolean" default="true" />
-    <xs:element minOccurs="0" maxOccurs="1" name="TriggerOnExit" type="xs:boolean" default="false" />
-    <xs:element minOccurs="0" maxOccurs="1" name="SingleTrigger" type="xs:boolean" default="true" />
-  </xs:sequence>
- </xs:complexType>
- <xs:complexType name="AcquisitionTriggers">
+      TriggerDelay   : Delay in sec before a trigger is released.
+      TriggerOnEnter : Send a trigger on enter window
+      TriggerOnExit  : Send a trigger on exit window
+      SingleTrigger  : If true a trigger is only sent once for the whole
+                       acquisition. If false a trigger is sent every time if the
+                       window is enter or exit (depending on TriggerOnEnter
+                       and TriggerOnExit).
+      </xs:documentation>
+    </xs:annotation>
+    <xs:sequence>
+      <xs:element minOccurs="0" maxOccurs="1" name="TriggerDelay" type="xs:double" default="0" />
+      <xs:element minOccurs="0" maxOccurs="1" name="TriggerOnEnter" type="xs:boolean" default="true" />
+      <xs:element minOccurs="0" maxOccurs="1" name="TriggerOnExit" type="xs:boolean" default="false" />
+      <xs:element minOccurs="0" maxOccurs="1" name="SingleTrigger" type="xs:boolean" default="true" />
+    </xs:sequence>
+  </xs:complexType>
+
+  <xs:complexType name="AcquisitionTriggers">
     <xs:annotation>
-	<xs:documentation>
-		Use KV to sent the trigger to the kV image source and MV to trigger the MV image source.
-	</xs:documentation>
+      <xs:documentation>
+      Use KV to sent the trigger to the kV image source and MV to trigger
+      the MV image source.
+      </xs:documentation>
     </xs:annotation>
     <xs:sequence>
       <xs:choice minOccurs="1" maxOccurs="unbounded">
@@ -620,61 +684,70 @@ Axes definitions for a working position of an arm.
         <xs:element name="KV" type="AcquisitionTrigger" />
       </xs:choice>
     </xs:sequence>
- </xs:complexType>
- <xs:complexType name="ActionWindow">
-  <xs:annotation>
-	<xs:documentation>
-	Each defined action window (AW) is assigned to one axis. The AW defined
-	the system behavior if the current axis value is within or outside
-	of the defined border. It could hold the kV or MV beam (MVBeamImpact/KVBeamImpact). Additionally the action window could trigger an MV or kV image on the
-	gate transition (enter or exit window).
-	There are two different sets of axis ID's:
-	 - Global axes   : The global axes refers to a machine state
-                      and are mainly used for MU, gantry or time
-                      triggered imaging.
- 	 - Tracking axes : The tracking axes are related to a actual value
-                      determined by a running tracking acquisition.
-	The supported global axis ID's are:
-	 - MU          : Used for delta triggered imaging based on delivered MUs
-	 - GantryAngle : Used for delta triggered imaging based on gantry
- 		            rotation [degree]
-	 - Time        : Used for delta triggered imaging based on treatment time.
-      			  The treatment time does not stop while the treatment
-				  beam is held. The unit for the treatment time is seconds. - ConformityIndexOverArea :
-	 - ConformityIndexUnderArea :
-	The supported tracking axis ID's are:
-	 - Amplitude
-	 - Phase
-	 - Quality
-	 - Target_fixed.X  : Target motion on X axis in fix system [cm]
-	 - Target_fixed.Y  : Target motion on Y axis in fix system [cm]
-	 - Target_fixed.Z  : Target motion on Z axis in fix system [cm]
-	 - Target_fixed.R : Target radial motion in fix system [cm]
-	 - Target_fixed.AngleX : Target motion around X axis in fix system [degree]
-	 - Target_fixed.AngleY : Target motion around Y axis in fix system [degree]
-	 - Target_fixed.AngleZ : Target motion around Z axis in fix system [degree]
-	 - Target_model.X : Target motion on X axis in model system [cm]
-	 - Target_ model.Y : Target motion on Y axis in model system [cm]
-	 - Target_ model.Z : Target motion on Z axis in model system [cm]
-	 - Target_ model.R : Target radial motion in model system [cm]
-	 - Target_ model.AngleX : Target motion around X axis in model system [degree] - Target_ model.AngleY : Target motion around Y axis in model system [degree] - Target_ model.AngleZ : Target motion around Z axis in model system [degree]
-	Parameter description:
-	Attribut axis : Name of the axis
-	MVBeamImpact  : Hold the MV beam if tracking source is outside of the
-                action window.
-	KVBeamImpact  : Hold the kV beam if tracking source is outside of the
-                action window.
-	MotionCompensationImpact:
-	LowerLimit	: Lower limit of the action window. Unit according to axis ID.
-	UpperLimit    	: Upper limit of the action window. Unit according to axis ID.
-	Delta		: Delta value used for gantry, MU or time based triggered imaging
-	EntryDelay	: Entry delay in milli seconds
-	LingerTimeout	: Linger timeout in milli seconds
-	FaultOnExit	: Raise a fault on exit the action window
-	AcquisitionTriggers: MV or kV acquisition triggers
+  </xs:complexType>
 
-     </xs:documentation>
-   </xs:annotation>
+  <xs:complexType name="ActionWindow">
+    <xs:annotation>
+      <xs:documentation>
+      Each defined action window (AW) is assigned to one axis. The AW defined
+      the system behavior if the current axis value is within or outside
+      of the defined border. It could hold the kV or MV beam (MVBeamImpact/KVBeamImpact).
+      Additionally the action window could trigger an MV or kV image on the
+      gate transition (enter or exit window).
+
+      There are two different sets of axis ID's:
+      - Global axes   : The global axes refers to a machine state
+                        and are mainly used for MU, gantry or time
+                        triggered imaging.
+      - Tracking axes : The tracking axes are related to a actual value
+                        determined by a running tracking acquisition.
+
+      The supported global axis ID's are:
+       - MU          : Used for delta triggered imaging based on delivered MUs
+       - GantryAngle : Used for delta triggered imaging based on gantry
+                       rotation [degree]
+       - Time        : Used for delta triggered imaging based on treatment time.
+                       The treatment time does not stop while the treatment
+                       beam is held. The unit for the treatment time is seconds.
+       - ConformityIndexOverArea	:
+       - ConformityIndexUnderArea	:
+
+      The supported tracking axis ID's are:
+       - Amplitude       : Motion amplitude of model [cm]
+       - Phase           : Motion phase of model [degree, 0-360]
+       - Quality         : Quality of actual motion (in model system)
+       - Target_fixed.X  : Target motion on X axis in fix system [cm]
+       - Target_fixed.Y  : Target motion on Y axis in fix system [cm]
+       - Target_fixed.Z  : Target motion on Z axis in fix system [cm]
+       - Target_fixed.R  : Target radial motion in fix system [cm]
+       - Target_fixed.AngleX : Target motion around X axis in fix system [degree]
+       - Target_fixed.AngleY : Target motion around Y axis in fix system [degree]
+       - Target_fixed.AngleZ : Target motion around Z axis in fix system [degree]
+       - Target_model.X  : Target motion on X axis in model system [cm]
+       - Target_ model.Y : Target motion on Y axis in model system [cm]
+       - Target_ model.Z : Target motion on Z axis in model system [cm]
+       - Target_ model.R : Target radial motion in model system [cm]
+       - Target_ model.AngleX : Target motion around X axis in model system [degree]
+       - Target_ model.AngleY : Target motion around Y axis in model system [degree]
+       - Target_ model.AngleZ : Target motion around Z axis in model system [degree]
+
+      Parameter description:
+      Attribut axis : Name of the axis
+      MVBeamImpact  : Hold the MV beam if tracking source is outside of the
+                      action window.
+      KVBeamImpact  : Hold the kV beam if tracking source is outside of the
+                      action window.
+      MotionCompensationImpact:
+      LowerLimit    : Lower limit of the action window. Unit according to axis ID.
+      UpperLimit    : Upper limit of the action window. Unit according to axis ID.
+      Delta         : Delta value used for gantry, MU or time based triggered imaging
+      EntryDelay    : Entry delay in milli seconds
+      LingerTimeout : Linger timeout in milli seconds
+      FaultOnExit   : Raise a fault on exit the action window
+      AcquisitionTriggers: MV or kV acquisition triggers
+
+      </xs:documentation>
+    </xs:annotation>
     <xs:sequence>
       <xs:element minOccurs="0" maxOccurs="1" name="MVBeamImpact" type="xs:boolean" default="true" />
       <xs:element minOccurs="0" maxOccurs="1" name="KVBeamImpact" type="xs:boolean" default="false" />
@@ -689,92 +762,103 @@ Axes definitions for a working position of an arm.
     </xs:sequence>
     <xs:attribute name="axis" type="xs:string" use="required" />
   </xs:complexType>
+
   <xs:complexType name="ActionWindows">
     <xs:annotation>
-	<xs:documentation>
-	Basic Action Window:
-	The basic action window is used to define a set of gating window.
-	The beam is released automatically if the axis is within the gate again.
+      <xs:documentation>
+      Basic Action Window:
+      The basic action window is used to define a set of gating window.
+      The beam is released automatically if the axis is within the gate again.
 
-	Segmental Action Window:
-	The beam is hold if the axis is outside the defined gate but not
-	automatically resumed if the axis is inside the gate again.
-	The user needs to give the OK before resuming.
-	TODO: Verify the descriprion text for segmental
-	</xs:documentation>
+      Segmental Action Window:
+      The beam is hold if the axis is outside the defined gate but not
+      automatically resumed if the axis is inside the gate again. The user
+      needs to give the OK before resuming.
+      TODO: Verify the descriprion text for segmental
+      </xs:documentation>
     </xs:annotation>
     <xs:sequence>
       <xs:choice minOccurs="1" maxOccurs="unbounded">
-	  <xs:element name="Basic" type="ActionWindow" />
-       <xs:element name="Segmental" type="ActionWindow" />
+        <xs:element name="Basic" type="ActionWindow" />
+        <xs:element name="Segmental" type="ActionWindow" />
       </xs:choice>
     </xs:sequence>
- </xs:complexType>
-<!-- Motion compensations -->
-<xs:complexType name="BasicMotionCompensation">
-  <xs:annotation>
-    <xs:documentation>
-    </xs:documentation>
-  </xs:annotation>
-  <xs:sequence>
-    <xs:element minOccurs="0" maxOccurs="1" name="TrackingSource" type="xs:string" />
-    <xs:element minOccurs="0" maxOccurs="1" name="CompensateRotation" type="xs:boolean" default="false" />
-    <xs:element minOccurs="0" maxOccurs="2" name="Restriction_model" type="Vector" />
-  </xs:sequence>
-</xs:complexType>
-<xs:complexType name="MotionCompensationPlugIn">
-  <xs:annotation>
-    <xs:documentation>
-    Motion compensation plugin is an engineering only option
-    </xs:documentation>
-  </xs:annotation>
-  <xs:sequence>
-    <xs:any minOccurs="0" maxOccurs="unbounded" processContents="skip" />
-  </xs:sequence>
-  <xs:attribute name="module" type="xs:string" use="required" />
-  <xs:attribute name="name" type="xs:string" use="required" />
-</xs:complexType>
-<xs:complexType name="MotionCompensation">
-  <xs:annotation>
-    <xs:documentation>
-    </xs:documentation>
-  </xs:annotation>
-  <xs:sequence>
-    <xs:choice minOccurs="1" maxOccurs="1">
-      <xs:element name="Basic" type="BasicMotionCompensation" />
-      <xs:element name="PlugIn" type="MotionCompensationPlugIn" />
-    </xs:choice>
-  </xs:sequence>
-</xs:complexType>
-<!-- Tracking sources -->
-<xs:complexType name="TrackingSource">
-  <xs:annotation>
-   <xs:documentation>
-    Attribute id	: Name of the tracking source. E.g. NDI, RTX1 or RTX2
-    AcquisitionParameters	: Defines the acquisition specific settings
-    						  as image mode name.
-    SurrogateModel		: Model definition of the surrogate.
-    MotionModel		: Model definition of the motion.
-    TrackingActionWindows : Action windows which are related
-   </xs:documentation>
-  </xs:annotation>
-  <xs:sequence>
+  </xs:complexType>
+
+  <!-- Motion compensations -->
+
+  <xs:complexType name="BasicMotionCompensation">
+    <xs:annotation>
+      <xs:documentation>
+      </xs:documentation>
+    </xs:annotation>
+    <xs:sequence>
+      <xs:element minOccurs="0" maxOccurs="1" name="TrackingSource" type="xs:string" />
+      <xs:element minOccurs="0" maxOccurs="1" name="CompensateRotation" type="xs:boolean" default="false" />
+      <xs:element minOccurs="0" maxOccurs="2" name="Restriction_model" type="Vector" />
+    </xs:sequence>
+  </xs:complexType>
+
+  <xs:complexType name="MotionCompensationPlugIn">
+    <xs:annotation>
+      <xs:documentation>
+      Motion compensation plugin is an engineering only option
+      </xs:documentation>
+    </xs:annotation>
+    <xs:sequence>
+      <xs:any minOccurs="0" maxOccurs="unbounded" processContents="skip" />
+    </xs:sequence>
+    <xs:attribute name="module" type="xs:string" use="required" />
+    <xs:attribute name="name" type="xs:string" use="required" />
+  </xs:complexType>
+
+  <xs:complexType name="MotionCompensation">
+    <xs:annotation>
+      <xs:documentation>
+      </xs:documentation>
+    </xs:annotation>
+    <xs:sequence>
+      <xs:choice minOccurs="1" maxOccurs="1">
+        <xs:element name="Basic" type="BasicMotionCompensation" />
+        <xs:element name="PlugIn" type="MotionCompensationPlugIn" />
+      </xs:choice>
+    </xs:sequence>
+  </xs:complexType>
+
+  <!-- Tracking sources -->
+
+  <xs:complexType name="TrackingSource">
+    <xs:annotation>
+      <xs:documentation>
+        Attribute id          : Name of the tracking source. E.g. NDI, RTX1 or RTX2
+        AcquisitionParameters : Defines the acquisition specific settings
+                                as image mode name.
+        SurrogateModel        : Model definition of the surrogate.
+        MotionModel           : Model definition of the motion.
+        TrackingActionWindows : Action windows which are related
+                                to this tracking source (see description of ActionWindow)
+      </xs:documentation>
+    </xs:annotation>
+    <xs:sequence>
       <xs:element minOccurs="1" maxOccurs="1" name="AcquisitionParameters" type="AcquisitionParameters" />
       <xs:element minOccurs="0" maxOccurs="1" name="SurrogateModel" type="SurrogateModel" />
       <xs:element minOccurs="0" maxOccurs="1" name="MotionModel" type="MotionModel" />
       <xs:element minOccurs="0" maxOccurs="1" name="TrackingActionWindows" type="ActionWindows" />
-  </xs:sequence>
-  <xs:attribute name="id" type="xs:string" use="required" />
-</xs:complexType>
+    </xs:sequence>
+    <xs:attribute name="id" type="xs:string" use="required" />
+  </xs:complexType>
+
   <!-- Motion management parameters -->
+
   <xs:complexType name="MotionManagementParameters">
     <xs:annotation>
       <xs:documentation>
         Define XI specific motion model parameters
-		ModelSystem : Defines the model system
-		TrackingSource : Setup parameters for involved tracking sources
-		MotionCompensation : Defines the motion compensation model
-		GlobalActionWindows : Action windows which are not related
+
+        ModelSystem         : Defines the model system
+        TrackingSource      : Setup parameters for involved tracking sources
+        MotionCompensation  : Defines the motion compensation model
+        GlobalActionWindows : Action windows which are not related
                               to a tracking source (see description of ActionWindow)
       </xs:documentation>
     </xs:annotation>
@@ -785,6 +869,7 @@ Axes definitions for a working position of an arm.
       <xs:element minOccurs="0" maxOccurs="1" name="GlobalActionWindows" type="ActionWindows" />
     </xs:sequence>
   </xs:complexType>
+
   <!--
   ***************************************************************************************
   ***
@@ -792,11 +877,13 @@ Axes definitions for a working position of an arm.
   ***
   ***************************************************************************************
   -->
+
   <xs:complexType name="iTools">
     <xs:sequence>
       <xs:any minOccurs="0" maxOccurs="unbounded" processContents="skip" />
     </xs:sequence>
   </xs:complexType>
+
   <!--
   ***************************************************************************************
   ***
@@ -804,42 +891,52 @@ Axes definitions for a working position of an arm.
   ***
   ***************************************************************************************
   -->
+
   <xs:complexType name="ImagingPoints">
     <xs:annotation>
       <xs:documentation>
         Sequence of imaging points.
-        An initial imaging point at Cp=0 is mandatory for all imaging axes, which are specified in a
-	   subsequent imaging point.
+        An initial imaging point at Cp=0 is mandatory for all imaging axes, which are specified in a subsequent imaging point.
       </xs:documentation>
     </xs:annotation>
     <xs:sequence>
-	<xs:element minOccurs="1" maxOccurs="unbounded" name="ImagingPoint" type="ImagingPoint" />
+      <xs:element minOccurs="1" maxOccurs="unbounded" name="ImagingPoint" type="ImagingPoint" />
     </xs:sequence>
   </xs:complexType>
+
   <xs:complexType name="ImagingPoint">
     <xs:annotation>
       <xs:documentation>
         Imaging point.
-        Refers to fractional control point indices, e.g. 3.5 means with
-          all Clinac axes averaged between control points with indices 3 and 4.
-        In case of a beam group (or superbeam), Cp refers to the fractional
-          control point index of the combined beam.
+        Refers to fractional control point indices, e.g. 3.5 means with all Clinac axes averaged between control points with indices 3 and 4.
+        In case of a beam group (or superbeam), Cp refers to the fractional control point index of the combined beam.
         Example:
         Beam group with 3 beams.
-        First beam has 5 control points:0 &#8804; Cp &#8804; 4.
-        Second beam has 2 control points:5 &#8804; Cp &#8804; 6.
-        Third beam has 3 control points:7 &#8804; Cp &#8804; 9.
+        First beam has 5 control points:        0 &#8804; Cp &#8804; 4.
+        Second beam has 2 control points:       5 &#8804; Cp &#8804; 6.
+        Third beam has 3 control points:        7 &#8804; Cp &#8804; 9.
       </xs:documentation>
     </xs:annotation>
     <xs:sequence>
-	<!--units are deg or cm, varian internal format -->
-	<xs:element minOccurs="1" maxOccurs="1" name="Cp" type="xs:double" />
-	<xs:element minOccurs="0" maxOccurs="8" name="Acquisition" type="Acquisition" /> <xs:element minOccurs="0" maxOccurs="8" name="AcquisitionStart" type="Acquisition" /> <xs:element minOccurs="0" maxOccurs="8" name="AcquisitionStop" type="Acquisition" /> <!-- kV filter settings -->
-	<xs:element minOccurs="0" maxOccurs="1" name="KvFilters" type="KvFiltersPositionType" /> <!--desired arm /kv blade positions before the image acquisition -->
-	<xs:element minOccurs="0" maxOccurs="1" name="KvBlades" type="KvBladePositionsType" /> <xs:element minOccurs="0" maxOccurs="1" name="Mvd" type="ArmPositionsType" /> <xs:element minOccurs="0" maxOccurs="1" name="Kvd" type="ArmPositionsType" /> <xs:element minOccurs="0" maxOccurs="1" name="Kvs" type="ArmPositionsType" /> <!--desired arm position after the image acquisition -->
-	<xs:element minOccurs="0" maxOccurs="1" name="MvdAfter" type="ArmPositionsType" /> <xs:element minOccurs="0" maxOccurs="1" name="KvdAfter" type="ArmPositionsType" /> <xs:element minOccurs="0" maxOccurs="1" name="KvsAfter" type="ArmPositionsType" />
+      <!--units are deg or cm, varian internal format -->
+      <xs:element minOccurs="1" maxOccurs="1" name="Cp" type="xs:double" />
+      <xs:element minOccurs="0" maxOccurs="8" name="Acquisition" type="Acquisition" />
+      <xs:element minOccurs="0" maxOccurs="8" name="AcquisitionStart" type="Acquisition" />
+      <xs:element minOccurs="0" maxOccurs="8" name="AcquisitionStop" type="Acquisition" />
+      <!-- kV filter settings -->
+      <xs:element minOccurs="0" maxOccurs="1" name="KvFilters" type="KvFiltersPositionType" />
+      <!--desired arm /kv blade positions before the image acquisition -->
+      <xs:element minOccurs="0" maxOccurs="1" name="KvBlades" type="KvBladePositionsType" />
+      <xs:element minOccurs="0" maxOccurs="1" name="Mvd" type="ArmPositionsType" />
+      <xs:element minOccurs="0" maxOccurs="1" name="Kvd" type="ArmPositionsType" />
+      <xs:element minOccurs="0" maxOccurs="1" name="Kvs" type="ArmPositionsType" />
+      <!--desired arm position after the image acquisition -->
+      <xs:element minOccurs="0" maxOccurs="1" name="MvdAfter" type="ArmPositionsType" />
+      <xs:element minOccurs="0" maxOccurs="1" name="KvdAfter" type="ArmPositionsType" />
+      <xs:element minOccurs="0" maxOccurs="1" name="KvsAfter" type="ArmPositionsType" />
     </xs:sequence>
   </xs:complexType>
+
   <xs:complexType name="Acquisition">
     <xs:annotation>
       <xs:documentation>
@@ -852,29 +949,29 @@ Axes definitions for a working position of an arm.
       <xs:element minOccurs="0" maxOccurs="1" name="AcquisitionParameters" type="AcquisitionParameters" />
     </xs:sequence>
   </xs:complexType>
+
   <xs:complexType name="AcquisitionSpecs">
     <xs:annotation>
-	<xs:documentation>
-	 TODO: Verify with Daniel Wong is description is correct
-	 The acquisition specs defines the coordination between XI and SPV.
-	 The meaning of the handshake flag is different for kV and MV imaging.
+      <xs:documentation>
+        TODO: Verify with Daniel Wong is description is correct
 
-      Handshake for MV imaging:
+        The acquisition specs defines the coordination between XI and SPV.
+        The meaning of the handshake flag is different for kV and MV imaging.
 
-      This is used for radshot imaging where SPV places the required MV
-      dose and afterwards triggers XI to readout the detector.
-      For continuous or Dosimetry imaging this flag has to be false.
+        Handshake for MV imaging:
+        This is used for radshot imaging where SPV places the required MV
+        dose and afterwards triggers XI to readout the detector. For continuous
+        or Dosimetry imaging this flag has to be false.
 
-      Handshake for kV imaging:
+        Handshake for kV imaging:
+        If the handshake flag is true the SPV stops all axis until XI has
+        finished the kV acquisition (if the imaging point uses &lt;Acquisition&gt;)
+        or the acquisition is started/stopped (if the imaging point uses
+        &lt;AcquisitionStart&gt; or &lt;AcquisitionStop&gt;).
 
-      If the handshake flag is true the SPV stops all axis until XI has
-      finished the kV acquisition (if the imaging point uses &lt;Acquisition&gt;)
-      or the acquisition is started/stopped (if the imaging point uses
-      &lt;AcquisitionStart&gt; or &lt;AcquisitionStop&gt;).
-
-      KV:        True if image with kV Beam.
-      MVDose:    Estimated total amount of MV dose required in order to acquire the image.
-     </xs:documentation>
+        KV:        True if image with kV Beam.
+        MVDose:    Estimated total amount of MV dose required in order to acquire the image.
+      </xs:documentation>
     </xs:annotation>
     <xs:sequence>
       <xs:element minOccurs="0" maxOccurs="1" name="Handshake" type="xs:boolean" />
@@ -882,10 +979,12 @@ Axes definitions for a working position of an arm.
       <xs:element minOccurs="0" maxOccurs="1" name="MVDose" type="xs:double" />
     </xs:sequence>
   </xs:complexType>
+
   <xs:complexType name="DuringTreatment">
     <xs:annotation>
       <xs:documentation>
         Type for imaging during treatment.
+
         Images may be acquired during treatment.
         If the beam is paused while XI is in an acquiring state, the current image(s) will be dropped and
         the treatment beam can be resumed under SPV control at the control point where it was paused.
@@ -897,6 +996,7 @@ Axes definitions for a working position of an arm.
     </xs:annotation>
     <xs:sequence></xs:sequence>
   </xs:complexType>
+
   <xs:complexType name="OutsideTreatment">
     <xs:annotation>
       <xs:documentation>
@@ -907,12 +1007,13 @@ Axes definitions for a working position of an arm.
         2. The maximum MU limit (MaxMu) is reached.
         3. The operator stops the beam.
         4. A fault occurs.
+
         Supervisor beam state never changes to 'paused'.
         The reason of termination can be determined from the supervisor beam history.
+
         Note:
         The corresponding beam has the following characteristics.
-        1. There may be no MV energy defined (e.g. kV imaging or dark field acquisition), MaxMu shall be 0 in
-         this case.
+        1. There may be no MV energy defined (e.g. kV imaging or dark field acquisition), MaxMu shall be 0 in this case.
         2. The meterset values in the control points have no semantics.
         3. There may be 2 successive control points with no changes in any value.
       </xs:documentation>
@@ -921,6 +1022,7 @@ Axes definitions for a working position of an arm.
       <xs:element minOccurs="1" maxOccurs="1" name="MaxMu" type="xs:double" />
     </xs:sequence>
   </xs:complexType>
+
   <xs:element name="ImagingParameters">
     <xs:complexType>
       <xs:annotation>
@@ -942,6 +1044,8 @@ Axes definitions for a working position of an arm.
       </xs:sequence>
     </xs:complexType>
   </xs:element>
+
+
   <!--
   ***************************************************************************************
   ***
@@ -949,17 +1053,19 @@ Axes definitions for a working position of an arm.
   ***
   ***************************************************************************************
   -->
+
   <xs:element name="A" type="xs:string">
     <xs:annotation>
-     <xs:documentation>
-	Contains an array of MLC positions delimited by spaces for Bank A.
-	The first leaf in the array is A-1, and the last leaf is A-40, A-60,
-	or A-26. The positions are defined in the array as double, in
-	1 cm units, in Varian scale.
-	Values represent logical (as opposed to physical) positions in the Isocenter Plane.
-     </xs:documentation>
+      <xs:documentation>
+        Contains an array of MLC positions delimited by spaces for Bank A.
+        The first leaf in the array is A-1, and the last leaf is A-40, A-60,
+        or A-26.	The positions are defined in the array as double, in
+        1 cm units, in Varian scale.
+        Values represent logical (as opposed to physical) positions in the Isocenter Plane.
+      </xs:documentation>
     </xs:annotation>
   </xs:element>
+
   <xs:element name="B" type="xs:string">
     <xs:annotation>
       <xs:documentation>
@@ -968,6 +1074,7 @@ Axes definitions for a working position of an arm.
       </xs:documentation>
     </xs:annotation>
   </xs:element>
+
   <xs:complexType name="MlcPositionsType">
     <xs:annotation>
       <xs:documentation>
@@ -985,13 +1092,14 @@ Axes definitions for a working position of an arm.
       </xs:sequence>
     </xs:sequence>
   </xs:complexType>
+
   <xs:complexType name="SubBeamType">
     <xs:annotation>
       <xs:documentation>
         Indicates the start of a new "Sub" Beam
 
-        Seq - sequence number of the"Sub" Beam within the Group (0,1,2,...)
-        Name = name of the "Sub" Beam within the Group
+        Seq - sequence number of the	"Sub"  Beam within the Group (0,1,2,...)
+        Name = name of the "Sub"	Beam within the Group
         MaxRadTime = maximum radiation time for this Sub beam (in seconds).
         The controller also calulates the nominal radiation time.
         The smaller of the two values is used.
@@ -1005,6 +1113,7 @@ Axes definitions for a working position of an arm.
       <xs:element name="TrackingTrainingOnly" type="xs:boolean" minOccurs="0" maxOccurs="1" />
     </xs:sequence>
   </xs:complexType>
+
   <xs:element name="Cp">
     <xs:annotation>
       <xs:documentation>
@@ -1012,24 +1121,25 @@ Axes definitions for a working position of an arm.
 
         General Control Point Rules:
         1) Unspecified (i.e. unplanned) STATIC Axes,
-        should NOT APPEAR in ANY Control Point. The Control System will not enforce
-        any tolerance restrictions on such axes. However, te Control System still will ensure that
-        these axes do not move from wherever they are placed once it goes to READY.
+        should NOT APPEAR in ANY Control Point.	The Control System will not enforce
+        any tolerance restrictions on such axes.  However, te Control System still will ensure that
+        these	axes do not move from wherever they are placed once it goes to READY.
         NOTE: MLC may be unspecified STATIC by this rule.
         2) Specified STATIC Axes, whose initial positions are contained in the Beam need only
         appear in the First Control Point. The controller will ensure that they
         do not move from wherever they are placed once it goes to READY.
         3) Specified DYNAMIC Axes, whose position "program" is contained in the Beam need only
         appear in the First Control Point and any subsequent Control Point where
-        there is a change in their position. The controller will ensure that they
+        there is a change in their position.  The controller will ensure that they
         follow their position "program" during the treatment).
         4) Only one independent jaw of a pair may be appear in a Control Point.
         It is not necessary for both to appear. This could occur if only one jaw is dynamic.
-        5) MU is cumulative. From one control point to the next, it can only go up
-        or stay the same. It cannot decrease.
+        5) MU is cumulative.	From one control point to the next, it can only go up
+        or stay the same.	It cannot decrease.
+
 
         Units:
-        1) Energy - A unique signature for the energy of the form "dds" where
+        1) Energy  - A unique signature for the energy of the form "dds" where
         dd = 0-99,
         and s = 'x', 'e', or 'h', where
         x -- MV X-Rays
@@ -1058,8 +1168,9 @@ Axes definitions for a working position of an arm.
         The Name Attribute is the name of an Individual Beam with a Group of Beams.
         The presence of a name attribute indicates the start of a new Individual Beam.
         If there is only one Beam in the Group, only the 1st Cp will have the Name Attribute.
+
         TreatProgressEvent: Any Control Point which is marked with a "TreatProgressEvent" element causes
-        the Control System to broadcast a "TreatProgress" event. (See schema for "TreatProgress" event
+        the Control System to broadcast a "TreatProgress" event.	(See schema for "TreatProgress" event
         for more details.)
       </xs:documentation>
     </xs:annotation>
@@ -1087,9 +1198,10 @@ Axes definitions for a working position of an arm.
       </xs:sequence>
     </xs:complexType>
   </xs:element>
+
   <xs:element name="ControlPoints">
     <xs:annotation>
-	 <xs:documentation>
+      <xs:documentation>
         Segment Treatment Table
       </xs:documentation>
     </xs:annotation>
@@ -1104,12 +1216,14 @@ Axes definitions for a working position of an arm.
       </xs:sequence>
     </xs:complexType>
   </xs:element>
+
+
   <!--***************************************************************************************
-               ***
-               ***  Beam Tracking Definitions
-               ***
-               ***************************************************************************************
-               -->
+		***
+		***  Beam Tracking Definitions
+		***
+		***************************************************************************************
+		-->
   <xs:complexType name="ConformityType">
     <xs:annotation>
       <xs:documentation>
@@ -1121,15 +1235,19 @@ Axes definitions for a working position of an arm.
       <xs:element name="UnderExposure" type="unsignedDouble" minOccurs="1" maxOccurs="1" />
     </xs:sequence>
   </xs:complexType>
+
   <xs:simpleType name="TrackingMotionType">
     <xs:annotation>
       <xs:documentation>
         If the axis should follow the tracking target or the baseline position.
-</xs:documentation> </xs:annotation>
-<xs:restriction base="xs:string">
-<xs:enumeration value="target"/>
-<xs:enumeration value="baseline"/> </xs:restriction>
+      </xs:documentation>
+    </xs:annotation>
+    <xs:restriction	base="xs:string">
+      <xs:enumeration	value="target"/>
+      <xs:enumeration	value="baseline"/>
+    </xs:restriction>
   </xs:simpleType>
+
   <xs:complexType name="TrackingAxis">
     <xs:annotation>
       <xs:documentation>
@@ -1139,11 +1257,12 @@ Axes definitions for a working position of an arm.
     <xs:attribute name="Tol" type="unsignedDouble"/>
     <xs:attribute name="MotionType" type="TrackingMotionType"/>
   </xs:complexType>
+
   <xs:complexType name="TrackingMLC">
     <xs:annotation>
-	 <xs:documentation>
-	   If this is in the beam, tracking is enabled for the collimation system.
-	   Specifying an ExpectedTargetSpeed > 0 will result in circulating leaf pairs in reserve.
+      <xs:documentation>
+        If this is in the beam, tracking is enabled for the collimation system.
+        Specifying an ExpectedTargetSpeed > 0 will result in circulating leaf pairs in reserve.
         YTargetRange is an additional paramter for the leaf pairs in reserve which bounds
         circulation up to the given range in Y direction.
       </xs:documentation>
@@ -1154,20 +1273,20 @@ Axes definitions for a working position of an arm.
     <xs:attribute name="ExpectedTargetSpeed" type="unsignedDouble"/>
     <xs:attribute name="YTargetRange" type="unsignedDouble"/>
   </xs:complexType>
+
   <xs:complexType name="TrackingPhase">
     <xs:annotation>
-	 <xs:documentation>
-	   If in the beam, phase tracking is enabled. Every control point has to contain
-	   valid phase information.
-	   Phase is given in degrees [0.0;360.0[.
-	   Trajectory execution speed will be adapted to match the plan phase with the online
-	   measured phase from XI.
-	   MaxPhaseLag is the maximum lag in phase space that is tolerated; if the plan execution
-	   lags more behind, the trajectory engine will hold and wait for the next breathing phase.
+      <xs:documentation>
+        If in the beam, phase tracking is enabled. Every control point has to contain valid phase information.
+        Phase is given in degrees [0.0;360.0[.
+        Trajectory execution speed will be adapted to match the plan phase with the online measured phase from XI.
+        MaxPhaseLag is the maximum lag in phase space that is tolerated; if the plan execution lags more behind,
+        the trajectory engine will hold and wait for the next breathing phase.
       </xs:documentation>
     </xs:annotation>
     <xs:attribute name="MaxPhaseLag" type="doublePhase"/>
   </xs:complexType>
+
   <xs:complexType name="TrackingAxisList">
     <xs:annotation>
       <xs:documentation>
@@ -1184,6 +1303,7 @@ Axes definitions for a working position of an arm.
       <xs:element name="Phase" type="TrackingPhase" minOccurs="0" maxOccurs="1" />
     </xs:sequence>
   </xs:complexType>
+
   <!--
   ***************************************************************************************
   ***
@@ -1191,17 +1311,21 @@ Axes definitions for a working position of an arm.
   ***
   ***************************************************************************************
   -->
+
   <!-- Tracking -->
+
   <xs:element name="Tracking">
     <xs:annotation>
       <xs:documentation>
         Define the tracking enable status plus the tracking capability ratio.
+
         The following rules are enforced:
-         - couch axes require either the axis Tol or the ConformityTol to be set
-         - jaw tracking (X12 and Y12) requires MLC tracking (Mlc)
-         - Mlc tracking requires ConformityTol to be set
-         - any tracking axis must have at least initial positions in the first control point
-         - if ConformityTol is specified there must be at least initial positions of Mlc and jaws.
+        - couch axes require either the axis Tol or the ConformityTol to be set
+        - jaw tracking (X12 and Y12) requires MLC tracking (Mlc)
+        - Mlc tracking requires ConformityTol to be set
+        - any tracking axis must have at least initial positions in the first control point
+        - if ConformityTol is specified there must be at least initial positions of Mlc and jaws.
+
         Tracking capability ratio range between 0 and 1.0, with 1.0 means tracking trajectory would
         be generated with full capabilities of axes.
       </xs:documentation>
@@ -1214,24 +1338,32 @@ Axes definitions for a working position of an arm.
       </xs:sequence>
     </xs:complexType>
   </xs:element>
+
+
   <!-- MLC Model -->
+
   <xs:simpleType name="MLCModelType">
     <xs:annotation>
-	<xs:documentation>
-	  Define the model of MLC that is required for the plan. Possible MLC model Enumeration May need to moved to CommonDefinitions.xsd.
-	</xs:documentation>
+      <xs:documentation>
+        Define the model of MLC that is required for the plan. Possible MLC model Enumeration
+        May need to moved to CommonDefinitions.xsd.
+      </xs:documentation>
     </xs:annotation>
-    <xs:restriction base="xs:string">
-	<xs:enumeration value="NDS80"/>
-	<xs:enumeration value="NDS120"/>
-	<xs:enumeration value="NDS120HD"/>
+    <xs:restriction	base="xs:string">
+      <xs:enumeration	value="NDS80"/>
+      <xs:enumeration	value="NDS120"/>
+      <xs:enumeration	value="NDS120HD"/>
+      <xs:enumeration value="STK114"/>
     </xs:restriction>
   </xs:simpleType>
+
   <!-- Tolerance Table -->
+
   <xs:element name="TolTable">
     <xs:annotation>
       <xs:documentation>
         Tolerance Table
+
         RULES:
         1. If an individual axis has a specified zero tolerance value or a missing tolerance element,
         the Control System will impose its tight internal tolerance on that axis.
@@ -1240,115 +1372,126 @@ Axes definitions for a working position of an arm.
       </xs:documentation>
     </xs:annotation>
     <xs:complexType>
-	<xs:sequence>
-	 <!--units are deg or cm ... -->
-	 <xs:element name="GantryRtn" type="xs:double" minOccurs="0" maxOccurs="1" />
-	 <xs:element name="CollRtn" type="xs:double" minOccurs="0" maxOccurs="1" />
-	 <xs:element name="CouchVrt" type="xs:double" minOccurs="0" maxOccurs="1" />
-	 <xs:element name="CouchLat" type="xs:double" minOccurs="0" maxOccurs="1" />
-	 <xs:element name="CouchLng" type="xs:double" minOccurs="0" maxOccurs="1" />
-	 <xs:element name="CouchRtn" type="xs:double" minOccurs="0" maxOccurs="1" />
-	 <xs:element name="CouchPit" type="xs:double" minOccurs="0" maxOccurs="1" />
-	 <xs:element name="CouchRol" type="xs:double" minOccurs="0" maxOccurs="1" />
-	 <xs:element name="Y12" type="xs:double" minOccurs="0" maxOccurs="1" />
-      <!-- ... independent Y tolerance -->
-      <xs:element name="X12" type="xs:double" minOccurs="0" maxOccurs="1" />
-      <!-- ... independent X tolerance -->
-    </xs:sequence>
-   </xs:complexType>
+      <xs:sequence>
+        <!--units are deg or cm ... -->
+        <xs:element name="GantryRtn" type="xs:double" minOccurs="0" maxOccurs="1" />
+        <xs:element name="CollRtn" type="xs:double" minOccurs="0" maxOccurs="1" />
+        <xs:element name="CouchVrt" type="xs:double" minOccurs="0" maxOccurs="1" />
+        <xs:element name="CouchLat" type="xs:double" minOccurs="0" maxOccurs="1" />
+        <xs:element name="CouchLng" type="xs:double" minOccurs="0" maxOccurs="1" />
+        <xs:element name="CouchRtn" type="xs:double" minOccurs="0" maxOccurs="1" />
+        <xs:element name="CouchPit" type="xs:double" minOccurs="0" maxOccurs="1" />
+        <xs:element name="CouchRol" type="xs:double" minOccurs="0" maxOccurs="1" />
+        <xs:element name="Y12" type="xs:double" minOccurs="0" maxOccurs="1" />
+        <!-- ... independent Y tolerance -->
+        <xs:element name="X12" type="xs:double" minOccurs="0" maxOccurs="1" />
+        <!-- ... independent X tolerance -->
+      </xs:sequence>
+    </xs:complexType>
   </xs:element>
-<!-- Maximal Velocity Table -->
-<xs:element name="VelTable">
-  <xs:annotation>
-    <xs:documentation>
-      Max Velocity Table:
-      This table can be used to specify top velocities of axes to be used in the treatment.
-      RULES:
-      1. If an individual axis has a specified max velocity value, then the Control
-      System will use the smaller of the specified max velocity and the maximum supported
-      max velocity of that axis.
-    </xs:documentation>
-  </xs:annotation>
-  <xs:complexType>
-   <xs:sequence>
-    <!--units are 1 deg/sec or 1 cm/sec ... -->
-    <xs:element name="GantryRtn" type="xs:double" minOccurs="0" maxOccurs="1" />
-    <xs:element name="CollRtn" type="xs:double" minOccurs="0" maxOccurs="1" />
-    <xs:element name="CouchVrt" type="xs:double" minOccurs="0" maxOccurs="1" />
-    <xs:element name="CouchLat" type="xs:double" minOccurs="0" maxOccurs="1" />
-    <xs:element name="CouchLng" type="xs:double" minOccurs="0" maxOccurs="1" />
-    <xs:element name="CouchRtn" type="xs:double" minOccurs="0" maxOccurs="1" />
-    <xs:element name="CouchPit" type="xs:double" minOccurs="0" maxOccurs="1" />
-    <xs:element name="CouchRol" type="xs:double" minOccurs="0" maxOccurs="1" />
-    <xs:element name="X1" type="xs:double" minOccurs="0" maxOccurs="1" />
-    <xs:element name="X2" type="xs:double" minOccurs="0" maxOccurs="1" />
-    <xs:element name="Y1" type="xs:double" minOccurs="0" maxOccurs="1" />
-    <xs:element name="Y2" type="xs:double" minOccurs="0" maxOccurs="1" />
-   </xs:sequence>
-  </xs:complexType>
-</xs:element>
-<!-- Accessories -->
-<xs:element name="Accs">
-  <xs:annotation>
-   <xs:documentation>
-    The planned Accessory Codes for each slot.
 
-    RULES:
-    1. A missing element for a slot means that ANY accessory can be installed in the slot
-      without causing an interlock; i.e. "don't care".
-    2. The value '0' (zero) in a slot means that no accessory must be installed in the slot.
-    3. Any other integer value in a slot means that an accessory with that accessory code must
-    be installed in that slot.
-   </xs:documentation>
- </xs:annotation>
- <xs:complexType>
+  <!-- Maximal Velocity Table -->
 
-  <xs:sequence>
-   <xs:element name="Acc1" type="xs:int" minOccurs="0" maxOccurs="1" />
-   <xs:element name="Acc2" type="xs:int" minOccurs="0" maxOccurs="1" />
-   <xs:element name="Acc3" type="xs:int" minOccurs="0" maxOccurs="1" />
-   <xs:element name="Acc4" type="xs:int" minOccurs="0" maxOccurs="1" />
-   </xs:sequence>
-  </xs:complexType>
-</xs:element>
-<!-- Beam Hold Devices -->
-<xs:element name="Dev">
-  <xs:annotation>
-   <xs:documentation>
-    The planned mode flags for the particular beam hold device. This
-    schema should be able to accommodate EXGI, which is an external
-    gating device, or any other beam hold device and define its usage
-    connected directly to the BGM.
-    MVBeamImpactFlag : This beam hold device does hold the treatment beam if true.
-    MotionImpactFlag : This beam hold device does stop motion if true.
-    Table of possible combinations :
-    ¦ MV Beam Impact ¦ Motion Impact
-    ---------------------------------------------------
-    Outside Treatment ¦ False ¦ False
-    ¦ True¦ False
-    ¦ False¦ True
-    ¦ True¦ True
-    -----------------------------------------------------------
-    During Treatment ¦ False          ¦ False
-    ¦ True           ¦ True
-    | True           | False
-    If MVBeamImapct or MotionImpact are not present, then they default to true.
-    SyncStop is an experimental features, which ramps down the plan execution including the beam
-    before the beam hold state is reached. Use with MVBeamImpact=false (since BGM delays
-    beam-hold until told by SPV), and MotionImpact=true.
-   </xs:documentation>
-  </xs:annotation>
-  <xs:complexType>
+  <xs:element name="VelTable">
+    <xs:annotation>
+      <xs:documentation>
+        Max Velocity Table:
+        This table can be used to specify top velocities of axes to be used in the treatment.
+
+        RULES:
+        1. If an individual axis has a specified max velocity value, then the Control
+        System will use the smaller of the specified max velocity and the maximum supported
+        max velocity of that axis.
+      </xs:documentation>
+    </xs:annotation>
+    <xs:complexType>
+      <xs:sequence>
+        <!--units are 1 deg/sec or 1 cm/sec ... -->
+        <xs:element name="GantryRtn" type="xs:double" minOccurs="0" maxOccurs="1" />
+        <xs:element name="CollRtn" type="xs:double" minOccurs="0" maxOccurs="1" />
+        <xs:element name="CouchVrt" type="xs:double" minOccurs="0" maxOccurs="1" />
+        <xs:element name="CouchLat" type="xs:double" minOccurs="0" maxOccurs="1" />
+        <xs:element name="CouchLng" type="xs:double" minOccurs="0" maxOccurs="1" />
+        <xs:element name="CouchRtn" type="xs:double" minOccurs="0" maxOccurs="1" />
+        <xs:element name="CouchPit" type="xs:double" minOccurs="0" maxOccurs="1" />
+        <xs:element name="CouchRol" type="xs:double" minOccurs="0" maxOccurs="1" />
+        <xs:element name="X1" type="xs:double" minOccurs="0" maxOccurs="1" />
+        <xs:element name="X2" type="xs:double" minOccurs="0" maxOccurs="1" />
+        <xs:element name="Y1" type="xs:double" minOccurs="0" maxOccurs="1" />
+        <xs:element name="Y2" type="xs:double" minOccurs="0" maxOccurs="1" />
+      </xs:sequence>
+    </xs:complexType>
+  </xs:element>
+
+  <!-- Accessories -->
+
+  <xs:element name="Accs">
+    <xs:annotation>
+      <xs:documentation>
+        The planned Accessory Codes for each slot.
+
+        RULES:
+        1. A missing element for a slot means that ANY accessory can be installed in the slot
+        without causing an interlock; i.e. "don't care".
+        2. The value '0' (zero) in a slot means that no accessory must be installed in the slot.
+        3. Any other integer value in a slot means that an accessory with that accessory code must
+        be installed in that slot.
+      </xs:documentation>
+    </xs:annotation>
+    <xs:complexType>
+      <xs:sequence>
+        <xs:element name="Acc1" type="xs:int" minOccurs="0" maxOccurs="1" />
+        <xs:element name="Acc2" type="xs:int" minOccurs="0" maxOccurs="1" />
+        <xs:element name="Acc3" type="xs:int" minOccurs="0" maxOccurs="1" />
+        <xs:element name="Acc4" type="xs:int" minOccurs="0" maxOccurs="1" />
+      </xs:sequence>
+    </xs:complexType>
+  </xs:element>
+
+  <!-- Beam Hold Devices -->
+
+  <xs:element name="Dev">
+    <xs:annotation>
+      <xs:documentation>
+        The planned mode flags for the particular beam hold device.  This
+        schema should be able to accommodate EXGI, which is an external
+        gating device, or any other beam hold device and define its usage
+        connected directly to the BGM.
+        MVBeamImpactFlag  : This beam hold device does hold the treatment beam if true.
+        MotionImpactFlag  : This beam hold device does stop motion if true.
+
+        Table of possible combinations :
+        ¦ MV Beam Impact ¦ Motion Impact
+        ---------------------------------------------------
+        Outside Treatment ¦ False          ¦ False
+        ¦ True           ¦ False
+        ¦ False          ¦ True
+        ¦ True           ¦ True
+        -----------------------------------------------------------
+        During Treatment ¦ False          ¦ False
+        ¦ True           ¦ True
+        | True           | False
+
+        If MVBeamImapct or MotionImpact are not present, then they default to true.
+
+        SyncStop is an experimental features, which ramps down the plan execution including the beam
+        before the beam hold state is reached. Use with MVBeamImpact=false (since BGM delays
+        beam-hold until told by SPV), and MotionImpact=true.
+      </xs:documentation>
+    </xs:annotation>
+    <xs:complexType>
       <xs:attribute name="Id" type="xs:int"/>
       <xs:attribute name="MVBeamImpact" type="xs:boolean" use="optional"/>
       <xs:attribute name="MotionImpact" type="xs:boolean" use="optional"/>
       <xs:attribute name="SyncStop" type="xs:boolean" use="optional"/>
-  </xs:complexType>
-</xs:element>
+    </xs:complexType>
+  </xs:element>
+
   <xs:element name="BeamHoldDevices">
     <xs:annotation>
       <xs:documentation>
         The planned beam hold devices.
+
         RULES:
         1. A missing beam hold device means that the beam hold devie must not be ready.
         2. A present beam hold device must be ready
@@ -1361,32 +1504,35 @@ Axes definitions for a working position of an arm.
         <xs:element ref="Dev" minOccurs="1" maxOccurs="unbounded" />
       </xs:sequence>
     </xs:complexType>
-</xs:element>
-<!-- Root -->
-<xs:element name="SetBeam">
-  <xs:annotation>
-    <xs:documentation>
-      The root element of the research beam
-      Id - unique Beam ID
-      TolTable - the tolerance table for the beam
-      ControlPoints - the set of control points for the beam
-    </xs:documentation>
-  </xs:annotation>
-  <xs:complexType>
-    <xs:sequence>
-      <xs:element name="SchemaVersion" type="xs:string" minOccurs="0" maxOccurs="1" />
-      <xs:element name="Id" type="xs:int" minOccurs="1" maxOccurs="1" />
-      <xs:element name="GUID" type="xs:string" minOccurs="0" maxOccurs="1" />
-      <xs:element name="TrajectoryUploadInfo" type="xs:anyURI" minOccurs="0" maxOccurs="1" />
-      <xs:element name="TreatmentMode" type="TreatmentModeType" minOccurs="0" maxOccurs="1" />
-      <xs:element name="MLCModel" type="MLCModelType" minOccurs="1" maxOccurs="1" />
-      <xs:element ref="TolTable" minOccurs="0" maxOccurs="1" />
-      <xs:element ref="VelTable" minOccurs="0" maxOccurs="1" />
-      <xs:element ref="Accs" minOccurs="1" maxOccurs="1" />
-      <xs:element ref="ControlPoints" minOccurs="1" maxOccurs="1" />
-      <xs:element ref="ImagingParameters" minOccurs="0" maxOccurs="1" />
-      <xs:element ref="BeamHoldDevices" minOccurs="0" maxOccurs="1" />
-      <xs:element ref="Tracking" minOccurs="0" maxOccurs="1" />
+  </xs:element>
+
+  <!-- Root -->
+
+  <xs:element name="SetBeam">
+    <xs:annotation>
+      <xs:documentation>
+        The root element of the research beam
+
+        Id - unique Beam ID
+        TolTable - the tolerance table for the beam
+        ControlPoints - the set of control points for the beam
+      </xs:documentation>
+    </xs:annotation>
+    <xs:complexType>
+      <xs:sequence>
+        <xs:element name="SchemaVersion" type="xs:string" minOccurs="0" maxOccurs="1" />
+        <xs:element name="Id" type="xs:int" minOccurs="1" maxOccurs="1" />
+        <xs:element name="GUID" type="xs:string" minOccurs="0" maxOccurs="1" />
+        <xs:element name="TrajectoryUploadInfo" type="xs:anyURI" minOccurs="0" maxOccurs="1" />
+        <xs:element name="TreatmentMode" type="TreatmentModeType" minOccurs="0" maxOccurs="1" />
+        <xs:element name="MLCModel" type="MLCModelType" minOccurs="1" maxOccurs="1" />
+        <xs:element ref="TolTable" minOccurs="0" maxOccurs="1" />
+        <xs:element ref="VelTable" minOccurs="0" maxOccurs="1" />
+        <xs:element ref="Accs" minOccurs="1" maxOccurs="1" />
+        <xs:element ref="ControlPoints" minOccurs="1" maxOccurs="1" />
+        <xs:element ref="ImagingParameters" minOccurs="0" maxOccurs="1" />
+        <xs:element ref="BeamHoldDevices" minOccurs="0" maxOccurs="1" />
+        <xs:element ref="Tracking" minOccurs="0" maxOccurs="1" />
       </xs:sequence>
     </xs:complexType>
   </xs:element>

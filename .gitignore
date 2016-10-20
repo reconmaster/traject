@@ -1,5 +1,7 @@
 *.pyc
 *#*
+*.egg-info
+*.png
 /scratch/
 /.DS_Store
 /README.html

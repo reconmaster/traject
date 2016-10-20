@@ -1,9 +1,15 @@
+# -*- coding: utf-8 -*-
 """Tests for the traject.trajects module."""
 
 import unittest
+
 import numpy as np
 
-from ..trajects import *
+from traject.trajects import Trajectory
+
+# for debugging, place debug_here() whenever needed
+import ipdb
+debug_here = ipdb.set_trace
 
 
 class TestTrajectory(unittest.TestCase):
@@ -28,6 +34,8 @@ class TestTrajectory(unittest.TestCase):
 
     def test_valid_times(self):
         """Make sure the times are valid.
+
+        .. todo:: This needs to be populated
         """
         self.assertGreaterEqual(len(self.traj.t), 1)
 

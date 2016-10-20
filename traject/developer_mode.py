@@ -2,7 +2,7 @@
 # -*- coding: utf-8 -*-
 
 #
-# Generated Thu Oct 13 15:29:04 2016 by generateDS.py version 2.23a.
+# Generated Wed Oct 19 15:23:46 2016 by generateDS.py version 2.23a.
 #
 # Command line options:
 #   ('--export', 'write')
@@ -10,10 +10,10 @@
 #   ('-s', 'developer_modes_subs.py')
 #
 # Command line arguments:
-#   DeveloperModeSchema.xsd
+#   schema/VarianResearchBeam.xsd
 #
 # Command line:
-#   /home/amdavis/.virtualenvs/traject/bin/generateDS.py --export="write" -o "developer_mode.py" -s "developer_modes_subs.py" DeveloperModeSchema.xsd
+#   /home/amdavis/.virtualenvs/traject/bin/generateDS.py --export="write" -o "developer_mode.py" -s "developer_modes_subs.py" schema/VarianResearchBeam.xsd
 #
 # Current working directory (os.getcwd()):
 #   traject
@@ -62,33 +62,46 @@ except ImportError as exp:
 
     class GeneratedsSuper(object):
         tzoff_pattern = re_.compile(r'(\+|-)((0\d|1[0-3]):[0-5]\d|14:00)$')
+
         class _FixedOffsetTZ(datetime_.tzinfo):
+
             def __init__(self, offset, name):
                 self.__offset = datetime_.timedelta(minutes=offset)
                 self.__name = name
+
             def utcoffset(self, dt):
                 return self.__offset
+
             def tzname(self, dt):
                 return self.__name
+
             def dst(self, dt):
                 return None
+
         def gds_format_string(self, input_data, input_name=''):
             return input_data
+
         def gds_validate_string(self, input_data, node=None, input_name=''):
             if not input_data:
                 return ''
             else:
                 return input_data
+
         def gds_format_base64(self, input_data, input_name=''):
             return base64.b64encode(input_data)
+
         def gds_validate_base64(self, input_data, node=None, input_name=''):
             return input_data
+
         def gds_format_integer(self, input_data, input_name=''):
             return '%d' % input_data
+
         def gds_validate_integer(self, input_data, node=None, input_name=''):
             return input_data
+
         def gds_format_integer_list(self, input_data, input_name=''):
             return '%s' % ' '.join(input_data)
+
         def gds_validate_integer_list(
                 self, input_data, node=None, input_name=''):
             values = input_data.split()
@@ -98,12 +111,16 @@ except ImportError as exp:
                 except (TypeError, ValueError):
                     raise_parse_error(node, 'Requires sequence of integers')
             return values
+
         def gds_format_float(self, input_data, input_name=''):
             return ('%.15f' % input_data).rstrip('0')
+
         def gds_validate_float(self, input_data, node=None, input_name=''):
             return input_data
+
         def gds_format_float_list(self, input_data, input_name=''):
             return '%s' % ' '.join(input_data)
+
         def gds_validate_float_list(
                 self, input_data, node=None, input_name=''):
             values = input_data.split()
@@ -113,12 +130,16 @@ except ImportError as exp:
                 except (TypeError, ValueError):
                     raise_parse_error(node, 'Requires sequence of floats')
             return values
+
         def gds_format_double(self, input_data, input_name=''):
             return '%e' % input_data
+
         def gds_validate_double(self, input_data, node=None, input_name=''):
             return input_data
+
         def gds_format_double_list(self, input_data, input_name=''):
             return '%s' % ' '.join(input_data)
+
         def gds_validate_double_list(
                 self, input_data, node=None, input_name=''):
             values = input_data.split()
@@ -128,12 +149,16 @@ except ImportError as exp:
                 except (TypeError, ValueError):
                     raise_parse_error(node, 'Requires sequence of doubles')
             return values
+
         def gds_format_boolean(self, input_data, input_name=''):
             return ('%s' % input_data).lower()
+
         def gds_validate_boolean(self, input_data, node=None, input_name=''):
             return input_data
+
         def gds_format_boolean_list(self, input_data, input_name=''):
             return '%s' % ' '.join(input_data)
+
         def gds_validate_boolean_list(
                 self, input_data, node=None, input_name=''):
             values = input_data.split()
@@ -144,8 +169,10 @@ except ImportError as exp:
                         'Requires sequence of booleans '
                         '("true", "1", "false", "0")')
             return values
+
         def gds_validate_datetime(self, input_data, node=None, input_name=''):
             return input_data
+
         def gds_format_datetime(self, input_data, input_name=''):
             if input_data.microsecond == 0:
                 _svalue = '%04d-%02d-%02dT%02d:%02d:%02d' % (
@@ -182,6 +209,7 @@ except ImportError as exp:
                         minutes = (total_seconds - (hours * 3600)) // 60
                         _svalue += '{0:02d}:{1:02d}'.format(hours, minutes)
             return _svalue
+
         @classmethod
         def gds_parse_datetime(cls, input_data):
             tz = None
@@ -209,8 +237,10 @@ except ImportError as exp:
                     input_data, '%Y-%m-%dT%H:%M:%S')
             dt = dt.replace(tzinfo=tz)
             return dt
+
         def gds_validate_date(self, input_data, node=None, input_name=''):
             return input_data
+
         def gds_format_date(self, input_data, input_name=''):
             _svalue = '%04d-%02d-%02d' % (
                 input_data.year,
@@ -237,6 +267,7 @@ except ImportError as exp:
             except AttributeError:
                 pass
             return _svalue
+
         @classmethod
         def gds_parse_date(cls, input_data):
             tz = None
@@ -256,8 +287,10 @@ except ImportError as exp:
             dt = datetime_.datetime.strptime(input_data, '%Y-%m-%d')
             dt = dt.replace(tzinfo=tz)
             return dt.date()
+
         def gds_validate_time(self, input_data, node=None, input_name=''):
             return input_data
+
         def gds_format_time(self, input_data, input_name=''):
             if input_data.microsecond == 0:
                 _svalue = '%02d:%02d:%02d' % (
@@ -288,6 +321,7 @@ except ImportError as exp:
                         minutes = (total_seconds - (hours * 3600)) // 60
                         _svalue += '{0:02d}:{1:02d}'.format(hours, minutes)
             return _svalue
+
         def gds_validate_simple_patterns(self, patterns, target):
             # pat is a list of lists of strings/patterns.  We should:
             # - AND the outer elements
@@ -303,6 +337,7 @@ except ImportError as exp:
                     found1 = False
                     break
             return found1
+
         @classmethod
         def gds_parse_time(cls, input_data):
             tz = None
@@ -325,8 +360,10 @@ except ImportError as exp:
                 dt = datetime_.datetime.strptime(input_data, '%H:%M:%S')
             dt = dt.replace(tzinfo=tz)
             return dt.time()
+
         def gds_str_lower(self, instring):
             return instring.lower()
+
         def get_path_(self, node):
             path_list = []
             self.get_path_list_(node, path_list)
@@ -334,6 +371,7 @@ except ImportError as exp:
             path = '/'.join(path_list)
             return path
         Tag_strip_pattern_ = re_.compile(r'\{.*\}')
+
         def get_path_list_(self, node, path_list):
             if node is None:
                 return
@@ -341,6 +379,7 @@ except ImportError as exp:
             if tag:
                 path_list.append(tag)
             self.get_path_list_(node.getparent(), path_list)
+
         def get_class_obj_(self, node, default_class=None):
             class_obj1 = default_class
             if 'xsi' in node.nsmap:
@@ -353,11 +392,14 @@ except ImportError as exp:
                     if class_obj2 is not None:
                         class_obj1 = class_obj2
             return class_obj1
+
         def gds_build_any(self, node, type_name=None):
             return None
+
         @classmethod
         def gds_reverse_node_mapping(cls, mapping):
             return dict(((v, k) for k, v in mapping.iteritems()))
+
         @staticmethod
         def gds_encode(instring):
             if sys.version_info.major == 2:
@@ -381,9 +423,9 @@ except ImportError as exp:
 
 ## from IPython.Shell import IPShellEmbed
 ## args = ''
-## ipshell = IPShellEmbed(args,
+# ipshell = IPShellEmbed(args,
 ##     banner = 'Dropping into IPython',
-##     exit_msg = 'Leaving Interpreter, back to program.')
+# exit_msg = 'Leaving Interpreter, back to program.')
 
 # Then use the following line where and when you want to drop into the
 # IPython shell:
@@ -520,19 +562,25 @@ class MixedContainer:
     TypeDouble = 6
     TypeBoolean = 7
     TypeBase64 = 8
+
     def __init__(self, category, content_type, name, value):
         self.category = category
         self.content_type = content_type
         self.name = name
         self.value = value
+
     def getCategory(self):
         return self.category
+
     def getContenttype(self, content_type):
         return self.content_type
+
     def getValue(self):
         return self.value
+
     def getName(self):
         return self.name
+
     def export(self, outfile, level, name, namespace, pretty_print=True):
         if self.category == MixedContainer.CategoryText:
             # Prevent exporting empty content as empty lines.
@@ -542,6 +590,7 @@ class MixedContainer:
             self.exportSimple(outfile, level, name)
         else:    # category == MixedContainer.CategoryComplex
             self.value.export(outfile, level, namespace, name, pretty_print)
+
     def exportSimple(self, outfile, level, name):
         if self.content_type == MixedContainer.TypeString:
             outfile.write('<%s>%s</%s>' % (
@@ -560,6 +609,7 @@ class MixedContainer:
         elif self.content_type == MixedContainer.TypeBase64:
             outfile.write('<%s>%s</%s>' % (
                 self.name, base64.b64encode(self.value), self.name))
+
     def to_etree(self, element):
         if self.category == MixedContainer.CategoryText:
             # Prevent exporting empty content as empty lines.
@@ -579,6 +629,7 @@ class MixedContainer:
             subelement.text = self.to_etree_simple()
         else:    # category == MixedContainer.CategoryComplex
             self.value.to_etree(element)
+
     def to_etree_simple(self):
         if self.content_type == MixedContainer.TypeString:
             text = self.value
@@ -593,6 +644,7 @@ class MixedContainer:
         elif self.content_type == MixedContainer.TypeBase64:
             text = '%s' % base64.b64encode(self.value)
         return text
+
     def exportLiteral(self, outfile, level, name):
         if self.category == MixedContainer.CategoryText:
             showIndent(outfile, level)
@@ -615,14 +667,20 @@ class MixedContainer:
 
 
 class MemberSpec_(object):
+
     def __init__(self, name='', data_type='', container=0):
         self.name = name
         self.data_type = data_type
         self.container = container
+
     def set_name(self, name): self.name = name
+
     def get_name(self): return self.name
+
     def set_data_type(self, data_type): self.data_type = data_type
+
     def get_data_type_chain(self): return self.data_type
+
     def get_data_type(self):
         if isinstance(self.data_type, list):
             if len(self.data_type) > 0:
@@ -631,7 +689,9 @@ class MemberSpec_(object):
                 return 'xs:string'
         else:
             return self.data_type
+
     def set_container(self, container): self.container = container
+
     def get_container(self): return self.container
 
 
@@ -648,11 +708,13 @@ def _cast(typ, value):
 class VarianResearchBeam(GeneratedsSuper):
     subclass = None
     superclass = None
+
     def __init__(self, SchemaVersion=None, Scale=None, SetBeam=None):
         self.original_tagname_ = None
         self.SchemaVersion = _cast(None, SchemaVersion)
         self.Scale = _cast(None, Scale)
         self.SetBeam = SetBeam
+
     def factory(*args_, **kwargs_):
         if CurrentSubclassModule_ is not None:
             subclass = getSubclassFromModule_(
@@ -664,12 +726,20 @@ class VarianResearchBeam(GeneratedsSuper):
         else:
             return VarianResearchBeam(*args_, **kwargs_)
     factory = staticmethod(factory)
+
     def get_SetBeam(self): return self.SetBeam
+
     def set_SetBeam(self, SetBeam): self.SetBeam = SetBeam
+
     def get_SchemaVersion(self): return self.SchemaVersion
-    def set_SchemaVersion(self, SchemaVersion): self.SchemaVersion = SchemaVersion
+
+    def set_SchemaVersion(
+        self, SchemaVersion): self.SchemaVersion = SchemaVersion
+
     def get_Scale(self): return self.Scale
+
     def set_Scale(self, Scale): self.Scale = Scale
+
     def validate_ResearchBeamVersion(self, value):
         # Validate type ResearchBeamVersion, a restriction on xs:string.
         if value is not None and Validate_simpletypes_:
@@ -681,7 +751,9 @@ class VarianResearchBeam(GeneratedsSuper):
                     enumeration_respectee = True
                     break
             if not enumeration_respectee:
-                warnings_.warn('Value "%(value)s" does not match xsd enumeration restriction on ResearchBeamVersion' % {"value" : value.encode("utf-8")} )
+                warnings_.warn('Value "%(value)s" does not match xsd enumeration restriction on ResearchBeamVersion' % {
+                               "value": value.encode("utf-8")})
+
     def validate_Scale(self, value):
         # Validate type Scale, a restriction on xs:string.
         if value is not None and Validate_simpletypes_:
@@ -693,7 +765,9 @@ class VarianResearchBeam(GeneratedsSuper):
                     enumeration_respectee = True
                     break
             if not enumeration_respectee:
-                warnings_.warn('Value "%(value)s" does not match xsd enumeration restriction on Scale' % {"value" : value.encode("utf-8")} )
+                warnings_.warn('Value "%(value)s" does not match xsd enumeration restriction on Scale' % {
+                               "value": value.encode("utf-8")})
+
     def hasContent_(self):
         if (
             self.SetBeam is not None
@@ -701,6 +775,7 @@ class VarianResearchBeam(GeneratedsSuper):
             return True
         else:
             return False
+
     def export(self, outfile, level, namespace_='', name_='VarianResearchBeam', namespacedef_='', pretty_print=True):
         if pretty_print:
             eol_ = '\n'
@@ -709,30 +784,38 @@ class VarianResearchBeam(GeneratedsSuper):
         if self.original_tagname_ is not None:
             name_ = self.original_tagname_
         showIndent(outfile, level, pretty_print)
-        outfile.write('<%s%s%s' % (namespace_, name_, namespacedef_ and ' ' + namespacedef_ or '', ))
+        outfile.write('<%s%s%s' % (namespace_, name_,
+                                   namespacedef_ and ' ' + namespacedef_ or '', ))
         already_processed = set()
-        self.exportAttributes(outfile, level, already_processed, namespace_, name_='VarianResearchBeam')
+        self.exportAttributes(outfile, level, already_processed,
+                              namespace_, name_='VarianResearchBeam')
         if self.hasContent_():
             outfile.write('>%s' % (eol_, ))
-            self.exportChildren(outfile, level + 1, namespace_='', name_='VarianResearchBeam', pretty_print=pretty_print)
+            self.exportChildren(outfile, level + 1, namespace_='',
+                                name_='VarianResearchBeam', pretty_print=pretty_print)
             showIndent(outfile, level, pretty_print)
             outfile.write('</%s%s>%s' % (namespace_, name_, eol_))
         else:
             outfile.write('/>%s' % (eol_, ))
+
     def exportAttributes(self, outfile, level, already_processed, namespace_='', name_='VarianResearchBeam'):
         if self.SchemaVersion is not None and 'SchemaVersion' not in already_processed:
             already_processed.add('SchemaVersion')
-            outfile.write(' SchemaVersion=%s' % (quote_attrib(self.SchemaVersion), ))
+            outfile.write(' SchemaVersion=%s' %
+                          (quote_attrib(self.SchemaVersion), ))
         if self.Scale is not None and 'Scale' not in already_processed:
             already_processed.add('Scale')
             outfile.write(' Scale=%s' % (quote_attrib(self.Scale), ))
+
     def exportChildren(self, outfile, level, namespace_='', name_='VarianResearchBeam', fromsubclass_=False, pretty_print=True):
         if pretty_print:
             eol_ = '\n'
         else:
             eol_ = ''
         if self.SetBeam is not None:
-            self.SetBeam.export(outfile, level, namespace_, name_='SetBeam', pretty_print=pretty_print)
+            self.SetBeam.export(outfile, level, namespace_,
+                                name_='SetBeam', pretty_print=pretty_print)
+
     def build(self, node):
         already_processed = set()
         self.buildAttributes(node, node.attrib, already_processed)
@@ -740,17 +823,20 @@ class VarianResearchBeam(GeneratedsSuper):
             nodeName_ = Tag_pattern_.match(child.tag).groups()[-1]
             self.buildChildren(child, node, nodeName_)
         return self
+
     def buildAttributes(self, node, attrs, already_processed):
         value = find_attr_value_('SchemaVersion', node)
         if value is not None and 'SchemaVersion' not in already_processed:
             already_processed.add('SchemaVersion')
             self.SchemaVersion = value
-            self.validate_ResearchBeamVersion(self.SchemaVersion)    # validate type ResearchBeamVersion
+            # validate type ResearchBeamVersion
+            self.validate_ResearchBeamVersion(self.SchemaVersion)
         value = find_attr_value_('Scale', node)
         if value is not None and 'Scale' not in already_processed:
             already_processed.add('Scale')
             self.Scale = value
             self.validate_Scale(self.Scale)    # validate type Scale
+
     def buildChildren(self, child_, node, nodeName_, fromsubclass_=False):
         if nodeName_ == 'SetBeam':
             obj_ = SetBeam.factory()
@@ -764,6 +850,7 @@ class ArmAxesType(GeneratedsSuper):
     """Arm axes clinical positions; units in cm / deg."""
     subclass = None
     superclass = None
+
     def __init__(self, Lat=None, Lng=None, Vrt=None, Pitch=None):
         self.original_tagname_ = None
         self.Lat = Lat
@@ -774,6 +861,7 @@ class ArmAxesType(GeneratedsSuper):
         self.validate_DoubleNone(self.Vrt)
         self.Pitch = Pitch
         self.validate_DoubleNone(self.Pitch)
+
     def factory(*args_, **kwargs_):
         if CurrentSubclassModule_ is not None:
             subclass = getSubclassFromModule_(
@@ -785,17 +873,27 @@ class ArmAxesType(GeneratedsSuper):
         else:
             return ArmAxesType(*args_, **kwargs_)
     factory = staticmethod(factory)
+
     def get_Lat(self): return self.Lat
+
     def set_Lat(self, Lat): self.Lat = Lat
+
     def get_Lng(self): return self.Lng
+
     def set_Lng(self, Lng): self.Lng = Lng
+
     def get_Vrt(self): return self.Vrt
+
     def set_Vrt(self, Vrt): self.Vrt = Vrt
+
     def get_Pitch(self): return self.Pitch
+
     def set_Pitch(self, Pitch): self.Pitch = Pitch
+
     def validate_DoubleNone(self, value):
         # Validate type DoubleNone, a restriction on None.
         pass
+
     def hasContent_(self):
         if (
             self.Lat is not None or
@@ -806,6 +904,7 @@ class ArmAxesType(GeneratedsSuper):
             return True
         else:
             return False
+
     def export(self, outfile, level, namespace_='', name_='ArmAxesType', namespacedef_='', pretty_print=True):
         if pretty_print:
             eol_ = '\n'
@@ -814,18 +913,23 @@ class ArmAxesType(GeneratedsSuper):
         if self.original_tagname_ is not None:
             name_ = self.original_tagname_
         showIndent(outfile, level, pretty_print)
-        outfile.write('<%s%s%s' % (namespace_, name_, namespacedef_ and ' ' + namespacedef_ or '', ))
+        outfile.write('<%s%s%s' % (namespace_, name_,
+                                   namespacedef_ and ' ' + namespacedef_ or '', ))
         already_processed = set()
-        self.exportAttributes(outfile, level, already_processed, namespace_, name_='ArmAxesType')
+        self.exportAttributes(
+            outfile, level, already_processed, namespace_, name_='ArmAxesType')
         if self.hasContent_():
             outfile.write('>%s' % (eol_, ))
-            self.exportChildren(outfile, level + 1, namespace_='', name_='ArmAxesType', pretty_print=pretty_print)
+            self.exportChildren(outfile, level + 1, namespace_='',
+                                name_='ArmAxesType', pretty_print=pretty_print)
             showIndent(outfile, level, pretty_print)
             outfile.write('</%s%s>%s' % (namespace_, name_, eol_))
         else:
             outfile.write('/>%s' % (eol_, ))
+
     def exportAttributes(self, outfile, level, already_processed, namespace_='', name_='ArmAxesType'):
         pass
+
     def exportChildren(self, outfile, level, namespace_='', name_='ArmAxesType', fromsubclass_=False, pretty_print=True):
         if pretty_print:
             eol_ = '\n'
@@ -833,16 +937,21 @@ class ArmAxesType(GeneratedsSuper):
             eol_ = ''
         if self.Lat is not None:
             showIndent(outfile, level, pretty_print)
-            outfile.write('<%sLat>%s</%sLat>%s' % (namespace_, self.gds_encode(self.gds_format_string(quote_xml(self.Lat), input_name='Lat')), namespace_, eol_))
+            outfile.write('<%sLat>%s</%sLat>%s' % (namespace_, self.gds_encode(
+                self.gds_format_string(quote_xml(self.Lat), input_name='Lat')), namespace_, eol_))
         if self.Lng is not None:
             showIndent(outfile, level, pretty_print)
-            outfile.write('<%sLng>%s</%sLng>%s' % (namespace_, self.gds_encode(self.gds_format_string(quote_xml(self.Lng), input_name='Lng')), namespace_, eol_))
+            outfile.write('<%sLng>%s</%sLng>%s' % (namespace_, self.gds_encode(
+                self.gds_format_string(quote_xml(self.Lng), input_name='Lng')), namespace_, eol_))
         if self.Vrt is not None:
             showIndent(outfile, level, pretty_print)
-            outfile.write('<%sVrt>%s</%sVrt>%s' % (namespace_, self.gds_encode(self.gds_format_string(quote_xml(self.Vrt), input_name='Vrt')), namespace_, eol_))
+            outfile.write('<%sVrt>%s</%sVrt>%s' % (namespace_, self.gds_encode(
+                self.gds_format_string(quote_xml(self.Vrt), input_name='Vrt')), namespace_, eol_))
         if self.Pitch is not None:
             showIndent(outfile, level, pretty_print)
-            outfile.write('<%sPitch>%s</%sPitch>%s' % (namespace_, self.gds_encode(self.gds_format_string(quote_xml(self.Pitch), input_name='Pitch')), namespace_, eol_))
+            outfile.write('<%sPitch>%s</%sPitch>%s' % (namespace_, self.gds_encode(
+                self.gds_format_string(quote_xml(self.Pitch), input_name='Pitch')), namespace_, eol_))
+
     def build(self, node):
         already_processed = set()
         self.buildAttributes(node, node.attrib, already_processed)
@@ -850,8 +959,10 @@ class ArmAxesType(GeneratedsSuper):
             nodeName_ = Tag_pattern_.match(child.tag).groups()[-1]
             self.buildChildren(child, node, nodeName_)
         return self
+
     def buildAttributes(self, node, attrs, already_processed):
         pass
+
     def buildChildren(self, child_, node, nodeName_, fromsubclass_=False):
         if nodeName_ == 'Lat':
             Lat_ = child_.text
@@ -883,12 +994,14 @@ class ArmAxesType(GeneratedsSuper):
 class KvFiltersPositionType(GeneratedsSuper):
     subclass = None
     superclass = None
+
     def __init__(self, Shape=None, Foil=None):
         self.original_tagname_ = None
         self.Shape = Shape
         self.validate_KvFilterType(self.Shape)
         self.Foil = Foil
         self.validate_KvFilterType(self.Foil)
+
     def factory(*args_, **kwargs_):
         if CurrentSubclassModule_ is not None:
             subclass = getSubclassFromModule_(
@@ -900,17 +1013,25 @@ class KvFiltersPositionType(GeneratedsSuper):
         else:
             return KvFiltersPositionType(*args_, **kwargs_)
     factory = staticmethod(factory)
+
     def get_Shape(self): return self.Shape
+
     def set_Shape(self, Shape): self.Shape = Shape
+
     def get_Foil(self): return self.Foil
+
     def set_Foil(self, Foil): self.Foil = Foil
+
     def validate_KvFilterType(self, value):
         # Validate type KvFilterType, a restriction on xs:integer.
         if value is not None and Validate_simpletypes_:
             if value < 0:
-                warnings_.warn('Value "%(value)s" does not match xsd minInclusive restriction on KvFilterType' % {"value" : value} )
+                warnings_.warn('Value "%(value)s" does not match xsd minInclusive restriction on KvFilterType' % {
+                               "value": value})
             if value > 2:
-                warnings_.warn('Value "%(value)s" does not match xsd maxInclusive restriction on KvFilterType' % {"value" : value} )
+                warnings_.warn('Value "%(value)s" does not match xsd maxInclusive restriction on KvFilterType' % {
+                               "value": value})
+
     def hasContent_(self):
         if (
             self.Shape is not None or
@@ -919,6 +1040,7 @@ class KvFiltersPositionType(GeneratedsSuper):
             return True
         else:
             return False
+
     def export(self, outfile, level, namespace_='', name_='KvFiltersPositionType', namespacedef_='', pretty_print=True):
         if pretty_print:
             eol_ = '\n'
@@ -927,18 +1049,23 @@ class KvFiltersPositionType(GeneratedsSuper):
         if self.original_tagname_ is not None:
             name_ = self.original_tagname_
         showIndent(outfile, level, pretty_print)
-        outfile.write('<%s%s%s' % (namespace_, name_, namespacedef_ and ' ' + namespacedef_ or '', ))
+        outfile.write('<%s%s%s' % (namespace_, name_,
+                                   namespacedef_ and ' ' + namespacedef_ or '', ))
         already_processed = set()
-        self.exportAttributes(outfile, level, already_processed, namespace_, name_='KvFiltersPositionType')
+        self.exportAttributes(outfile, level, already_processed,
+                              namespace_, name_='KvFiltersPositionType')
         if self.hasContent_():
             outfile.write('>%s' % (eol_, ))
-            self.exportChildren(outfile, level + 1, namespace_='', name_='KvFiltersPositionType', pretty_print=pretty_print)
+            self.exportChildren(outfile, level + 1, namespace_='',
+                                name_='KvFiltersPositionType', pretty_print=pretty_print)
             showIndent(outfile, level, pretty_print)
             outfile.write('</%s%s>%s' % (namespace_, name_, eol_))
         else:
             outfile.write('/>%s' % (eol_, ))
+
     def exportAttributes(self, outfile, level, already_processed, namespace_='', name_='KvFiltersPositionType'):
         pass
+
     def exportChildren(self, outfile, level, namespace_='', name_='KvFiltersPositionType', fromsubclass_=False, pretty_print=True):
         if pretty_print:
             eol_ = '\n'
@@ -946,10 +1073,13 @@ class KvFiltersPositionType(GeneratedsSuper):
             eol_ = ''
         if self.Shape is not None:
             showIndent(outfile, level, pretty_print)
-            outfile.write('<%sShape>%s</%sShape>%s' % (namespace_, self.gds_format_integer(self.Shape, input_name='Shape'), namespace_, eol_))
+            outfile.write('<%sShape>%s</%sShape>%s' % (namespace_,
+                                                       self.gds_format_integer(self.Shape, input_name='Shape'), namespace_, eol_))
         if self.Foil is not None:
             showIndent(outfile, level, pretty_print)
-            outfile.write('<%sFoil>%s</%sFoil>%s' % (namespace_, self.gds_format_integer(self.Foil, input_name='Foil'), namespace_, eol_))
+            outfile.write('<%sFoil>%s</%sFoil>%s' % (namespace_,
+                                                     self.gds_format_integer(self.Foil, input_name='Foil'), namespace_, eol_))
+
     def build(self, node):
         already_processed = set()
         self.buildAttributes(node, node.attrib, already_processed)
@@ -957,8 +1087,10 @@ class KvFiltersPositionType(GeneratedsSuper):
             nodeName_ = Tag_pattern_.match(child.tag).groups()[-1]
             self.buildChildren(child, node, nodeName_)
         return self
+
     def buildAttributes(self, node, attrs, already_processed):
         pass
+
     def buildChildren(self, child_, node, nodeName_, fromsubclass_=False):
         if nodeName_ == 'Shape':
             sval_ = child_.text
@@ -987,6 +1119,7 @@ class BladePositionsType(GeneratedsSuper):
     """Positions of the kV Blades; units in cm."""
     subclass = None
     superclass = None
+
     def __init__(self, KVX1=None, KVX2=None, KVY1=None, KVY2=None):
         self.original_tagname_ = None
         self.KVX1 = KVX1
@@ -997,6 +1130,7 @@ class BladePositionsType(GeneratedsSuper):
         self.validate_DoubleNone(self.KVY1)
         self.KVY2 = KVY2
         self.validate_DoubleNone(self.KVY2)
+
     def factory(*args_, **kwargs_):
         if CurrentSubclassModule_ is not None:
             subclass = getSubclassFromModule_(
@@ -1008,17 +1142,27 @@ class BladePositionsType(GeneratedsSuper):
         else:
             return BladePositionsType(*args_, **kwargs_)
     factory = staticmethod(factory)
+
     def get_KVX1(self): return self.KVX1
+
     def set_KVX1(self, KVX1): self.KVX1 = KVX1
+
     def get_KVX2(self): return self.KVX2
+
     def set_KVX2(self, KVX2): self.KVX2 = KVX2
+
     def get_KVY1(self): return self.KVY1
+
     def set_KVY1(self, KVY1): self.KVY1 = KVY1
+
     def get_KVY2(self): return self.KVY2
+
     def set_KVY2(self, KVY2): self.KVY2 = KVY2
+
     def validate_DoubleNone(self, value):
         # Validate type DoubleNone, a restriction on None.
         pass
+
     def hasContent_(self):
         if (
             self.KVX1 is not None or
@@ -1029,6 +1173,7 @@ class BladePositionsType(GeneratedsSuper):
             return True
         else:
             return False
+
     def export(self, outfile, level, namespace_='', name_='BladePositionsType', namespacedef_='', pretty_print=True):
         if pretty_print:
             eol_ = '\n'
@@ -1037,18 +1182,23 @@ class BladePositionsType(GeneratedsSuper):
         if self.original_tagname_ is not None:
             name_ = self.original_tagname_
         showIndent(outfile, level, pretty_print)
-        outfile.write('<%s%s%s' % (namespace_, name_, namespacedef_ and ' ' + namespacedef_ or '', ))
+        outfile.write('<%s%s%s' % (namespace_, name_,
+                                   namespacedef_ and ' ' + namespacedef_ or '', ))
         already_processed = set()
-        self.exportAttributes(outfile, level, already_processed, namespace_, name_='BladePositionsType')
+        self.exportAttributes(outfile, level, already_processed,
+                              namespace_, name_='BladePositionsType')
         if self.hasContent_():
             outfile.write('>%s' % (eol_, ))
-            self.exportChildren(outfile, level + 1, namespace_='', name_='BladePositionsType', pretty_print=pretty_print)
+            self.exportChildren(outfile, level + 1, namespace_='',
+                                name_='BladePositionsType', pretty_print=pretty_print)
             showIndent(outfile, level, pretty_print)
             outfile.write('</%s%s>%s' % (namespace_, name_, eol_))
         else:
             outfile.write('/>%s' % (eol_, ))
+
     def exportAttributes(self, outfile, level, already_processed, namespace_='', name_='BladePositionsType'):
         pass
+
     def exportChildren(self, outfile, level, namespace_='', name_='BladePositionsType', fromsubclass_=False, pretty_print=True):
         if pretty_print:
             eol_ = '\n'
@@ -1056,16 +1206,21 @@ class BladePositionsType(GeneratedsSuper):
             eol_ = ''
         if self.KVX1 is not None:
             showIndent(outfile, level, pretty_print)
-            outfile.write('<%sKVX1>%s</%sKVX1>%s' % (namespace_, self.gds_encode(self.gds_format_string(quote_xml(self.KVX1), input_name='KVX1')), namespace_, eol_))
+            outfile.write('<%sKVX1>%s</%sKVX1>%s' % (namespace_, self.gds_encode(
+                self.gds_format_string(quote_xml(self.KVX1), input_name='KVX1')), namespace_, eol_))
         if self.KVX2 is not None:
             showIndent(outfile, level, pretty_print)
-            outfile.write('<%sKVX2>%s</%sKVX2>%s' % (namespace_, self.gds_encode(self.gds_format_string(quote_xml(self.KVX2), input_name='KVX2')), namespace_, eol_))
+            outfile.write('<%sKVX2>%s</%sKVX2>%s' % (namespace_, self.gds_encode(
+                self.gds_format_string(quote_xml(self.KVX2), input_name='KVX2')), namespace_, eol_))
         if self.KVY1 is not None:
             showIndent(outfile, level, pretty_print)
-            outfile.write('<%sKVY1>%s</%sKVY1>%s' % (namespace_, self.gds_encode(self.gds_format_string(quote_xml(self.KVY1), input_name='KVY1')), namespace_, eol_))
+            outfile.write('<%sKVY1>%s</%sKVY1>%s' % (namespace_, self.gds_encode(
+                self.gds_format_string(quote_xml(self.KVY1), input_name='KVY1')), namespace_, eol_))
         if self.KVY2 is not None:
             showIndent(outfile, level, pretty_print)
-            outfile.write('<%sKVY2>%s</%sKVY2>%s' % (namespace_, self.gds_encode(self.gds_format_string(quote_xml(self.KVY2), input_name='KVY2')), namespace_, eol_))
+            outfile.write('<%sKVY2>%s</%sKVY2>%s' % (namespace_, self.gds_encode(
+                self.gds_format_string(quote_xml(self.KVY2), input_name='KVY2')), namespace_, eol_))
+
     def build(self, node):
         already_processed = set()
         self.buildAttributes(node, node.attrib, already_processed)
@@ -1073,8 +1228,10 @@ class BladePositionsType(GeneratedsSuper):
             nodeName_ = Tag_pattern_.match(child.tag).groups()[-1]
             self.buildChildren(child, node, nodeName_)
         return self
+
     def buildAttributes(self, node, attrs, already_processed):
         pass
+
     def buildChildren(self, child_, node, nodeName_, fromsubclass_=False):
         if nodeName_ == 'KVX1':
             KVX1_ = child_.text
@@ -1108,12 +1265,14 @@ class ImagingTolerances(GeneratedsSuper):
     system)."""
     subclass = None
     superclass = None
+
     def __init__(self, Mvd=None, Kvd=None, Kvs=None, KvBlades=None):
         self.original_tagname_ = None
         self.Mvd = Mvd
         self.Kvd = Kvd
         self.Kvs = Kvs
         self.KvBlades = KvBlades
+
     def factory(*args_, **kwargs_):
         if CurrentSubclassModule_ is not None:
             subclass = getSubclassFromModule_(
@@ -1125,14 +1284,23 @@ class ImagingTolerances(GeneratedsSuper):
         else:
             return ImagingTolerances(*args_, **kwargs_)
     factory = staticmethod(factory)
+
     def get_Mvd(self): return self.Mvd
+
     def set_Mvd(self, Mvd): self.Mvd = Mvd
+
     def get_Kvd(self): return self.Kvd
+
     def set_Kvd(self, Kvd): self.Kvd = Kvd
+
     def get_Kvs(self): return self.Kvs
+
     def set_Kvs(self, Kvs): self.Kvs = Kvs
+
     def get_KvBlades(self): return self.KvBlades
+
     def set_KvBlades(self, KvBlades): self.KvBlades = KvBlades
+
     def hasContent_(self):
         if (
             self.Mvd is not None or
@@ -1143,6 +1311,7 @@ class ImagingTolerances(GeneratedsSuper):
             return True
         else:
             return False
+
     def export(self, outfile, level, namespace_='', name_='ImagingTolerances', namespacedef_='', pretty_print=True):
         if pretty_print:
             eol_ = '\n'
@@ -1151,31 +1320,41 @@ class ImagingTolerances(GeneratedsSuper):
         if self.original_tagname_ is not None:
             name_ = self.original_tagname_
         showIndent(outfile, level, pretty_print)
-        outfile.write('<%s%s%s' % (namespace_, name_, namespacedef_ and ' ' + namespacedef_ or '', ))
+        outfile.write('<%s%s%s' % (namespace_, name_,
+                                   namespacedef_ and ' ' + namespacedef_ or '', ))
         already_processed = set()
-        self.exportAttributes(outfile, level, already_processed, namespace_, name_='ImagingTolerances')
+        self.exportAttributes(outfile, level, already_processed,
+                              namespace_, name_='ImagingTolerances')
         if self.hasContent_():
             outfile.write('>%s' % (eol_, ))
-            self.exportChildren(outfile, level + 1, namespace_='', name_='ImagingTolerances', pretty_print=pretty_print)
+            self.exportChildren(outfile, level + 1, namespace_='',
+                                name_='ImagingTolerances', pretty_print=pretty_print)
             showIndent(outfile, level, pretty_print)
             outfile.write('</%s%s>%s' % (namespace_, name_, eol_))
         else:
             outfile.write('/>%s' % (eol_, ))
+
     def exportAttributes(self, outfile, level, already_processed, namespace_='', name_='ImagingTolerances'):
         pass
+
     def exportChildren(self, outfile, level, namespace_='', name_='ImagingTolerances', fromsubclass_=False, pretty_print=True):
         if pretty_print:
             eol_ = '\n'
         else:
             eol_ = ''
         if self.Mvd is not None:
-            self.Mvd.export(outfile, level, namespace_, name_='Mvd', pretty_print=pretty_print)
+            self.Mvd.export(outfile, level, namespace_,
+                            name_='Mvd', pretty_print=pretty_print)
         if self.Kvd is not None:
-            self.Kvd.export(outfile, level, namespace_, name_='Kvd', pretty_print=pretty_print)
+            self.Kvd.export(outfile, level, namespace_,
+                            name_='Kvd', pretty_print=pretty_print)
         if self.Kvs is not None:
-            self.Kvs.export(outfile, level, namespace_, name_='Kvs', pretty_print=pretty_print)
+            self.Kvs.export(outfile, level, namespace_,
+                            name_='Kvs', pretty_print=pretty_print)
         if self.KvBlades is not None:
-            self.KvBlades.export(outfile, level, namespace_, name_='KvBlades', pretty_print=pretty_print)
+            self.KvBlades.export(outfile, level, namespace_,
+                                 name_='KvBlades', pretty_print=pretty_print)
+
     def build(self, node):
         already_processed = set()
         self.buildAttributes(node, node.attrib, already_processed)
@@ -1183,8 +1362,10 @@ class ImagingTolerances(GeneratedsSuper):
             nodeName_ = Tag_pattern_.match(child.tag).groups()[-1]
             self.buildChildren(child, node, nodeName_)
         return self
+
     def buildAttributes(self, node, attrs, already_processed):
         pass
+
     def buildChildren(self, child_, node, nodeName_, fromsubclass_=False):
         if nodeName_ == 'Mvd':
             obj_ = ArmTolerances.factory()
@@ -1213,12 +1394,14 @@ class KvBladesTolerances(GeneratedsSuper):
     """Tolerances of a kV Blades."""
     subclass = None
     superclass = None
+
     def __init__(self, KVY1=None, KVY2=None, KVX1=None, KVX2=None):
         self.original_tagname_ = None
         self.KVY1 = KVY1
         self.KVY2 = KVY2
         self.KVX1 = KVX1
         self.KVX2 = KVX2
+
     def factory(*args_, **kwargs_):
         if CurrentSubclassModule_ is not None:
             subclass = getSubclassFromModule_(
@@ -1230,14 +1413,23 @@ class KvBladesTolerances(GeneratedsSuper):
         else:
             return KvBladesTolerances(*args_, **kwargs_)
     factory = staticmethod(factory)
+
     def get_KVY1(self): return self.KVY1
+
     def set_KVY1(self, KVY1): self.KVY1 = KVY1
+
     def get_KVY2(self): return self.KVY2
+
     def set_KVY2(self, KVY2): self.KVY2 = KVY2
+
     def get_KVX1(self): return self.KVX1
+
     def set_KVX1(self, KVX1): self.KVX1 = KVX1
+
     def get_KVX2(self): return self.KVX2
+
     def set_KVX2(self, KVX2): self.KVX2 = KVX2
+
     def hasContent_(self):
         if (
             self.KVY1 is not None or
@@ -1248,6 +1440,7 @@ class KvBladesTolerances(GeneratedsSuper):
             return True
         else:
             return False
+
     def export(self, outfile, level, namespace_='', name_='KvBladesTolerances', namespacedef_='', pretty_print=True):
         if pretty_print:
             eol_ = '\n'
@@ -1256,18 +1449,23 @@ class KvBladesTolerances(GeneratedsSuper):
         if self.original_tagname_ is not None:
             name_ = self.original_tagname_
         showIndent(outfile, level, pretty_print)
-        outfile.write('<%s%s%s' % (namespace_, name_, namespacedef_ and ' ' + namespacedef_ or '', ))
+        outfile.write('<%s%s%s' % (namespace_, name_,
+                                   namespacedef_ and ' ' + namespacedef_ or '', ))
         already_processed = set()
-        self.exportAttributes(outfile, level, already_processed, namespace_, name_='KvBladesTolerances')
+        self.exportAttributes(outfile, level, already_processed,
+                              namespace_, name_='KvBladesTolerances')
         if self.hasContent_():
             outfile.write('>%s' % (eol_, ))
-            self.exportChildren(outfile, level + 1, namespace_='', name_='KvBladesTolerances', pretty_print=pretty_print)
+            self.exportChildren(outfile, level + 1, namespace_='',
+                                name_='KvBladesTolerances', pretty_print=pretty_print)
             showIndent(outfile, level, pretty_print)
             outfile.write('</%s%s>%s' % (namespace_, name_, eol_))
         else:
             outfile.write('/>%s' % (eol_, ))
+
     def exportAttributes(self, outfile, level, already_processed, namespace_='', name_='KvBladesTolerances'):
         pass
+
     def exportChildren(self, outfile, level, namespace_='', name_='KvBladesTolerances', fromsubclass_=False, pretty_print=True):
         if pretty_print:
             eol_ = '\n'
@@ -1275,16 +1473,21 @@ class KvBladesTolerances(GeneratedsSuper):
             eol_ = ''
         if self.KVY1 is not None:
             showIndent(outfile, level, pretty_print)
-            outfile.write('<%sKVY1>%s</%sKVY1>%s' % (namespace_, self.gds_format_double(self.KVY1, input_name='KVY1'), namespace_, eol_))
+            outfile.write('<%sKVY1>%s</%sKVY1>%s' % (namespace_,
+                                                     self.gds_format_double(self.KVY1, input_name='KVY1'), namespace_, eol_))
         if self.KVY2 is not None:
             showIndent(outfile, level, pretty_print)
-            outfile.write('<%sKVY2>%s</%sKVY2>%s' % (namespace_, self.gds_format_double(self.KVY2, input_name='KVY2'), namespace_, eol_))
+            outfile.write('<%sKVY2>%s</%sKVY2>%s' % (namespace_,
+                                                     self.gds_format_double(self.KVY2, input_name='KVY2'), namespace_, eol_))
         if self.KVX1 is not None:
             showIndent(outfile, level, pretty_print)
-            outfile.write('<%sKVX1>%s</%sKVX1>%s' % (namespace_, self.gds_format_double(self.KVX1, input_name='KVX1'), namespace_, eol_))
+            outfile.write('<%sKVX1>%s</%sKVX1>%s' % (namespace_,
+                                                     self.gds_format_double(self.KVX1, input_name='KVX1'), namespace_, eol_))
         if self.KVX2 is not None:
             showIndent(outfile, level, pretty_print)
-            outfile.write('<%sKVX2>%s</%sKVX2>%s' % (namespace_, self.gds_format_double(self.KVX2, input_name='KVX2'), namespace_, eol_))
+            outfile.write('<%sKVX2>%s</%sKVX2>%s' % (namespace_,
+                                                     self.gds_format_double(self.KVX2, input_name='KVX2'), namespace_, eol_))
+
     def build(self, node):
         already_processed = set()
         self.buildAttributes(node, node.attrib, already_processed)
@@ -1292,8 +1495,10 @@ class KvBladesTolerances(GeneratedsSuper):
             nodeName_ = Tag_pattern_.match(child.tag).groups()[-1]
             self.buildChildren(child, node, nodeName_)
         return self
+
     def buildAttributes(self, node, attrs, already_processed):
         pass
+
     def buildChildren(self, child_, node, nodeName_, fromsubclass_=False):
         if nodeName_ == 'KVY1':
             sval_ = child_.text
@@ -1334,12 +1539,14 @@ class ArmTolerances(GeneratedsSuper):
     """Tolerances of an arm."""
     subclass = None
     superclass = None
+
     def __init__(self, Lat=None, Lng=None, Vrt=None, Pitch=None):
         self.original_tagname_ = None
         self.Lat = Lat
         self.Lng = Lng
         self.Vrt = Vrt
         self.Pitch = Pitch
+
     def factory(*args_, **kwargs_):
         if CurrentSubclassModule_ is not None:
             subclass = getSubclassFromModule_(
@@ -1351,14 +1558,23 @@ class ArmTolerances(GeneratedsSuper):
         else:
             return ArmTolerances(*args_, **kwargs_)
     factory = staticmethod(factory)
+
     def get_Lat(self): return self.Lat
+
     def set_Lat(self, Lat): self.Lat = Lat
+
     def get_Lng(self): return self.Lng
+
     def set_Lng(self, Lng): self.Lng = Lng
+
     def get_Vrt(self): return self.Vrt
+
     def set_Vrt(self, Vrt): self.Vrt = Vrt
+
     def get_Pitch(self): return self.Pitch
+
     def set_Pitch(self, Pitch): self.Pitch = Pitch
+
     def hasContent_(self):
         if (
             self.Lat is not None or
@@ -1369,6 +1585,7 @@ class ArmTolerances(GeneratedsSuper):
             return True
         else:
             return False
+
     def export(self, outfile, level, namespace_='', name_='ArmTolerances', namespacedef_='', pretty_print=True):
         if pretty_print:
             eol_ = '\n'
@@ -1377,18 +1594,23 @@ class ArmTolerances(GeneratedsSuper):
         if self.original_tagname_ is not None:
             name_ = self.original_tagname_
         showIndent(outfile, level, pretty_print)
-        outfile.write('<%s%s%s' % (namespace_, name_, namespacedef_ and ' ' + namespacedef_ or '', ))
+        outfile.write('<%s%s%s' % (namespace_, name_,
+                                   namespacedef_ and ' ' + namespacedef_ or '', ))
         already_processed = set()
-        self.exportAttributes(outfile, level, already_processed, namespace_, name_='ArmTolerances')
+        self.exportAttributes(outfile, level, already_processed,
+                              namespace_, name_='ArmTolerances')
         if self.hasContent_():
             outfile.write('>%s' % (eol_, ))
-            self.exportChildren(outfile, level + 1, namespace_='', name_='ArmTolerances', pretty_print=pretty_print)
+            self.exportChildren(outfile, level + 1, namespace_='',
+                                name_='ArmTolerances', pretty_print=pretty_print)
             showIndent(outfile, level, pretty_print)
             outfile.write('</%s%s>%s' % (namespace_, name_, eol_))
         else:
             outfile.write('/>%s' % (eol_, ))
+
     def exportAttributes(self, outfile, level, already_processed, namespace_='', name_='ArmTolerances'):
         pass
+
     def exportChildren(self, outfile, level, namespace_='', name_='ArmTolerances', fromsubclass_=False, pretty_print=True):
         if pretty_print:
             eol_ = '\n'
@@ -1396,16 +1618,21 @@ class ArmTolerances(GeneratedsSuper):
             eol_ = ''
         if self.Lat is not None:
             showIndent(outfile, level, pretty_print)
-            outfile.write('<%sLat>%s</%sLat>%s' % (namespace_, self.gds_format_double(self.Lat, input_name='Lat'), namespace_, eol_))
+            outfile.write('<%sLat>%s</%sLat>%s' % (namespace_,
+                                                   self.gds_format_double(self.Lat, input_name='Lat'), namespace_, eol_))
         if self.Lng is not None:
             showIndent(outfile, level, pretty_print)
-            outfile.write('<%sLng>%s</%sLng>%s' % (namespace_, self.gds_format_double(self.Lng, input_name='Lng'), namespace_, eol_))
+            outfile.write('<%sLng>%s</%sLng>%s' % (namespace_,
+                                                   self.gds_format_double(self.Lng, input_name='Lng'), namespace_, eol_))
         if self.Vrt is not None:
             showIndent(outfile, level, pretty_print)
-            outfile.write('<%sVrt>%s</%sVrt>%s' % (namespace_, self.gds_format_double(self.Vrt, input_name='Vrt'), namespace_, eol_))
+            outfile.write('<%sVrt>%s</%sVrt>%s' % (namespace_,
+                                                   self.gds_format_double(self.Vrt, input_name='Vrt'), namespace_, eol_))
         if self.Pitch is not None:
             showIndent(outfile, level, pretty_print)
-            outfile.write('<%sPitch>%s</%sPitch>%s' % (namespace_, self.gds_format_double(self.Pitch, input_name='Pitch'), namespace_, eol_))
+            outfile.write('<%sPitch>%s</%sPitch>%s' % (namespace_,
+                                                       self.gds_format_double(self.Pitch, input_name='Pitch'), namespace_, eol_))
+
     def build(self, node):
         already_processed = set()
         self.buildAttributes(node, node.attrib, already_processed)
@@ -1413,8 +1640,10 @@ class ArmTolerances(GeneratedsSuper):
             nodeName_ = Tag_pattern_.match(child.tag).groups()[-1]
             self.buildChildren(child, node, nodeName_)
         return self
+
     def buildAttributes(self, node, attrs, already_processed):
         pass
+
     def buildChildren(self, child_, node, nodeName_, fromsubclass_=False):
         if nodeName_ == 'Lat':
             sval_ = child_.text
@@ -1454,11 +1683,13 @@ class ArmTolerances(GeneratedsSuper):
 class ArmPositionsType(GeneratedsSuper):
     subclass = None
     superclass = None
+
     def __init__(self, SpecialPosition=None, Positions=None):
         self.original_tagname_ = None
         self.SpecialPosition = SpecialPosition
         self.validate_SpecialPositionType(self.SpecialPosition)
         self.Positions = Positions
+
     def factory(*args_, **kwargs_):
         if CurrentSubclassModule_ is not None:
             subclass = getSubclassFromModule_(
@@ -1470,10 +1701,16 @@ class ArmPositionsType(GeneratedsSuper):
         else:
             return ArmPositionsType(*args_, **kwargs_)
     factory = staticmethod(factory)
+
     def get_SpecialPosition(self): return self.SpecialPosition
-    def set_SpecialPosition(self, SpecialPosition): self.SpecialPosition = SpecialPosition
+
+    def set_SpecialPosition(
+        self, SpecialPosition): self.SpecialPosition = SpecialPosition
+
     def get_Positions(self): return self.Positions
+
     def set_Positions(self, Positions): self.Positions = Positions
+
     def validate_SpecialPositionType(self, value):
         # Validate type SpecialPositionType, a restriction on xs:string.
         if value is not None and Validate_simpletypes_:
@@ -1485,7 +1722,9 @@ class ArmPositionsType(GeneratedsSuper):
                     enumeration_respectee = True
                     break
             if not enumeration_respectee:
-                warnings_.warn('Value "%(value)s" does not match xsd enumeration restriction on SpecialPositionType' % {"value" : value.encode("utf-8")} )
+                warnings_.warn('Value "%(value)s" does not match xsd enumeration restriction on SpecialPositionType' % {
+                               "value": value.encode("utf-8")})
+
     def hasContent_(self):
         if (
             self.SpecialPosition is not None or
@@ -1494,6 +1733,7 @@ class ArmPositionsType(GeneratedsSuper):
             return True
         else:
             return False
+
     def export(self, outfile, level, namespace_='', name_='ArmPositionsType', namespacedef_='', pretty_print=True):
         if pretty_print:
             eol_ = '\n'
@@ -1502,18 +1742,23 @@ class ArmPositionsType(GeneratedsSuper):
         if self.original_tagname_ is not None:
             name_ = self.original_tagname_
         showIndent(outfile, level, pretty_print)
-        outfile.write('<%s%s%s' % (namespace_, name_, namespacedef_ and ' ' + namespacedef_ or '', ))
+        outfile.write('<%s%s%s' % (namespace_, name_,
+                                   namespacedef_ and ' ' + namespacedef_ or '', ))
         already_processed = set()
-        self.exportAttributes(outfile, level, already_processed, namespace_, name_='ArmPositionsType')
+        self.exportAttributes(outfile, level, already_processed,
+                              namespace_, name_='ArmPositionsType')
         if self.hasContent_():
             outfile.write('>%s' % (eol_, ))
-            self.exportChildren(outfile, level + 1, namespace_='', name_='ArmPositionsType', pretty_print=pretty_print)
+            self.exportChildren(outfile, level + 1, namespace_='',
+                                name_='ArmPositionsType', pretty_print=pretty_print)
             showIndent(outfile, level, pretty_print)
             outfile.write('</%s%s>%s' % (namespace_, name_, eol_))
         else:
             outfile.write('/>%s' % (eol_, ))
+
     def exportAttributes(self, outfile, level, already_processed, namespace_='', name_='ArmPositionsType'):
         pass
+
     def exportChildren(self, outfile, level, namespace_='', name_='ArmPositionsType', fromsubclass_=False, pretty_print=True):
         if pretty_print:
             eol_ = '\n'
@@ -1521,9 +1766,12 @@ class ArmPositionsType(GeneratedsSuper):
             eol_ = ''
         if self.SpecialPosition is not None:
             showIndent(outfile, level, pretty_print)
-            outfile.write('<%sSpecialPosition>%s</%sSpecialPosition>%s' % (namespace_, self.gds_encode(self.gds_format_string(quote_xml(self.SpecialPosition), input_name='SpecialPosition')), namespace_, eol_))
+            outfile.write('<%sSpecialPosition>%s</%sSpecialPosition>%s' % (namespace_, self.gds_encode(
+                self.gds_format_string(quote_xml(self.SpecialPosition), input_name='SpecialPosition')), namespace_, eol_))
         if self.Positions is not None:
-            self.Positions.export(outfile, level, namespace_, name_='Positions', pretty_print=pretty_print)
+            self.Positions.export(outfile, level, namespace_,
+                                  name_='Positions', pretty_print=pretty_print)
+
     def build(self, node):
         already_processed = set()
         self.buildAttributes(node, node.attrib, already_processed)
@@ -1531,12 +1779,15 @@ class ArmPositionsType(GeneratedsSuper):
             nodeName_ = Tag_pattern_.match(child.tag).groups()[-1]
             self.buildChildren(child, node, nodeName_)
         return self
+
     def buildAttributes(self, node, attrs, already_processed):
         pass
+
     def buildChildren(self, child_, node, nodeName_, fromsubclass_=False):
         if nodeName_ == 'SpecialPosition':
             SpecialPosition_ = child_.text
-            SpecialPosition_ = self.gds_validate_string(SpecialPosition_, node, 'SpecialPosition')
+            SpecialPosition_ = self.gds_validate_string(
+                SpecialPosition_, node, 'SpecialPosition')
             self.SpecialPosition = SpecialPosition_
             # validate type SpecialPositionType
             self.validate_SpecialPositionType(self.SpecialPosition)
@@ -1552,10 +1803,12 @@ class KvBladePositionsType(GeneratedsSuper):
     """Specify either blade tracking or blade positions."""
     subclass = None
     superclass = None
+
     def __init__(self, Tracking=None, Positions=None):
         self.original_tagname_ = None
         self.Tracking = Tracking
         self.Positions = Positions
+
     def factory(*args_, **kwargs_):
         if CurrentSubclassModule_ is not None:
             subclass = getSubclassFromModule_(
@@ -1567,10 +1820,15 @@ class KvBladePositionsType(GeneratedsSuper):
         else:
             return KvBladePositionsType(*args_, **kwargs_)
     factory = staticmethod(factory)
+
     def get_Tracking(self): return self.Tracking
+
     def set_Tracking(self, Tracking): self.Tracking = Tracking
+
     def get_Positions(self): return self.Positions
+
     def set_Positions(self, Positions): self.Positions = Positions
+
     def hasContent_(self):
         if (
             self.Tracking is not None or
@@ -1579,6 +1837,7 @@ class KvBladePositionsType(GeneratedsSuper):
             return True
         else:
             return False
+
     def export(self, outfile, level, namespace_='', name_='KvBladePositionsType', namespacedef_='', pretty_print=True):
         if pretty_print:
             eol_ = '\n'
@@ -1587,18 +1846,23 @@ class KvBladePositionsType(GeneratedsSuper):
         if self.original_tagname_ is not None:
             name_ = self.original_tagname_
         showIndent(outfile, level, pretty_print)
-        outfile.write('<%s%s%s' % (namespace_, name_, namespacedef_ and ' ' + namespacedef_ or '', ))
+        outfile.write('<%s%s%s' % (namespace_, name_,
+                                   namespacedef_ and ' ' + namespacedef_ or '', ))
         already_processed = set()
-        self.exportAttributes(outfile, level, already_processed, namespace_, name_='KvBladePositionsType')
+        self.exportAttributes(outfile, level, already_processed,
+                              namespace_, name_='KvBladePositionsType')
         if self.hasContent_():
             outfile.write('>%s' % (eol_, ))
-            self.exportChildren(outfile, level + 1, namespace_='', name_='KvBladePositionsType', pretty_print=pretty_print)
+            self.exportChildren(outfile, level + 1, namespace_='',
+                                name_='KvBladePositionsType', pretty_print=pretty_print)
             showIndent(outfile, level, pretty_print)
             outfile.write('</%s%s>%s' % (namespace_, name_, eol_))
         else:
             outfile.write('/>%s' % (eol_, ))
+
     def exportAttributes(self, outfile, level, already_processed, namespace_='', name_='KvBladePositionsType'):
         pass
+
     def exportChildren(self, outfile, level, namespace_='', name_='KvBladePositionsType', fromsubclass_=False, pretty_print=True):
         if pretty_print:
             eol_ = '\n'
@@ -1606,9 +1870,12 @@ class KvBladePositionsType(GeneratedsSuper):
             eol_ = ''
         if self.Tracking is not None:
             showIndent(outfile, level, pretty_print)
-            outfile.write('<%sTracking>%s</%sTracking>%s' % (namespace_, self.gds_format_boolean(self.Tracking, input_name='Tracking'), namespace_, eol_))
+            outfile.write('<%sTracking>%s</%sTracking>%s' % (namespace_,
+                                                             self.gds_format_boolean(self.Tracking, input_name='Tracking'), namespace_, eol_))
         if self.Positions is not None:
-            self.Positions.export(outfile, level, namespace_, name_='Positions', pretty_print=pretty_print)
+            self.Positions.export(outfile, level, namespace_,
+                                  name_='Positions', pretty_print=pretty_print)
+
     def build(self, node):
         already_processed = set()
         self.buildAttributes(node, node.attrib, already_processed)
@@ -1616,8 +1883,10 @@ class KvBladePositionsType(GeneratedsSuper):
             nodeName_ = Tag_pattern_.match(child.tag).groups()[-1]
             self.buildChildren(child, node, nodeName_)
         return self
+
     def buildAttributes(self, node, attrs, already_processed):
         pass
+
     def buildChildren(self, child_, node, nodeName_, fromsubclass_=False):
         if nodeName_ == 'Tracking':
             sval_ = child_.text
@@ -1641,12 +1910,14 @@ class ArmAxes(GeneratedsSuper):
     """Axes definitions for a working position of an arm."""
     subclass = None
     superclass = None
+
     def __init__(self, Lat=None, Lng=None, Vrt=None, Pitch=None):
         self.original_tagname_ = None
         self.Lat = Lat
         self.Lng = Lng
         self.Vrt = Vrt
         self.Pitch = Pitch
+
     def factory(*args_, **kwargs_):
         if CurrentSubclassModule_ is not None:
             subclass = getSubclassFromModule_(
@@ -1658,14 +1929,23 @@ class ArmAxes(GeneratedsSuper):
         else:
             return ArmAxes(*args_, **kwargs_)
     factory = staticmethod(factory)
+
     def get_Lat(self): return self.Lat
+
     def set_Lat(self, Lat): self.Lat = Lat
+
     def get_Lng(self): return self.Lng
+
     def set_Lng(self, Lng): self.Lng = Lng
+
     def get_Vrt(self): return self.Vrt
+
     def set_Vrt(self, Vrt): self.Vrt = Vrt
+
     def get_Pitch(self): return self.Pitch
+
     def set_Pitch(self, Pitch): self.Pitch = Pitch
+
     def hasContent_(self):
         if (
             self.Lat is not None or
@@ -1676,6 +1956,7 @@ class ArmAxes(GeneratedsSuper):
             return True
         else:
             return False
+
     def export(self, outfile, level, namespace_='', name_='ArmAxes', namespacedef_='', pretty_print=True):
         if pretty_print:
             eol_ = '\n'
@@ -1684,18 +1965,23 @@ class ArmAxes(GeneratedsSuper):
         if self.original_tagname_ is not None:
             name_ = self.original_tagname_
         showIndent(outfile, level, pretty_print)
-        outfile.write('<%s%s%s' % (namespace_, name_, namespacedef_ and ' ' + namespacedef_ or '', ))
+        outfile.write('<%s%s%s' % (namespace_, name_,
+                                   namespacedef_ and ' ' + namespacedef_ or '', ))
         already_processed = set()
-        self.exportAttributes(outfile, level, already_processed, namespace_, name_='ArmAxes')
+        self.exportAttributes(
+            outfile, level, already_processed, namespace_, name_='ArmAxes')
         if self.hasContent_():
             outfile.write('>%s' % (eol_, ))
-            self.exportChildren(outfile, level + 1, namespace_='', name_='ArmAxes', pretty_print=pretty_print)
+            self.exportChildren(outfile, level + 1, namespace_='',
+                                name_='ArmAxes', pretty_print=pretty_print)
             showIndent(outfile, level, pretty_print)
             outfile.write('</%s%s>%s' % (namespace_, name_, eol_))
         else:
             outfile.write('/>%s' % (eol_, ))
+
     def exportAttributes(self, outfile, level, already_processed, namespace_='', name_='ArmAxes'):
         pass
+
     def exportChildren(self, outfile, level, namespace_='', name_='ArmAxes', fromsubclass_=False, pretty_print=True):
         if pretty_print:
             eol_ = '\n'
@@ -1703,16 +1989,21 @@ class ArmAxes(GeneratedsSuper):
             eol_ = ''
         if self.Lat is not None:
             showIndent(outfile, level, pretty_print)
-            outfile.write('<%sLat>%s</%sLat>%s' % (namespace_, self.gds_format_double(self.Lat, input_name='Lat'), namespace_, eol_))
+            outfile.write('<%sLat>%s</%sLat>%s' % (namespace_,
+                                                   self.gds_format_double(self.Lat, input_name='Lat'), namespace_, eol_))
         if self.Lng is not None:
             showIndent(outfile, level, pretty_print)
-            outfile.write('<%sLng>%s</%sLng>%s' % (namespace_, self.gds_format_double(self.Lng, input_name='Lng'), namespace_, eol_))
+            outfile.write('<%sLng>%s</%sLng>%s' % (namespace_,
+                                                   self.gds_format_double(self.Lng, input_name='Lng'), namespace_, eol_))
         if self.Vrt is not None:
             showIndent(outfile, level, pretty_print)
-            outfile.write('<%sVrt>%s</%sVrt>%s' % (namespace_, self.gds_format_double(self.Vrt, input_name='Vrt'), namespace_, eol_))
+            outfile.write('<%sVrt>%s</%sVrt>%s' % (namespace_,
+                                                   self.gds_format_double(self.Vrt, input_name='Vrt'), namespace_, eol_))
         if self.Pitch is not None:
             showIndent(outfile, level, pretty_print)
-            outfile.write('<%sPitch>%s</%sPitch>%s' % (namespace_, self.gds_format_double(self.Pitch, input_name='Pitch'), namespace_, eol_))
+            outfile.write('<%sPitch>%s</%sPitch>%s' % (namespace_,
+                                                       self.gds_format_double(self.Pitch, input_name='Pitch'), namespace_, eol_))
+
     def build(self, node):
         already_processed = set()
         self.buildAttributes(node, node.attrib, already_processed)
@@ -1720,8 +2011,10 @@ class ArmAxes(GeneratedsSuper):
             nodeName_ = Tag_pattern_.match(child.tag).groups()[-1]
             self.buildChildren(child, node, nodeName_)
         return self
+
     def buildAttributes(self, node, attrs, already_processed):
         pass
+
     def buildChildren(self, child_, node, nodeName_, fromsubclass_=False):
         if nodeName_ == 'Lat':
             sval_ = child_.text
@@ -1761,6 +2054,7 @@ class ArmAxes(GeneratedsSuper):
 class ImageMode(GeneratedsSuper):
     subclass = None
     superclass = None
+
     def __init__(self, id=None, Overwrite=None):
         self.original_tagname_ = None
         self.id = _cast(None, id)
@@ -1768,6 +2062,7 @@ class ImageMode(GeneratedsSuper):
             self.Overwrite = []
         else:
             self.Overwrite = Overwrite
+
     def factory(*args_, **kwargs_):
         if CurrentSubclassModule_ is not None:
             subclass = getSubclassFromModule_(
@@ -1779,13 +2074,22 @@ class ImageMode(GeneratedsSuper):
         else:
             return ImageMode(*args_, **kwargs_)
     factory = staticmethod(factory)
+
     def get_Overwrite(self): return self.Overwrite
+
     def set_Overwrite(self, Overwrite): self.Overwrite = Overwrite
+
     def add_Overwrite(self, value): self.Overwrite.append(value)
-    def insert_Overwrite_at(self, index, value): self.Overwrite.insert(index, value)
+
+    def insert_Overwrite_at(
+        self, index, value): self.Overwrite.insert(index, value)
+
     def replace_Overwrite_at(self, index, value): self.Overwrite[index] = value
+
     def get_id(self): return self.id
+
     def set_id(self, id): self.id = id
+
     def hasContent_(self):
         if (
             self.Overwrite
@@ -1793,6 +2097,7 @@ class ImageMode(GeneratedsSuper):
             return True
         else:
             return False
+
     def export(self, outfile, level, namespace_='', name_='ImageMode', namespacedef_='', pretty_print=True):
         if pretty_print:
             eol_ = '\n'
@@ -1801,27 +2106,35 @@ class ImageMode(GeneratedsSuper):
         if self.original_tagname_ is not None:
             name_ = self.original_tagname_
         showIndent(outfile, level, pretty_print)
-        outfile.write('<%s%s%s' % (namespace_, name_, namespacedef_ and ' ' + namespacedef_ or '', ))
+        outfile.write('<%s%s%s' % (namespace_, name_,
+                                   namespacedef_ and ' ' + namespacedef_ or '', ))
         already_processed = set()
-        self.exportAttributes(outfile, level, already_processed, namespace_, name_='ImageMode')
+        self.exportAttributes(
+            outfile, level, already_processed, namespace_, name_='ImageMode')
         if self.hasContent_():
             outfile.write('>%s' % (eol_, ))
-            self.exportChildren(outfile, level + 1, namespace_='', name_='ImageMode', pretty_print=pretty_print)
+            self.exportChildren(outfile, level + 1, namespace_='',
+                                name_='ImageMode', pretty_print=pretty_print)
             showIndent(outfile, level, pretty_print)
             outfile.write('</%s%s>%s' % (namespace_, name_, eol_))
         else:
             outfile.write('/>%s' % (eol_, ))
+
     def exportAttributes(self, outfile, level, already_processed, namespace_='', name_='ImageMode'):
         if self.id is not None and 'id' not in already_processed:
             already_processed.add('id')
-            outfile.write(' id=%s' % (self.gds_encode(self.gds_format_string(quote_attrib(self.id), input_name='id')), ))
+            outfile.write(' id=%s' % (self.gds_encode(
+                self.gds_format_string(quote_attrib(self.id), input_name='id')), ))
+
     def exportChildren(self, outfile, level, namespace_='', name_='ImageMode', fromsubclass_=False, pretty_print=True):
         if pretty_print:
             eol_ = '\n'
         else:
             eol_ = ''
         for Overwrite_ in self.Overwrite:
-            Overwrite_.export(outfile, level, namespace_, name_='Overwrite', pretty_print=pretty_print)
+            Overwrite_.export(outfile, level, namespace_,
+                              name_='Overwrite', pretty_print=pretty_print)
+
     def build(self, node):
         already_processed = set()
         self.buildAttributes(node, node.attrib, already_processed)
@@ -1829,11 +2142,13 @@ class ImageMode(GeneratedsSuper):
             nodeName_ = Tag_pattern_.match(child.tag).groups()[-1]
             self.buildChildren(child, node, nodeName_)
         return self
+
     def buildAttributes(self, node, attrs, already_processed):
         value = find_attr_value_('id', node)
         if value is not None and 'id' not in already_processed:
             already_processed.add('id')
             self.id = value
+
     def buildChildren(self, child_, node, nodeName_, fromsubclass_=False):
         if nodeName_ == 'Overwrite':
             obj_ = ModeOverwrite.factory()
@@ -1846,6 +2161,7 @@ class ImageMode(GeneratedsSuper):
 class AcquisitionMode(GeneratedsSuper):
     subclass = None
     superclass = None
+
     def __init__(self, id=None, Overwrite=None):
         self.original_tagname_ = None
         self.id = _cast(None, id)
@@ -1853,6 +2169,7 @@ class AcquisitionMode(GeneratedsSuper):
             self.Overwrite = []
         else:
             self.Overwrite = Overwrite
+
     def factory(*args_, **kwargs_):
         if CurrentSubclassModule_ is not None:
             subclass = getSubclassFromModule_(
@@ -1864,13 +2181,22 @@ class AcquisitionMode(GeneratedsSuper):
         else:
             return AcquisitionMode(*args_, **kwargs_)
     factory = staticmethod(factory)
+
     def get_Overwrite(self): return self.Overwrite
+
     def set_Overwrite(self, Overwrite): self.Overwrite = Overwrite
+
     def add_Overwrite(self, value): self.Overwrite.append(value)
-    def insert_Overwrite_at(self, index, value): self.Overwrite.insert(index, value)
+
+    def insert_Overwrite_at(
+        self, index, value): self.Overwrite.insert(index, value)
+
     def replace_Overwrite_at(self, index, value): self.Overwrite[index] = value
+
     def get_id(self): return self.id
+
     def set_id(self, id): self.id = id
+
     def hasContent_(self):
         if (
             self.Overwrite
@@ -1878,6 +2204,7 @@ class AcquisitionMode(GeneratedsSuper):
             return True
         else:
             return False
+
     def export(self, outfile, level, namespace_='', name_='AcquisitionMode', namespacedef_='', pretty_print=True):
         if pretty_print:
             eol_ = '\n'
@@ -1886,27 +2213,35 @@ class AcquisitionMode(GeneratedsSuper):
         if self.original_tagname_ is not None:
             name_ = self.original_tagname_
         showIndent(outfile, level, pretty_print)
-        outfile.write('<%s%s%s' % (namespace_, name_, namespacedef_ and ' ' + namespacedef_ or '', ))
+        outfile.write('<%s%s%s' % (namespace_, name_,
+                                   namespacedef_ and ' ' + namespacedef_ or '', ))
         already_processed = set()
-        self.exportAttributes(outfile, level, already_processed, namespace_, name_='AcquisitionMode')
+        self.exportAttributes(outfile, level, already_processed,
+                              namespace_, name_='AcquisitionMode')
         if self.hasContent_():
             outfile.write('>%s' % (eol_, ))
-            self.exportChildren(outfile, level + 1, namespace_='', name_='AcquisitionMode', pretty_print=pretty_print)
+            self.exportChildren(outfile, level + 1, namespace_='',
+                                name_='AcquisitionMode', pretty_print=pretty_print)
             showIndent(outfile, level, pretty_print)
             outfile.write('</%s%s>%s' % (namespace_, name_, eol_))
         else:
             outfile.write('/>%s' % (eol_, ))
+
     def exportAttributes(self, outfile, level, already_processed, namespace_='', name_='AcquisitionMode'):
         if self.id is not None and 'id' not in already_processed:
             already_processed.add('id')
-            outfile.write(' id=%s' % (self.gds_encode(self.gds_format_string(quote_attrib(self.id), input_name='id')), ))
+            outfile.write(' id=%s' % (self.gds_encode(
+                self.gds_format_string(quote_attrib(self.id), input_name='id')), ))
+
     def exportChildren(self, outfile, level, namespace_='', name_='AcquisitionMode', fromsubclass_=False, pretty_print=True):
         if pretty_print:
             eol_ = '\n'
         else:
             eol_ = ''
         for Overwrite_ in self.Overwrite:
-            Overwrite_.export(outfile, level, namespace_, name_='Overwrite', pretty_print=pretty_print)
+            Overwrite_.export(outfile, level, namespace_,
+                              name_='Overwrite', pretty_print=pretty_print)
+
     def build(self, node):
         already_processed = set()
         self.buildAttributes(node, node.attrib, already_processed)
@@ -1914,11 +2249,13 @@ class AcquisitionMode(GeneratedsSuper):
             nodeName_ = Tag_pattern_.match(child.tag).groups()[-1]
             self.buildChildren(child, node, nodeName_)
         return self
+
     def buildAttributes(self, node, attrs, already_processed):
         value = find_attr_value_('id', node)
         if value is not None and 'id' not in already_processed:
             already_processed.add('id')
             self.id = value
+
     def buildChildren(self, child_, node, nodeName_, fromsubclass_=False):
         if nodeName_ == 'Overwrite':
             obj_ = ModeOverwrite.factory()
@@ -1931,10 +2268,12 @@ class AcquisitionMode(GeneratedsSuper):
 class ModeOverwrite(GeneratedsSuper):
     subclass = None
     superclass = None
+
     def __init__(self, parameter=None, valueOf_=None):
         self.original_tagname_ = None
         self.parameter = _cast(None, parameter)
         self.valueOf_ = valueOf_
+
     def factory(*args_, **kwargs_):
         if CurrentSubclassModule_ is not None:
             subclass = getSubclassFromModule_(
@@ -1946,17 +2285,23 @@ class ModeOverwrite(GeneratedsSuper):
         else:
             return ModeOverwrite(*args_, **kwargs_)
     factory = staticmethod(factory)
+
     def get_parameter(self): return self.parameter
+
     def set_parameter(self, parameter): self.parameter = parameter
+
     def get_valueOf_(self): return self.valueOf_
+
     def set_valueOf_(self, valueOf_): self.valueOf_ = valueOf_
+
     def hasContent_(self):
         if (
-            1 if type(self.valueOf_) in [int,float] else self.valueOf_
+            1 if type(self.valueOf_) in [int, float] else self.valueOf_
         ):
             return True
         else:
             return False
+
     def export(self, outfile, level, namespace_='', name_='ModeOverwrite', namespacedef_='', pretty_print=True):
         if pretty_print:
             eol_ = '\n'
@@ -1965,22 +2310,30 @@ class ModeOverwrite(GeneratedsSuper):
         if self.original_tagname_ is not None:
             name_ = self.original_tagname_
         showIndent(outfile, level, pretty_print)
-        outfile.write('<%s%s%s' % (namespace_, name_, namespacedef_ and ' ' + namespacedef_ or '', ))
+        outfile.write('<%s%s%s' % (namespace_, name_,
+                                   namespacedef_ and ' ' + namespacedef_ or '', ))
         already_processed = set()
-        self.exportAttributes(outfile, level, already_processed, namespace_, name_='ModeOverwrite')
+        self.exportAttributes(outfile, level, already_processed,
+                              namespace_, name_='ModeOverwrite')
         if self.hasContent_():
             outfile.write('>')
-            outfile.write((quote_xml(self.valueOf_) if type(self.valueOf_) is str else self.gds_encode(str(self.valueOf_))))
-            self.exportChildren(outfile, level + 1, namespace_='', name_='ModeOverwrite', pretty_print=pretty_print)
+            outfile.write((quote_xml(self.valueOf_) if type(
+                self.valueOf_) is str else self.gds_encode(str(self.valueOf_))))
+            self.exportChildren(outfile, level + 1, namespace_='',
+                                name_='ModeOverwrite', pretty_print=pretty_print)
             outfile.write('</%s%s>%s' % (namespace_, name_, eol_))
         else:
             outfile.write('/>%s' % (eol_, ))
+
     def exportAttributes(self, outfile, level, already_processed, namespace_='', name_='ModeOverwrite'):
         if self.parameter is not None and 'parameter' not in already_processed:
             already_processed.add('parameter')
-            outfile.write(' parameter=%s' % (self.gds_encode(self.gds_format_string(quote_attrib(self.parameter), input_name='parameter')), ))
+            outfile.write(' parameter=%s' % (self.gds_encode(self.gds_format_string(
+                quote_attrib(self.parameter), input_name='parameter')), ))
+
     def exportChildren(self, outfile, level, namespace_='', name_='ModeOverwrite', fromsubclass_=False, pretty_print=True):
         pass
+
     def build(self, node):
         already_processed = set()
         self.buildAttributes(node, node.attrib, already_processed)
@@ -1989,11 +2342,13 @@ class ModeOverwrite(GeneratedsSuper):
             nodeName_ = Tag_pattern_.match(child.tag).groups()[-1]
             self.buildChildren(child, node, nodeName_)
         return self
+
     def buildAttributes(self, node, attrs, already_processed):
         value = find_attr_value_('parameter', node)
         if value is not None and 'parameter' not in already_processed:
             already_processed.add('parameter')
             self.parameter = value
+
     def buildChildren(self, child_, node, nodeName_, fromsubclass_=False):
         pass
 # end class ModeOverwrite
@@ -2002,10 +2357,12 @@ class ModeOverwrite(GeneratedsSuper):
 class Movie(GeneratedsSuper):
     subclass = None
     superclass = None
+
     def __init__(self, Destination=None, Parameters=None):
         self.original_tagname_ = None
         self.Destination = Destination
         self.Parameters = Parameters
+
     def factory(*args_, **kwargs_):
         if CurrentSubclassModule_ is not None:
             subclass = getSubclassFromModule_(
@@ -2017,10 +2374,15 @@ class Movie(GeneratedsSuper):
         else:
             return Movie(*args_, **kwargs_)
     factory = staticmethod(factory)
+
     def get_Destination(self): return self.Destination
+
     def set_Destination(self, Destination): self.Destination = Destination
+
     def get_Parameters(self): return self.Parameters
+
     def set_Parameters(self, Parameters): self.Parameters = Parameters
+
     def hasContent_(self):
         if (
             self.Destination is not None or
@@ -2029,6 +2391,7 @@ class Movie(GeneratedsSuper):
             return True
         else:
             return False
+
     def export(self, outfile, level, namespace_='', name_='Movie', namespacedef_='', pretty_print=True):
         if pretty_print:
             eol_ = '\n'
@@ -2037,18 +2400,23 @@ class Movie(GeneratedsSuper):
         if self.original_tagname_ is not None:
             name_ = self.original_tagname_
         showIndent(outfile, level, pretty_print)
-        outfile.write('<%s%s%s' % (namespace_, name_, namespacedef_ and ' ' + namespacedef_ or '', ))
+        outfile.write('<%s%s%s' % (namespace_, name_,
+                                   namespacedef_ and ' ' + namespacedef_ or '', ))
         already_processed = set()
-        self.exportAttributes(outfile, level, already_processed, namespace_, name_='Movie')
+        self.exportAttributes(
+            outfile, level, already_processed, namespace_, name_='Movie')
         if self.hasContent_():
             outfile.write('>%s' % (eol_, ))
-            self.exportChildren(outfile, level + 1, namespace_='', name_='Movie', pretty_print=pretty_print)
+            self.exportChildren(outfile, level + 1, namespace_='',
+                                name_='Movie', pretty_print=pretty_print)
             showIndent(outfile, level, pretty_print)
             outfile.write('</%s%s>%s' % (namespace_, name_, eol_))
         else:
             outfile.write('/>%s' % (eol_, ))
+
     def exportAttributes(self, outfile, level, already_processed, namespace_='', name_='Movie'):
         pass
+
     def exportChildren(self, outfile, level, namespace_='', name_='Movie', fromsubclass_=False, pretty_print=True):
         if pretty_print:
             eol_ = '\n'
@@ -2056,9 +2424,12 @@ class Movie(GeneratedsSuper):
             eol_ = ''
         if self.Destination is not None:
             showIndent(outfile, level, pretty_print)
-            outfile.write('<%sDestination>%s</%sDestination>%s' % (namespace_, self.gds_encode(self.gds_format_string(quote_xml(self.Destination), input_name='Destination')), namespace_, eol_))
+            outfile.write('<%sDestination>%s</%sDestination>%s' % (namespace_, self.gds_encode(
+                self.gds_format_string(quote_xml(self.Destination), input_name='Destination')), namespace_, eol_))
         if self.Parameters is not None:
-            self.Parameters.export(outfile, level, namespace_, name_='Parameters', pretty_print=pretty_print)
+            self.Parameters.export(
+                outfile, level, namespace_, name_='Parameters', pretty_print=pretty_print)
+
     def build(self, node):
         already_processed = set()
         self.buildAttributes(node, node.attrib, already_processed)
@@ -2066,12 +2437,15 @@ class Movie(GeneratedsSuper):
             nodeName_ = Tag_pattern_.match(child.tag).groups()[-1]
             self.buildChildren(child, node, nodeName_)
         return self
+
     def buildAttributes(self, node, attrs, already_processed):
         pass
+
     def buildChildren(self, child_, node, nodeName_, fromsubclass_=False):
         if nodeName_ == 'Destination':
             Destination_ = child_.text
-            Destination_ = self.gds_validate_string(Destination_, node, 'Destination')
+            Destination_ = self.gds_validate_string(
+                Destination_, node, 'Destination')
             self.Destination = Destination_
         elif nodeName_ == 'Parameters':
             obj_ = MovieParameters.factory()
@@ -2084,6 +2458,7 @@ class Movie(GeneratedsSuper):
 class MovieParameters(GeneratedsSuper):
     subclass = None
     superclass = None
+
     def __init__(self, Width=None, Height=None, FrameRate=None, Crop=None, Invert=None, PixelValue0=None, PixelValue255=None, CutOff=None, Weight=None):
         self.original_tagname_ = None
         self.Width = Width
@@ -2095,6 +2470,7 @@ class MovieParameters(GeneratedsSuper):
         self.PixelValue255 = PixelValue255
         self.CutOff = CutOff
         self.Weight = Weight
+
     def factory(*args_, **kwargs_):
         if CurrentSubclassModule_ is not None:
             subclass = getSubclassFromModule_(
@@ -2106,24 +2482,44 @@ class MovieParameters(GeneratedsSuper):
         else:
             return MovieParameters(*args_, **kwargs_)
     factory = staticmethod(factory)
+
     def get_Width(self): return self.Width
+
     def set_Width(self, Width): self.Width = Width
+
     def get_Height(self): return self.Height
+
     def set_Height(self, Height): self.Height = Height
+
     def get_FrameRate(self): return self.FrameRate
+
     def set_FrameRate(self, FrameRate): self.FrameRate = FrameRate
+
     def get_Crop(self): return self.Crop
+
     def set_Crop(self, Crop): self.Crop = Crop
+
     def get_Invert(self): return self.Invert
+
     def set_Invert(self, Invert): self.Invert = Invert
+
     def get_PixelValue0(self): return self.PixelValue0
+
     def set_PixelValue0(self, PixelValue0): self.PixelValue0 = PixelValue0
+
     def get_PixelValue255(self): return self.PixelValue255
-    def set_PixelValue255(self, PixelValue255): self.PixelValue255 = PixelValue255
+
+    def set_PixelValue255(
+        self, PixelValue255): self.PixelValue255 = PixelValue255
+
     def get_CutOff(self): return self.CutOff
+
     def set_CutOff(self, CutOff): self.CutOff = CutOff
+
     def get_Weight(self): return self.Weight
+
     def set_Weight(self, Weight): self.Weight = Weight
+
     def hasContent_(self):
         if (
             self.Width is not None or
@@ -2139,6 +2535,7 @@ class MovieParameters(GeneratedsSuper):
             return True
         else:
             return False
+
     def export(self, outfile, level, namespace_='', name_='MovieParameters', namespacedef_='', pretty_print=True):
         if pretty_print:
             eol_ = '\n'
@@ -2147,18 +2544,23 @@ class MovieParameters(GeneratedsSuper):
         if self.original_tagname_ is not None:
             name_ = self.original_tagname_
         showIndent(outfile, level, pretty_print)
-        outfile.write('<%s%s%s' % (namespace_, name_, namespacedef_ and ' ' + namespacedef_ or '', ))
+        outfile.write('<%s%s%s' % (namespace_, name_,
+                                   namespacedef_ and ' ' + namespacedef_ or '', ))
         already_processed = set()
-        self.exportAttributes(outfile, level, already_processed, namespace_, name_='MovieParameters')
+        self.exportAttributes(outfile, level, already_processed,
+                              namespace_, name_='MovieParameters')
         if self.hasContent_():
             outfile.write('>%s' % (eol_, ))
-            self.exportChildren(outfile, level + 1, namespace_='', name_='MovieParameters', pretty_print=pretty_print)
+            self.exportChildren(outfile, level + 1, namespace_='',
+                                name_='MovieParameters', pretty_print=pretty_print)
             showIndent(outfile, level, pretty_print)
             outfile.write('</%s%s>%s' % (namespace_, name_, eol_))
         else:
             outfile.write('/>%s' % (eol_, ))
+
     def exportAttributes(self, outfile, level, already_processed, namespace_='', name_='MovieParameters'):
         pass
+
     def exportChildren(self, outfile, level, namespace_='', name_='MovieParameters', fromsubclass_=False, pretty_print=True):
         if pretty_print:
             eol_ = '\n'
@@ -2166,31 +2568,41 @@ class MovieParameters(GeneratedsSuper):
             eol_ = ''
         if self.Width is not None:
             showIndent(outfile, level, pretty_print)
-            outfile.write('<%sWidth>%s</%sWidth>%s' % (namespace_, self.gds_format_integer(self.Width, input_name='Width'), namespace_, eol_))
+            outfile.write('<%sWidth>%s</%sWidth>%s' % (namespace_,
+                                                       self.gds_format_integer(self.Width, input_name='Width'), namespace_, eol_))
         if self.Height is not None:
             showIndent(outfile, level, pretty_print)
-            outfile.write('<%sHeight>%s</%sHeight>%s' % (namespace_, self.gds_format_integer(self.Height, input_name='Height'), namespace_, eol_))
+            outfile.write('<%sHeight>%s</%sHeight>%s' % (namespace_,
+                                                         self.gds_format_integer(self.Height, input_name='Height'), namespace_, eol_))
         if self.FrameRate is not None:
             showIndent(outfile, level, pretty_print)
-            outfile.write('<%sFrameRate>%s</%sFrameRate>%s' % (namespace_, self.gds_format_double(self.FrameRate, input_name='FrameRate'), namespace_, eol_))
+            outfile.write('<%sFrameRate>%s</%sFrameRate>%s' % (namespace_,
+                                                               self.gds_format_double(self.FrameRate, input_name='FrameRate'), namespace_, eol_))
         if self.Crop is not None:
             showIndent(outfile, level, pretty_print)
-            outfile.write('<%sCrop>%s</%sCrop>%s' % (namespace_, self.gds_format_boolean(self.Crop, input_name='Crop'), namespace_, eol_))
+            outfile.write('<%sCrop>%s</%sCrop>%s' % (namespace_,
+                                                     self.gds_format_boolean(self.Crop, input_name='Crop'), namespace_, eol_))
         if self.Invert is not None:
             showIndent(outfile, level, pretty_print)
-            outfile.write('<%sInvert>%s</%sInvert>%s' % (namespace_, self.gds_format_boolean(self.Invert, input_name='Invert'), namespace_, eol_))
+            outfile.write('<%sInvert>%s</%sInvert>%s' % (namespace_,
+                                                         self.gds_format_boolean(self.Invert, input_name='Invert'), namespace_, eol_))
         if self.PixelValue0 is not None:
             showIndent(outfile, level, pretty_print)
-            outfile.write('<%sPixelValue0>%s</%sPixelValue0>%s' % (namespace_, self.gds_format_integer(self.PixelValue0, input_name='PixelValue0'), namespace_, eol_))
+            outfile.write('<%sPixelValue0>%s</%sPixelValue0>%s' % (namespace_,
+                                                                   self.gds_format_integer(self.PixelValue0, input_name='PixelValue0'), namespace_, eol_))
         if self.PixelValue255 is not None:
             showIndent(outfile, level, pretty_print)
-            outfile.write('<%sPixelValue255>%s</%sPixelValue255>%s' % (namespace_, self.gds_format_integer(self.PixelValue255, input_name='PixelValue255'), namespace_, eol_))
+            outfile.write('<%sPixelValue255>%s</%sPixelValue255>%s' % (namespace_,
+                                                                       self.gds_format_integer(self.PixelValue255, input_name='PixelValue255'), namespace_, eol_))
         if self.CutOff is not None:
             showIndent(outfile, level, pretty_print)
-            outfile.write('<%sCutOff>%s</%sCutOff>%s' % (namespace_, self.gds_format_integer(self.CutOff, input_name='CutOff'), namespace_, eol_))
+            outfile.write('<%sCutOff>%s</%sCutOff>%s' % (namespace_,
+                                                         self.gds_format_integer(self.CutOff, input_name='CutOff'), namespace_, eol_))
         if self.Weight is not None:
             showIndent(outfile, level, pretty_print)
-            outfile.write('<%sWeight>%s</%sWeight>%s' % (namespace_, self.gds_format_double(self.Weight, input_name='Weight'), namespace_, eol_))
+            outfile.write('<%sWeight>%s</%sWeight>%s' % (namespace_,
+                                                         self.gds_format_double(self.Weight, input_name='Weight'), namespace_, eol_))
+
     def build(self, node):
         already_processed = set()
         self.buildAttributes(node, node.attrib, already_processed)
@@ -2198,8 +2610,10 @@ class MovieParameters(GeneratedsSuper):
             nodeName_ = Tag_pattern_.match(child.tag).groups()[-1]
             self.buildChildren(child, node, nodeName_)
         return self
+
     def buildAttributes(self, node, attrs, already_processed):
         pass
+
     def buildChildren(self, child_, node, nodeName_, fromsubclass_=False):
         if nodeName_ == 'Width':
             sval_ = child_.text
@@ -2283,12 +2697,14 @@ class MovieParameters(GeneratedsSuper):
 class HistogramRoi(GeneratedsSuper):
     subclass = None
     superclass = None
+
     def __init__(self, X1=None, Y1=None, X2=None, Y2=None):
         self.original_tagname_ = None
         self.X1 = X1
         self.Y1 = Y1
         self.X2 = X2
         self.Y2 = Y2
+
     def factory(*args_, **kwargs_):
         if CurrentSubclassModule_ is not None:
             subclass = getSubclassFromModule_(
@@ -2300,14 +2716,23 @@ class HistogramRoi(GeneratedsSuper):
         else:
             return HistogramRoi(*args_, **kwargs_)
     factory = staticmethod(factory)
+
     def get_X1(self): return self.X1
+
     def set_X1(self, X1): self.X1 = X1
+
     def get_Y1(self): return self.Y1
+
     def set_Y1(self, Y1): self.Y1 = Y1
+
     def get_X2(self): return self.X2
+
     def set_X2(self, X2): self.X2 = X2
+
     def get_Y2(self): return self.Y2
+
     def set_Y2(self, Y2): self.Y2 = Y2
+
     def hasContent_(self):
         if (
             self.X1 is not None or
@@ -2318,6 +2743,7 @@ class HistogramRoi(GeneratedsSuper):
             return True
         else:
             return False
+
     def export(self, outfile, level, namespace_='', name_='HistogramRoi', namespacedef_='', pretty_print=True):
         if pretty_print:
             eol_ = '\n'
@@ -2326,18 +2752,23 @@ class HistogramRoi(GeneratedsSuper):
         if self.original_tagname_ is not None:
             name_ = self.original_tagname_
         showIndent(outfile, level, pretty_print)
-        outfile.write('<%s%s%s' % (namespace_, name_, namespacedef_ and ' ' + namespacedef_ or '', ))
+        outfile.write('<%s%s%s' % (namespace_, name_,
+                                   namespacedef_ and ' ' + namespacedef_ or '', ))
         already_processed = set()
-        self.exportAttributes(outfile, level, already_processed, namespace_, name_='HistogramRoi')
+        self.exportAttributes(outfile, level, already_processed,
+                              namespace_, name_='HistogramRoi')
         if self.hasContent_():
             outfile.write('>%s' % (eol_, ))
-            self.exportChildren(outfile, level + 1, namespace_='', name_='HistogramRoi', pretty_print=pretty_print)
+            self.exportChildren(outfile, level + 1, namespace_='',
+                                name_='HistogramRoi', pretty_print=pretty_print)
             showIndent(outfile, level, pretty_print)
             outfile.write('</%s%s>%s' % (namespace_, name_, eol_))
         else:
             outfile.write('/>%s' % (eol_, ))
+
     def exportAttributes(self, outfile, level, already_processed, namespace_='', name_='HistogramRoi'):
         pass
+
     def exportChildren(self, outfile, level, namespace_='', name_='HistogramRoi', fromsubclass_=False, pretty_print=True):
         if pretty_print:
             eol_ = '\n'
@@ -2345,16 +2776,21 @@ class HistogramRoi(GeneratedsSuper):
             eol_ = ''
         if self.X1 is not None:
             showIndent(outfile, level, pretty_print)
-            outfile.write('<%sX1>%s</%sX1>%s' % (namespace_, self.gds_format_integer(self.X1, input_name='X1'), namespace_, eol_))
+            outfile.write('<%sX1>%s</%sX1>%s' % (namespace_,
+                                                 self.gds_format_integer(self.X1, input_name='X1'), namespace_, eol_))
         if self.Y1 is not None:
             showIndent(outfile, level, pretty_print)
-            outfile.write('<%sY1>%s</%sY1>%s' % (namespace_, self.gds_format_integer(self.Y1, input_name='Y1'), namespace_, eol_))
+            outfile.write('<%sY1>%s</%sY1>%s' % (namespace_,
+                                                 self.gds_format_integer(self.Y1, input_name='Y1'), namespace_, eol_))
         if self.X2 is not None:
             showIndent(outfile, level, pretty_print)
-            outfile.write('<%sX2>%s</%sX2>%s' % (namespace_, self.gds_format_integer(self.X2, input_name='X2'), namespace_, eol_))
+            outfile.write('<%sX2>%s</%sX2>%s' % (namespace_,
+                                                 self.gds_format_integer(self.X2, input_name='X2'), namespace_, eol_))
         if self.Y2 is not None:
             showIndent(outfile, level, pretty_print)
-            outfile.write('<%sY2>%s</%sY2>%s' % (namespace_, self.gds_format_integer(self.Y2, input_name='Y2'), namespace_, eol_))
+            outfile.write('<%sY2>%s</%sY2>%s' % (namespace_,
+                                                 self.gds_format_integer(self.Y2, input_name='Y2'), namespace_, eol_))
+
     def build(self, node):
         already_processed = set()
         self.buildAttributes(node, node.attrib, already_processed)
@@ -2362,8 +2798,10 @@ class HistogramRoi(GeneratedsSuper):
             nodeName_ = Tag_pattern_.match(child.tag).groups()[-1]
             self.buildChildren(child, node, nodeName_)
         return self
+
     def buildAttributes(self, node, attrs, already_processed):
         pass
+
     def buildChildren(self, child_, node, nodeName_, fromsubclass_=False):
         if nodeName_ == 'X1':
             sval_ = child_.text
@@ -2403,6 +2841,7 @@ class HistogramRoi(GeneratedsSuper):
 class ImageProcessing(GeneratedsSuper):
     subclass = None
     superclass = None
+
     def __init__(self, Timeout=0, ModeId=None, AutoBeamOff=None, ConfidenceThreshold=None, Markers=None):
         self.original_tagname_ = None
         self.Timeout = Timeout
@@ -2410,6 +2849,7 @@ class ImageProcessing(GeneratedsSuper):
         self.AutoBeamOff = AutoBeamOff
         self.ConfidenceThreshold = ConfidenceThreshold
         self.Markers = Markers
+
     def factory(*args_, **kwargs_):
         if CurrentSubclassModule_ is not None:
             subclass = getSubclassFromModule_(
@@ -2421,16 +2861,28 @@ class ImageProcessing(GeneratedsSuper):
         else:
             return ImageProcessing(*args_, **kwargs_)
     factory = staticmethod(factory)
+
     def get_Timeout(self): return self.Timeout
+
     def set_Timeout(self, Timeout): self.Timeout = Timeout
+
     def get_ModeId(self): return self.ModeId
+
     def set_ModeId(self, ModeId): self.ModeId = ModeId
+
     def get_AutoBeamOff(self): return self.AutoBeamOff
+
     def set_AutoBeamOff(self, AutoBeamOff): self.AutoBeamOff = AutoBeamOff
+
     def get_ConfidenceThreshold(self): return self.ConfidenceThreshold
-    def set_ConfidenceThreshold(self, ConfidenceThreshold): self.ConfidenceThreshold = ConfidenceThreshold
+
+    def set_ConfidenceThreshold(
+        self, ConfidenceThreshold): self.ConfidenceThreshold = ConfidenceThreshold
+
     def get_Markers(self): return self.Markers
+
     def set_Markers(self, Markers): self.Markers = Markers
+
     def hasContent_(self):
         if (
             self.Timeout != 0 or
@@ -2442,6 +2894,7 @@ class ImageProcessing(GeneratedsSuper):
             return True
         else:
             return False
+
     def export(self, outfile, level, namespace_='', name_='ImageProcessing', namespacedef_='', pretty_print=True):
         if pretty_print:
             eol_ = '\n'
@@ -2450,18 +2903,23 @@ class ImageProcessing(GeneratedsSuper):
         if self.original_tagname_ is not None:
             name_ = self.original_tagname_
         showIndent(outfile, level, pretty_print)
-        outfile.write('<%s%s%s' % (namespace_, name_, namespacedef_ and ' ' + namespacedef_ or '', ))
+        outfile.write('<%s%s%s' % (namespace_, name_,
+                                   namespacedef_ and ' ' + namespacedef_ or '', ))
         already_processed = set()
-        self.exportAttributes(outfile, level, already_processed, namespace_, name_='ImageProcessing')
+        self.exportAttributes(outfile, level, already_processed,
+                              namespace_, name_='ImageProcessing')
         if self.hasContent_():
             outfile.write('>%s' % (eol_, ))
-            self.exportChildren(outfile, level + 1, namespace_='', name_='ImageProcessing', pretty_print=pretty_print)
+            self.exportChildren(outfile, level + 1, namespace_='',
+                                name_='ImageProcessing', pretty_print=pretty_print)
             showIndent(outfile, level, pretty_print)
             outfile.write('</%s%s>%s' % (namespace_, name_, eol_))
         else:
             outfile.write('/>%s' % (eol_, ))
+
     def exportAttributes(self, outfile, level, already_processed, namespace_='', name_='ImageProcessing'):
         pass
+
     def exportChildren(self, outfile, level, namespace_='', name_='ImageProcessing', fromsubclass_=False, pretty_print=True):
         if pretty_print:
             eol_ = '\n'
@@ -2469,18 +2927,24 @@ class ImageProcessing(GeneratedsSuper):
             eol_ = ''
         if self.Timeout != 0:
             showIndent(outfile, level, pretty_print)
-            outfile.write('<%sTimeout>%s</%sTimeout>%s' % (namespace_, self.gds_format_integer(self.Timeout, input_name='Timeout'), namespace_, eol_))
+            outfile.write('<%sTimeout>%s</%sTimeout>%s' % (namespace_,
+                                                           self.gds_format_integer(self.Timeout, input_name='Timeout'), namespace_, eol_))
         if self.ModeId is not None:
             showIndent(outfile, level, pretty_print)
-            outfile.write('<%sModeId>%s</%sModeId>%s' % (namespace_, self.gds_encode(self.gds_format_string(quote_xml(self.ModeId), input_name='ModeId')), namespace_, eol_))
+            outfile.write('<%sModeId>%s</%sModeId>%s' % (namespace_, self.gds_encode(
+                self.gds_format_string(quote_xml(self.ModeId), input_name='ModeId')), namespace_, eol_))
         if self.AutoBeamOff is not None:
             showIndent(outfile, level, pretty_print)
-            outfile.write('<%sAutoBeamOff>%s</%sAutoBeamOff>%s' % (namespace_, self.gds_format_boolean(self.AutoBeamOff, input_name='AutoBeamOff'), namespace_, eol_))
+            outfile.write('<%sAutoBeamOff>%s</%sAutoBeamOff>%s' % (namespace_,
+                                                                   self.gds_format_boolean(self.AutoBeamOff, input_name='AutoBeamOff'), namespace_, eol_))
         if self.ConfidenceThreshold is not None:
             showIndent(outfile, level, pretty_print)
-            outfile.write('<%sConfidenceThreshold>%s</%sConfidenceThreshold>%s' % (namespace_, self.gds_format_double(self.ConfidenceThreshold, input_name='ConfidenceThreshold'), namespace_, eol_))
+            outfile.write('<%sConfidenceThreshold>%s</%sConfidenceThreshold>%s' % (namespace_,
+                                                                                   self.gds_format_double(self.ConfidenceThreshold, input_name='ConfidenceThreshold'), namespace_, eol_))
         if self.Markers is not None:
-            self.Markers.export(outfile, level, namespace_, name_='Markers', pretty_print=pretty_print)
+            self.Markers.export(outfile, level, namespace_,
+                                name_='Markers', pretty_print=pretty_print)
+
     def build(self, node):
         already_processed = set()
         self.buildAttributes(node, node.attrib, already_processed)
@@ -2488,8 +2952,10 @@ class ImageProcessing(GeneratedsSuper):
             nodeName_ = Tag_pattern_.match(child.tag).groups()[-1]
             self.buildChildren(child, node, nodeName_)
         return self
+
     def buildAttributes(self, node, attrs, already_processed):
         pass
+
     def buildChildren(self, child_, node, nodeName_, fromsubclass_=False):
         if nodeName_ == 'Timeout':
             sval_ = child_.text
@@ -2532,6 +2998,7 @@ class ImageProcessing(GeneratedsSuper):
 class MarkerDefinitions(GeneratedsSuper):
     subclass = None
     superclass = None
+
     def __init__(self, MarkerToleranceRadius=None, MarkerToleranceVolume=None):
         self.original_tagname_ = None
         if MarkerToleranceRadius is None:
@@ -2542,6 +3009,7 @@ class MarkerDefinitions(GeneratedsSuper):
             self.MarkerToleranceVolume = []
         else:
             self.MarkerToleranceVolume = MarkerToleranceVolume
+
     def factory(*args_, **kwargs_):
         if CurrentSubclassModule_ is not None:
             subclass = getSubclassFromModule_(
@@ -2553,16 +3021,35 @@ class MarkerDefinitions(GeneratedsSuper):
         else:
             return MarkerDefinitions(*args_, **kwargs_)
     factory = staticmethod(factory)
+
     def get_MarkerToleranceRadius(self): return self.MarkerToleranceRadius
-    def set_MarkerToleranceRadius(self, MarkerToleranceRadius): self.MarkerToleranceRadius = MarkerToleranceRadius
-    def add_MarkerToleranceRadius(self, value): self.MarkerToleranceRadius.append(value)
-    def insert_MarkerToleranceRadius_at(self, index, value): self.MarkerToleranceRadius.insert(index, value)
-    def replace_MarkerToleranceRadius_at(self, index, value): self.MarkerToleranceRadius[index] = value
+
+    def set_MarkerToleranceRadius(
+        self, MarkerToleranceRadius): self.MarkerToleranceRadius = MarkerToleranceRadius
+
+    def add_MarkerToleranceRadius(
+        self, value): self.MarkerToleranceRadius.append(value)
+
+    def insert_MarkerToleranceRadius_at(
+        self, index, value): self.MarkerToleranceRadius.insert(index, value)
+
+    def replace_MarkerToleranceRadius_at(
+        self, index, value): self.MarkerToleranceRadius[index] = value
+
     def get_MarkerToleranceVolume(self): return self.MarkerToleranceVolume
-    def set_MarkerToleranceVolume(self, MarkerToleranceVolume): self.MarkerToleranceVolume = MarkerToleranceVolume
-    def add_MarkerToleranceVolume(self, value): self.MarkerToleranceVolume.append(value)
-    def insert_MarkerToleranceVolume_at(self, index, value): self.MarkerToleranceVolume.insert(index, value)
-    def replace_MarkerToleranceVolume_at(self, index, value): self.MarkerToleranceVolume[index] = value
+
+    def set_MarkerToleranceVolume(
+        self, MarkerToleranceVolume): self.MarkerToleranceVolume = MarkerToleranceVolume
+
+    def add_MarkerToleranceVolume(
+        self, value): self.MarkerToleranceVolume.append(value)
+
+    def insert_MarkerToleranceVolume_at(
+        self, index, value): self.MarkerToleranceVolume.insert(index, value)
+
+    def replace_MarkerToleranceVolume_at(
+        self, index, value): self.MarkerToleranceVolume[index] = value
+
     def hasContent_(self):
         if (
             self.MarkerToleranceRadius or
@@ -2571,6 +3058,7 @@ class MarkerDefinitions(GeneratedsSuper):
             return True
         else:
             return False
+
     def export(self, outfile, level, namespace_='', name_='MarkerDefinitions', namespacedef_='', pretty_print=True):
         if pretty_print:
             eol_ = '\n'
@@ -2579,27 +3067,35 @@ class MarkerDefinitions(GeneratedsSuper):
         if self.original_tagname_ is not None:
             name_ = self.original_tagname_
         showIndent(outfile, level, pretty_print)
-        outfile.write('<%s%s%s' % (namespace_, name_, namespacedef_ and ' ' + namespacedef_ or '', ))
+        outfile.write('<%s%s%s' % (namespace_, name_,
+                                   namespacedef_ and ' ' + namespacedef_ or '', ))
         already_processed = set()
-        self.exportAttributes(outfile, level, already_processed, namespace_, name_='MarkerDefinitions')
+        self.exportAttributes(outfile, level, already_processed,
+                              namespace_, name_='MarkerDefinitions')
         if self.hasContent_():
             outfile.write('>%s' % (eol_, ))
-            self.exportChildren(outfile, level + 1, namespace_='', name_='MarkerDefinitions', pretty_print=pretty_print)
+            self.exportChildren(outfile, level + 1, namespace_='',
+                                name_='MarkerDefinitions', pretty_print=pretty_print)
             showIndent(outfile, level, pretty_print)
             outfile.write('</%s%s>%s' % (namespace_, name_, eol_))
         else:
             outfile.write('/>%s' % (eol_, ))
+
     def exportAttributes(self, outfile, level, already_processed, namespace_='', name_='MarkerDefinitions'):
         pass
+
     def exportChildren(self, outfile, level, namespace_='', name_='MarkerDefinitions', fromsubclass_=False, pretty_print=True):
         if pretty_print:
             eol_ = '\n'
         else:
             eol_ = ''
         for MarkerToleranceRadius_ in self.MarkerToleranceRadius:
-            MarkerToleranceRadius_.export(outfile, level, namespace_, name_='MarkerToleranceRadius', pretty_print=pretty_print)
+            MarkerToleranceRadius_.export(
+                outfile, level, namespace_, name_='MarkerToleranceRadius', pretty_print=pretty_print)
         for MarkerToleranceVolume_ in self.MarkerToleranceVolume:
-            MarkerToleranceVolume_.export(outfile, level, namespace_, name_='MarkerToleranceVolume', pretty_print=pretty_print)
+            MarkerToleranceVolume_.export(
+                outfile, level, namespace_, name_='MarkerToleranceVolume', pretty_print=pretty_print)
+
     def build(self, node):
         already_processed = set()
         self.buildAttributes(node, node.attrib, already_processed)
@@ -2607,8 +3103,10 @@ class MarkerDefinitions(GeneratedsSuper):
             nodeName_ = Tag_pattern_.match(child.tag).groups()[-1]
             self.buildChildren(child, node, nodeName_)
         return self
+
     def buildAttributes(self, node, attrs, already_processed):
         pass
+
     def buildChildren(self, child_, node, nodeName_, fromsubclass_=False):
         if nodeName_ == 'MarkerToleranceRadius':
             obj_ = MarkerDefinitionToleranceRadius.factory()
@@ -2626,6 +3124,7 @@ class MarkerDefinitions(GeneratedsSuper):
 class MarkerDefinition(GeneratedsSuper):
     subclass = None
     superclass = None
+
     def __init__(self, Id=None, X=None, Y=None, Z=None, extensiontype_=None):
         self.original_tagname_ = None
         self.Id = Id
@@ -2633,6 +3132,7 @@ class MarkerDefinition(GeneratedsSuper):
         self.Y = Y
         self.Z = Z
         self.extensiontype_ = extensiontype_
+
     def factory(*args_, **kwargs_):
         if CurrentSubclassModule_ is not None:
             subclass = getSubclassFromModule_(
@@ -2644,16 +3144,28 @@ class MarkerDefinition(GeneratedsSuper):
         else:
             return MarkerDefinition(*args_, **kwargs_)
     factory = staticmethod(factory)
+
     def get_Id(self): return self.Id
+
     def set_Id(self, Id): self.Id = Id
+
     def get_X(self): return self.X
+
     def set_X(self, X): self.X = X
+
     def get_Y(self): return self.Y
+
     def set_Y(self, Y): self.Y = Y
+
     def get_Z(self): return self.Z
+
     def set_Z(self, Z): self.Z = Z
+
     def get_extensiontype_(self): return self.extensiontype_
-    def set_extensiontype_(self, extensiontype_): self.extensiontype_ = extensiontype_
+
+    def set_extensiontype_(
+        self, extensiontype_): self.extensiontype_ = extensiontype_
+
     def hasContent_(self):
         if (
             self.Id is not None or
@@ -2664,6 +3176,7 @@ class MarkerDefinition(GeneratedsSuper):
             return True
         else:
             return False
+
     def export(self, outfile, level, namespace_='', name_='MarkerDefinition', namespacedef_='', pretty_print=True):
         if pretty_print:
             eol_ = '\n'
@@ -2672,22 +3185,28 @@ class MarkerDefinition(GeneratedsSuper):
         if self.original_tagname_ is not None:
             name_ = self.original_tagname_
         showIndent(outfile, level, pretty_print)
-        outfile.write('<%s%s%s' % (namespace_, name_, namespacedef_ and ' ' + namespacedef_ or '', ))
+        outfile.write('<%s%s%s' % (namespace_, name_,
+                                   namespacedef_ and ' ' + namespacedef_ or '', ))
         already_processed = set()
-        self.exportAttributes(outfile, level, already_processed, namespace_, name_='MarkerDefinition')
+        self.exportAttributes(outfile, level, already_processed,
+                              namespace_, name_='MarkerDefinition')
         if self.hasContent_():
             outfile.write('>%s' % (eol_, ))
-            self.exportChildren(outfile, level + 1, namespace_='', name_='MarkerDefinition', pretty_print=pretty_print)
+            self.exportChildren(outfile, level + 1, namespace_='',
+                                name_='MarkerDefinition', pretty_print=pretty_print)
             showIndent(outfile, level, pretty_print)
             outfile.write('</%s%s>%s' % (namespace_, name_, eol_))
         else:
             outfile.write('/>%s' % (eol_, ))
+
     def exportAttributes(self, outfile, level, already_processed, namespace_='', name_='MarkerDefinition'):
         if self.extensiontype_ is not None and 'xsi:type' not in already_processed:
             already_processed.add('xsi:type')
-            outfile.write(' xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"')
+            outfile.write(
+                ' xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"')
             outfile.write(' xsi:type="%s"' % self.extensiontype_)
         pass
+
     def exportChildren(self, outfile, level, namespace_='', name_='MarkerDefinition', fromsubclass_=False, pretty_print=True):
         if pretty_print:
             eol_ = '\n'
@@ -2695,16 +3214,21 @@ class MarkerDefinition(GeneratedsSuper):
             eol_ = ''
         if self.Id is not None:
             showIndent(outfile, level, pretty_print)
-            outfile.write('<%sId>%s</%sId>%s' % (namespace_, self.gds_encode(self.gds_format_string(quote_xml(self.Id), input_name='Id')), namespace_, eol_))
+            outfile.write('<%sId>%s</%sId>%s' % (namespace_, self.gds_encode(
+                self.gds_format_string(quote_xml(self.Id), input_name='Id')), namespace_, eol_))
         if self.X is not None:
             showIndent(outfile, level, pretty_print)
-            outfile.write('<%sX>%s</%sX>%s' % (namespace_, self.gds_format_double(self.X, input_name='X'), namespace_, eol_))
+            outfile.write('<%sX>%s</%sX>%s' % (namespace_,
+                                               self.gds_format_double(self.X, input_name='X'), namespace_, eol_))
         if self.Y is not None:
             showIndent(outfile, level, pretty_print)
-            outfile.write('<%sY>%s</%sY>%s' % (namespace_, self.gds_format_double(self.Y, input_name='Y'), namespace_, eol_))
+            outfile.write('<%sY>%s</%sY>%s' % (namespace_,
+                                               self.gds_format_double(self.Y, input_name='Y'), namespace_, eol_))
         if self.Z is not None:
             showIndent(outfile, level, pretty_print)
-            outfile.write('<%sZ>%s</%sZ>%s' % (namespace_, self.gds_format_double(self.Z, input_name='Z'), namespace_, eol_))
+            outfile.write('<%sZ>%s</%sZ>%s' % (namespace_,
+                                               self.gds_format_double(self.Z, input_name='Z'), namespace_, eol_))
+
     def build(self, node):
         already_processed = set()
         self.buildAttributes(node, node.attrib, already_processed)
@@ -2712,11 +3236,13 @@ class MarkerDefinition(GeneratedsSuper):
             nodeName_ = Tag_pattern_.match(child.tag).groups()[-1]
             self.buildChildren(child, node, nodeName_)
         return self
+
     def buildAttributes(self, node, attrs, already_processed):
         value = find_attr_value_('xsi:type', node)
         if value is not None and 'xsi:type' not in already_processed:
             already_processed.add('xsi:type')
             self.extensiontype_ = value
+
     def buildChildren(self, child_, node, nodeName_, fromsubclass_=False):
         if nodeName_ == 'Id':
             Id_ = child_.text
@@ -2752,10 +3278,12 @@ class MarkerDefinition(GeneratedsSuper):
 class MarkerDefinitionToleranceRadius(MarkerDefinition):
     subclass = None
     superclass = MarkerDefinition
+
     def __init__(self, Id=None, X=None, Y=None, Z=None, ToleranceRadius=None):
         self.original_tagname_ = None
         super(MarkerDefinitionToleranceRadius, self).__init__(Id, X, Y, Z, )
         self.ToleranceRadius = ToleranceRadius
+
     def factory(*args_, **kwargs_):
         if CurrentSubclassModule_ is not None:
             subclass = getSubclassFromModule_(
@@ -2767,8 +3295,12 @@ class MarkerDefinitionToleranceRadius(MarkerDefinition):
         else:
             return MarkerDefinitionToleranceRadius(*args_, **kwargs_)
     factory = staticmethod(factory)
+
     def get_ToleranceRadius(self): return self.ToleranceRadius
-    def set_ToleranceRadius(self, ToleranceRadius): self.ToleranceRadius = ToleranceRadius
+
+    def set_ToleranceRadius(
+        self, ToleranceRadius): self.ToleranceRadius = ToleranceRadius
+
     def hasContent_(self):
         if (
             self.ToleranceRadius is not None or
@@ -2777,6 +3309,7 @@ class MarkerDefinitionToleranceRadius(MarkerDefinition):
             return True
         else:
             return False
+
     def export(self, outfile, level, namespace_='', name_='MarkerDefinitionToleranceRadius', namespacedef_='', pretty_print=True):
         if pretty_print:
             eol_ = '\n'
@@ -2785,27 +3318,36 @@ class MarkerDefinitionToleranceRadius(MarkerDefinition):
         if self.original_tagname_ is not None:
             name_ = self.original_tagname_
         showIndent(outfile, level, pretty_print)
-        outfile.write('<%s%s%s' % (namespace_, name_, namespacedef_ and ' ' + namespacedef_ or '', ))
+        outfile.write('<%s%s%s' % (namespace_, name_,
+                                   namespacedef_ and ' ' + namespacedef_ or '', ))
         already_processed = set()
-        self.exportAttributes(outfile, level, already_processed, namespace_, name_='MarkerDefinitionToleranceRadius')
+        self.exportAttributes(outfile, level, already_processed,
+                              namespace_, name_='MarkerDefinitionToleranceRadius')
         if self.hasContent_():
             outfile.write('>%s' % (eol_, ))
-            self.exportChildren(outfile, level + 1, namespace_='', name_='MarkerDefinitionToleranceRadius', pretty_print=pretty_print)
+            self.exportChildren(outfile, level + 1, namespace_='',
+                                name_='MarkerDefinitionToleranceRadius', pretty_print=pretty_print)
             showIndent(outfile, level, pretty_print)
             outfile.write('</%s%s>%s' % (namespace_, name_, eol_))
         else:
             outfile.write('/>%s' % (eol_, ))
+
     def exportAttributes(self, outfile, level, already_processed, namespace_='', name_='MarkerDefinitionToleranceRadius'):
-        super(MarkerDefinitionToleranceRadius, self).exportAttributes(outfile, level, already_processed, namespace_, name_='MarkerDefinitionToleranceRadius')
+        super(MarkerDefinitionToleranceRadius, self).exportAttributes(
+            outfile, level, already_processed, namespace_, name_='MarkerDefinitionToleranceRadius')
+
     def exportChildren(self, outfile, level, namespace_='', name_='MarkerDefinitionToleranceRadius', fromsubclass_=False, pretty_print=True):
-        super(MarkerDefinitionToleranceRadius, self).exportChildren(outfile, level, namespace_, name_, True, pretty_print=pretty_print)
+        super(MarkerDefinitionToleranceRadius, self).exportChildren(
+            outfile, level, namespace_, name_, True, pretty_print=pretty_print)
         if pretty_print:
             eol_ = '\n'
         else:
             eol_ = ''
         if self.ToleranceRadius is not None:
             showIndent(outfile, level, pretty_print)
-            outfile.write('<%sToleranceRadius>%s</%sToleranceRadius>%s' % (namespace_, self.gds_format_double(self.ToleranceRadius, input_name='ToleranceRadius'), namespace_, eol_))
+            outfile.write('<%sToleranceRadius>%s</%sToleranceRadius>%s' % (namespace_,
+                                                                           self.gds_format_double(self.ToleranceRadius, input_name='ToleranceRadius'), namespace_, eol_))
+
     def build(self, node):
         already_processed = set()
         self.buildAttributes(node, node.attrib, already_processed)
@@ -2813,8 +3355,11 @@ class MarkerDefinitionToleranceRadius(MarkerDefinition):
             nodeName_ = Tag_pattern_.match(child.tag).groups()[-1]
             self.buildChildren(child, node, nodeName_)
         return self
+
     def buildAttributes(self, node, attrs, already_processed):
-        super(MarkerDefinitionToleranceRadius, self).buildAttributes(node, attrs, already_processed)
+        super(MarkerDefinitionToleranceRadius, self).buildAttributes(
+            node, attrs, already_processed)
+
     def buildChildren(self, child_, node, nodeName_, fromsubclass_=False):
         if nodeName_ == 'ToleranceRadius':
             sval_ = child_.text
@@ -2824,18 +3369,21 @@ class MarkerDefinitionToleranceRadius(MarkerDefinition):
                 raise_parse_error(child_, 'requires float or double: %s' % exp)
             fval_ = self.gds_validate_float(fval_, node, 'ToleranceRadius')
             self.ToleranceRadius = fval_
-        super(MarkerDefinitionToleranceRadius, self).buildChildren(child_, node, nodeName_, True)
+        super(MarkerDefinitionToleranceRadius, self).buildChildren(
+            child_, node, nodeName_, True)
 # end class MarkerDefinitionToleranceRadius
 
 
 class MarkerDefinitionToleranceVolume(MarkerDefinition):
     subclass = None
     superclass = MarkerDefinition
+
     def __init__(self, Id=None, X=None, Y=None, Z=None, Vertices=None, Indices=None):
         self.original_tagname_ = None
         super(MarkerDefinitionToleranceVolume, self).__init__(Id, X, Y, Z, )
         self.Vertices = Vertices
         self.Indices = Indices
+
     def factory(*args_, **kwargs_):
         if CurrentSubclassModule_ is not None:
             subclass = getSubclassFromModule_(
@@ -2847,10 +3395,15 @@ class MarkerDefinitionToleranceVolume(MarkerDefinition):
         else:
             return MarkerDefinitionToleranceVolume(*args_, **kwargs_)
     factory = staticmethod(factory)
+
     def get_Vertices(self): return self.Vertices
+
     def set_Vertices(self, Vertices): self.Vertices = Vertices
+
     def get_Indices(self): return self.Indices
+
     def set_Indices(self, Indices): self.Indices = Indices
+
     def hasContent_(self):
         if (
             self.Vertices is not None or
@@ -2860,6 +3413,7 @@ class MarkerDefinitionToleranceVolume(MarkerDefinition):
             return True
         else:
             return False
+
     def export(self, outfile, level, namespace_='', name_='MarkerDefinitionToleranceVolume', namespacedef_='', pretty_print=True):
         if pretty_print:
             eol_ = '\n'
@@ -2868,30 +3422,40 @@ class MarkerDefinitionToleranceVolume(MarkerDefinition):
         if self.original_tagname_ is not None:
             name_ = self.original_tagname_
         showIndent(outfile, level, pretty_print)
-        outfile.write('<%s%s%s' % (namespace_, name_, namespacedef_ and ' ' + namespacedef_ or '', ))
+        outfile.write('<%s%s%s' % (namespace_, name_,
+                                   namespacedef_ and ' ' + namespacedef_ or '', ))
         already_processed = set()
-        self.exportAttributes(outfile, level, already_processed, namespace_, name_='MarkerDefinitionToleranceVolume')
+        self.exportAttributes(outfile, level, already_processed,
+                              namespace_, name_='MarkerDefinitionToleranceVolume')
         if self.hasContent_():
             outfile.write('>%s' % (eol_, ))
-            self.exportChildren(outfile, level + 1, namespace_='', name_='MarkerDefinitionToleranceVolume', pretty_print=pretty_print)
+            self.exportChildren(outfile, level + 1, namespace_='',
+                                name_='MarkerDefinitionToleranceVolume', pretty_print=pretty_print)
             showIndent(outfile, level, pretty_print)
             outfile.write('</%s%s>%s' % (namespace_, name_, eol_))
         else:
             outfile.write('/>%s' % (eol_, ))
+
     def exportAttributes(self, outfile, level, already_processed, namespace_='', name_='MarkerDefinitionToleranceVolume'):
-        super(MarkerDefinitionToleranceVolume, self).exportAttributes(outfile, level, already_processed, namespace_, name_='MarkerDefinitionToleranceVolume')
+        super(MarkerDefinitionToleranceVolume, self).exportAttributes(
+            outfile, level, already_processed, namespace_, name_='MarkerDefinitionToleranceVolume')
+
     def exportChildren(self, outfile, level, namespace_='', name_='MarkerDefinitionToleranceVolume', fromsubclass_=False, pretty_print=True):
-        super(MarkerDefinitionToleranceVolume, self).exportChildren(outfile, level, namespace_, name_, True, pretty_print=pretty_print)
+        super(MarkerDefinitionToleranceVolume, self).exportChildren(
+            outfile, level, namespace_, name_, True, pretty_print=pretty_print)
         if pretty_print:
             eol_ = '\n'
         else:
             eol_ = ''
         if self.Vertices is not None:
             showIndent(outfile, level, pretty_print)
-            outfile.write('<%sVertices>%s</%sVertices>%s' % (namespace_, self.gds_encode(self.gds_format_string(quote_xml(self.Vertices), input_name='Vertices')), namespace_, eol_))
+            outfile.write('<%sVertices>%s</%sVertices>%s' % (namespace_, self.gds_encode(
+                self.gds_format_string(quote_xml(self.Vertices), input_name='Vertices')), namespace_, eol_))
         if self.Indices is not None:
             showIndent(outfile, level, pretty_print)
-            outfile.write('<%sIndices>%s</%sIndices>%s' % (namespace_, self.gds_encode(self.gds_format_string(quote_xml(self.Indices), input_name='Indices')), namespace_, eol_))
+            outfile.write('<%sIndices>%s</%sIndices>%s' % (namespace_, self.gds_encode(
+                self.gds_format_string(quote_xml(self.Indices), input_name='Indices')), namespace_, eol_))
+
     def build(self, node):
         already_processed = set()
         self.buildAttributes(node, node.attrib, already_processed)
@@ -2899,8 +3463,11 @@ class MarkerDefinitionToleranceVolume(MarkerDefinition):
             nodeName_ = Tag_pattern_.match(child.tag).groups()[-1]
             self.buildChildren(child, node, nodeName_)
         return self
+
     def buildAttributes(self, node, attrs, already_processed):
-        super(MarkerDefinitionToleranceVolume, self).buildAttributes(node, attrs, already_processed)
+        super(MarkerDefinitionToleranceVolume, self).buildAttributes(
+            node, attrs, already_processed)
+
     def buildChildren(self, child_, node, nodeName_, fromsubclass_=False):
         if nodeName_ == 'Vertices':
             Vertices_ = child_.text
@@ -2910,17 +3477,20 @@ class MarkerDefinitionToleranceVolume(MarkerDefinition):
             Indices_ = child_.text
             Indices_ = self.gds_validate_string(Indices_, node, 'Indices')
             self.Indices = Indices_
-        super(MarkerDefinitionToleranceVolume, self).buildChildren(child_, node, nodeName_, True)
+        super(MarkerDefinitionToleranceVolume, self).buildChildren(
+            child_, node, nodeName_, True)
 # end class MarkerDefinitionToleranceVolume
 
 
 class MVParameters(GeneratedsSuper):
     subclass = None
     superclass = None
+
     def __init__(self, Energy=None, DoseRate=None):
         self.original_tagname_ = None
         self.Energy = Energy
         self.DoseRate = DoseRate
+
     def factory(*args_, **kwargs_):
         if CurrentSubclassModule_ is not None:
             subclass = getSubclassFromModule_(
@@ -2932,10 +3502,15 @@ class MVParameters(GeneratedsSuper):
         else:
             return MVParameters(*args_, **kwargs_)
     factory = staticmethod(factory)
+
     def get_Energy(self): return self.Energy
+
     def set_Energy(self, Energy): self.Energy = Energy
+
     def get_DoseRate(self): return self.DoseRate
+
     def set_DoseRate(self, DoseRate): self.DoseRate = DoseRate
+
     def hasContent_(self):
         if (
             self.Energy is not None or
@@ -2944,6 +3519,7 @@ class MVParameters(GeneratedsSuper):
             return True
         else:
             return False
+
     def export(self, outfile, level, namespace_='', name_='MVParameters', namespacedef_='', pretty_print=True):
         if pretty_print:
             eol_ = '\n'
@@ -2952,18 +3528,23 @@ class MVParameters(GeneratedsSuper):
         if self.original_tagname_ is not None:
             name_ = self.original_tagname_
         showIndent(outfile, level, pretty_print)
-        outfile.write('<%s%s%s' % (namespace_, name_, namespacedef_ and ' ' + namespacedef_ or '', ))
+        outfile.write('<%s%s%s' % (namespace_, name_,
+                                   namespacedef_ and ' ' + namespacedef_ or '', ))
         already_processed = set()
-        self.exportAttributes(outfile, level, already_processed, namespace_, name_='MVParameters')
+        self.exportAttributes(outfile, level, already_processed,
+                              namespace_, name_='MVParameters')
         if self.hasContent_():
             outfile.write('>%s' % (eol_, ))
-            self.exportChildren(outfile, level + 1, namespace_='', name_='MVParameters', pretty_print=pretty_print)
+            self.exportChildren(outfile, level + 1, namespace_='',
+                                name_='MVParameters', pretty_print=pretty_print)
             showIndent(outfile, level, pretty_print)
             outfile.write('</%s%s>%s' % (namespace_, name_, eol_))
         else:
             outfile.write('/>%s' % (eol_, ))
+
     def exportAttributes(self, outfile, level, already_processed, namespace_='', name_='MVParameters'):
         pass
+
     def exportChildren(self, outfile, level, namespace_='', name_='MVParameters', fromsubclass_=False, pretty_print=True):
         if pretty_print:
             eol_ = '\n'
@@ -2971,10 +3552,13 @@ class MVParameters(GeneratedsSuper):
             eol_ = ''
         if self.Energy is not None:
             showIndent(outfile, level, pretty_print)
-            outfile.write('<%sEnergy>%s</%sEnergy>%s' % (namespace_, self.gds_encode(self.gds_format_string(quote_xml(self.Energy), input_name='Energy')), namespace_, eol_))
+            outfile.write('<%sEnergy>%s</%sEnergy>%s' % (namespace_, self.gds_encode(
+                self.gds_format_string(quote_xml(self.Energy), input_name='Energy')), namespace_, eol_))
         if self.DoseRate is not None:
             showIndent(outfile, level, pretty_print)
-            outfile.write('<%sDoseRate>%s</%sDoseRate>%s' % (namespace_, self.gds_format_double(self.DoseRate, input_name='DoseRate'), namespace_, eol_))
+            outfile.write('<%sDoseRate>%s</%sDoseRate>%s' % (namespace_,
+                                                             self.gds_format_double(self.DoseRate, input_name='DoseRate'), namespace_, eol_))
+
     def build(self, node):
         already_processed = set()
         self.buildAttributes(node, node.attrib, already_processed)
@@ -2982,8 +3566,10 @@ class MVParameters(GeneratedsSuper):
             nodeName_ = Tag_pattern_.match(child.tag).groups()[-1]
             self.buildChildren(child, node, nodeName_)
         return self
+
     def buildAttributes(self, node, attrs, already_processed):
         pass
+
     def buildChildren(self, child_, node, nodeName_, fromsubclass_=False):
         if nodeName_ == 'Energy':
             Energy_ = child_.text
@@ -3003,6 +3589,7 @@ class MVParameters(GeneratedsSuper):
 class KVParameters(GeneratedsSuper):
     subclass = None
     superclass = None
+
     def __init__(self, KiloVolts=None, MilliAmperes=None, MilliSeconds=None, FocalSpot='Large', FluoroLevelControl='Low', AutoBrightnessControl=False, DoseRecording=True, FrameRate=0):
         self.original_tagname_ = None
         self.KiloVolts = KiloVolts
@@ -3015,6 +3602,7 @@ class KVParameters(GeneratedsSuper):
         self.AutoBrightnessControl = AutoBrightnessControl
         self.DoseRecording = DoseRecording
         self.FrameRate = FrameRate
+
     def factory(*args_, **kwargs_):
         if CurrentSubclassModule_ is not None:
             subclass = getSubclassFromModule_(
@@ -3026,22 +3614,42 @@ class KVParameters(GeneratedsSuper):
         else:
             return KVParameters(*args_, **kwargs_)
     factory = staticmethod(factory)
+
     def get_KiloVolts(self): return self.KiloVolts
+
     def set_KiloVolts(self, KiloVolts): self.KiloVolts = KiloVolts
+
     def get_MilliAmperes(self): return self.MilliAmperes
+
     def set_MilliAmperes(self, MilliAmperes): self.MilliAmperes = MilliAmperes
+
     def get_MilliSeconds(self): return self.MilliSeconds
+
     def set_MilliSeconds(self, MilliSeconds): self.MilliSeconds = MilliSeconds
+
     def get_FocalSpot(self): return self.FocalSpot
+
     def set_FocalSpot(self, FocalSpot): self.FocalSpot = FocalSpot
+
     def get_FluoroLevelControl(self): return self.FluoroLevelControl
-    def set_FluoroLevelControl(self, FluoroLevelControl): self.FluoroLevelControl = FluoroLevelControl
+
+    def set_FluoroLevelControl(
+        self, FluoroLevelControl): self.FluoroLevelControl = FluoroLevelControl
+
     def get_AutoBrightnessControl(self): return self.AutoBrightnessControl
-    def set_AutoBrightnessControl(self, AutoBrightnessControl): self.AutoBrightnessControl = AutoBrightnessControl
+
+    def set_AutoBrightnessControl(
+        self, AutoBrightnessControl): self.AutoBrightnessControl = AutoBrightnessControl
+
     def get_DoseRecording(self): return self.DoseRecording
-    def set_DoseRecording(self, DoseRecording): self.DoseRecording = DoseRecording
+
+    def set_DoseRecording(
+        self, DoseRecording): self.DoseRecording = DoseRecording
+
     def get_FrameRate(self): return self.FrameRate
+
     def set_FrameRate(self, FrameRate): self.FrameRate = FrameRate
+
     def validate_EFocalSpot(self, value):
         # Validate type EFocalSpot, a restriction on xs:string.
         if value is not None and Validate_simpletypes_:
@@ -3053,7 +3661,9 @@ class KVParameters(GeneratedsSuper):
                     enumeration_respectee = True
                     break
             if not enumeration_respectee:
-                warnings_.warn('Value "%(value)s" does not match xsd enumeration restriction on EFocalSpot' % {"value" : value.encode("utf-8")} )
+                warnings_.warn('Value "%(value)s" does not match xsd enumeration restriction on EFocalSpot' % {
+                               "value": value.encode("utf-8")})
+
     def validate_EFluoroLevelControl(self, value):
         # Validate type EFluoroLevelControl, a restriction on xs:string.
         if value is not None and Validate_simpletypes_:
@@ -3065,7 +3675,9 @@ class KVParameters(GeneratedsSuper):
                     enumeration_respectee = True
                     break
             if not enumeration_respectee:
-                warnings_.warn('Value "%(value)s" does not match xsd enumeration restriction on EFluoroLevelControl' % {"value" : value.encode("utf-8")} )
+                warnings_.warn('Value "%(value)s" does not match xsd enumeration restriction on EFluoroLevelControl' % {
+                               "value": value.encode("utf-8")})
+
     def hasContent_(self):
         if (
             self.KiloVolts is not None or
@@ -3080,6 +3692,7 @@ class KVParameters(GeneratedsSuper):
             return True
         else:
             return False
+
     def export(self, outfile, level, namespace_='', name_='KVParameters', namespacedef_='', pretty_print=True):
         if pretty_print:
             eol_ = '\n'
@@ -3088,18 +3701,23 @@ class KVParameters(GeneratedsSuper):
         if self.original_tagname_ is not None:
             name_ = self.original_tagname_
         showIndent(outfile, level, pretty_print)
-        outfile.write('<%s%s%s' % (namespace_, name_, namespacedef_ and ' ' + namespacedef_ or '', ))
+        outfile.write('<%s%s%s' % (namespace_, name_,
+                                   namespacedef_ and ' ' + namespacedef_ or '', ))
         already_processed = set()
-        self.exportAttributes(outfile, level, already_processed, namespace_, name_='KVParameters')
+        self.exportAttributes(outfile, level, already_processed,
+                              namespace_, name_='KVParameters')
         if self.hasContent_():
             outfile.write('>%s' % (eol_, ))
-            self.exportChildren(outfile, level + 1, namespace_='', name_='KVParameters', pretty_print=pretty_print)
+            self.exportChildren(outfile, level + 1, namespace_='',
+                                name_='KVParameters', pretty_print=pretty_print)
             showIndent(outfile, level, pretty_print)
             outfile.write('</%s%s>%s' % (namespace_, name_, eol_))
         else:
             outfile.write('/>%s' % (eol_, ))
+
     def exportAttributes(self, outfile, level, already_processed, namespace_='', name_='KVParameters'):
         pass
+
     def exportChildren(self, outfile, level, namespace_='', name_='KVParameters', fromsubclass_=False, pretty_print=True):
         if pretty_print:
             eol_ = '\n'
@@ -3107,28 +3725,37 @@ class KVParameters(GeneratedsSuper):
             eol_ = ''
         if self.KiloVolts is not None:
             showIndent(outfile, level, pretty_print)
-            outfile.write('<%sKiloVolts>%s</%sKiloVolts>%s' % (namespace_, self.gds_format_double(self.KiloVolts, input_name='KiloVolts'), namespace_, eol_))
+            outfile.write('<%sKiloVolts>%s</%sKiloVolts>%s' % (namespace_,
+                                                               self.gds_format_double(self.KiloVolts, input_name='KiloVolts'), namespace_, eol_))
         if self.MilliAmperes is not None:
             showIndent(outfile, level, pretty_print)
-            outfile.write('<%sMilliAmperes>%s</%sMilliAmperes>%s' % (namespace_, self.gds_format_double(self.MilliAmperes, input_name='MilliAmperes'), namespace_, eol_))
+            outfile.write('<%sMilliAmperes>%s</%sMilliAmperes>%s' % (namespace_,
+                                                                     self.gds_format_double(self.MilliAmperes, input_name='MilliAmperes'), namespace_, eol_))
         if self.MilliSeconds is not None:
             showIndent(outfile, level, pretty_print)
-            outfile.write('<%sMilliSeconds>%s</%sMilliSeconds>%s' % (namespace_, self.gds_format_double(self.MilliSeconds, input_name='MilliSeconds'), namespace_, eol_))
+            outfile.write('<%sMilliSeconds>%s</%sMilliSeconds>%s' % (namespace_,
+                                                                     self.gds_format_double(self.MilliSeconds, input_name='MilliSeconds'), namespace_, eol_))
         if self.FocalSpot != "Large":
             showIndent(outfile, level, pretty_print)
-            outfile.write('<%sFocalSpot>%s</%sFocalSpot>%s' % (namespace_, self.gds_encode(self.gds_format_string(quote_xml(self.FocalSpot), input_name='FocalSpot')), namespace_, eol_))
+            outfile.write('<%sFocalSpot>%s</%sFocalSpot>%s' % (namespace_, self.gds_encode(
+                self.gds_format_string(quote_xml(self.FocalSpot), input_name='FocalSpot')), namespace_, eol_))
         if self.FluoroLevelControl != "Low":
             showIndent(outfile, level, pretty_print)
-            outfile.write('<%sFluoroLevelControl>%s</%sFluoroLevelControl>%s' % (namespace_, self.gds_encode(self.gds_format_string(quote_xml(self.FluoroLevelControl), input_name='FluoroLevelControl')), namespace_, eol_))
+            outfile.write('<%sFluoroLevelControl>%s</%sFluoroLevelControl>%s' % (namespace_, self.gds_encode(
+                self.gds_format_string(quote_xml(self.FluoroLevelControl), input_name='FluoroLevelControl')), namespace_, eol_))
         if self.AutoBrightnessControl:
             showIndent(outfile, level, pretty_print)
-            outfile.write('<%sAutoBrightnessControl>%s</%sAutoBrightnessControl>%s' % (namespace_, self.gds_format_boolean(self.AutoBrightnessControl, input_name='AutoBrightnessControl'), namespace_, eol_))
+            outfile.write('<%sAutoBrightnessControl>%s</%sAutoBrightnessControl>%s' % (namespace_,
+                                                                                       self.gds_format_boolean(self.AutoBrightnessControl, input_name='AutoBrightnessControl'), namespace_, eol_))
         if not self.DoseRecording:
             showIndent(outfile, level, pretty_print)
-            outfile.write('<%sDoseRecording>%s</%sDoseRecording>%s' % (namespace_, self.gds_format_boolean(self.DoseRecording, input_name='DoseRecording'), namespace_, eol_))
+            outfile.write('<%sDoseRecording>%s</%sDoseRecording>%s' % (namespace_,
+                                                                       self.gds_format_boolean(self.DoseRecording, input_name='DoseRecording'), namespace_, eol_))
         if self.FrameRate != 0:
             showIndent(outfile, level, pretty_print)
-            outfile.write('<%sFrameRate>%s</%sFrameRate>%s' % (namespace_, self.gds_format_integer(self.FrameRate, input_name='FrameRate'), namespace_, eol_))
+            outfile.write('<%sFrameRate>%s</%sFrameRate>%s' % (namespace_,
+                                                               self.gds_format_integer(self.FrameRate, input_name='FrameRate'), namespace_, eol_))
+
     def build(self, node):
         already_processed = set()
         self.buildAttributes(node, node.attrib, already_processed)
@@ -3136,8 +3763,10 @@ class KVParameters(GeneratedsSuper):
             nodeName_ = Tag_pattern_.match(child.tag).groups()[-1]
             self.buildChildren(child, node, nodeName_)
         return self
+
     def buildAttributes(self, node, attrs, already_processed):
         pass
+
     def buildChildren(self, child_, node, nodeName_, fromsubclass_=False):
         if nodeName_ == 'KiloVolts':
             sval_ = child_.text
@@ -3165,13 +3794,15 @@ class KVParameters(GeneratedsSuper):
             self.MilliSeconds = fval_
         elif nodeName_ == 'FocalSpot':
             FocalSpot_ = child_.text
-            FocalSpot_ = self.gds_validate_string(FocalSpot_, node, 'FocalSpot')
+            FocalSpot_ = self.gds_validate_string(
+                FocalSpot_, node, 'FocalSpot')
             self.FocalSpot = FocalSpot_
             # validate type EFocalSpot
             self.validate_EFocalSpot(self.FocalSpot)
         elif nodeName_ == 'FluoroLevelControl':
             FluoroLevelControl_ = child_.text
-            FluoroLevelControl_ = self.gds_validate_string(FluoroLevelControl_, node, 'FluoroLevelControl')
+            FluoroLevelControl_ = self.gds_validate_string(
+                FluoroLevelControl_, node, 'FluoroLevelControl')
             self.FluoroLevelControl = FluoroLevelControl_
             # validate type EFluoroLevelControl
             self.validate_EFluoroLevelControl(self.FluoroLevelControl)
@@ -3183,7 +3814,8 @@ class KVParameters(GeneratedsSuper):
                 ival_ = False
             else:
                 raise_parse_error(child_, 'requires boolean')
-            ival_ = self.gds_validate_boolean(ival_, node, 'AutoBrightnessControl')
+            ival_ = self.gds_validate_boolean(
+                ival_, node, 'AutoBrightnessControl')
             self.AutoBrightnessControl = ival_
         elif nodeName_ == 'DoseRecording':
             sval_ = child_.text
@@ -3219,10 +3851,11 @@ class AcquisitionParameters(GeneratedsSuper):
     Service and only every few second one of these frame is stored
     into the gallery. NotificationDestination: -
     NotificationDestination : Tracking data are sent to this
-    notification destination Movie: - MovieDestination: This is the
+    notification destination Movie: - MovieDestination : This is the
     default destination for movie encoding"""
     subclass = None
     superclass = None
+
     def __init__(self, ImageMode=None, AcquisitionMode=None, CalibrationSet=None, ImageDestination=None, NotificationDestination=None, Movie=None, RaiseFault=None, Cache=None, HistogramRoi=None, ImageProcessing=None, MV=None, KV=None):
         self.original_tagname_ = None
         self.ImageMode = ImageMode
@@ -3243,6 +3876,7 @@ class AcquisitionParameters(GeneratedsSuper):
         self.ImageProcessing = ImageProcessing
         self.MV = MV
         self.KV = KV
+
     def factory(*args_, **kwargs_):
         if CurrentSubclassModule_ is not None:
             subclass = getSubclassFromModule_(
@@ -3254,36 +3888,77 @@ class AcquisitionParameters(GeneratedsSuper):
         else:
             return AcquisitionParameters(*args_, **kwargs_)
     factory = staticmethod(factory)
+
     def get_ImageMode(self): return self.ImageMode
+
     def set_ImageMode(self, ImageMode): self.ImageMode = ImageMode
+
     def get_AcquisitionMode(self): return self.AcquisitionMode
-    def set_AcquisitionMode(self, AcquisitionMode): self.AcquisitionMode = AcquisitionMode
+
+    def set_AcquisitionMode(
+        self, AcquisitionMode): self.AcquisitionMode = AcquisitionMode
+
     def get_CalibrationSet(self): return self.CalibrationSet
-    def set_CalibrationSet(self, CalibrationSet): self.CalibrationSet = CalibrationSet
+
+    def set_CalibrationSet(
+        self, CalibrationSet): self.CalibrationSet = CalibrationSet
+
     def get_ImageDestination(self): return self.ImageDestination
-    def set_ImageDestination(self, ImageDestination): self.ImageDestination = ImageDestination
+
+    def set_ImageDestination(
+        self, ImageDestination): self.ImageDestination = ImageDestination
+
     def add_ImageDestination(self, value): self.ImageDestination.append(value)
-    def insert_ImageDestination_at(self, index, value): self.ImageDestination.insert(index, value)
-    def replace_ImageDestination_at(self, index, value): self.ImageDestination[index] = value
+
+    def insert_ImageDestination_at(
+        self, index, value): self.ImageDestination.insert(index, value)
+
+    def replace_ImageDestination_at(
+        self, index, value): self.ImageDestination[index] = value
+
     def get_NotificationDestination(self): return self.NotificationDestination
-    def set_NotificationDestination(self, NotificationDestination): self.NotificationDestination = NotificationDestination
-    def add_NotificationDestination(self, value): self.NotificationDestination.append(value)
-    def insert_NotificationDestination_at(self, index, value): self.NotificationDestination.insert(index, value)
-    def replace_NotificationDestination_at(self, index, value): self.NotificationDestination[index] = value
+
+    def set_NotificationDestination(
+        self, NotificationDestination): self.NotificationDestination = NotificationDestination
+
+    def add_NotificationDestination(
+        self, value): self.NotificationDestination.append(value)
+
+    def insert_NotificationDestination_at(
+        self, index, value): self.NotificationDestination.insert(index, value)
+
+    def replace_NotificationDestination_at(
+        self, index, value): self.NotificationDestination[index] = value
+
     def get_Movie(self): return self.Movie
+
     def set_Movie(self, Movie): self.Movie = Movie
+
     def get_RaiseFault(self): return self.RaiseFault
+
     def set_RaiseFault(self, RaiseFault): self.RaiseFault = RaiseFault
+
     def get_Cache(self): return self.Cache
+
     def set_Cache(self, Cache): self.Cache = Cache
+
     def get_HistogramRoi(self): return self.HistogramRoi
+
     def set_HistogramRoi(self, HistogramRoi): self.HistogramRoi = HistogramRoi
+
     def get_ImageProcessing(self): return self.ImageProcessing
-    def set_ImageProcessing(self, ImageProcessing): self.ImageProcessing = ImageProcessing
+
+    def set_ImageProcessing(
+        self, ImageProcessing): self.ImageProcessing = ImageProcessing
+
     def get_MV(self): return self.MV
+
     def set_MV(self, MV): self.MV = MV
+
     def get_KV(self): return self.KV
+
     def set_KV(self, KV): self.KV = KV
+
     def hasContent_(self):
         if (
             self.ImageMode is not None or
@@ -3302,6 +3977,7 @@ class AcquisitionParameters(GeneratedsSuper):
             return True
         else:
             return False
+
     def export(self, outfile, level, namespace_='', name_='AcquisitionParameters', namespacedef_='', pretty_print=True):
         if pretty_print:
             eol_ = '\n'
@@ -3310,52 +3986,70 @@ class AcquisitionParameters(GeneratedsSuper):
         if self.original_tagname_ is not None:
             name_ = self.original_tagname_
         showIndent(outfile, level, pretty_print)
-        outfile.write('<%s%s%s' % (namespace_, name_, namespacedef_ and ' ' + namespacedef_ or '', ))
+        outfile.write('<%s%s%s' % (namespace_, name_,
+                                   namespacedef_ and ' ' + namespacedef_ or '', ))
         already_processed = set()
-        self.exportAttributes(outfile, level, already_processed, namespace_, name_='AcquisitionParameters')
+        self.exportAttributes(outfile, level, already_processed,
+                              namespace_, name_='AcquisitionParameters')
         if self.hasContent_():
             outfile.write('>%s' % (eol_, ))
-            self.exportChildren(outfile, level + 1, namespace_='', name_='AcquisitionParameters', pretty_print=pretty_print)
+            self.exportChildren(outfile, level + 1, namespace_='',
+                                name_='AcquisitionParameters', pretty_print=pretty_print)
             showIndent(outfile, level, pretty_print)
             outfile.write('</%s%s>%s' % (namespace_, name_, eol_))
         else:
             outfile.write('/>%s' % (eol_, ))
+
     def exportAttributes(self, outfile, level, already_processed, namespace_='', name_='AcquisitionParameters'):
         pass
+
     def exportChildren(self, outfile, level, namespace_='', name_='AcquisitionParameters', fromsubclass_=False, pretty_print=True):
         if pretty_print:
             eol_ = '\n'
         else:
             eol_ = ''
         if self.ImageMode is not None:
-            self.ImageMode.export(outfile, level, namespace_, name_='ImageMode', pretty_print=pretty_print)
+            self.ImageMode.export(outfile, level, namespace_,
+                                  name_='ImageMode', pretty_print=pretty_print)
         if self.AcquisitionMode is not None:
-            self.AcquisitionMode.export(outfile, level, namespace_, name_='AcquisitionMode', pretty_print=pretty_print)
+            self.AcquisitionMode.export(
+                outfile, level, namespace_, name_='AcquisitionMode', pretty_print=pretty_print)
         if self.CalibrationSet is not None:
             showIndent(outfile, level, pretty_print)
-            outfile.write('<%sCalibrationSet>%s</%sCalibrationSet>%s' % (namespace_, self.gds_encode(self.gds_format_string(quote_xml(self.CalibrationSet), input_name='CalibrationSet')), namespace_, eol_))
+            outfile.write('<%sCalibrationSet>%s</%sCalibrationSet>%s' % (namespace_, self.gds_encode(
+                self.gds_format_string(quote_xml(self.CalibrationSet), input_name='CalibrationSet')), namespace_, eol_))
         for ImageDestination_ in self.ImageDestination:
             showIndent(outfile, level, pretty_print)
-            outfile.write('<%sImageDestination>%s</%sImageDestination>%s' % (namespace_, self.gds_encode(self.gds_format_string(quote_xml(ImageDestination_), input_name='ImageDestination')), namespace_, eol_))
+            outfile.write('<%sImageDestination>%s</%sImageDestination>%s' % (namespace_, self.gds_encode(
+                self.gds_format_string(quote_xml(ImageDestination_), input_name='ImageDestination')), namespace_, eol_))
         for NotificationDestination_ in self.NotificationDestination:
             showIndent(outfile, level, pretty_print)
-            outfile.write('<%sNotificationDestination>%s</%sNotificationDestination>%s' % (namespace_, self.gds_encode(self.gds_format_string(quote_xml(NotificationDestination_), input_name='NotificationDestination')), namespace_, eol_))
+            outfile.write('<%sNotificationDestination>%s</%sNotificationDestination>%s' % (namespace_, self.gds_encode(
+                self.gds_format_string(quote_xml(NotificationDestination_), input_name='NotificationDestination')), namespace_, eol_))
         if self.Movie is not None:
-            self.Movie.export(outfile, level, namespace_, name_='Movie', pretty_print=pretty_print)
+            self.Movie.export(outfile, level, namespace_,
+                              name_='Movie', pretty_print=pretty_print)
         if self.RaiseFault is not None:
             showIndent(outfile, level, pretty_print)
-            outfile.write('<%sRaiseFault>%s</%sRaiseFault>%s' % (namespace_, self.gds_format_boolean(self.RaiseFault, input_name='RaiseFault'), namespace_, eol_))
+            outfile.write('<%sRaiseFault>%s</%sRaiseFault>%s' % (namespace_,
+                                                                 self.gds_format_boolean(self.RaiseFault, input_name='RaiseFault'), namespace_, eol_))
         if self.Cache is not None:
             showIndent(outfile, level, pretty_print)
-            outfile.write('<%sCache>%s</%sCache>%s' % (namespace_, self.gds_format_boolean(self.Cache, input_name='Cache'), namespace_, eol_))
+            outfile.write('<%sCache>%s</%sCache>%s' % (namespace_,
+                                                       self.gds_format_boolean(self.Cache, input_name='Cache'), namespace_, eol_))
         if self.HistogramRoi is not None:
-            self.HistogramRoi.export(outfile, level, namespace_, name_='HistogramRoi', pretty_print=pretty_print)
+            self.HistogramRoi.export(
+                outfile, level, namespace_, name_='HistogramRoi', pretty_print=pretty_print)
         if self.ImageProcessing is not None:
-            self.ImageProcessing.export(outfile, level, namespace_, name_='ImageProcessing', pretty_print=pretty_print)
+            self.ImageProcessing.export(
+                outfile, level, namespace_, name_='ImageProcessing', pretty_print=pretty_print)
         if self.MV is not None:
-            self.MV.export(outfile, level, namespace_, name_='MV', pretty_print=pretty_print)
+            self.MV.export(outfile, level, namespace_,
+                           name_='MV', pretty_print=pretty_print)
         if self.KV is not None:
-            self.KV.export(outfile, level, namespace_, name_='KV', pretty_print=pretty_print)
+            self.KV.export(outfile, level, namespace_,
+                           name_='KV', pretty_print=pretty_print)
+
     def build(self, node):
         already_processed = set()
         self.buildAttributes(node, node.attrib, already_processed)
@@ -3363,8 +4057,10 @@ class AcquisitionParameters(GeneratedsSuper):
             nodeName_ = Tag_pattern_.match(child.tag).groups()[-1]
             self.buildChildren(child, node, nodeName_)
         return self
+
     def buildAttributes(self, node, attrs, already_processed):
         pass
+
     def buildChildren(self, child_, node, nodeName_, fromsubclass_=False):
         if nodeName_ == 'ImageMode':
             obj_ = ImageMode.factory()
@@ -3378,15 +4074,18 @@ class AcquisitionParameters(GeneratedsSuper):
             obj_.original_tagname_ = 'AcquisitionMode'
         elif nodeName_ == 'CalibrationSet':
             CalibrationSet_ = child_.text
-            CalibrationSet_ = self.gds_validate_string(CalibrationSet_, node, 'CalibrationSet')
+            CalibrationSet_ = self.gds_validate_string(
+                CalibrationSet_, node, 'CalibrationSet')
             self.CalibrationSet = CalibrationSet_
         elif nodeName_ == 'ImageDestination':
             ImageDestination_ = child_.text
-            ImageDestination_ = self.gds_validate_string(ImageDestination_, node, 'ImageDestination')
+            ImageDestination_ = self.gds_validate_string(
+                ImageDestination_, node, 'ImageDestination')
             self.ImageDestination.append(ImageDestination_)
         elif nodeName_ == 'NotificationDestination':
             NotificationDestination_ = child_.text
-            NotificationDestination_ = self.gds_validate_string(NotificationDestination_, node, 'NotificationDestination')
+            NotificationDestination_ = self.gds_validate_string(
+                NotificationDestination_, node, 'NotificationDestination')
             self.NotificationDestination.append(NotificationDestination_)
         elif nodeName_ == 'Movie':
             obj_ = Movie.factory()
@@ -3441,11 +4140,13 @@ class Vector(GeneratedsSuper):
     origin and orientation."""
     subclass = None
     superclass = None
+
     def __init__(self, X=None, Y=None, Z=None):
         self.original_tagname_ = None
         self.X = X
         self.Y = Y
         self.Z = Z
+
     def factory(*args_, **kwargs_):
         if CurrentSubclassModule_ is not None:
             subclass = getSubclassFromModule_(
@@ -3457,12 +4158,19 @@ class Vector(GeneratedsSuper):
         else:
             return Vector(*args_, **kwargs_)
     factory = staticmethod(factory)
+
     def get_X(self): return self.X
+
     def set_X(self, X): self.X = X
+
     def get_Y(self): return self.Y
+
     def set_Y(self, Y): self.Y = Y
+
     def get_Z(self): return self.Z
+
     def set_Z(self, Z): self.Z = Z
+
     def hasContent_(self):
         if (
             self.X is not None or
@@ -3472,6 +4180,7 @@ class Vector(GeneratedsSuper):
             return True
         else:
             return False
+
     def export(self, outfile, level, namespace_='', name_='Vector', namespacedef_='', pretty_print=True):
         if pretty_print:
             eol_ = '\n'
@@ -3480,18 +4189,23 @@ class Vector(GeneratedsSuper):
         if self.original_tagname_ is not None:
             name_ = self.original_tagname_
         showIndent(outfile, level, pretty_print)
-        outfile.write('<%s%s%s' % (namespace_, name_, namespacedef_ and ' ' + namespacedef_ or '', ))
+        outfile.write('<%s%s%s' % (namespace_, name_,
+                                   namespacedef_ and ' ' + namespacedef_ or '', ))
         already_processed = set()
-        self.exportAttributes(outfile, level, already_processed, namespace_, name_='Vector')
+        self.exportAttributes(
+            outfile, level, already_processed, namespace_, name_='Vector')
         if self.hasContent_():
             outfile.write('>%s' % (eol_, ))
-            self.exportChildren(outfile, level + 1, namespace_='', name_='Vector', pretty_print=pretty_print)
+            self.exportChildren(outfile, level + 1, namespace_='',
+                                name_='Vector', pretty_print=pretty_print)
             showIndent(outfile, level, pretty_print)
             outfile.write('</%s%s>%s' % (namespace_, name_, eol_))
         else:
             outfile.write('/>%s' % (eol_, ))
+
     def exportAttributes(self, outfile, level, already_processed, namespace_='', name_='Vector'):
         pass
+
     def exportChildren(self, outfile, level, namespace_='', name_='Vector', fromsubclass_=False, pretty_print=True):
         if pretty_print:
             eol_ = '\n'
@@ -3499,13 +4213,17 @@ class Vector(GeneratedsSuper):
             eol_ = ''
         if self.X is not None:
             showIndent(outfile, level, pretty_print)
-            outfile.write('<%sX>%s</%sX>%s' % (namespace_, self.gds_format_double(self.X, input_name='X'), namespace_, eol_))
+            outfile.write('<%sX>%s</%sX>%s' % (namespace_,
+                                               self.gds_format_double(self.X, input_name='X'), namespace_, eol_))
         if self.Y is not None:
             showIndent(outfile, level, pretty_print)
-            outfile.write('<%sY>%s</%sY>%s' % (namespace_, self.gds_format_double(self.Y, input_name='Y'), namespace_, eol_))
+            outfile.write('<%sY>%s</%sY>%s' % (namespace_,
+                                               self.gds_format_double(self.Y, input_name='Y'), namespace_, eol_))
         if self.Z is not None:
             showIndent(outfile, level, pretty_print)
-            outfile.write('<%sZ>%s</%sZ>%s' % (namespace_, self.gds_format_double(self.Z, input_name='Z'), namespace_, eol_))
+            outfile.write('<%sZ>%s</%sZ>%s' % (namespace_,
+                                               self.gds_format_double(self.Z, input_name='Z'), namespace_, eol_))
+
     def build(self, node):
         already_processed = set()
         self.buildAttributes(node, node.attrib, already_processed)
@@ -3513,8 +4231,10 @@ class Vector(GeneratedsSuper):
             nodeName_ = Tag_pattern_.match(child.tag).groups()[-1]
             self.buildChildren(child, node, nodeName_)
         return self
+
     def buildAttributes(self, node, attrs, already_processed):
         pass
+
     def buildChildren(self, child_, node, nodeName_, fromsubclass_=False):
         if nodeName_ == 'X':
             sval_ = child_.text
@@ -3552,12 +4272,14 @@ class Placement(GeneratedsSuper):
     and their length is one (norm vectors)."""
     subclass = None
     superclass = None
+
     def __init__(self, Origin=None, AxisX=None, AxisY=None, AxisZ=None):
         self.original_tagname_ = None
         self.Origin = Origin
         self.AxisX = AxisX
         self.AxisY = AxisY
         self.AxisZ = AxisZ
+
     def factory(*args_, **kwargs_):
         if CurrentSubclassModule_ is not None:
             subclass = getSubclassFromModule_(
@@ -3569,14 +4291,23 @@ class Placement(GeneratedsSuper):
         else:
             return Placement(*args_, **kwargs_)
     factory = staticmethod(factory)
+
     def get_Origin(self): return self.Origin
+
     def set_Origin(self, Origin): self.Origin = Origin
+
     def get_AxisX(self): return self.AxisX
+
     def set_AxisX(self, AxisX): self.AxisX = AxisX
+
     def get_AxisY(self): return self.AxisY
+
     def set_AxisY(self, AxisY): self.AxisY = AxisY
+
     def get_AxisZ(self): return self.AxisZ
+
     def set_AxisZ(self, AxisZ): self.AxisZ = AxisZ
+
     def hasContent_(self):
         if (
             self.Origin is not None or
@@ -3587,6 +4318,7 @@ class Placement(GeneratedsSuper):
             return True
         else:
             return False
+
     def export(self, outfile, level, namespace_='', name_='Placement', namespacedef_='', pretty_print=True):
         if pretty_print:
             eol_ = '\n'
@@ -3595,31 +4327,41 @@ class Placement(GeneratedsSuper):
         if self.original_tagname_ is not None:
             name_ = self.original_tagname_
         showIndent(outfile, level, pretty_print)
-        outfile.write('<%s%s%s' % (namespace_, name_, namespacedef_ and ' ' + namespacedef_ or '', ))
+        outfile.write('<%s%s%s' % (namespace_, name_,
+                                   namespacedef_ and ' ' + namespacedef_ or '', ))
         already_processed = set()
-        self.exportAttributes(outfile, level, already_processed, namespace_, name_='Placement')
+        self.exportAttributes(
+            outfile, level, already_processed, namespace_, name_='Placement')
         if self.hasContent_():
             outfile.write('>%s' % (eol_, ))
-            self.exportChildren(outfile, level + 1, namespace_='', name_='Placement', pretty_print=pretty_print)
+            self.exportChildren(outfile, level + 1, namespace_='',
+                                name_='Placement', pretty_print=pretty_print)
             showIndent(outfile, level, pretty_print)
             outfile.write('</%s%s>%s' % (namespace_, name_, eol_))
         else:
             outfile.write('/>%s' % (eol_, ))
+
     def exportAttributes(self, outfile, level, already_processed, namespace_='', name_='Placement'):
         pass
+
     def exportChildren(self, outfile, level, namespace_='', name_='Placement', fromsubclass_=False, pretty_print=True):
         if pretty_print:
             eol_ = '\n'
         else:
             eol_ = ''
         if self.Origin is not None:
-            self.Origin.export(outfile, level, namespace_, name_='Origin', pretty_print=pretty_print)
+            self.Origin.export(outfile, level, namespace_,
+                               name_='Origin', pretty_print=pretty_print)
         if self.AxisX is not None:
-            self.AxisX.export(outfile, level, namespace_, name_='AxisX', pretty_print=pretty_print)
+            self.AxisX.export(outfile, level, namespace_,
+                              name_='AxisX', pretty_print=pretty_print)
         if self.AxisY is not None:
-            self.AxisY.export(outfile, level, namespace_, name_='AxisY', pretty_print=pretty_print)
+            self.AxisY.export(outfile, level, namespace_,
+                              name_='AxisY', pretty_print=pretty_print)
         if self.AxisZ is not None:
-            self.AxisZ.export(outfile, level, namespace_, name_='AxisZ', pretty_print=pretty_print)
+            self.AxisZ.export(outfile, level, namespace_,
+                              name_='AxisZ', pretty_print=pretty_print)
+
     def build(self, node):
         already_processed = set()
         self.buildAttributes(node, node.attrib, already_processed)
@@ -3627,8 +4369,10 @@ class Placement(GeneratedsSuper):
             nodeName_ = Tag_pattern_.match(child.tag).groups()[-1]
             self.buildChildren(child, node, nodeName_)
         return self
+
     def buildAttributes(self, node, attrs, already_processed):
         pass
+
     def buildChildren(self, child_, node, nodeName_, fromsubclass_=False):
         if nodeName_ == 'Origin':
             obj_ = Vector.factory()
@@ -3659,12 +4403,14 @@ class Coefficients(GeneratedsSuper):
     a2*rate."""
     subclass = None
     superclass = None
+
     def __init__(self, a0=None, a1=None, a2=None, a3=None):
         self.original_tagname_ = None
         self.a0 = a0
         self.a1 = a1
         self.a2 = a2
         self.a3 = a3
+
     def factory(*args_, **kwargs_):
         if CurrentSubclassModule_ is not None:
             subclass = getSubclassFromModule_(
@@ -3676,14 +4422,23 @@ class Coefficients(GeneratedsSuper):
         else:
             return Coefficients(*args_, **kwargs_)
     factory = staticmethod(factory)
+
     def get_a0(self): return self.a0
+
     def set_a0(self, a0): self.a0 = a0
+
     def get_a1(self): return self.a1
+
     def set_a1(self, a1): self.a1 = a1
+
     def get_a2(self): return self.a2
+
     def set_a2(self, a2): self.a2 = a2
+
     def get_a3(self): return self.a3
+
     def set_a3(self, a3): self.a3 = a3
+
     def hasContent_(self):
         if (
             self.a0 is not None or
@@ -3694,6 +4449,7 @@ class Coefficients(GeneratedsSuper):
             return True
         else:
             return False
+
     def export(self, outfile, level, namespace_='', name_='Coefficients', namespacedef_='', pretty_print=True):
         if pretty_print:
             eol_ = '\n'
@@ -3702,18 +4458,23 @@ class Coefficients(GeneratedsSuper):
         if self.original_tagname_ is not None:
             name_ = self.original_tagname_
         showIndent(outfile, level, pretty_print)
-        outfile.write('<%s%s%s' % (namespace_, name_, namespacedef_ and ' ' + namespacedef_ or '', ))
+        outfile.write('<%s%s%s' % (namespace_, name_,
+                                   namespacedef_ and ' ' + namespacedef_ or '', ))
         already_processed = set()
-        self.exportAttributes(outfile, level, already_processed, namespace_, name_='Coefficients')
+        self.exportAttributes(outfile, level, already_processed,
+                              namespace_, name_='Coefficients')
         if self.hasContent_():
             outfile.write('>%s' % (eol_, ))
-            self.exportChildren(outfile, level + 1, namespace_='', name_='Coefficients', pretty_print=pretty_print)
+            self.exportChildren(outfile, level + 1, namespace_='',
+                                name_='Coefficients', pretty_print=pretty_print)
             showIndent(outfile, level, pretty_print)
             outfile.write('</%s%s>%s' % (namespace_, name_, eol_))
         else:
             outfile.write('/>%s' % (eol_, ))
+
     def exportAttributes(self, outfile, level, already_processed, namespace_='', name_='Coefficients'):
         pass
+
     def exportChildren(self, outfile, level, namespace_='', name_='Coefficients', fromsubclass_=False, pretty_print=True):
         if pretty_print:
             eol_ = '\n'
@@ -3721,16 +4482,21 @@ class Coefficients(GeneratedsSuper):
             eol_ = ''
         if self.a0 is not None:
             showIndent(outfile, level, pretty_print)
-            outfile.write('<%sa0>%s</%sa0>%s' % (namespace_, self.gds_format_double(self.a0, input_name='a0'), namespace_, eol_))
+            outfile.write('<%sa0>%s</%sa0>%s' % (namespace_,
+                                                 self.gds_format_double(self.a0, input_name='a0'), namespace_, eol_))
         if self.a1 is not None:
             showIndent(outfile, level, pretty_print)
-            outfile.write('<%sa1>%s</%sa1>%s' % (namespace_, self.gds_format_double(self.a1, input_name='a1'), namespace_, eol_))
+            outfile.write('<%sa1>%s</%sa1>%s' % (namespace_,
+                                                 self.gds_format_double(self.a1, input_name='a1'), namespace_, eol_))
         if self.a2 is not None:
             showIndent(outfile, level, pretty_print)
-            outfile.write('<%sa2>%s</%sa2>%s' % (namespace_, self.gds_format_double(self.a2, input_name='a2'), namespace_, eol_))
+            outfile.write('<%sa2>%s</%sa2>%s' % (namespace_,
+                                                 self.gds_format_double(self.a2, input_name='a2'), namespace_, eol_))
         if self.a3 is not None:
             showIndent(outfile, level, pretty_print)
-            outfile.write('<%sa3>%s</%sa3>%s' % (namespace_, self.gds_format_double(self.a3, input_name='a3'), namespace_, eol_))
+            outfile.write('<%sa3>%s</%sa3>%s' % (namespace_,
+                                                 self.gds_format_double(self.a3, input_name='a3'), namespace_, eol_))
+
     def build(self, node):
         already_processed = set()
         self.buildAttributes(node, node.attrib, already_processed)
@@ -3738,8 +4504,10 @@ class Coefficients(GeneratedsSuper):
             nodeName_ = Tag_pattern_.match(child.tag).groups()[-1]
             self.buildChildren(child, node, nodeName_)
         return self
+
     def buildAttributes(self, node, attrs, already_processed):
         pass
+
     def buildChildren(self, child_, node, nodeName_, fromsubclass_=False):
         if nodeName_ == 'a0':
             sval_ = child_.text
@@ -3782,10 +4550,12 @@ class FitData(GeneratedsSuper):
     description of the used fitting equations."""
     subclass = None
     superclass = None
+
     def __init__(self, FitType=None, Coefficients=None):
         self.original_tagname_ = None
         self.FitType = FitType
         self.Coefficients = Coefficients
+
     def factory(*args_, **kwargs_):
         if CurrentSubclassModule_ is not None:
             subclass = getSubclassFromModule_(
@@ -3797,10 +4567,15 @@ class FitData(GeneratedsSuper):
         else:
             return FitData(*args_, **kwargs_)
     factory = staticmethod(factory)
+
     def get_FitType(self): return self.FitType
+
     def set_FitType(self, FitType): self.FitType = FitType
+
     def get_Coefficients(self): return self.Coefficients
+
     def set_Coefficients(self, Coefficients): self.Coefficients = Coefficients
+
     def hasContent_(self):
         if (
             self.FitType is not None or
@@ -3809,6 +4584,7 @@ class FitData(GeneratedsSuper):
             return True
         else:
             return False
+
     def export(self, outfile, level, namespace_='', name_='FitData', namespacedef_='', pretty_print=True):
         if pretty_print:
             eol_ = '\n'
@@ -3817,18 +4593,23 @@ class FitData(GeneratedsSuper):
         if self.original_tagname_ is not None:
             name_ = self.original_tagname_
         showIndent(outfile, level, pretty_print)
-        outfile.write('<%s%s%s' % (namespace_, name_, namespacedef_ and ' ' + namespacedef_ or '', ))
+        outfile.write('<%s%s%s' % (namespace_, name_,
+                                   namespacedef_ and ' ' + namespacedef_ or '', ))
         already_processed = set()
-        self.exportAttributes(outfile, level, already_processed, namespace_, name_='FitData')
+        self.exportAttributes(
+            outfile, level, already_processed, namespace_, name_='FitData')
         if self.hasContent_():
             outfile.write('>%s' % (eol_, ))
-            self.exportChildren(outfile, level + 1, namespace_='', name_='FitData', pretty_print=pretty_print)
+            self.exportChildren(outfile, level + 1, namespace_='',
+                                name_='FitData', pretty_print=pretty_print)
             showIndent(outfile, level, pretty_print)
             outfile.write('</%s%s>%s' % (namespace_, name_, eol_))
         else:
             outfile.write('/>%s' % (eol_, ))
+
     def exportAttributes(self, outfile, level, already_processed, namespace_='', name_='FitData'):
         pass
+
     def exportChildren(self, outfile, level, namespace_='', name_='FitData', fromsubclass_=False, pretty_print=True):
         if pretty_print:
             eol_ = '\n'
@@ -3836,9 +4617,12 @@ class FitData(GeneratedsSuper):
             eol_ = ''
         if self.FitType is not None:
             showIndent(outfile, level, pretty_print)
-            outfile.write('<%sFitType>%s</%sFitType>%s' % (namespace_, self.gds_encode(self.gds_format_string(quote_xml(self.FitType), input_name='FitType')), namespace_, eol_))
+            outfile.write('<%sFitType>%s</%sFitType>%s' % (namespace_, self.gds_encode(
+                self.gds_format_string(quote_xml(self.FitType), input_name='FitType')), namespace_, eol_))
         if self.Coefficients is not None:
-            self.Coefficients.export(outfile, level, namespace_, name_='Coefficients', pretty_print=pretty_print)
+            self.Coefficients.export(
+                outfile, level, namespace_, name_='Coefficients', pretty_print=pretty_print)
+
     def build(self, node):
         already_processed = set()
         self.buildAttributes(node, node.attrib, already_processed)
@@ -3846,8 +4630,10 @@ class FitData(GeneratedsSuper):
             nodeName_ = Tag_pattern_.match(child.tag).groups()[-1]
             self.buildChildren(child, node, nodeName_)
         return self
+
     def buildAttributes(self, node, attrs, already_processed):
         pass
+
     def buildChildren(self, child_, node, nodeName_, fromsubclass_=False):
         if nodeName_ == 'FitType':
             FitType_ = child_.text
@@ -3873,6 +4659,7 @@ class ModelSystem(GeneratedsSuper):
     the current couch position while loading this research beam"""
     subclass = None
     superclass = None
+
     def __init__(self, ModelSystem_pinned=None, CouchLat=None, CouchLng=None, CouchVrt=None, CouchRtn=None, CouchPit=None, CouchRol=None):
         self.original_tagname_ = None
         self.ModelSystem_pinned = ModelSystem_pinned
@@ -3882,6 +4669,7 @@ class ModelSystem(GeneratedsSuper):
         self.CouchRtn = CouchRtn
         self.CouchPit = CouchPit
         self.CouchRol = CouchRol
+
     def factory(*args_, **kwargs_):
         if CurrentSubclassModule_ is not None:
             subclass = getSubclassFromModule_(
@@ -3893,20 +4681,36 @@ class ModelSystem(GeneratedsSuper):
         else:
             return ModelSystem(*args_, **kwargs_)
     factory = staticmethod(factory)
+
     def get_ModelSystem_pinned(self): return self.ModelSystem_pinned
-    def set_ModelSystem_pinned(self, ModelSystem_pinned): self.ModelSystem_pinned = ModelSystem_pinned
+
+    def set_ModelSystem_pinned(
+        self, ModelSystem_pinned): self.ModelSystem_pinned = ModelSystem_pinned
+
     def get_CouchLat(self): return self.CouchLat
+
     def set_CouchLat(self, CouchLat): self.CouchLat = CouchLat
+
     def get_CouchLng(self): return self.CouchLng
+
     def set_CouchLng(self, CouchLng): self.CouchLng = CouchLng
+
     def get_CouchVrt(self): return self.CouchVrt
+
     def set_CouchVrt(self, CouchVrt): self.CouchVrt = CouchVrt
+
     def get_CouchRtn(self): return self.CouchRtn
+
     def set_CouchRtn(self, CouchRtn): self.CouchRtn = CouchRtn
+
     def get_CouchPit(self): return self.CouchPit
+
     def set_CouchPit(self, CouchPit): self.CouchPit = CouchPit
+
     def get_CouchRol(self): return self.CouchRol
+
     def set_CouchRol(self, CouchRol): self.CouchRol = CouchRol
+
     def hasContent_(self):
         if (
             self.ModelSystem_pinned is not None or
@@ -3920,6 +4724,7 @@ class ModelSystem(GeneratedsSuper):
             return True
         else:
             return False
+
     def export(self, outfile, level, namespace_='', name_='ModelSystem', namespacedef_='', pretty_print=True):
         if pretty_print:
             eol_ = '\n'
@@ -3928,43 +4733,56 @@ class ModelSystem(GeneratedsSuper):
         if self.original_tagname_ is not None:
             name_ = self.original_tagname_
         showIndent(outfile, level, pretty_print)
-        outfile.write('<%s%s%s' % (namespace_, name_, namespacedef_ and ' ' + namespacedef_ or '', ))
+        outfile.write('<%s%s%s' % (namespace_, name_,
+                                   namespacedef_ and ' ' + namespacedef_ or '', ))
         already_processed = set()
-        self.exportAttributes(outfile, level, already_processed, namespace_, name_='ModelSystem')
+        self.exportAttributes(
+            outfile, level, already_processed, namespace_, name_='ModelSystem')
         if self.hasContent_():
             outfile.write('>%s' % (eol_, ))
-            self.exportChildren(outfile, level + 1, namespace_='', name_='ModelSystem', pretty_print=pretty_print)
+            self.exportChildren(outfile, level + 1, namespace_='',
+                                name_='ModelSystem', pretty_print=pretty_print)
             showIndent(outfile, level, pretty_print)
             outfile.write('</%s%s>%s' % (namespace_, name_, eol_))
         else:
             outfile.write('/>%s' % (eol_, ))
+
     def exportAttributes(self, outfile, level, already_processed, namespace_='', name_='ModelSystem'):
         pass
+
     def exportChildren(self, outfile, level, namespace_='', name_='ModelSystem', fromsubclass_=False, pretty_print=True):
         if pretty_print:
             eol_ = '\n'
         else:
             eol_ = ''
         if self.ModelSystem_pinned is not None:
-            self.ModelSystem_pinned.export(outfile, level, namespace_, name_='ModelSystem_pinned', pretty_print=pretty_print)
+            self.ModelSystem_pinned.export(
+                outfile, level, namespace_, name_='ModelSystem_pinned', pretty_print=pretty_print)
         if self.CouchLat is not None:
             showIndent(outfile, level, pretty_print)
-            outfile.write('<%sCouchLat>%s</%sCouchLat>%s' % (namespace_, self.gds_format_double(self.CouchLat, input_name='CouchLat'), namespace_, eol_))
+            outfile.write('<%sCouchLat>%s</%sCouchLat>%s' % (namespace_,
+                                                             self.gds_format_double(self.CouchLat, input_name='CouchLat'), namespace_, eol_))
         if self.CouchLng is not None:
             showIndent(outfile, level, pretty_print)
-            outfile.write('<%sCouchLng>%s</%sCouchLng>%s' % (namespace_, self.gds_format_double(self.CouchLng, input_name='CouchLng'), namespace_, eol_))
+            outfile.write('<%sCouchLng>%s</%sCouchLng>%s' % (namespace_,
+                                                             self.gds_format_double(self.CouchLng, input_name='CouchLng'), namespace_, eol_))
         if self.CouchVrt is not None:
             showIndent(outfile, level, pretty_print)
-            outfile.write('<%sCouchVrt>%s</%sCouchVrt>%s' % (namespace_, self.gds_format_double(self.CouchVrt, input_name='CouchVrt'), namespace_, eol_))
+            outfile.write('<%sCouchVrt>%s</%sCouchVrt>%s' % (namespace_,
+                                                             self.gds_format_double(self.CouchVrt, input_name='CouchVrt'), namespace_, eol_))
         if self.CouchRtn is not None:
             showIndent(outfile, level, pretty_print)
-            outfile.write('<%sCouchRtn>%s</%sCouchRtn>%s' % (namespace_, self.gds_format_double(self.CouchRtn, input_name='CouchRtn'), namespace_, eol_))
+            outfile.write('<%sCouchRtn>%s</%sCouchRtn>%s' % (namespace_,
+                                                             self.gds_format_double(self.CouchRtn, input_name='CouchRtn'), namespace_, eol_))
         if self.CouchPit is not None:
             showIndent(outfile, level, pretty_print)
-            outfile.write('<%sCouchPit>%s</%sCouchPit>%s' % (namespace_, self.gds_format_double(self.CouchPit, input_name='CouchPit'), namespace_, eol_))
+            outfile.write('<%sCouchPit>%s</%sCouchPit>%s' % (namespace_,
+                                                             self.gds_format_double(self.CouchPit, input_name='CouchPit'), namespace_, eol_))
         if self.CouchRol is not None:
             showIndent(outfile, level, pretty_print)
-            outfile.write('<%sCouchRol>%s</%sCouchRol>%s' % (namespace_, self.gds_format_double(self.CouchRol, input_name='CouchRol'), namespace_, eol_))
+            outfile.write('<%sCouchRol>%s</%sCouchRol>%s' % (namespace_,
+                                                             self.gds_format_double(self.CouchRol, input_name='CouchRol'), namespace_, eol_))
+
     def build(self, node):
         already_processed = set()
         self.buildAttributes(node, node.attrib, already_processed)
@@ -3972,8 +4790,10 @@ class ModelSystem(GeneratedsSuper):
             nodeName_ = Tag_pattern_.match(child.tag).groups()[-1]
             self.buildChildren(child, node, nodeName_)
         return self
+
     def buildAttributes(self, node, attrs, already_processed):
         pass
+
     def buildChildren(self, child_, node, nodeName_, fromsubclass_=False):
         if nodeName_ == 'ModelSystem_pinned':
             obj_ = Placement.factory()
@@ -4039,9 +4859,11 @@ class BasicSurrogateModel(GeneratedsSuper):
     TargetPosition_surrogate)."""
     subclass = None
     superclass = None
+
     def __init__(self, TargetPosition_surrogate=None):
         self.original_tagname_ = None
         self.TargetPosition_surrogate = TargetPosition_surrogate
+
     def factory(*args_, **kwargs_):
         if CurrentSubclassModule_ is not None:
             subclass = getSubclassFromModule_(
@@ -4053,8 +4875,13 @@ class BasicSurrogateModel(GeneratedsSuper):
         else:
             return BasicSurrogateModel(*args_, **kwargs_)
     factory = staticmethod(factory)
-    def get_TargetPosition_surrogate(self): return self.TargetPosition_surrogate
-    def set_TargetPosition_surrogate(self, TargetPosition_surrogate): self.TargetPosition_surrogate = TargetPosition_surrogate
+
+    def get_TargetPosition_surrogate(
+        self): return self.TargetPosition_surrogate
+
+    def set_TargetPosition_surrogate(
+        self, TargetPosition_surrogate): self.TargetPosition_surrogate = TargetPosition_surrogate
+
     def hasContent_(self):
         if (
             self.TargetPosition_surrogate is not None
@@ -4062,6 +4889,7 @@ class BasicSurrogateModel(GeneratedsSuper):
             return True
         else:
             return False
+
     def export(self, outfile, level, namespace_='', name_='BasicSurrogateModel', namespacedef_='', pretty_print=True):
         if pretty_print:
             eol_ = '\n'
@@ -4070,25 +4898,32 @@ class BasicSurrogateModel(GeneratedsSuper):
         if self.original_tagname_ is not None:
             name_ = self.original_tagname_
         showIndent(outfile, level, pretty_print)
-        outfile.write('<%s%s%s' % (namespace_, name_, namespacedef_ and ' ' + namespacedef_ or '', ))
+        outfile.write('<%s%s%s' % (namespace_, name_,
+                                   namespacedef_ and ' ' + namespacedef_ or '', ))
         already_processed = set()
-        self.exportAttributes(outfile, level, already_processed, namespace_, name_='BasicSurrogateModel')
+        self.exportAttributes(outfile, level, already_processed,
+                              namespace_, name_='BasicSurrogateModel')
         if self.hasContent_():
             outfile.write('>%s' % (eol_, ))
-            self.exportChildren(outfile, level + 1, namespace_='', name_='BasicSurrogateModel', pretty_print=pretty_print)
+            self.exportChildren(outfile, level + 1, namespace_='',
+                                name_='BasicSurrogateModel', pretty_print=pretty_print)
             showIndent(outfile, level, pretty_print)
             outfile.write('</%s%s>%s' % (namespace_, name_, eol_))
         else:
             outfile.write('/>%s' % (eol_, ))
+
     def exportAttributes(self, outfile, level, already_processed, namespace_='', name_='BasicSurrogateModel'):
         pass
+
     def exportChildren(self, outfile, level, namespace_='', name_='BasicSurrogateModel', fromsubclass_=False, pretty_print=True):
         if pretty_print:
             eol_ = '\n'
         else:
             eol_ = ''
         if self.TargetPosition_surrogate is not None:
-            self.TargetPosition_surrogate.export(outfile, level, namespace_, name_='TargetPosition_surrogate', pretty_print=pretty_print)
+            self.TargetPosition_surrogate.export(
+                outfile, level, namespace_, name_='TargetPosition_surrogate', pretty_print=pretty_print)
+
     def build(self, node):
         already_processed = set()
         self.buildAttributes(node, node.attrib, already_processed)
@@ -4096,8 +4931,10 @@ class BasicSurrogateModel(GeneratedsSuper):
             nodeName_ = Tag_pattern_.match(child.tag).groups()[-1]
             self.buildChildren(child, node, nodeName_)
         return self
+
     def buildAttributes(self, node, attrs, already_processed):
         pass
+
     def buildChildren(self, child_, node, nodeName_, fromsubclass_=False):
         if nodeName_ == 'TargetPosition_surrogate':
             obj_ = Placement.factory()
@@ -4115,11 +4952,13 @@ class AmplitudeFitSurrogateModel(GeneratedsSuper):
     as defined by model system."""
     subclass = None
     superclass = None
+
     def __init__(self, X=None, Y=None, Z=None):
         self.original_tagname_ = None
         self.X = X
         self.Y = Y
         self.Z = Z
+
     def factory(*args_, **kwargs_):
         if CurrentSubclassModule_ is not None:
             subclass = getSubclassFromModule_(
@@ -4131,12 +4970,19 @@ class AmplitudeFitSurrogateModel(GeneratedsSuper):
         else:
             return AmplitudeFitSurrogateModel(*args_, **kwargs_)
     factory = staticmethod(factory)
+
     def get_X(self): return self.X
+
     def set_X(self, X): self.X = X
+
     def get_Y(self): return self.Y
+
     def set_Y(self, Y): self.Y = Y
+
     def get_Z(self): return self.Z
+
     def set_Z(self, Z): self.Z = Z
+
     def hasContent_(self):
         if (
             self.X is not None or
@@ -4146,6 +4992,7 @@ class AmplitudeFitSurrogateModel(GeneratedsSuper):
             return True
         else:
             return False
+
     def export(self, outfile, level, namespace_='', name_='AmplitudeFitSurrogateModel', namespacedef_='', pretty_print=True):
         if pretty_print:
             eol_ = '\n'
@@ -4154,29 +5001,38 @@ class AmplitudeFitSurrogateModel(GeneratedsSuper):
         if self.original_tagname_ is not None:
             name_ = self.original_tagname_
         showIndent(outfile, level, pretty_print)
-        outfile.write('<%s%s%s' % (namespace_, name_, namespacedef_ and ' ' + namespacedef_ or '', ))
+        outfile.write('<%s%s%s' % (namespace_, name_,
+                                   namespacedef_ and ' ' + namespacedef_ or '', ))
         already_processed = set()
-        self.exportAttributes(outfile, level, already_processed, namespace_, name_='AmplitudeFitSurrogateModel')
+        self.exportAttributes(outfile, level, already_processed,
+                              namespace_, name_='AmplitudeFitSurrogateModel')
         if self.hasContent_():
             outfile.write('>%s' % (eol_, ))
-            self.exportChildren(outfile, level + 1, namespace_='', name_='AmplitudeFitSurrogateModel', pretty_print=pretty_print)
+            self.exportChildren(outfile, level + 1, namespace_='',
+                                name_='AmplitudeFitSurrogateModel', pretty_print=pretty_print)
             showIndent(outfile, level, pretty_print)
             outfile.write('</%s%s>%s' % (namespace_, name_, eol_))
         else:
             outfile.write('/>%s' % (eol_, ))
+
     def exportAttributes(self, outfile, level, already_processed, namespace_='', name_='AmplitudeFitSurrogateModel'):
         pass
+
     def exportChildren(self, outfile, level, namespace_='', name_='AmplitudeFitSurrogateModel', fromsubclass_=False, pretty_print=True):
         if pretty_print:
             eol_ = '\n'
         else:
             eol_ = ''
         if self.X is not None:
-            self.X.export(outfile, level, namespace_, name_='X', pretty_print=pretty_print)
+            self.X.export(outfile, level, namespace_,
+                          name_='X', pretty_print=pretty_print)
         if self.Y is not None:
-            self.Y.export(outfile, level, namespace_, name_='Y', pretty_print=pretty_print)
+            self.Y.export(outfile, level, namespace_,
+                          name_='Y', pretty_print=pretty_print)
         if self.Z is not None:
-            self.Z.export(outfile, level, namespace_, name_='Z', pretty_print=pretty_print)
+            self.Z.export(outfile, level, namespace_,
+                          name_='Z', pretty_print=pretty_print)
+
     def build(self, node):
         already_processed = set()
         self.buildAttributes(node, node.attrib, already_processed)
@@ -4184,8 +5040,10 @@ class AmplitudeFitSurrogateModel(GeneratedsSuper):
             nodeName_ = Tag_pattern_.match(child.tag).groups()[-1]
             self.buildChildren(child, node, nodeName_)
         return self
+
     def buildAttributes(self, node, attrs, already_processed):
         pass
+
     def buildChildren(self, child_, node, nodeName_, fromsubclass_=False):
         if nodeName_ == 'X':
             obj_ = FitData.factory()
@@ -4209,6 +5067,7 @@ class SurrogateModelPlugIn(GeneratedsSuper):
     """Surrogate model plugin is an engineering only option"""
     subclass = None
     superclass = None
+
     def __init__(self, module=None, name=None, anytypeobjs_=None):
         self.original_tagname_ = None
         self.module = _cast(None, module)
@@ -4217,6 +5076,7 @@ class SurrogateModelPlugIn(GeneratedsSuper):
             self.anytypeobjs_ = []
         else:
             self.anytypeobjs_ = anytypeobjs_
+
     def factory(*args_, **kwargs_):
         if CurrentSubclassModule_ is not None:
             subclass = getSubclassFromModule_(
@@ -4228,14 +5088,24 @@ class SurrogateModelPlugIn(GeneratedsSuper):
         else:
             return SurrogateModelPlugIn(*args_, **kwargs_)
     factory = staticmethod(factory)
+
     def get_anytypeobjs_(self): return self.anytypeobjs_
+
     def set_anytypeobjs_(self, anytypeobjs_): self.anytypeobjs_ = anytypeobjs_
+
     def add_anytypeobjs_(self, value): self.anytypeobjs_.append(value)
-    def insert_anytypeobjs_(self, index, value): self._anytypeobjs_[index] = value
+
+    def insert_anytypeobjs_(self, index, value): self._anytypeobjs_[
+        index] = value
+
     def get_module(self): return self.module
+
     def set_module(self, module): self.module = module
+
     def get_name(self): return self.name
+
     def set_name(self, name): self.name = name
+
     def hasContent_(self):
         if (
             self.anytypeobjs_
@@ -4243,6 +5113,7 @@ class SurrogateModelPlugIn(GeneratedsSuper):
             return True
         else:
             return False
+
     def export(self, outfile, level, namespace_='', name_='SurrogateModelPlugIn', namespacedef_='', pretty_print=True):
         if pretty_print:
             eol_ = '\n'
@@ -4251,23 +5122,30 @@ class SurrogateModelPlugIn(GeneratedsSuper):
         if self.original_tagname_ is not None:
             name_ = self.original_tagname_
         showIndent(outfile, level, pretty_print)
-        outfile.write('<%s%s%s' % (namespace_, name_, namespacedef_ and ' ' + namespacedef_ or '', ))
+        outfile.write('<%s%s%s' % (namespace_, name_,
+                                   namespacedef_ and ' ' + namespacedef_ or '', ))
         already_processed = set()
-        self.exportAttributes(outfile, level, already_processed, namespace_, name_='SurrogateModelPlugIn')
+        self.exportAttributes(outfile, level, already_processed,
+                              namespace_, name_='SurrogateModelPlugIn')
         if self.hasContent_():
             outfile.write('>%s' % (eol_, ))
-            self.exportChildren(outfile, level + 1, namespace_='', name_='SurrogateModelPlugIn', pretty_print=pretty_print)
+            self.exportChildren(outfile, level + 1, namespace_='',
+                                name_='SurrogateModelPlugIn', pretty_print=pretty_print)
             showIndent(outfile, level, pretty_print)
             outfile.write('</%s%s>%s' % (namespace_, name_, eol_))
         else:
             outfile.write('/>%s' % (eol_, ))
+
     def exportAttributes(self, outfile, level, already_processed, namespace_='', name_='SurrogateModelPlugIn'):
         if self.module is not None and 'module' not in already_processed:
             already_processed.add('module')
-            outfile.write(' module=%s' % (self.gds_encode(self.gds_format_string(quote_attrib(self.module), input_name='module')), ))
+            outfile.write(' module=%s' % (self.gds_encode(
+                self.gds_format_string(quote_attrib(self.module), input_name='module')), ))
         if self.name is not None and 'name' not in already_processed:
             already_processed.add('name')
-            outfile.write(' name=%s' % (self.gds_encode(self.gds_format_string(quote_attrib(self.name), input_name='name')), ))
+            outfile.write(' name=%s' % (self.gds_encode(
+                self.gds_format_string(quote_attrib(self.name), input_name='name')), ))
+
     def exportChildren(self, outfile, level, namespace_='', name_='SurrogateModelPlugIn', fromsubclass_=False, pretty_print=True):
         if pretty_print:
             eol_ = '\n'
@@ -4275,6 +5153,7 @@ class SurrogateModelPlugIn(GeneratedsSuper):
             eol_ = ''
         for obj_ in self.anytypeobjs_:
             obj_.export(outfile, level, namespace_, pretty_print=pretty_print)
+
     def build(self, node):
         already_processed = set()
         self.buildAttributes(node, node.attrib, already_processed)
@@ -4282,6 +5161,7 @@ class SurrogateModelPlugIn(GeneratedsSuper):
             nodeName_ = Tag_pattern_.match(child.tag).groups()[-1]
             self.buildChildren(child, node, nodeName_)
         return self
+
     def buildAttributes(self, node, attrs, already_processed):
         value = find_attr_value_('module', node)
         if value is not None and 'module' not in already_processed:
@@ -4291,6 +5171,7 @@ class SurrogateModelPlugIn(GeneratedsSuper):
         if value is not None and 'name' not in already_processed:
             already_processed.add('name')
             self.name = value
+
     def buildChildren(self, child_, node, nodeName_, fromsubclass_=False):
         obj_ = self.gds_build_any(child_, 'SurrogateModelPlugIn')
         if obj_ is not None:
@@ -4303,11 +5184,13 @@ class SurrogateModel(GeneratedsSuper):
     the target."""
     subclass = None
     superclass = None
+
     def __init__(self, Basic=None, AmplitudeFit=None, PlugIn=None):
         self.original_tagname_ = None
         self.Basic = Basic
         self.AmplitudeFit = AmplitudeFit
         self.PlugIn = PlugIn
+
     def factory(*args_, **kwargs_):
         if CurrentSubclassModule_ is not None:
             subclass = getSubclassFromModule_(
@@ -4319,12 +5202,19 @@ class SurrogateModel(GeneratedsSuper):
         else:
             return SurrogateModel(*args_, **kwargs_)
     factory = staticmethod(factory)
+
     def get_Basic(self): return self.Basic
+
     def set_Basic(self, Basic): self.Basic = Basic
+
     def get_AmplitudeFit(self): return self.AmplitudeFit
+
     def set_AmplitudeFit(self, AmplitudeFit): self.AmplitudeFit = AmplitudeFit
+
     def get_PlugIn(self): return self.PlugIn
+
     def set_PlugIn(self, PlugIn): self.PlugIn = PlugIn
+
     def hasContent_(self):
         if (
             self.Basic is not None or
@@ -4334,6 +5224,7 @@ class SurrogateModel(GeneratedsSuper):
             return True
         else:
             return False
+
     def export(self, outfile, level, namespace_='', name_='SurrogateModel', namespacedef_='', pretty_print=True):
         if pretty_print:
             eol_ = '\n'
@@ -4342,29 +5233,38 @@ class SurrogateModel(GeneratedsSuper):
         if self.original_tagname_ is not None:
             name_ = self.original_tagname_
         showIndent(outfile, level, pretty_print)
-        outfile.write('<%s%s%s' % (namespace_, name_, namespacedef_ and ' ' + namespacedef_ or '', ))
+        outfile.write('<%s%s%s' % (namespace_, name_,
+                                   namespacedef_ and ' ' + namespacedef_ or '', ))
         already_processed = set()
-        self.exportAttributes(outfile, level, already_processed, namespace_, name_='SurrogateModel')
+        self.exportAttributes(outfile, level, already_processed,
+                              namespace_, name_='SurrogateModel')
         if self.hasContent_():
             outfile.write('>%s' % (eol_, ))
-            self.exportChildren(outfile, level + 1, namespace_='', name_='SurrogateModel', pretty_print=pretty_print)
+            self.exportChildren(outfile, level + 1, namespace_='',
+                                name_='SurrogateModel', pretty_print=pretty_print)
             showIndent(outfile, level, pretty_print)
             outfile.write('</%s%s>%s' % (namespace_, name_, eol_))
         else:
             outfile.write('/>%s' % (eol_, ))
+
     def exportAttributes(self, outfile, level, already_processed, namespace_='', name_='SurrogateModel'):
         pass
+
     def exportChildren(self, outfile, level, namespace_='', name_='SurrogateModel', fromsubclass_=False, pretty_print=True):
         if pretty_print:
             eol_ = '\n'
         else:
             eol_ = ''
         if self.Basic is not None:
-            self.Basic.export(outfile, level, namespace_, name_='Basic', pretty_print=pretty_print)
+            self.Basic.export(outfile, level, namespace_,
+                              name_='Basic', pretty_print=pretty_print)
         if self.AmplitudeFit is not None:
-            self.AmplitudeFit.export(outfile, level, namespace_, name_='AmplitudeFit', pretty_print=pretty_print)
+            self.AmplitudeFit.export(
+                outfile, level, namespace_, name_='AmplitudeFit', pretty_print=pretty_print)
         if self.PlugIn is not None:
-            self.PlugIn.export(outfile, level, namespace_, name_='PlugIn', pretty_print=pretty_print)
+            self.PlugIn.export(outfile, level, namespace_,
+                               name_='PlugIn', pretty_print=pretty_print)
+
     def build(self, node):
         already_processed = set()
         self.buildAttributes(node, node.attrib, already_processed)
@@ -4372,8 +5272,10 @@ class SurrogateModel(GeneratedsSuper):
             nodeName_ = Tag_pattern_.match(child.tag).groups()[-1]
             self.buildChildren(child, node, nodeName_)
         return self
+
     def buildAttributes(self, node, attrs, already_processed):
         pass
+
     def buildChildren(self, child_, node, nodeName_, fromsubclass_=False):
         if nodeName_ == 'Basic':
             obj_ = BasicSurrogateModel.factory()
@@ -4398,8 +5300,10 @@ class BasicMotionModel(GeneratedsSuper):
     quality of the breathing pattern."""
     subclass = None
     superclass = None
+
     def __init__(self):
         self.original_tagname_ = None
+
     def factory(*args_, **kwargs_):
         if CurrentSubclassModule_ is not None:
             subclass = getSubclassFromModule_(
@@ -4411,6 +5315,7 @@ class BasicMotionModel(GeneratedsSuper):
         else:
             return BasicMotionModel(*args_, **kwargs_)
     factory = staticmethod(factory)
+
     def hasContent_(self):
         if (
 
@@ -4418,6 +5323,7 @@ class BasicMotionModel(GeneratedsSuper):
             return True
         else:
             return False
+
     def export(self, outfile, level, namespace_='', name_='BasicMotionModel', namespacedef_='', pretty_print=True):
         if pretty_print:
             eol_ = '\n'
@@ -4426,19 +5332,25 @@ class BasicMotionModel(GeneratedsSuper):
         if self.original_tagname_ is not None:
             name_ = self.original_tagname_
         showIndent(outfile, level, pretty_print)
-        outfile.write('<%s%s%s' % (namespace_, name_, namespacedef_ and ' ' + namespacedef_ or '', ))
+        outfile.write('<%s%s%s' % (namespace_, name_,
+                                   namespacedef_ and ' ' + namespacedef_ or '', ))
         already_processed = set()
-        self.exportAttributes(outfile, level, already_processed, namespace_, name_='BasicMotionModel')
+        self.exportAttributes(outfile, level, already_processed,
+                              namespace_, name_='BasicMotionModel')
         if self.hasContent_():
             outfile.write('>%s' % (eol_, ))
-            self.exportChildren(outfile, level + 1, namespace_='', name_='BasicMotionModel', pretty_print=pretty_print)
+            self.exportChildren(outfile, level + 1, namespace_='',
+                                name_='BasicMotionModel', pretty_print=pretty_print)
             outfile.write('</%s%s>%s' % (namespace_, name_, eol_))
         else:
             outfile.write('/>%s' % (eol_, ))
+
     def exportAttributes(self, outfile, level, already_processed, namespace_='', name_='BasicMotionModel'):
         pass
+
     def exportChildren(self, outfile, level, namespace_='', name_='BasicMotionModel', fromsubclass_=False, pretty_print=True):
         pass
+
     def build(self, node):
         already_processed = set()
         self.buildAttributes(node, node.attrib, already_processed)
@@ -4446,8 +5358,10 @@ class BasicMotionModel(GeneratedsSuper):
             nodeName_ = Tag_pattern_.match(child.tag).groups()[-1]
             self.buildChildren(child, node, nodeName_)
         return self
+
     def buildAttributes(self, node, attrs, already_processed):
         pass
+
     def buildChildren(self, child_, node, nodeName_, fromsubclass_=False):
         pass
 # end class BasicMotionModel
@@ -4462,9 +5376,11 @@ class GatingMotionModel(GeneratedsSuper):
     direction is the Z axis in the model system."""
     subclass = None
     superclass = None
+
     def __init__(self, AmplitudeDirection_model=None):
         self.original_tagname_ = None
         self.AmplitudeDirection_model = AmplitudeDirection_model
+
     def factory(*args_, **kwargs_):
         if CurrentSubclassModule_ is not None:
             subclass = getSubclassFromModule_(
@@ -4476,8 +5392,13 @@ class GatingMotionModel(GeneratedsSuper):
         else:
             return GatingMotionModel(*args_, **kwargs_)
     factory = staticmethod(factory)
-    def get_AmplitudeDirection_model(self): return self.AmplitudeDirection_model
-    def set_AmplitudeDirection_model(self, AmplitudeDirection_model): self.AmplitudeDirection_model = AmplitudeDirection_model
+
+    def get_AmplitudeDirection_model(
+        self): return self.AmplitudeDirection_model
+
+    def set_AmplitudeDirection_model(
+        self, AmplitudeDirection_model): self.AmplitudeDirection_model = AmplitudeDirection_model
+
     def hasContent_(self):
         if (
             self.AmplitudeDirection_model is not None
@@ -4485,6 +5406,7 @@ class GatingMotionModel(GeneratedsSuper):
             return True
         else:
             return False
+
     def export(self, outfile, level, namespace_='', name_='GatingMotionModel', namespacedef_='', pretty_print=True):
         if pretty_print:
             eol_ = '\n'
@@ -4493,25 +5415,32 @@ class GatingMotionModel(GeneratedsSuper):
         if self.original_tagname_ is not None:
             name_ = self.original_tagname_
         showIndent(outfile, level, pretty_print)
-        outfile.write('<%s%s%s' % (namespace_, name_, namespacedef_ and ' ' + namespacedef_ or '', ))
+        outfile.write('<%s%s%s' % (namespace_, name_,
+                                   namespacedef_ and ' ' + namespacedef_ or '', ))
         already_processed = set()
-        self.exportAttributes(outfile, level, already_processed, namespace_, name_='GatingMotionModel')
+        self.exportAttributes(outfile, level, already_processed,
+                              namespace_, name_='GatingMotionModel')
         if self.hasContent_():
             outfile.write('>%s' % (eol_, ))
-            self.exportChildren(outfile, level + 1, namespace_='', name_='GatingMotionModel', pretty_print=pretty_print)
+            self.exportChildren(outfile, level + 1, namespace_='',
+                                name_='GatingMotionModel', pretty_print=pretty_print)
             showIndent(outfile, level, pretty_print)
             outfile.write('</%s%s>%s' % (namespace_, name_, eol_))
         else:
             outfile.write('/>%s' % (eol_, ))
+
     def exportAttributes(self, outfile, level, already_processed, namespace_='', name_='GatingMotionModel'):
         pass
+
     def exportChildren(self, outfile, level, namespace_='', name_='GatingMotionModel', fromsubclass_=False, pretty_print=True):
         if pretty_print:
             eol_ = '\n'
         else:
             eol_ = ''
         if self.AmplitudeDirection_model is not None:
-            self.AmplitudeDirection_model.export(outfile, level, namespace_, name_='AmplitudeDirection_model', pretty_print=pretty_print)
+            self.AmplitudeDirection_model.export(
+                outfile, level, namespace_, name_='AmplitudeDirection_model', pretty_print=pretty_print)
+
     def build(self, node):
         already_processed = set()
         self.buildAttributes(node, node.attrib, already_processed)
@@ -4519,8 +5448,10 @@ class GatingMotionModel(GeneratedsSuper):
             nodeName_ = Tag_pattern_.match(child.tag).groups()[-1]
             self.buildChildren(child, node, nodeName_)
         return self
+
     def buildAttributes(self, node, attrs, already_processed):
         pass
+
     def buildChildren(self, child_, node, nodeName_, fromsubclass_=False):
         if nodeName_ == 'AmplitudeDirection_model':
             obj_ = Vector.factory()
@@ -4534,6 +5465,7 @@ class MotionModelPlugIn(GeneratedsSuper):
     """Motion model plugin is an engineering only option"""
     subclass = None
     superclass = None
+
     def __init__(self, module=None, name=None, anytypeobjs_=None):
         self.original_tagname_ = None
         self.module = _cast(None, module)
@@ -4542,6 +5474,7 @@ class MotionModelPlugIn(GeneratedsSuper):
             self.anytypeobjs_ = []
         else:
             self.anytypeobjs_ = anytypeobjs_
+
     def factory(*args_, **kwargs_):
         if CurrentSubclassModule_ is not None:
             subclass = getSubclassFromModule_(
@@ -4553,14 +5486,24 @@ class MotionModelPlugIn(GeneratedsSuper):
         else:
             return MotionModelPlugIn(*args_, **kwargs_)
     factory = staticmethod(factory)
+
     def get_anytypeobjs_(self): return self.anytypeobjs_
+
     def set_anytypeobjs_(self, anytypeobjs_): self.anytypeobjs_ = anytypeobjs_
+
     def add_anytypeobjs_(self, value): self.anytypeobjs_.append(value)
-    def insert_anytypeobjs_(self, index, value): self._anytypeobjs_[index] = value
+
+    def insert_anytypeobjs_(self, index, value): self._anytypeobjs_[
+        index] = value
+
     def get_module(self): return self.module
+
     def set_module(self, module): self.module = module
+
     def get_name(self): return self.name
+
     def set_name(self, name): self.name = name
+
     def hasContent_(self):
         if (
             self.anytypeobjs_
@@ -4568,6 +5511,7 @@ class MotionModelPlugIn(GeneratedsSuper):
             return True
         else:
             return False
+
     def export(self, outfile, level, namespace_='', name_='MotionModelPlugIn', namespacedef_='', pretty_print=True):
         if pretty_print:
             eol_ = '\n'
@@ -4576,23 +5520,30 @@ class MotionModelPlugIn(GeneratedsSuper):
         if self.original_tagname_ is not None:
             name_ = self.original_tagname_
         showIndent(outfile, level, pretty_print)
-        outfile.write('<%s%s%s' % (namespace_, name_, namespacedef_ and ' ' + namespacedef_ or '', ))
+        outfile.write('<%s%s%s' % (namespace_, name_,
+                                   namespacedef_ and ' ' + namespacedef_ or '', ))
         already_processed = set()
-        self.exportAttributes(outfile, level, already_processed, namespace_, name_='MotionModelPlugIn')
+        self.exportAttributes(outfile, level, already_processed,
+                              namespace_, name_='MotionModelPlugIn')
         if self.hasContent_():
             outfile.write('>%s' % (eol_, ))
-            self.exportChildren(outfile, level + 1, namespace_='', name_='MotionModelPlugIn', pretty_print=pretty_print)
+            self.exportChildren(outfile, level + 1, namespace_='',
+                                name_='MotionModelPlugIn', pretty_print=pretty_print)
             showIndent(outfile, level, pretty_print)
             outfile.write('</%s%s>%s' % (namespace_, name_, eol_))
         else:
             outfile.write('/>%s' % (eol_, ))
+
     def exportAttributes(self, outfile, level, already_processed, namespace_='', name_='MotionModelPlugIn'):
         if self.module is not None and 'module' not in already_processed:
             already_processed.add('module')
-            outfile.write(' module=%s' % (self.gds_encode(self.gds_format_string(quote_attrib(self.module), input_name='module')), ))
+            outfile.write(' module=%s' % (self.gds_encode(
+                self.gds_format_string(quote_attrib(self.module), input_name='module')), ))
         if self.name is not None and 'name' not in already_processed:
             already_processed.add('name')
-            outfile.write(' name=%s' % (self.gds_encode(self.gds_format_string(quote_attrib(self.name), input_name='name')), ))
+            outfile.write(' name=%s' % (self.gds_encode(
+                self.gds_format_string(quote_attrib(self.name), input_name='name')), ))
+
     def exportChildren(self, outfile, level, namespace_='', name_='MotionModelPlugIn', fromsubclass_=False, pretty_print=True):
         if pretty_print:
             eol_ = '\n'
@@ -4600,6 +5551,7 @@ class MotionModelPlugIn(GeneratedsSuper):
             eol_ = ''
         for obj_ in self.anytypeobjs_:
             obj_.export(outfile, level, namespace_, pretty_print=pretty_print)
+
     def build(self, node):
         already_processed = set()
         self.buildAttributes(node, node.attrib, already_processed)
@@ -4607,6 +5559,7 @@ class MotionModelPlugIn(GeneratedsSuper):
             nodeName_ = Tag_pattern_.match(child.tag).groups()[-1]
             self.buildChildren(child, node, nodeName_)
         return self
+
     def buildAttributes(self, node, attrs, already_processed):
         value = find_attr_value_('module', node)
         if value is not None and 'module' not in already_processed:
@@ -4616,6 +5569,7 @@ class MotionModelPlugIn(GeneratedsSuper):
         if value is not None and 'name' not in already_processed:
             already_processed.add('name')
             self.name = value
+
     def buildChildren(self, child_, node, nodeName_, fromsubclass_=False):
         obj_ = self.gds_build_any(child_, 'MotionModelPlugIn')
         if obj_ is not None:
@@ -4629,11 +5583,13 @@ class MotionModel(GeneratedsSuper):
     for further information."""
     subclass = None
     superclass = None
+
     def __init__(self, Basic=None, Gating=None, PlugIn=None):
         self.original_tagname_ = None
         self.Basic = Basic
         self.Gating = Gating
         self.PlugIn = PlugIn
+
     def factory(*args_, **kwargs_):
         if CurrentSubclassModule_ is not None:
             subclass = getSubclassFromModule_(
@@ -4645,12 +5601,19 @@ class MotionModel(GeneratedsSuper):
         else:
             return MotionModel(*args_, **kwargs_)
     factory = staticmethod(factory)
+
     def get_Basic(self): return self.Basic
+
     def set_Basic(self, Basic): self.Basic = Basic
+
     def get_Gating(self): return self.Gating
+
     def set_Gating(self, Gating): self.Gating = Gating
+
     def get_PlugIn(self): return self.PlugIn
+
     def set_PlugIn(self, PlugIn): self.PlugIn = PlugIn
+
     def hasContent_(self):
         if (
             self.Basic is not None or
@@ -4660,6 +5623,7 @@ class MotionModel(GeneratedsSuper):
             return True
         else:
             return False
+
     def export(self, outfile, level, namespace_='', name_='MotionModel', namespacedef_='', pretty_print=True):
         if pretty_print:
             eol_ = '\n'
@@ -4668,29 +5632,38 @@ class MotionModel(GeneratedsSuper):
         if self.original_tagname_ is not None:
             name_ = self.original_tagname_
         showIndent(outfile, level, pretty_print)
-        outfile.write('<%s%s%s' % (namespace_, name_, namespacedef_ and ' ' + namespacedef_ or '', ))
+        outfile.write('<%s%s%s' % (namespace_, name_,
+                                   namespacedef_ and ' ' + namespacedef_ or '', ))
         already_processed = set()
-        self.exportAttributes(outfile, level, already_processed, namespace_, name_='MotionModel')
+        self.exportAttributes(
+            outfile, level, already_processed, namespace_, name_='MotionModel')
         if self.hasContent_():
             outfile.write('>%s' % (eol_, ))
-            self.exportChildren(outfile, level + 1, namespace_='', name_='MotionModel', pretty_print=pretty_print)
+            self.exportChildren(outfile, level + 1, namespace_='',
+                                name_='MotionModel', pretty_print=pretty_print)
             showIndent(outfile, level, pretty_print)
             outfile.write('</%s%s>%s' % (namespace_, name_, eol_))
         else:
             outfile.write('/>%s' % (eol_, ))
+
     def exportAttributes(self, outfile, level, already_processed, namespace_='', name_='MotionModel'):
         pass
+
     def exportChildren(self, outfile, level, namespace_='', name_='MotionModel', fromsubclass_=False, pretty_print=True):
         if pretty_print:
             eol_ = '\n'
         else:
             eol_ = ''
         if self.Basic is not None:
-            self.Basic.export(outfile, level, namespace_, name_='Basic', pretty_print=pretty_print)
+            self.Basic.export(outfile, level, namespace_,
+                              name_='Basic', pretty_print=pretty_print)
         if self.Gating is not None:
-            self.Gating.export(outfile, level, namespace_, name_='Gating', pretty_print=pretty_print)
+            self.Gating.export(outfile, level, namespace_,
+                               name_='Gating', pretty_print=pretty_print)
         if self.PlugIn is not None:
-            self.PlugIn.export(outfile, level, namespace_, name_='PlugIn', pretty_print=pretty_print)
+            self.PlugIn.export(outfile, level, namespace_,
+                               name_='PlugIn', pretty_print=pretty_print)
+
     def build(self, node):
         already_processed = set()
         self.buildAttributes(node, node.attrib, already_processed)
@@ -4698,8 +5671,10 @@ class MotionModel(GeneratedsSuper):
             nodeName_ = Tag_pattern_.match(child.tag).groups()[-1]
             self.buildChildren(child, node, nodeName_)
         return self
+
     def buildAttributes(self, node, attrs, already_processed):
         pass
+
     def buildChildren(self, child_, node, nodeName_, fromsubclass_=False):
         if nodeName_ == 'Basic':
             obj_ = BasicMotionModel.factory()
@@ -4728,12 +5703,14 @@ class AcquisitionTrigger(GeneratedsSuper):
     TriggerOnEnter and TriggerOnExit)."""
     subclass = None
     superclass = None
+
     def __init__(self, TriggerDelay=0, TriggerOnEnter=True, TriggerOnExit=False, SingleTrigger=True):
         self.original_tagname_ = None
         self.TriggerDelay = TriggerDelay
         self.TriggerOnEnter = TriggerOnEnter
         self.TriggerOnExit = TriggerOnExit
         self.SingleTrigger = SingleTrigger
+
     def factory(*args_, **kwargs_):
         if CurrentSubclassModule_ is not None:
             subclass = getSubclassFromModule_(
@@ -4745,14 +5722,26 @@ class AcquisitionTrigger(GeneratedsSuper):
         else:
             return AcquisitionTrigger(*args_, **kwargs_)
     factory = staticmethod(factory)
+
     def get_TriggerDelay(self): return self.TriggerDelay
+
     def set_TriggerDelay(self, TriggerDelay): self.TriggerDelay = TriggerDelay
+
     def get_TriggerOnEnter(self): return self.TriggerOnEnter
-    def set_TriggerOnEnter(self, TriggerOnEnter): self.TriggerOnEnter = TriggerOnEnter
+
+    def set_TriggerOnEnter(
+        self, TriggerOnEnter): self.TriggerOnEnter = TriggerOnEnter
+
     def get_TriggerOnExit(self): return self.TriggerOnExit
-    def set_TriggerOnExit(self, TriggerOnExit): self.TriggerOnExit = TriggerOnExit
+
+    def set_TriggerOnExit(
+        self, TriggerOnExit): self.TriggerOnExit = TriggerOnExit
+
     def get_SingleTrigger(self): return self.SingleTrigger
-    def set_SingleTrigger(self, SingleTrigger): self.SingleTrigger = SingleTrigger
+
+    def set_SingleTrigger(
+        self, SingleTrigger): self.SingleTrigger = SingleTrigger
+
     def hasContent_(self):
         if (
             self.TriggerDelay != 0 or
@@ -4763,6 +5752,7 @@ class AcquisitionTrigger(GeneratedsSuper):
             return True
         else:
             return False
+
     def export(self, outfile, level, namespace_='', name_='AcquisitionTrigger', namespacedef_='', pretty_print=True):
         if pretty_print:
             eol_ = '\n'
@@ -4771,18 +5761,23 @@ class AcquisitionTrigger(GeneratedsSuper):
         if self.original_tagname_ is not None:
             name_ = self.original_tagname_
         showIndent(outfile, level, pretty_print)
-        outfile.write('<%s%s%s' % (namespace_, name_, namespacedef_ and ' ' + namespacedef_ or '', ))
+        outfile.write('<%s%s%s' % (namespace_, name_,
+                                   namespacedef_ and ' ' + namespacedef_ or '', ))
         already_processed = set()
-        self.exportAttributes(outfile, level, already_processed, namespace_, name_='AcquisitionTrigger')
+        self.exportAttributes(outfile, level, already_processed,
+                              namespace_, name_='AcquisitionTrigger')
         if self.hasContent_():
             outfile.write('>%s' % (eol_, ))
-            self.exportChildren(outfile, level + 1, namespace_='', name_='AcquisitionTrigger', pretty_print=pretty_print)
+            self.exportChildren(outfile, level + 1, namespace_='',
+                                name_='AcquisitionTrigger', pretty_print=pretty_print)
             showIndent(outfile, level, pretty_print)
             outfile.write('</%s%s>%s' % (namespace_, name_, eol_))
         else:
             outfile.write('/>%s' % (eol_, ))
+
     def exportAttributes(self, outfile, level, already_processed, namespace_='', name_='AcquisitionTrigger'):
         pass
+
     def exportChildren(self, outfile, level, namespace_='', name_='AcquisitionTrigger', fromsubclass_=False, pretty_print=True):
         if pretty_print:
             eol_ = '\n'
@@ -4790,16 +5785,21 @@ class AcquisitionTrigger(GeneratedsSuper):
             eol_ = ''
         if self.TriggerDelay != 0:
             showIndent(outfile, level, pretty_print)
-            outfile.write('<%sTriggerDelay>%s</%sTriggerDelay>%s' % (namespace_, self.gds_format_double(self.TriggerDelay, input_name='TriggerDelay'), namespace_, eol_))
+            outfile.write('<%sTriggerDelay>%s</%sTriggerDelay>%s' % (namespace_,
+                                                                     self.gds_format_double(self.TriggerDelay, input_name='TriggerDelay'), namespace_, eol_))
         if not self.TriggerOnEnter:
             showIndent(outfile, level, pretty_print)
-            outfile.write('<%sTriggerOnEnter>%s</%sTriggerOnEnter>%s' % (namespace_, self.gds_format_boolean(self.TriggerOnEnter, input_name='TriggerOnEnter'), namespace_, eol_))
+            outfile.write('<%sTriggerOnEnter>%s</%sTriggerOnEnter>%s' % (namespace_,
+                                                                         self.gds_format_boolean(self.TriggerOnEnter, input_name='TriggerOnEnter'), namespace_, eol_))
         if self.TriggerOnExit:
             showIndent(outfile, level, pretty_print)
-            outfile.write('<%sTriggerOnExit>%s</%sTriggerOnExit>%s' % (namespace_, self.gds_format_boolean(self.TriggerOnExit, input_name='TriggerOnExit'), namespace_, eol_))
+            outfile.write('<%sTriggerOnExit>%s</%sTriggerOnExit>%s' % (namespace_,
+                                                                       self.gds_format_boolean(self.TriggerOnExit, input_name='TriggerOnExit'), namespace_, eol_))
         if not self.SingleTrigger:
             showIndent(outfile, level, pretty_print)
-            outfile.write('<%sSingleTrigger>%s</%sSingleTrigger>%s' % (namespace_, self.gds_format_boolean(self.SingleTrigger, input_name='SingleTrigger'), namespace_, eol_))
+            outfile.write('<%sSingleTrigger>%s</%sSingleTrigger>%s' % (namespace_,
+                                                                       self.gds_format_boolean(self.SingleTrigger, input_name='SingleTrigger'), namespace_, eol_))
+
     def build(self, node):
         already_processed = set()
         self.buildAttributes(node, node.attrib, already_processed)
@@ -4807,8 +5807,10 @@ class AcquisitionTrigger(GeneratedsSuper):
             nodeName_ = Tag_pattern_.match(child.tag).groups()[-1]
             self.buildChildren(child, node, nodeName_)
         return self
+
     def buildAttributes(self, node, attrs, already_processed):
         pass
+
     def buildChildren(self, child_, node, nodeName_, fromsubclass_=False):
         if nodeName_ == 'TriggerDelay':
             sval_ = child_.text
@@ -4856,6 +5858,7 @@ class AcquisitionTriggers(GeneratedsSuper):
     the MV image source."""
     subclass = None
     superclass = None
+
     def __init__(self, MV=None, KV=None):
         self.original_tagname_ = None
         if MV is None:
@@ -4866,6 +5869,7 @@ class AcquisitionTriggers(GeneratedsSuper):
             self.KV = []
         else:
             self.KV = KV
+
     def factory(*args_, **kwargs_):
         if CurrentSubclassModule_ is not None:
             subclass = getSubclassFromModule_(
@@ -4877,16 +5881,27 @@ class AcquisitionTriggers(GeneratedsSuper):
         else:
             return AcquisitionTriggers(*args_, **kwargs_)
     factory = staticmethod(factory)
+
     def get_MV(self): return self.MV
+
     def set_MV(self, MV): self.MV = MV
+
     def add_MV(self, value): self.MV.append(value)
+
     def insert_MV_at(self, index, value): self.MV.insert(index, value)
+
     def replace_MV_at(self, index, value): self.MV[index] = value
+
     def get_KV(self): return self.KV
+
     def set_KV(self, KV): self.KV = KV
+
     def add_KV(self, value): self.KV.append(value)
+
     def insert_KV_at(self, index, value): self.KV.insert(index, value)
+
     def replace_KV_at(self, index, value): self.KV[index] = value
+
     def hasContent_(self):
         if (
             self.MV or
@@ -4895,6 +5910,7 @@ class AcquisitionTriggers(GeneratedsSuper):
             return True
         else:
             return False
+
     def export(self, outfile, level, namespace_='', name_='AcquisitionTriggers', namespacedef_='', pretty_print=True):
         if pretty_print:
             eol_ = '\n'
@@ -4903,27 +5919,35 @@ class AcquisitionTriggers(GeneratedsSuper):
         if self.original_tagname_ is not None:
             name_ = self.original_tagname_
         showIndent(outfile, level, pretty_print)
-        outfile.write('<%s%s%s' % (namespace_, name_, namespacedef_ and ' ' + namespacedef_ or '', ))
+        outfile.write('<%s%s%s' % (namespace_, name_,
+                                   namespacedef_ and ' ' + namespacedef_ or '', ))
         already_processed = set()
-        self.exportAttributes(outfile, level, already_processed, namespace_, name_='AcquisitionTriggers')
+        self.exportAttributes(outfile, level, already_processed,
+                              namespace_, name_='AcquisitionTriggers')
         if self.hasContent_():
             outfile.write('>%s' % (eol_, ))
-            self.exportChildren(outfile, level + 1, namespace_='', name_='AcquisitionTriggers', pretty_print=pretty_print)
+            self.exportChildren(outfile, level + 1, namespace_='',
+                                name_='AcquisitionTriggers', pretty_print=pretty_print)
             showIndent(outfile, level, pretty_print)
             outfile.write('</%s%s>%s' % (namespace_, name_, eol_))
         else:
             outfile.write('/>%s' % (eol_, ))
+
     def exportAttributes(self, outfile, level, already_processed, namespace_='', name_='AcquisitionTriggers'):
         pass
+
     def exportChildren(self, outfile, level, namespace_='', name_='AcquisitionTriggers', fromsubclass_=False, pretty_print=True):
         if pretty_print:
             eol_ = '\n'
         else:
             eol_ = ''
         for MV_ in self.MV:
-            MV_.export(outfile, level, namespace_, name_='MV', pretty_print=pretty_print)
+            MV_.export(outfile, level, namespace_,
+                       name_='MV', pretty_print=pretty_print)
         for KV_ in self.KV:
-            KV_.export(outfile, level, namespace_, name_='KV', pretty_print=pretty_print)
+            KV_.export(outfile, level, namespace_,
+                       name_='KV', pretty_print=pretty_print)
+
     def build(self, node):
         already_processed = set()
         self.buildAttributes(node, node.attrib, already_processed)
@@ -4931,8 +5955,10 @@ class AcquisitionTriggers(GeneratedsSuper):
             nodeName_ = Tag_pattern_.match(child.tag).groups()[-1]
             self.buildChildren(child, node, nodeName_)
         return self
+
     def buildAttributes(self, node, attrs, already_processed):
         pass
+
     def buildChildren(self, child_, node, nodeName_, fromsubclass_=False):
         if nodeName_ == 'MV':
             obj_ = AcquisitionTrigger.factory()
@@ -4965,9 +5991,11 @@ class ActionWindow(GeneratedsSuper):
     time does not stop while the treatment beam is held. The unit
     for the treatment time is seconds. - ConformityIndexOverArea : -
     ConformityIndexUnderArea : The supported tracking axis ID's are:
-    - Amplitude - Phase - Quality - Target_fixed.X : Target motion
-    on X axis in fix system [cm] - Target_fixed.Y : Target motion on
-    Y axis in fix system [cm] - Target_fixed.Z : Target motion on Z
+    - Amplitude : Motion amplitude of model [cm] - Phase : Motion
+    phase of model [degree, 0-360] - Quality : Quality of actual
+    motion (in model system) - Target_fixed.X : Target motion on X
+    axis in fix system [cm] - Target_fixed.Y : Target motion on Y
+    axis in fix system [cm] - Target_fixed.Z : Target motion on Z
     axis in fix system [cm] - Target_fixed.R : Target radial motion
     in fix system [cm] - Target_fixed.AngleX : Target motion around
     X axis in fix system [degree] - Target_fixed.AngleY : Target
@@ -4994,6 +6022,7 @@ class ActionWindow(GeneratedsSuper):
     AcquisitionTriggers: MV or kV acquisition triggers"""
     subclass = None
     superclass = None
+
     def __init__(self, axis=None, MVBeamImpact=True, KVBeamImpact=False, MotionCompensationImpact=False, LowerLimit=None, UpperLimit=None, Delta=None, EntryDelay=0, LingerTimeout=0, FaultOnExit=False, AcquisitionTriggers=None):
         self.original_tagname_ = None
         self.axis = _cast(None, axis)
@@ -5007,6 +6036,7 @@ class ActionWindow(GeneratedsSuper):
         self.LingerTimeout = LingerTimeout
         self.FaultOnExit = FaultOnExit
         self.AcquisitionTriggers = AcquisitionTriggers
+
     def factory(*args_, **kwargs_):
         if CurrentSubclassModule_ is not None:
             subclass = getSubclassFromModule_(
@@ -5018,28 +6048,55 @@ class ActionWindow(GeneratedsSuper):
         else:
             return ActionWindow(*args_, **kwargs_)
     factory = staticmethod(factory)
+
     def get_MVBeamImpact(self): return self.MVBeamImpact
+
     def set_MVBeamImpact(self, MVBeamImpact): self.MVBeamImpact = MVBeamImpact
+
     def get_KVBeamImpact(self): return self.KVBeamImpact
+
     def set_KVBeamImpact(self, KVBeamImpact): self.KVBeamImpact = KVBeamImpact
-    def get_MotionCompensationImpact(self): return self.MotionCompensationImpact
-    def set_MotionCompensationImpact(self, MotionCompensationImpact): self.MotionCompensationImpact = MotionCompensationImpact
+
+    def get_MotionCompensationImpact(
+        self): return self.MotionCompensationImpact
+
+    def set_MotionCompensationImpact(
+        self, MotionCompensationImpact): self.MotionCompensationImpact = MotionCompensationImpact
+
     def get_LowerLimit(self): return self.LowerLimit
+
     def set_LowerLimit(self, LowerLimit): self.LowerLimit = LowerLimit
+
     def get_UpperLimit(self): return self.UpperLimit
+
     def set_UpperLimit(self, UpperLimit): self.UpperLimit = UpperLimit
+
     def get_Delta(self): return self.Delta
+
     def set_Delta(self, Delta): self.Delta = Delta
+
     def get_EntryDelay(self): return self.EntryDelay
+
     def set_EntryDelay(self, EntryDelay): self.EntryDelay = EntryDelay
+
     def get_LingerTimeout(self): return self.LingerTimeout
-    def set_LingerTimeout(self, LingerTimeout): self.LingerTimeout = LingerTimeout
+
+    def set_LingerTimeout(
+        self, LingerTimeout): self.LingerTimeout = LingerTimeout
+
     def get_FaultOnExit(self): return self.FaultOnExit
+
     def set_FaultOnExit(self, FaultOnExit): self.FaultOnExit = FaultOnExit
+
     def get_AcquisitionTriggers(self): return self.AcquisitionTriggers
-    def set_AcquisitionTriggers(self, AcquisitionTriggers): self.AcquisitionTriggers = AcquisitionTriggers
+
+    def set_AcquisitionTriggers(
+        self, AcquisitionTriggers): self.AcquisitionTriggers = AcquisitionTriggers
+
     def get_axis(self): return self.axis
+
     def set_axis(self, axis): self.axis = axis
+
     def hasContent_(self):
         if (
             not self.MVBeamImpact or
@@ -5056,6 +6113,7 @@ class ActionWindow(GeneratedsSuper):
             return True
         else:
             return False
+
     def export(self, outfile, level, namespace_='', name_='ActionWindow', namespacedef_='', pretty_print=True):
         if pretty_print:
             eol_ = '\n'
@@ -5064,20 +6122,26 @@ class ActionWindow(GeneratedsSuper):
         if self.original_tagname_ is not None:
             name_ = self.original_tagname_
         showIndent(outfile, level, pretty_print)
-        outfile.write('<%s%s%s' % (namespace_, name_, namespacedef_ and ' ' + namespacedef_ or '', ))
+        outfile.write('<%s%s%s' % (namespace_, name_,
+                                   namespacedef_ and ' ' + namespacedef_ or '', ))
         already_processed = set()
-        self.exportAttributes(outfile, level, already_processed, namespace_, name_='ActionWindow')
+        self.exportAttributes(outfile, level, already_processed,
+                              namespace_, name_='ActionWindow')
         if self.hasContent_():
             outfile.write('>%s' % (eol_, ))
-            self.exportChildren(outfile, level + 1, namespace_='', name_='ActionWindow', pretty_print=pretty_print)
+            self.exportChildren(outfile, level + 1, namespace_='',
+                                name_='ActionWindow', pretty_print=pretty_print)
             showIndent(outfile, level, pretty_print)
             outfile.write('</%s%s>%s' % (namespace_, name_, eol_))
         else:
             outfile.write('/>%s' % (eol_, ))
+
     def exportAttributes(self, outfile, level, already_processed, namespace_='', name_='ActionWindow'):
         if self.axis is not None and 'axis' not in already_processed:
             already_processed.add('axis')
-            outfile.write(' axis=%s' % (self.gds_encode(self.gds_format_string(quote_attrib(self.axis), input_name='axis')), ))
+            outfile.write(' axis=%s' % (self.gds_encode(
+                self.gds_format_string(quote_attrib(self.axis), input_name='axis')), ))
+
     def exportChildren(self, outfile, level, namespace_='', name_='ActionWindow', fromsubclass_=False, pretty_print=True):
         if pretty_print:
             eol_ = '\n'
@@ -5085,33 +6149,44 @@ class ActionWindow(GeneratedsSuper):
             eol_ = ''
         if not self.MVBeamImpact:
             showIndent(outfile, level, pretty_print)
-            outfile.write('<%sMVBeamImpact>%s</%sMVBeamImpact>%s' % (namespace_, self.gds_format_boolean(self.MVBeamImpact, input_name='MVBeamImpact'), namespace_, eol_))
+            outfile.write('<%sMVBeamImpact>%s</%sMVBeamImpact>%s' % (namespace_,
+                                                                     self.gds_format_boolean(self.MVBeamImpact, input_name='MVBeamImpact'), namespace_, eol_))
         if self.KVBeamImpact:
             showIndent(outfile, level, pretty_print)
-            outfile.write('<%sKVBeamImpact>%s</%sKVBeamImpact>%s' % (namespace_, self.gds_format_boolean(self.KVBeamImpact, input_name='KVBeamImpact'), namespace_, eol_))
+            outfile.write('<%sKVBeamImpact>%s</%sKVBeamImpact>%s' % (namespace_,
+                                                                     self.gds_format_boolean(self.KVBeamImpact, input_name='KVBeamImpact'), namespace_, eol_))
         if self.MotionCompensationImpact:
             showIndent(outfile, level, pretty_print)
-            outfile.write('<%sMotionCompensationImpact>%s</%sMotionCompensationImpact>%s' % (namespace_, self.gds_format_boolean(self.MotionCompensationImpact, input_name='MotionCompensationImpact'), namespace_, eol_))
+            outfile.write('<%sMotionCompensationImpact>%s</%sMotionCompensationImpact>%s' % (namespace_,
+                                                                                             self.gds_format_boolean(self.MotionCompensationImpact, input_name='MotionCompensationImpact'), namespace_, eol_))
         if self.LowerLimit is not None:
             showIndent(outfile, level, pretty_print)
-            outfile.write('<%sLowerLimit>%s</%sLowerLimit>%s' % (namespace_, self.gds_format_double(self.LowerLimit, input_name='LowerLimit'), namespace_, eol_))
+            outfile.write('<%sLowerLimit>%s</%sLowerLimit>%s' % (namespace_,
+                                                                 self.gds_format_double(self.LowerLimit, input_name='LowerLimit'), namespace_, eol_))
         if self.UpperLimit is not None:
             showIndent(outfile, level, pretty_print)
-            outfile.write('<%sUpperLimit>%s</%sUpperLimit>%s' % (namespace_, self.gds_format_double(self.UpperLimit, input_name='UpperLimit'), namespace_, eol_))
+            outfile.write('<%sUpperLimit>%s</%sUpperLimit>%s' % (namespace_,
+                                                                 self.gds_format_double(self.UpperLimit, input_name='UpperLimit'), namespace_, eol_))
         if self.Delta is not None:
             showIndent(outfile, level, pretty_print)
-            outfile.write('<%sDelta>%s</%sDelta>%s' % (namespace_, self.gds_format_double(self.Delta, input_name='Delta'), namespace_, eol_))
+            outfile.write('<%sDelta>%s</%sDelta>%s' % (namespace_,
+                                                       self.gds_format_double(self.Delta, input_name='Delta'), namespace_, eol_))
         if self.EntryDelay != 0:
             showIndent(outfile, level, pretty_print)
-            outfile.write('<%sEntryDelay>%s</%sEntryDelay>%s' % (namespace_, self.gds_format_double(self.EntryDelay, input_name='EntryDelay'), namespace_, eol_))
+            outfile.write('<%sEntryDelay>%s</%sEntryDelay>%s' % (namespace_,
+                                                                 self.gds_format_double(self.EntryDelay, input_name='EntryDelay'), namespace_, eol_))
         if self.LingerTimeout != 0:
             showIndent(outfile, level, pretty_print)
-            outfile.write('<%sLingerTimeout>%s</%sLingerTimeout>%s' % (namespace_, self.gds_format_double(self.LingerTimeout, input_name='LingerTimeout'), namespace_, eol_))
+            outfile.write('<%sLingerTimeout>%s</%sLingerTimeout>%s' % (namespace_,
+                                                                       self.gds_format_double(self.LingerTimeout, input_name='LingerTimeout'), namespace_, eol_))
         if self.FaultOnExit:
             showIndent(outfile, level, pretty_print)
-            outfile.write('<%sFaultOnExit>%s</%sFaultOnExit>%s' % (namespace_, self.gds_format_boolean(self.FaultOnExit, input_name='FaultOnExit'), namespace_, eol_))
+            outfile.write('<%sFaultOnExit>%s</%sFaultOnExit>%s' % (namespace_,
+                                                                   self.gds_format_boolean(self.FaultOnExit, input_name='FaultOnExit'), namespace_, eol_))
         if self.AcquisitionTriggers is not None:
-            self.AcquisitionTriggers.export(outfile, level, namespace_, name_='AcquisitionTriggers', pretty_print=pretty_print)
+            self.AcquisitionTriggers.export(
+                outfile, level, namespace_, name_='AcquisitionTriggers', pretty_print=pretty_print)
+
     def build(self, node):
         already_processed = set()
         self.buildAttributes(node, node.attrib, already_processed)
@@ -5119,11 +6194,13 @@ class ActionWindow(GeneratedsSuper):
             nodeName_ = Tag_pattern_.match(child.tag).groups()[-1]
             self.buildChildren(child, node, nodeName_)
         return self
+
     def buildAttributes(self, node, attrs, already_processed):
         value = find_attr_value_('axis', node)
         if value is not None and 'axis' not in already_processed:
             already_processed.add('axis')
             self.axis = value
+
     def buildChildren(self, child_, node, nodeName_, fromsubclass_=False):
         if nodeName_ == 'MVBeamImpact':
             sval_ = child_.text
@@ -5153,7 +6230,8 @@ class ActionWindow(GeneratedsSuper):
                 ival_ = False
             else:
                 raise_parse_error(child_, 'requires boolean')
-            ival_ = self.gds_validate_boolean(ival_, node, 'MotionCompensationImpact')
+            ival_ = self.gds_validate_boolean(
+                ival_, node, 'MotionCompensationImpact')
             self.MotionCompensationImpact = ival_
         elif nodeName_ == 'LowerLimit':
             sval_ = child_.text
@@ -5223,6 +6301,7 @@ class ActionWindows(GeneratedsSuper):
     descriprion text for segmental"""
     subclass = None
     superclass = None
+
     def __init__(self, Basic=None, Segmental=None):
         self.original_tagname_ = None
         if Basic is None:
@@ -5233,6 +6312,7 @@ class ActionWindows(GeneratedsSuper):
             self.Segmental = []
         else:
             self.Segmental = Segmental
+
     def factory(*args_, **kwargs_):
         if CurrentSubclassModule_ is not None:
             subclass = getSubclassFromModule_(
@@ -5244,16 +6324,28 @@ class ActionWindows(GeneratedsSuper):
         else:
             return ActionWindows(*args_, **kwargs_)
     factory = staticmethod(factory)
+
     def get_Basic(self): return self.Basic
+
     def set_Basic(self, Basic): self.Basic = Basic
+
     def add_Basic(self, value): self.Basic.append(value)
+
     def insert_Basic_at(self, index, value): self.Basic.insert(index, value)
+
     def replace_Basic_at(self, index, value): self.Basic[index] = value
+
     def get_Segmental(self): return self.Segmental
+
     def set_Segmental(self, Segmental): self.Segmental = Segmental
+
     def add_Segmental(self, value): self.Segmental.append(value)
-    def insert_Segmental_at(self, index, value): self.Segmental.insert(index, value)
+
+    def insert_Segmental_at(
+        self, index, value): self.Segmental.insert(index, value)
+
     def replace_Segmental_at(self, index, value): self.Segmental[index] = value
+
     def hasContent_(self):
         if (
             self.Basic or
@@ -5262,6 +6354,7 @@ class ActionWindows(GeneratedsSuper):
             return True
         else:
             return False
+
     def export(self, outfile, level, namespace_='', name_='ActionWindows', namespacedef_='', pretty_print=True):
         if pretty_print:
             eol_ = '\n'
@@ -5270,27 +6363,35 @@ class ActionWindows(GeneratedsSuper):
         if self.original_tagname_ is not None:
             name_ = self.original_tagname_
         showIndent(outfile, level, pretty_print)
-        outfile.write('<%s%s%s' % (namespace_, name_, namespacedef_ and ' ' + namespacedef_ or '', ))
+        outfile.write('<%s%s%s' % (namespace_, name_,
+                                   namespacedef_ and ' ' + namespacedef_ or '', ))
         already_processed = set()
-        self.exportAttributes(outfile, level, already_processed, namespace_, name_='ActionWindows')
+        self.exportAttributes(outfile, level, already_processed,
+                              namespace_, name_='ActionWindows')
         if self.hasContent_():
             outfile.write('>%s' % (eol_, ))
-            self.exportChildren(outfile, level + 1, namespace_='', name_='ActionWindows', pretty_print=pretty_print)
+            self.exportChildren(outfile, level + 1, namespace_='',
+                                name_='ActionWindows', pretty_print=pretty_print)
             showIndent(outfile, level, pretty_print)
             outfile.write('</%s%s>%s' % (namespace_, name_, eol_))
         else:
             outfile.write('/>%s' % (eol_, ))
+
     def exportAttributes(self, outfile, level, already_processed, namespace_='', name_='ActionWindows'):
         pass
+
     def exportChildren(self, outfile, level, namespace_='', name_='ActionWindows', fromsubclass_=False, pretty_print=True):
         if pretty_print:
             eol_ = '\n'
         else:
             eol_ = ''
         for Basic_ in self.Basic:
-            Basic_.export(outfile, level, namespace_, name_='Basic', pretty_print=pretty_print)
+            Basic_.export(outfile, level, namespace_,
+                          name_='Basic', pretty_print=pretty_print)
         for Segmental_ in self.Segmental:
-            Segmental_.export(outfile, level, namespace_, name_='Segmental', pretty_print=pretty_print)
+            Segmental_.export(outfile, level, namespace_,
+                              name_='Segmental', pretty_print=pretty_print)
+
     def build(self, node):
         already_processed = set()
         self.buildAttributes(node, node.attrib, already_processed)
@@ -5298,8 +6399,10 @@ class ActionWindows(GeneratedsSuper):
             nodeName_ = Tag_pattern_.match(child.tag).groups()[-1]
             self.buildChildren(child, node, nodeName_)
         return self
+
     def buildAttributes(self, node, attrs, already_processed):
         pass
+
     def buildChildren(self, child_, node, nodeName_, fromsubclass_=False):
         if nodeName_ == 'Basic':
             obj_ = ActionWindow.factory()
@@ -5317,6 +6420,7 @@ class ActionWindows(GeneratedsSuper):
 class BasicMotionCompensation(GeneratedsSuper):
     subclass = None
     superclass = None
+
     def __init__(self, TrackingSource=None, CompensateRotation=False, Restriction_model=None):
         self.original_tagname_ = None
         self.TrackingSource = TrackingSource
@@ -5325,6 +6429,7 @@ class BasicMotionCompensation(GeneratedsSuper):
             self.Restriction_model = []
         else:
             self.Restriction_model = Restriction_model
+
     def factory(*args_, **kwargs_):
         if CurrentSubclassModule_ is not None:
             subclass = getSubclassFromModule_(
@@ -5336,15 +6441,31 @@ class BasicMotionCompensation(GeneratedsSuper):
         else:
             return BasicMotionCompensation(*args_, **kwargs_)
     factory = staticmethod(factory)
+
     def get_TrackingSource(self): return self.TrackingSource
-    def set_TrackingSource(self, TrackingSource): self.TrackingSource = TrackingSource
+
+    def set_TrackingSource(
+        self, TrackingSource): self.TrackingSource = TrackingSource
+
     def get_CompensateRotation(self): return self.CompensateRotation
-    def set_CompensateRotation(self, CompensateRotation): self.CompensateRotation = CompensateRotation
+
+    def set_CompensateRotation(
+        self, CompensateRotation): self.CompensateRotation = CompensateRotation
+
     def get_Restriction_model(self): return self.Restriction_model
-    def set_Restriction_model(self, Restriction_model): self.Restriction_model = Restriction_model
-    def add_Restriction_model(self, value): self.Restriction_model.append(value)
-    def insert_Restriction_model_at(self, index, value): self.Restriction_model.insert(index, value)
-    def replace_Restriction_model_at(self, index, value): self.Restriction_model[index] = value
+
+    def set_Restriction_model(
+        self, Restriction_model): self.Restriction_model = Restriction_model
+
+    def add_Restriction_model(
+        self, value): self.Restriction_model.append(value)
+
+    def insert_Restriction_model_at(
+        self, index, value): self.Restriction_model.insert(index, value)
+
+    def replace_Restriction_model_at(
+        self, index, value): self.Restriction_model[index] = value
+
     def hasContent_(self):
         if (
             self.TrackingSource is not None or
@@ -5354,6 +6475,7 @@ class BasicMotionCompensation(GeneratedsSuper):
             return True
         else:
             return False
+
     def export(self, outfile, level, namespace_='', name_='BasicMotionCompensation', namespacedef_='', pretty_print=True):
         if pretty_print:
             eol_ = '\n'
@@ -5362,18 +6484,23 @@ class BasicMotionCompensation(GeneratedsSuper):
         if self.original_tagname_ is not None:
             name_ = self.original_tagname_
         showIndent(outfile, level, pretty_print)
-        outfile.write('<%s%s%s' % (namespace_, name_, namespacedef_ and ' ' + namespacedef_ or '', ))
+        outfile.write('<%s%s%s' % (namespace_, name_,
+                                   namespacedef_ and ' ' + namespacedef_ or '', ))
         already_processed = set()
-        self.exportAttributes(outfile, level, already_processed, namespace_, name_='BasicMotionCompensation')
+        self.exportAttributes(outfile, level, already_processed,
+                              namespace_, name_='BasicMotionCompensation')
         if self.hasContent_():
             outfile.write('>%s' % (eol_, ))
-            self.exportChildren(outfile, level + 1, namespace_='', name_='BasicMotionCompensation', pretty_print=pretty_print)
+            self.exportChildren(outfile, level + 1, namespace_='',
+                                name_='BasicMotionCompensation', pretty_print=pretty_print)
             showIndent(outfile, level, pretty_print)
             outfile.write('</%s%s>%s' % (namespace_, name_, eol_))
         else:
             outfile.write('/>%s' % (eol_, ))
+
     def exportAttributes(self, outfile, level, already_processed, namespace_='', name_='BasicMotionCompensation'):
         pass
+
     def exportChildren(self, outfile, level, namespace_='', name_='BasicMotionCompensation', fromsubclass_=False, pretty_print=True):
         if pretty_print:
             eol_ = '\n'
@@ -5381,12 +6508,16 @@ class BasicMotionCompensation(GeneratedsSuper):
             eol_ = ''
         if self.TrackingSource is not None:
             showIndent(outfile, level, pretty_print)
-            outfile.write('<%sTrackingSource>%s</%sTrackingSource>%s' % (namespace_, self.gds_encode(self.gds_format_string(quote_xml(self.TrackingSource), input_name='TrackingSource')), namespace_, eol_))
+            outfile.write('<%sTrackingSource>%s</%sTrackingSource>%s' % (namespace_, self.gds_encode(
+                self.gds_format_string(quote_xml(self.TrackingSource), input_name='TrackingSource')), namespace_, eol_))
         if self.CompensateRotation:
             showIndent(outfile, level, pretty_print)
-            outfile.write('<%sCompensateRotation>%s</%sCompensateRotation>%s' % (namespace_, self.gds_format_boolean(self.CompensateRotation, input_name='CompensateRotation'), namespace_, eol_))
+            outfile.write('<%sCompensateRotation>%s</%sCompensateRotation>%s' % (namespace_,
+                                                                                 self.gds_format_boolean(self.CompensateRotation, input_name='CompensateRotation'), namespace_, eol_))
         for Restriction_model_ in self.Restriction_model:
-            Restriction_model_.export(outfile, level, namespace_, name_='Restriction_model', pretty_print=pretty_print)
+            Restriction_model_.export(
+                outfile, level, namespace_, name_='Restriction_model', pretty_print=pretty_print)
+
     def build(self, node):
         already_processed = set()
         self.buildAttributes(node, node.attrib, already_processed)
@@ -5394,12 +6525,15 @@ class BasicMotionCompensation(GeneratedsSuper):
             nodeName_ = Tag_pattern_.match(child.tag).groups()[-1]
             self.buildChildren(child, node, nodeName_)
         return self
+
     def buildAttributes(self, node, attrs, already_processed):
         pass
+
     def buildChildren(self, child_, node, nodeName_, fromsubclass_=False):
         if nodeName_ == 'TrackingSource':
             TrackingSource_ = child_.text
-            TrackingSource_ = self.gds_validate_string(TrackingSource_, node, 'TrackingSource')
+            TrackingSource_ = self.gds_validate_string(
+                TrackingSource_, node, 'TrackingSource')
             self.TrackingSource = TrackingSource_
         elif nodeName_ == 'CompensateRotation':
             sval_ = child_.text
@@ -5409,7 +6543,8 @@ class BasicMotionCompensation(GeneratedsSuper):
                 ival_ = False
             else:
                 raise_parse_error(child_, 'requires boolean')
-            ival_ = self.gds_validate_boolean(ival_, node, 'CompensateRotation')
+            ival_ = self.gds_validate_boolean(
+                ival_, node, 'CompensateRotation')
             self.CompensateRotation = ival_
         elif nodeName_ == 'Restriction_model':
             obj_ = Vector.factory()
@@ -5423,6 +6558,7 @@ class MotionCompensationPlugIn(GeneratedsSuper):
     """Motion compensation plugin is an engineering only option"""
     subclass = None
     superclass = None
+
     def __init__(self, module=None, name=None, anytypeobjs_=None):
         self.original_tagname_ = None
         self.module = _cast(None, module)
@@ -5431,6 +6567,7 @@ class MotionCompensationPlugIn(GeneratedsSuper):
             self.anytypeobjs_ = []
         else:
             self.anytypeobjs_ = anytypeobjs_
+
     def factory(*args_, **kwargs_):
         if CurrentSubclassModule_ is not None:
             subclass = getSubclassFromModule_(
@@ -5442,14 +6579,24 @@ class MotionCompensationPlugIn(GeneratedsSuper):
         else:
             return MotionCompensationPlugIn(*args_, **kwargs_)
     factory = staticmethod(factory)
+
     def get_anytypeobjs_(self): return self.anytypeobjs_
+
     def set_anytypeobjs_(self, anytypeobjs_): self.anytypeobjs_ = anytypeobjs_
+
     def add_anytypeobjs_(self, value): self.anytypeobjs_.append(value)
-    def insert_anytypeobjs_(self, index, value): self._anytypeobjs_[index] = value
+
+    def insert_anytypeobjs_(self, index, value): self._anytypeobjs_[
+        index] = value
+
     def get_module(self): return self.module
+
     def set_module(self, module): self.module = module
+
     def get_name(self): return self.name
+
     def set_name(self, name): self.name = name
+
     def hasContent_(self):
         if (
             self.anytypeobjs_
@@ -5457,6 +6604,7 @@ class MotionCompensationPlugIn(GeneratedsSuper):
             return True
         else:
             return False
+
     def export(self, outfile, level, namespace_='', name_='MotionCompensationPlugIn', namespacedef_='', pretty_print=True):
         if pretty_print:
             eol_ = '\n'
@@ -5465,23 +6613,30 @@ class MotionCompensationPlugIn(GeneratedsSuper):
         if self.original_tagname_ is not None:
             name_ = self.original_tagname_
         showIndent(outfile, level, pretty_print)
-        outfile.write('<%s%s%s' % (namespace_, name_, namespacedef_ and ' ' + namespacedef_ or '', ))
+        outfile.write('<%s%s%s' % (namespace_, name_,
+                                   namespacedef_ and ' ' + namespacedef_ or '', ))
         already_processed = set()
-        self.exportAttributes(outfile, level, already_processed, namespace_, name_='MotionCompensationPlugIn')
+        self.exportAttributes(outfile, level, already_processed,
+                              namespace_, name_='MotionCompensationPlugIn')
         if self.hasContent_():
             outfile.write('>%s' % (eol_, ))
-            self.exportChildren(outfile, level + 1, namespace_='', name_='MotionCompensationPlugIn', pretty_print=pretty_print)
+            self.exportChildren(outfile, level + 1, namespace_='',
+                                name_='MotionCompensationPlugIn', pretty_print=pretty_print)
             showIndent(outfile, level, pretty_print)
             outfile.write('</%s%s>%s' % (namespace_, name_, eol_))
         else:
             outfile.write('/>%s' % (eol_, ))
+
     def exportAttributes(self, outfile, level, already_processed, namespace_='', name_='MotionCompensationPlugIn'):
         if self.module is not None and 'module' not in already_processed:
             already_processed.add('module')
-            outfile.write(' module=%s' % (self.gds_encode(self.gds_format_string(quote_attrib(self.module), input_name='module')), ))
+            outfile.write(' module=%s' % (self.gds_encode(
+                self.gds_format_string(quote_attrib(self.module), input_name='module')), ))
         if self.name is not None and 'name' not in already_processed:
             already_processed.add('name')
-            outfile.write(' name=%s' % (self.gds_encode(self.gds_format_string(quote_attrib(self.name), input_name='name')), ))
+            outfile.write(' name=%s' % (self.gds_encode(
+                self.gds_format_string(quote_attrib(self.name), input_name='name')), ))
+
     def exportChildren(self, outfile, level, namespace_='', name_='MotionCompensationPlugIn', fromsubclass_=False, pretty_print=True):
         if pretty_print:
             eol_ = '\n'
@@ -5489,6 +6644,7 @@ class MotionCompensationPlugIn(GeneratedsSuper):
             eol_ = ''
         for obj_ in self.anytypeobjs_:
             obj_.export(outfile, level, namespace_, pretty_print=pretty_print)
+
     def build(self, node):
         already_processed = set()
         self.buildAttributes(node, node.attrib, already_processed)
@@ -5496,6 +6652,7 @@ class MotionCompensationPlugIn(GeneratedsSuper):
             nodeName_ = Tag_pattern_.match(child.tag).groups()[-1]
             self.buildChildren(child, node, nodeName_)
         return self
+
     def buildAttributes(self, node, attrs, already_processed):
         value = find_attr_value_('module', node)
         if value is not None and 'module' not in already_processed:
@@ -5505,6 +6662,7 @@ class MotionCompensationPlugIn(GeneratedsSuper):
         if value is not None and 'name' not in already_processed:
             already_processed.add('name')
             self.name = value
+
     def buildChildren(self, child_, node, nodeName_, fromsubclass_=False):
         obj_ = self.gds_build_any(child_, 'MotionCompensationPlugIn')
         if obj_ is not None:
@@ -5515,10 +6673,12 @@ class MotionCompensationPlugIn(GeneratedsSuper):
 class MotionCompensation(GeneratedsSuper):
     subclass = None
     superclass = None
+
     def __init__(self, Basic=None, PlugIn=None):
         self.original_tagname_ = None
         self.Basic = Basic
         self.PlugIn = PlugIn
+
     def factory(*args_, **kwargs_):
         if CurrentSubclassModule_ is not None:
             subclass = getSubclassFromModule_(
@@ -5530,10 +6690,15 @@ class MotionCompensation(GeneratedsSuper):
         else:
             return MotionCompensation(*args_, **kwargs_)
     factory = staticmethod(factory)
+
     def get_Basic(self): return self.Basic
+
     def set_Basic(self, Basic): self.Basic = Basic
+
     def get_PlugIn(self): return self.PlugIn
+
     def set_PlugIn(self, PlugIn): self.PlugIn = PlugIn
+
     def hasContent_(self):
         if (
             self.Basic is not None or
@@ -5542,6 +6707,7 @@ class MotionCompensation(GeneratedsSuper):
             return True
         else:
             return False
+
     def export(self, outfile, level, namespace_='', name_='MotionCompensation', namespacedef_='', pretty_print=True):
         if pretty_print:
             eol_ = '\n'
@@ -5550,27 +6716,35 @@ class MotionCompensation(GeneratedsSuper):
         if self.original_tagname_ is not None:
             name_ = self.original_tagname_
         showIndent(outfile, level, pretty_print)
-        outfile.write('<%s%s%s' % (namespace_, name_, namespacedef_ and ' ' + namespacedef_ or '', ))
+        outfile.write('<%s%s%s' % (namespace_, name_,
+                                   namespacedef_ and ' ' + namespacedef_ or '', ))
         already_processed = set()
-        self.exportAttributes(outfile, level, already_processed, namespace_, name_='MotionCompensation')
+        self.exportAttributes(outfile, level, already_processed,
+                              namespace_, name_='MotionCompensation')
         if self.hasContent_():
             outfile.write('>%s' % (eol_, ))
-            self.exportChildren(outfile, level + 1, namespace_='', name_='MotionCompensation', pretty_print=pretty_print)
+            self.exportChildren(outfile, level + 1, namespace_='',
+                                name_='MotionCompensation', pretty_print=pretty_print)
             showIndent(outfile, level, pretty_print)
             outfile.write('</%s%s>%s' % (namespace_, name_, eol_))
         else:
             outfile.write('/>%s' % (eol_, ))
+
     def exportAttributes(self, outfile, level, already_processed, namespace_='', name_='MotionCompensation'):
         pass
+
     def exportChildren(self, outfile, level, namespace_='', name_='MotionCompensation', fromsubclass_=False, pretty_print=True):
         if pretty_print:
             eol_ = '\n'
         else:
             eol_ = ''
         if self.Basic is not None:
-            self.Basic.export(outfile, level, namespace_, name_='Basic', pretty_print=pretty_print)
+            self.Basic.export(outfile, level, namespace_,
+                              name_='Basic', pretty_print=pretty_print)
         if self.PlugIn is not None:
-            self.PlugIn.export(outfile, level, namespace_, name_='PlugIn', pretty_print=pretty_print)
+            self.PlugIn.export(outfile, level, namespace_,
+                               name_='PlugIn', pretty_print=pretty_print)
+
     def build(self, node):
         already_processed = set()
         self.buildAttributes(node, node.attrib, already_processed)
@@ -5578,8 +6752,10 @@ class MotionCompensation(GeneratedsSuper):
             nodeName_ = Tag_pattern_.match(child.tag).groups()[-1]
             self.buildChildren(child, node, nodeName_)
         return self
+
     def buildAttributes(self, node, attrs, already_processed):
         pass
+
     def buildChildren(self, child_, node, nodeName_, fromsubclass_=False):
         if nodeName_ == 'Basic':
             obj_ = BasicMotionCompensation.factory()
@@ -5599,9 +6775,11 @@ class TrackingSource(GeneratedsSuper):
     AcquisitionParameters : Defines the acquisition specific
     settings as image mode name. SurrogateModel : Model definition
     of the surrogate. MotionModel : Model definition of the motion.
-    TrackingActionWindows : Action windows which are related"""
+    TrackingActionWindows : Action windows which are related to this
+    tracking source (see description of ActionWindow)"""
     subclass = None
     superclass = None
+
     def __init__(self, id=None, AcquisitionParameters=None, SurrogateModel=None, MotionModel=None, TrackingActionWindows=None):
         self.original_tagname_ = None
         self.id = _cast(None, id)
@@ -5609,6 +6787,7 @@ class TrackingSource(GeneratedsSuper):
         self.SurrogateModel = SurrogateModel
         self.MotionModel = MotionModel
         self.TrackingActionWindows = TrackingActionWindows
+
     def factory(*args_, **kwargs_):
         if CurrentSubclassModule_ is not None:
             subclass = getSubclassFromModule_(
@@ -5620,16 +6799,30 @@ class TrackingSource(GeneratedsSuper):
         else:
             return TrackingSource(*args_, **kwargs_)
     factory = staticmethod(factory)
+
     def get_AcquisitionParameters(self): return self.AcquisitionParameters
-    def set_AcquisitionParameters(self, AcquisitionParameters): self.AcquisitionParameters = AcquisitionParameters
+
+    def set_AcquisitionParameters(
+        self, AcquisitionParameters): self.AcquisitionParameters = AcquisitionParameters
+
     def get_SurrogateModel(self): return self.SurrogateModel
-    def set_SurrogateModel(self, SurrogateModel): self.SurrogateModel = SurrogateModel
+
+    def set_SurrogateModel(
+        self, SurrogateModel): self.SurrogateModel = SurrogateModel
+
     def get_MotionModel(self): return self.MotionModel
+
     def set_MotionModel(self, MotionModel): self.MotionModel = MotionModel
+
     def get_TrackingActionWindows(self): return self.TrackingActionWindows
-    def set_TrackingActionWindows(self, TrackingActionWindows): self.TrackingActionWindows = TrackingActionWindows
+
+    def set_TrackingActionWindows(
+        self, TrackingActionWindows): self.TrackingActionWindows = TrackingActionWindows
+
     def get_id(self): return self.id
+
     def set_id(self, id): self.id = id
+
     def hasContent_(self):
         if (
             self.AcquisitionParameters is not None or
@@ -5640,6 +6833,7 @@ class TrackingSource(GeneratedsSuper):
             return True
         else:
             return False
+
     def export(self, outfile, level, namespace_='', name_='TrackingSource', namespacedef_='', pretty_print=True):
         if pretty_print:
             eol_ = '\n'
@@ -5648,33 +6842,44 @@ class TrackingSource(GeneratedsSuper):
         if self.original_tagname_ is not None:
             name_ = self.original_tagname_
         showIndent(outfile, level, pretty_print)
-        outfile.write('<%s%s%s' % (namespace_, name_, namespacedef_ and ' ' + namespacedef_ or '', ))
+        outfile.write('<%s%s%s' % (namespace_, name_,
+                                   namespacedef_ and ' ' + namespacedef_ or '', ))
         already_processed = set()
-        self.exportAttributes(outfile, level, already_processed, namespace_, name_='TrackingSource')
+        self.exportAttributes(outfile, level, already_processed,
+                              namespace_, name_='TrackingSource')
         if self.hasContent_():
             outfile.write('>%s' % (eol_, ))
-            self.exportChildren(outfile, level + 1, namespace_='', name_='TrackingSource', pretty_print=pretty_print)
+            self.exportChildren(outfile, level + 1, namespace_='',
+                                name_='TrackingSource', pretty_print=pretty_print)
             showIndent(outfile, level, pretty_print)
             outfile.write('</%s%s>%s' % (namespace_, name_, eol_))
         else:
             outfile.write('/>%s' % (eol_, ))
+
     def exportAttributes(self, outfile, level, already_processed, namespace_='', name_='TrackingSource'):
         if self.id is not None and 'id' not in already_processed:
             already_processed.add('id')
-            outfile.write(' id=%s' % (self.gds_encode(self.gds_format_string(quote_attrib(self.id), input_name='id')), ))
+            outfile.write(' id=%s' % (self.gds_encode(
+                self.gds_format_string(quote_attrib(self.id), input_name='id')), ))
+
     def exportChildren(self, outfile, level, namespace_='', name_='TrackingSource', fromsubclass_=False, pretty_print=True):
         if pretty_print:
             eol_ = '\n'
         else:
             eol_ = ''
         if self.AcquisitionParameters is not None:
-            self.AcquisitionParameters.export(outfile, level, namespace_, name_='AcquisitionParameters', pretty_print=pretty_print)
+            self.AcquisitionParameters.export(
+                outfile, level, namespace_, name_='AcquisitionParameters', pretty_print=pretty_print)
         if self.SurrogateModel is not None:
-            self.SurrogateModel.export(outfile, level, namespace_, name_='SurrogateModel', pretty_print=pretty_print)
+            self.SurrogateModel.export(
+                outfile, level, namespace_, name_='SurrogateModel', pretty_print=pretty_print)
         if self.MotionModel is not None:
-            self.MotionModel.export(outfile, level, namespace_, name_='MotionModel', pretty_print=pretty_print)
+            self.MotionModel.export(
+                outfile, level, namespace_, name_='MotionModel', pretty_print=pretty_print)
         if self.TrackingActionWindows is not None:
-            self.TrackingActionWindows.export(outfile, level, namespace_, name_='TrackingActionWindows', pretty_print=pretty_print)
+            self.TrackingActionWindows.export(
+                outfile, level, namespace_, name_='TrackingActionWindows', pretty_print=pretty_print)
+
     def build(self, node):
         already_processed = set()
         self.buildAttributes(node, node.attrib, already_processed)
@@ -5682,11 +6887,13 @@ class TrackingSource(GeneratedsSuper):
             nodeName_ = Tag_pattern_.match(child.tag).groups()[-1]
             self.buildChildren(child, node, nodeName_)
         return self
+
     def buildAttributes(self, node, attrs, already_processed):
         value = find_attr_value_('id', node)
         if value is not None and 'id' not in already_processed:
             already_processed.add('id')
             self.id = value
+
     def buildChildren(self, child_, node, nodeName_, fromsubclass_=False):
         if nodeName_ == 'AcquisitionParameters':
             obj_ = AcquisitionParameters.factory()
@@ -5720,6 +6927,7 @@ class MotionManagementParameters(GeneratedsSuper):
     ActionWindow)"""
     subclass = None
     superclass = None
+
     def __init__(self, ModelSystem=None, TrackingSource=None, MotionCompensation=None, GlobalActionWindows=None):
         self.original_tagname_ = None
         self.ModelSystem = ModelSystem
@@ -5729,6 +6937,7 @@ class MotionManagementParameters(GeneratedsSuper):
             self.TrackingSource = TrackingSource
         self.MotionCompensation = MotionCompensation
         self.GlobalActionWindows = GlobalActionWindows
+
     def factory(*args_, **kwargs_):
         if CurrentSubclassModule_ is not None:
             subclass = getSubclassFromModule_(
@@ -5740,17 +6949,34 @@ class MotionManagementParameters(GeneratedsSuper):
         else:
             return MotionManagementParameters(*args_, **kwargs_)
     factory = staticmethod(factory)
+
     def get_ModelSystem(self): return self.ModelSystem
+
     def set_ModelSystem(self, ModelSystem): self.ModelSystem = ModelSystem
+
     def get_TrackingSource(self): return self.TrackingSource
-    def set_TrackingSource(self, TrackingSource): self.TrackingSource = TrackingSource
+
+    def set_TrackingSource(
+        self, TrackingSource): self.TrackingSource = TrackingSource
+
     def add_TrackingSource(self, value): self.TrackingSource.append(value)
-    def insert_TrackingSource_at(self, index, value): self.TrackingSource.insert(index, value)
-    def replace_TrackingSource_at(self, index, value): self.TrackingSource[index] = value
+
+    def insert_TrackingSource_at(
+        self, index, value): self.TrackingSource.insert(index, value)
+
+    def replace_TrackingSource_at(self, index, value): self.TrackingSource[
+        index] = value
+
     def get_MotionCompensation(self): return self.MotionCompensation
-    def set_MotionCompensation(self, MotionCompensation): self.MotionCompensation = MotionCompensation
+
+    def set_MotionCompensation(
+        self, MotionCompensation): self.MotionCompensation = MotionCompensation
+
     def get_GlobalActionWindows(self): return self.GlobalActionWindows
-    def set_GlobalActionWindows(self, GlobalActionWindows): self.GlobalActionWindows = GlobalActionWindows
+
+    def set_GlobalActionWindows(
+        self, GlobalActionWindows): self.GlobalActionWindows = GlobalActionWindows
+
     def hasContent_(self):
         if (
             self.ModelSystem is not None or
@@ -5761,6 +6987,7 @@ class MotionManagementParameters(GeneratedsSuper):
             return True
         else:
             return False
+
     def export(self, outfile, level, namespace_='', name_='MotionManagementParameters', namespacedef_='', pretty_print=True):
         if pretty_print:
             eol_ = '\n'
@@ -5769,31 +6996,41 @@ class MotionManagementParameters(GeneratedsSuper):
         if self.original_tagname_ is not None:
             name_ = self.original_tagname_
         showIndent(outfile, level, pretty_print)
-        outfile.write('<%s%s%s' % (namespace_, name_, namespacedef_ and ' ' + namespacedef_ or '', ))
+        outfile.write('<%s%s%s' % (namespace_, name_,
+                                   namespacedef_ and ' ' + namespacedef_ or '', ))
         already_processed = set()
-        self.exportAttributes(outfile, level, already_processed, namespace_, name_='MotionManagementParameters')
+        self.exportAttributes(outfile, level, already_processed,
+                              namespace_, name_='MotionManagementParameters')
         if self.hasContent_():
             outfile.write('>%s' % (eol_, ))
-            self.exportChildren(outfile, level + 1, namespace_='', name_='MotionManagementParameters', pretty_print=pretty_print)
+            self.exportChildren(outfile, level + 1, namespace_='',
+                                name_='MotionManagementParameters', pretty_print=pretty_print)
             showIndent(outfile, level, pretty_print)
             outfile.write('</%s%s>%s' % (namespace_, name_, eol_))
         else:
             outfile.write('/>%s' % (eol_, ))
+
     def exportAttributes(self, outfile, level, already_processed, namespace_='', name_='MotionManagementParameters'):
         pass
+
     def exportChildren(self, outfile, level, namespace_='', name_='MotionManagementParameters', fromsubclass_=False, pretty_print=True):
         if pretty_print:
             eol_ = '\n'
         else:
             eol_ = ''
         if self.ModelSystem is not None:
-            self.ModelSystem.export(outfile, level, namespace_, name_='ModelSystem', pretty_print=pretty_print)
+            self.ModelSystem.export(
+                outfile, level, namespace_, name_='ModelSystem', pretty_print=pretty_print)
         for TrackingSource_ in self.TrackingSource:
-            TrackingSource_.export(outfile, level, namespace_, name_='TrackingSource', pretty_print=pretty_print)
+            TrackingSource_.export(
+                outfile, level, namespace_, name_='TrackingSource', pretty_print=pretty_print)
         if self.MotionCompensation is not None:
-            self.MotionCompensation.export(outfile, level, namespace_, name_='MotionCompensation', pretty_print=pretty_print)
+            self.MotionCompensation.export(
+                outfile, level, namespace_, name_='MotionCompensation', pretty_print=pretty_print)
         if self.GlobalActionWindows is not None:
-            self.GlobalActionWindows.export(outfile, level, namespace_, name_='GlobalActionWindows', pretty_print=pretty_print)
+            self.GlobalActionWindows.export(
+                outfile, level, namespace_, name_='GlobalActionWindows', pretty_print=pretty_print)
+
     def build(self, node):
         already_processed = set()
         self.buildAttributes(node, node.attrib, already_processed)
@@ -5801,8 +7038,10 @@ class MotionManagementParameters(GeneratedsSuper):
             nodeName_ = Tag_pattern_.match(child.tag).groups()[-1]
             self.buildChildren(child, node, nodeName_)
         return self
+
     def buildAttributes(self, node, attrs, already_processed):
         pass
+
     def buildChildren(self, child_, node, nodeName_, fromsubclass_=False):
         if nodeName_ == 'ModelSystem':
             obj_ = ModelSystem.factory()
@@ -5830,12 +7069,14 @@ class MotionManagementParameters(GeneratedsSuper):
 class iTools(GeneratedsSuper):
     subclass = None
     superclass = None
+
     def __init__(self, anytypeobjs_=None):
         self.original_tagname_ = None
         if anytypeobjs_ is None:
             self.anytypeobjs_ = []
         else:
             self.anytypeobjs_ = anytypeobjs_
+
     def factory(*args_, **kwargs_):
         if CurrentSubclassModule_ is not None:
             subclass = getSubclassFromModule_(
@@ -5847,10 +7088,16 @@ class iTools(GeneratedsSuper):
         else:
             return iTools(*args_, **kwargs_)
     factory = staticmethod(factory)
+
     def get_anytypeobjs_(self): return self.anytypeobjs_
+
     def set_anytypeobjs_(self, anytypeobjs_): self.anytypeobjs_ = anytypeobjs_
+
     def add_anytypeobjs_(self, value): self.anytypeobjs_.append(value)
-    def insert_anytypeobjs_(self, index, value): self._anytypeobjs_[index] = value
+
+    def insert_anytypeobjs_(self, index, value): self._anytypeobjs_[
+        index] = value
+
     def hasContent_(self):
         if (
             self.anytypeobjs_
@@ -5858,6 +7105,7 @@ class iTools(GeneratedsSuper):
             return True
         else:
             return False
+
     def export(self, outfile, level, namespace_='', name_='iTools', namespacedef_='', pretty_print=True):
         if pretty_print:
             eol_ = '\n'
@@ -5866,18 +7114,23 @@ class iTools(GeneratedsSuper):
         if self.original_tagname_ is not None:
             name_ = self.original_tagname_
         showIndent(outfile, level, pretty_print)
-        outfile.write('<%s%s%s' % (namespace_, name_, namespacedef_ and ' ' + namespacedef_ or '', ))
+        outfile.write('<%s%s%s' % (namespace_, name_,
+                                   namespacedef_ and ' ' + namespacedef_ or '', ))
         already_processed = set()
-        self.exportAttributes(outfile, level, already_processed, namespace_, name_='iTools')
+        self.exportAttributes(
+            outfile, level, already_processed, namespace_, name_='iTools')
         if self.hasContent_():
             outfile.write('>%s' % (eol_, ))
-            self.exportChildren(outfile, level + 1, namespace_='', name_='iTools', pretty_print=pretty_print)
+            self.exportChildren(outfile, level + 1, namespace_='',
+                                name_='iTools', pretty_print=pretty_print)
             showIndent(outfile, level, pretty_print)
             outfile.write('</%s%s>%s' % (namespace_, name_, eol_))
         else:
             outfile.write('/>%s' % (eol_, ))
+
     def exportAttributes(self, outfile, level, already_processed, namespace_='', name_='iTools'):
         pass
+
     def exportChildren(self, outfile, level, namespace_='', name_='iTools', fromsubclass_=False, pretty_print=True):
         if pretty_print:
             eol_ = '\n'
@@ -5885,6 +7138,7 @@ class iTools(GeneratedsSuper):
             eol_ = ''
         for obj_ in self.anytypeobjs_:
             obj_.export(outfile, level, namespace_, pretty_print=pretty_print)
+
     def build(self, node):
         already_processed = set()
         self.buildAttributes(node, node.attrib, already_processed)
@@ -5892,8 +7146,10 @@ class iTools(GeneratedsSuper):
             nodeName_ = Tag_pattern_.match(child.tag).groups()[-1]
             self.buildChildren(child, node, nodeName_)
         return self
+
     def buildAttributes(self, node, attrs, already_processed):
         pass
+
     def buildChildren(self, child_, node, nodeName_, fromsubclass_=False):
         obj_ = self.gds_build_any(child_, 'iTools')
         if obj_ is not None:
@@ -5907,12 +7163,14 @@ class ImagingPoints(GeneratedsSuper):
     subsequent imaging point."""
     subclass = None
     superclass = None
+
     def __init__(self, ImagingPoint=None):
         self.original_tagname_ = None
         if ImagingPoint is None:
             self.ImagingPoint = []
         else:
             self.ImagingPoint = ImagingPoint
+
     def factory(*args_, **kwargs_):
         if CurrentSubclassModule_ is not None:
             subclass = getSubclassFromModule_(
@@ -5924,11 +7182,19 @@ class ImagingPoints(GeneratedsSuper):
         else:
             return ImagingPoints(*args_, **kwargs_)
     factory = staticmethod(factory)
+
     def get_ImagingPoint(self): return self.ImagingPoint
+
     def set_ImagingPoint(self, ImagingPoint): self.ImagingPoint = ImagingPoint
+
     def add_ImagingPoint(self, value): self.ImagingPoint.append(value)
-    def insert_ImagingPoint_at(self, index, value): self.ImagingPoint.insert(index, value)
-    def replace_ImagingPoint_at(self, index, value): self.ImagingPoint[index] = value
+
+    def insert_ImagingPoint_at(
+        self, index, value): self.ImagingPoint.insert(index, value)
+
+    def replace_ImagingPoint_at(self, index, value): self.ImagingPoint[
+        index] = value
+
     def hasContent_(self):
         if (
             self.ImagingPoint
@@ -5936,6 +7202,7 @@ class ImagingPoints(GeneratedsSuper):
             return True
         else:
             return False
+
     def export(self, outfile, level, namespace_='', name_='ImagingPoints', namespacedef_='', pretty_print=True):
         if pretty_print:
             eol_ = '\n'
@@ -5944,25 +7211,32 @@ class ImagingPoints(GeneratedsSuper):
         if self.original_tagname_ is not None:
             name_ = self.original_tagname_
         showIndent(outfile, level, pretty_print)
-        outfile.write('<%s%s%s' % (namespace_, name_, namespacedef_ and ' ' + namespacedef_ or '', ))
+        outfile.write('<%s%s%s' % (namespace_, name_,
+                                   namespacedef_ and ' ' + namespacedef_ or '', ))
         already_processed = set()
-        self.exportAttributes(outfile, level, already_processed, namespace_, name_='ImagingPoints')
+        self.exportAttributes(outfile, level, already_processed,
+                              namespace_, name_='ImagingPoints')
         if self.hasContent_():
             outfile.write('>%s' % (eol_, ))
-            self.exportChildren(outfile, level + 1, namespace_='', name_='ImagingPoints', pretty_print=pretty_print)
+            self.exportChildren(outfile, level + 1, namespace_='',
+                                name_='ImagingPoints', pretty_print=pretty_print)
             showIndent(outfile, level, pretty_print)
             outfile.write('</%s%s>%s' % (namespace_, name_, eol_))
         else:
             outfile.write('/>%s' % (eol_, ))
+
     def exportAttributes(self, outfile, level, already_processed, namespace_='', name_='ImagingPoints'):
         pass
+
     def exportChildren(self, outfile, level, namespace_='', name_='ImagingPoints', fromsubclass_=False, pretty_print=True):
         if pretty_print:
             eol_ = '\n'
         else:
             eol_ = ''
         for ImagingPoint_ in self.ImagingPoint:
-            ImagingPoint_.export(outfile, level, namespace_, name_='ImagingPoint', pretty_print=pretty_print)
+            ImagingPoint_.export(outfile, level, namespace_,
+                                 name_='ImagingPoint', pretty_print=pretty_print)
+
     def build(self, node):
         already_processed = set()
         self.buildAttributes(node, node.attrib, already_processed)
@@ -5970,8 +7244,10 @@ class ImagingPoints(GeneratedsSuper):
             nodeName_ = Tag_pattern_.match(child.tag).groups()[-1]
             self.buildChildren(child, node, nodeName_)
         return self
+
     def buildAttributes(self, node, attrs, already_processed):
         pass
+
     def buildChildren(self, child_, node, nodeName_, fromsubclass_=False):
         if nodeName_ == 'ImagingPoint':
             obj_ = ImagingPoint.factory()
@@ -5987,10 +7263,11 @@ class ImagingPoint(GeneratedsSuper):
     indices 3 and 4. In case of a beam group (or superbeam), Cp
     refers to the fractional control point index of the combined
     beam. Example: Beam group with 3 beams. First beam has 5 control
-    points:0 ≤ Cp ≤ 4. Second beam has 2 control points:5 ≤ Cp ≤ 6.
-    Third beam has 3 control points:7 ≤ Cp ≤ 9."""
+    points: 0 ≤ Cp ≤ 4. Second beam has 2 control points: 5 ≤ Cp ≤
+    6. Third beam has 3 control points: 7 ≤ Cp ≤ 9."""
     subclass = None
     superclass = None
+
     def __init__(self, Cp=None, Acquisition=None, AcquisitionStart=None, AcquisitionStop=None, KvFilters=None, KvBlades=None, Mvd=None, Kvd=None, Kvs=None, MvdAfter=None, KvdAfter=None, KvsAfter=None):
         self.original_tagname_ = None
         self.Cp = Cp
@@ -6014,6 +7291,7 @@ class ImagingPoint(GeneratedsSuper):
         self.MvdAfter = MvdAfter
         self.KvdAfter = KvdAfter
         self.KvsAfter = KvsAfter
+
     def factory(*args_, **kwargs_):
         if CurrentSubclassModule_ is not None:
             subclass = getSubclassFromModule_(
@@ -6025,39 +7303,81 @@ class ImagingPoint(GeneratedsSuper):
         else:
             return ImagingPoint(*args_, **kwargs_)
     factory = staticmethod(factory)
+
     def get_Cp(self): return self.Cp
+
     def set_Cp(self, Cp): self.Cp = Cp
+
     def get_Acquisition(self): return self.Acquisition
+
     def set_Acquisition(self, Acquisition): self.Acquisition = Acquisition
+
     def add_Acquisition(self, value): self.Acquisition.append(value)
-    def insert_Acquisition_at(self, index, value): self.Acquisition.insert(index, value)
-    def replace_Acquisition_at(self, index, value): self.Acquisition[index] = value
+
+    def insert_Acquisition_at(
+        self, index, value): self.Acquisition.insert(index, value)
+
+    def replace_Acquisition_at(self, index, value): self.Acquisition[
+        index] = value
+
     def get_AcquisitionStart(self): return self.AcquisitionStart
-    def set_AcquisitionStart(self, AcquisitionStart): self.AcquisitionStart = AcquisitionStart
+
+    def set_AcquisitionStart(
+        self, AcquisitionStart): self.AcquisitionStart = AcquisitionStart
+
     def add_AcquisitionStart(self, value): self.AcquisitionStart.append(value)
-    def insert_AcquisitionStart_at(self, index, value): self.AcquisitionStart.insert(index, value)
-    def replace_AcquisitionStart_at(self, index, value): self.AcquisitionStart[index] = value
+
+    def insert_AcquisitionStart_at(
+        self, index, value): self.AcquisitionStart.insert(index, value)
+
+    def replace_AcquisitionStart_at(
+        self, index, value): self.AcquisitionStart[index] = value
+
     def get_AcquisitionStop(self): return self.AcquisitionStop
-    def set_AcquisitionStop(self, AcquisitionStop): self.AcquisitionStop = AcquisitionStop
+
+    def set_AcquisitionStop(
+        self, AcquisitionStop): self.AcquisitionStop = AcquisitionStop
+
     def add_AcquisitionStop(self, value): self.AcquisitionStop.append(value)
-    def insert_AcquisitionStop_at(self, index, value): self.AcquisitionStop.insert(index, value)
-    def replace_AcquisitionStop_at(self, index, value): self.AcquisitionStop[index] = value
+
+    def insert_AcquisitionStop_at(
+        self, index, value): self.AcquisitionStop.insert(index, value)
+
+    def replace_AcquisitionStop_at(self, index, value): self.AcquisitionStop[
+        index] = value
+
     def get_KvFilters(self): return self.KvFilters
+
     def set_KvFilters(self, KvFilters): self.KvFilters = KvFilters
+
     def get_KvBlades(self): return self.KvBlades
+
     def set_KvBlades(self, KvBlades): self.KvBlades = KvBlades
+
     def get_Mvd(self): return self.Mvd
+
     def set_Mvd(self, Mvd): self.Mvd = Mvd
+
     def get_Kvd(self): return self.Kvd
+
     def set_Kvd(self, Kvd): self.Kvd = Kvd
+
     def get_Kvs(self): return self.Kvs
+
     def set_Kvs(self, Kvs): self.Kvs = Kvs
+
     def get_MvdAfter(self): return self.MvdAfter
+
     def set_MvdAfter(self, MvdAfter): self.MvdAfter = MvdAfter
+
     def get_KvdAfter(self): return self.KvdAfter
+
     def set_KvdAfter(self, KvdAfter): self.KvdAfter = KvdAfter
+
     def get_KvsAfter(self): return self.KvsAfter
+
     def set_KvsAfter(self, KvsAfter): self.KvsAfter = KvsAfter
+
     def hasContent_(self):
         if (
             self.Cp is not None or
@@ -6076,6 +7396,7 @@ class ImagingPoint(GeneratedsSuper):
             return True
         else:
             return False
+
     def export(self, outfile, level, namespace_='', name_='ImagingPoint', namespacedef_='', pretty_print=True):
         if pretty_print:
             eol_ = '\n'
@@ -6084,18 +7405,23 @@ class ImagingPoint(GeneratedsSuper):
         if self.original_tagname_ is not None:
             name_ = self.original_tagname_
         showIndent(outfile, level, pretty_print)
-        outfile.write('<%s%s%s' % (namespace_, name_, namespacedef_ and ' ' + namespacedef_ or '', ))
+        outfile.write('<%s%s%s' % (namespace_, name_,
+                                   namespacedef_ and ' ' + namespacedef_ or '', ))
         already_processed = set()
-        self.exportAttributes(outfile, level, already_processed, namespace_, name_='ImagingPoint')
+        self.exportAttributes(outfile, level, already_processed,
+                              namespace_, name_='ImagingPoint')
         if self.hasContent_():
             outfile.write('>%s' % (eol_, ))
-            self.exportChildren(outfile, level + 1, namespace_='', name_='ImagingPoint', pretty_print=pretty_print)
+            self.exportChildren(outfile, level + 1, namespace_='',
+                                name_='ImagingPoint', pretty_print=pretty_print)
             showIndent(outfile, level, pretty_print)
             outfile.write('</%s%s>%s' % (namespace_, name_, eol_))
         else:
             outfile.write('/>%s' % (eol_, ))
+
     def exportAttributes(self, outfile, level, already_processed, namespace_='', name_='ImagingPoint'):
         pass
+
     def exportChildren(self, outfile, level, namespace_='', name_='ImagingPoint', fromsubclass_=False, pretty_print=True):
         if pretty_print:
             eol_ = '\n'
@@ -6103,29 +7429,42 @@ class ImagingPoint(GeneratedsSuper):
             eol_ = ''
         if self.Cp is not None:
             showIndent(outfile, level, pretty_print)
-            outfile.write('<%sCp>%s</%sCp>%s' % (namespace_, self.gds_format_double(self.Cp, input_name='Cp'), namespace_, eol_))
+            outfile.write('<%sCp>%s</%sCp>%s' % (namespace_,
+                                                 self.gds_format_double(self.Cp, input_name='Cp'), namespace_, eol_))
         for Acquisition_ in self.Acquisition:
-            Acquisition_.export(outfile, level, namespace_, name_='Acquisition', pretty_print=pretty_print)
+            Acquisition_.export(outfile, level, namespace_,
+                                name_='Acquisition', pretty_print=pretty_print)
         for AcquisitionStart_ in self.AcquisitionStart:
-            AcquisitionStart_.export(outfile, level, namespace_, name_='AcquisitionStart', pretty_print=pretty_print)
+            AcquisitionStart_.export(
+                outfile, level, namespace_, name_='AcquisitionStart', pretty_print=pretty_print)
         for AcquisitionStop_ in self.AcquisitionStop:
-            AcquisitionStop_.export(outfile, level, namespace_, name_='AcquisitionStop', pretty_print=pretty_print)
+            AcquisitionStop_.export(
+                outfile, level, namespace_, name_='AcquisitionStop', pretty_print=pretty_print)
         if self.KvFilters is not None:
-            self.KvFilters.export(outfile, level, namespace_, name_='KvFilters', pretty_print=pretty_print)
+            self.KvFilters.export(outfile, level, namespace_,
+                                  name_='KvFilters', pretty_print=pretty_print)
         if self.KvBlades is not None:
-            self.KvBlades.export(outfile, level, namespace_, name_='KvBlades', pretty_print=pretty_print)
+            self.KvBlades.export(outfile, level, namespace_,
+                                 name_='KvBlades', pretty_print=pretty_print)
         if self.Mvd is not None:
-            self.Mvd.export(outfile, level, namespace_, name_='Mvd', pretty_print=pretty_print)
+            self.Mvd.export(outfile, level, namespace_,
+                            name_='Mvd', pretty_print=pretty_print)
         if self.Kvd is not None:
-            self.Kvd.export(outfile, level, namespace_, name_='Kvd', pretty_print=pretty_print)
+            self.Kvd.export(outfile, level, namespace_,
+                            name_='Kvd', pretty_print=pretty_print)
         if self.Kvs is not None:
-            self.Kvs.export(outfile, level, namespace_, name_='Kvs', pretty_print=pretty_print)
+            self.Kvs.export(outfile, level, namespace_,
+                            name_='Kvs', pretty_print=pretty_print)
         if self.MvdAfter is not None:
-            self.MvdAfter.export(outfile, level, namespace_, name_='MvdAfter', pretty_print=pretty_print)
+            self.MvdAfter.export(outfile, level, namespace_,
+                                 name_='MvdAfter', pretty_print=pretty_print)
         if self.KvdAfter is not None:
-            self.KvdAfter.export(outfile, level, namespace_, name_='KvdAfter', pretty_print=pretty_print)
+            self.KvdAfter.export(outfile, level, namespace_,
+                                 name_='KvdAfter', pretty_print=pretty_print)
         if self.KvsAfter is not None:
-            self.KvsAfter.export(outfile, level, namespace_, name_='KvsAfter', pretty_print=pretty_print)
+            self.KvsAfter.export(outfile, level, namespace_,
+                                 name_='KvsAfter', pretty_print=pretty_print)
+
     def build(self, node):
         already_processed = set()
         self.buildAttributes(node, node.attrib, already_processed)
@@ -6133,8 +7472,10 @@ class ImagingPoint(GeneratedsSuper):
             nodeName_ = Tag_pattern_.match(child.tag).groups()[-1]
             self.buildChildren(child, node, nodeName_)
         return self
+
     def buildAttributes(self, node, attrs, already_processed):
         pass
+
     def buildChildren(self, child_, node, nodeName_, fromsubclass_=False):
         if nodeName_ == 'Cp':
             sval_ = child_.text
@@ -6206,11 +7547,13 @@ class Acquisition(GeneratedsSuper):
     """Acquisition parameters for one image source."""
     subclass = None
     superclass = None
+
     def __init__(self, AcquisitionId=None, AcquisitionSpecs=None, AcquisitionParameters=None):
         self.original_tagname_ = None
         self.AcquisitionId = AcquisitionId
         self.AcquisitionSpecs = AcquisitionSpecs
         self.AcquisitionParameters = AcquisitionParameters
+
     def factory(*args_, **kwargs_):
         if CurrentSubclassModule_ is not None:
             subclass = getSubclassFromModule_(
@@ -6222,12 +7565,22 @@ class Acquisition(GeneratedsSuper):
         else:
             return Acquisition(*args_, **kwargs_)
     factory = staticmethod(factory)
+
     def get_AcquisitionId(self): return self.AcquisitionId
-    def set_AcquisitionId(self, AcquisitionId): self.AcquisitionId = AcquisitionId
+
+    def set_AcquisitionId(
+        self, AcquisitionId): self.AcquisitionId = AcquisitionId
+
     def get_AcquisitionSpecs(self): return self.AcquisitionSpecs
-    def set_AcquisitionSpecs(self, AcquisitionSpecs): self.AcquisitionSpecs = AcquisitionSpecs
+
+    def set_AcquisitionSpecs(
+        self, AcquisitionSpecs): self.AcquisitionSpecs = AcquisitionSpecs
+
     def get_AcquisitionParameters(self): return self.AcquisitionParameters
-    def set_AcquisitionParameters(self, AcquisitionParameters): self.AcquisitionParameters = AcquisitionParameters
+
+    def set_AcquisitionParameters(
+        self, AcquisitionParameters): self.AcquisitionParameters = AcquisitionParameters
+
     def hasContent_(self):
         if (
             self.AcquisitionId is not None or
@@ -6237,6 +7590,7 @@ class Acquisition(GeneratedsSuper):
             return True
         else:
             return False
+
     def export(self, outfile, level, namespace_='', name_='Acquisition', namespacedef_='', pretty_print=True):
         if pretty_print:
             eol_ = '\n'
@@ -6245,18 +7599,23 @@ class Acquisition(GeneratedsSuper):
         if self.original_tagname_ is not None:
             name_ = self.original_tagname_
         showIndent(outfile, level, pretty_print)
-        outfile.write('<%s%s%s' % (namespace_, name_, namespacedef_ and ' ' + namespacedef_ or '', ))
+        outfile.write('<%s%s%s' % (namespace_, name_,
+                                   namespacedef_ and ' ' + namespacedef_ or '', ))
         already_processed = set()
-        self.exportAttributes(outfile, level, already_processed, namespace_, name_='Acquisition')
+        self.exportAttributes(
+            outfile, level, already_processed, namespace_, name_='Acquisition')
         if self.hasContent_():
             outfile.write('>%s' % (eol_, ))
-            self.exportChildren(outfile, level + 1, namespace_='', name_='Acquisition', pretty_print=pretty_print)
+            self.exportChildren(outfile, level + 1, namespace_='',
+                                name_='Acquisition', pretty_print=pretty_print)
             showIndent(outfile, level, pretty_print)
             outfile.write('</%s%s>%s' % (namespace_, name_, eol_))
         else:
             outfile.write('/>%s' % (eol_, ))
+
     def exportAttributes(self, outfile, level, already_processed, namespace_='', name_='Acquisition'):
         pass
+
     def exportChildren(self, outfile, level, namespace_='', name_='Acquisition', fromsubclass_=False, pretty_print=True):
         if pretty_print:
             eol_ = '\n'
@@ -6264,11 +7623,15 @@ class Acquisition(GeneratedsSuper):
             eol_ = ''
         if self.AcquisitionId is not None:
             showIndent(outfile, level, pretty_print)
-            outfile.write('<%sAcquisitionId>%s</%sAcquisitionId>%s' % (namespace_, self.gds_format_integer(self.AcquisitionId, input_name='AcquisitionId'), namespace_, eol_))
+            outfile.write('<%sAcquisitionId>%s</%sAcquisitionId>%s' % (namespace_,
+                                                                       self.gds_format_integer(self.AcquisitionId, input_name='AcquisitionId'), namespace_, eol_))
         if self.AcquisitionSpecs is not None:
-            self.AcquisitionSpecs.export(outfile, level, namespace_, name_='AcquisitionSpecs', pretty_print=pretty_print)
+            self.AcquisitionSpecs.export(
+                outfile, level, namespace_, name_='AcquisitionSpecs', pretty_print=pretty_print)
         if self.AcquisitionParameters is not None:
-            self.AcquisitionParameters.export(outfile, level, namespace_, name_='AcquisitionParameters', pretty_print=pretty_print)
+            self.AcquisitionParameters.export(
+                outfile, level, namespace_, name_='AcquisitionParameters', pretty_print=pretty_print)
+
     def build(self, node):
         already_processed = set()
         self.buildAttributes(node, node.attrib, already_processed)
@@ -6276,8 +7639,10 @@ class Acquisition(GeneratedsSuper):
             nodeName_ = Tag_pattern_.match(child.tag).groups()[-1]
             self.buildChildren(child, node, nodeName_)
         return self
+
     def buildAttributes(self, node, attrs, already_processed):
         pass
+
     def buildChildren(self, child_, node, nodeName_, fromsubclass_=False):
         if nodeName_ == 'AcquisitionId':
             sval_ = child_.text
@@ -6316,11 +7681,13 @@ class AcquisitionSpecs(GeneratedsSuper):
     dose required in order to acquire the image."""
     subclass = None
     superclass = None
+
     def __init__(self, Handshake=None, KV=None, MVDose=None):
         self.original_tagname_ = None
         self.Handshake = Handshake
         self.KV = KV
         self.MVDose = MVDose
+
     def factory(*args_, **kwargs_):
         if CurrentSubclassModule_ is not None:
             subclass = getSubclassFromModule_(
@@ -6332,12 +7699,19 @@ class AcquisitionSpecs(GeneratedsSuper):
         else:
             return AcquisitionSpecs(*args_, **kwargs_)
     factory = staticmethod(factory)
+
     def get_Handshake(self): return self.Handshake
+
     def set_Handshake(self, Handshake): self.Handshake = Handshake
+
     def get_KV(self): return self.KV
+
     def set_KV(self, KV): self.KV = KV
+
     def get_MVDose(self): return self.MVDose
+
     def set_MVDose(self, MVDose): self.MVDose = MVDose
+
     def hasContent_(self):
         if (
             self.Handshake is not None or
@@ -6347,6 +7721,7 @@ class AcquisitionSpecs(GeneratedsSuper):
             return True
         else:
             return False
+
     def export(self, outfile, level, namespace_='', name_='AcquisitionSpecs', namespacedef_='', pretty_print=True):
         if pretty_print:
             eol_ = '\n'
@@ -6355,18 +7730,23 @@ class AcquisitionSpecs(GeneratedsSuper):
         if self.original_tagname_ is not None:
             name_ = self.original_tagname_
         showIndent(outfile, level, pretty_print)
-        outfile.write('<%s%s%s' % (namespace_, name_, namespacedef_ and ' ' + namespacedef_ or '', ))
+        outfile.write('<%s%s%s' % (namespace_, name_,
+                                   namespacedef_ and ' ' + namespacedef_ or '', ))
         already_processed = set()
-        self.exportAttributes(outfile, level, already_processed, namespace_, name_='AcquisitionSpecs')
+        self.exportAttributes(outfile, level, already_processed,
+                              namespace_, name_='AcquisitionSpecs')
         if self.hasContent_():
             outfile.write('>%s' % (eol_, ))
-            self.exportChildren(outfile, level + 1, namespace_='', name_='AcquisitionSpecs', pretty_print=pretty_print)
+            self.exportChildren(outfile, level + 1, namespace_='',
+                                name_='AcquisitionSpecs', pretty_print=pretty_print)
             showIndent(outfile, level, pretty_print)
             outfile.write('</%s%s>%s' % (namespace_, name_, eol_))
         else:
             outfile.write('/>%s' % (eol_, ))
+
     def exportAttributes(self, outfile, level, already_processed, namespace_='', name_='AcquisitionSpecs'):
         pass
+
     def exportChildren(self, outfile, level, namespace_='', name_='AcquisitionSpecs', fromsubclass_=False, pretty_print=True):
         if pretty_print:
             eol_ = '\n'
@@ -6374,13 +7754,17 @@ class AcquisitionSpecs(GeneratedsSuper):
             eol_ = ''
         if self.Handshake is not None:
             showIndent(outfile, level, pretty_print)
-            outfile.write('<%sHandshake>%s</%sHandshake>%s' % (namespace_, self.gds_format_boolean(self.Handshake, input_name='Handshake'), namespace_, eol_))
+            outfile.write('<%sHandshake>%s</%sHandshake>%s' % (namespace_,
+                                                               self.gds_format_boolean(self.Handshake, input_name='Handshake'), namespace_, eol_))
         if self.KV is not None:
             showIndent(outfile, level, pretty_print)
-            outfile.write('<%sKV>%s</%sKV>%s' % (namespace_, self.gds_format_boolean(self.KV, input_name='KV'), namespace_, eol_))
+            outfile.write('<%sKV>%s</%sKV>%s' % (namespace_,
+                                                 self.gds_format_boolean(self.KV, input_name='KV'), namespace_, eol_))
         if self.MVDose is not None:
             showIndent(outfile, level, pretty_print)
-            outfile.write('<%sMVDose>%s</%sMVDose>%s' % (namespace_, self.gds_format_double(self.MVDose, input_name='MVDose'), namespace_, eol_))
+            outfile.write('<%sMVDose>%s</%sMVDose>%s' % (namespace_,
+                                                         self.gds_format_double(self.MVDose, input_name='MVDose'), namespace_, eol_))
+
     def build(self, node):
         already_processed = set()
         self.buildAttributes(node, node.attrib, already_processed)
@@ -6388,8 +7772,10 @@ class AcquisitionSpecs(GeneratedsSuper):
             nodeName_ = Tag_pattern_.match(child.tag).groups()[-1]
             self.buildChildren(child, node, nodeName_)
         return self
+
     def buildAttributes(self, node, attrs, already_processed):
         pass
+
     def buildChildren(self, child_, node, nodeName_, fromsubclass_=False):
         if nodeName_ == 'Handshake':
             sval_ = child_.text
@@ -6433,8 +7819,10 @@ class DuringTreatment(GeneratedsSuper):
     initial arm positions, but no acquisitions."""
     subclass = None
     superclass = None
+
     def __init__(self):
         self.original_tagname_ = None
+
     def factory(*args_, **kwargs_):
         if CurrentSubclassModule_ is not None:
             subclass = getSubclassFromModule_(
@@ -6446,6 +7834,7 @@ class DuringTreatment(GeneratedsSuper):
         else:
             return DuringTreatment(*args_, **kwargs_)
     factory = staticmethod(factory)
+
     def hasContent_(self):
         if (
 
@@ -6453,6 +7842,7 @@ class DuringTreatment(GeneratedsSuper):
             return True
         else:
             return False
+
     def export(self, outfile, level, namespace_='', name_='DuringTreatment', namespacedef_='', pretty_print=True):
         if pretty_print:
             eol_ = '\n'
@@ -6461,19 +7851,25 @@ class DuringTreatment(GeneratedsSuper):
         if self.original_tagname_ is not None:
             name_ = self.original_tagname_
         showIndent(outfile, level, pretty_print)
-        outfile.write('<%s%s%s' % (namespace_, name_, namespacedef_ and ' ' + namespacedef_ or '', ))
+        outfile.write('<%s%s%s' % (namespace_, name_,
+                                   namespacedef_ and ' ' + namespacedef_ or '', ))
         already_processed = set()
-        self.exportAttributes(outfile, level, already_processed, namespace_, name_='DuringTreatment')
+        self.exportAttributes(outfile, level, already_processed,
+                              namespace_, name_='DuringTreatment')
         if self.hasContent_():
             outfile.write('>%s' % (eol_, ))
-            self.exportChildren(outfile, level + 1, namespace_='', name_='DuringTreatment', pretty_print=pretty_print)
+            self.exportChildren(outfile, level + 1, namespace_='',
+                                name_='DuringTreatment', pretty_print=pretty_print)
             outfile.write('</%s%s>%s' % (namespace_, name_, eol_))
         else:
             outfile.write('/>%s' % (eol_, ))
+
     def exportAttributes(self, outfile, level, already_processed, namespace_='', name_='DuringTreatment'):
         pass
+
     def exportChildren(self, outfile, level, namespace_='', name_='DuringTreatment', fromsubclass_=False, pretty_print=True):
         pass
+
     def build(self, node):
         already_processed = set()
         self.buildAttributes(node, node.attrib, already_processed)
@@ -6481,8 +7877,10 @@ class DuringTreatment(GeneratedsSuper):
             nodeName_ = Tag_pattern_.match(child.tag).groups()[-1]
             self.buildChildren(child, node, nodeName_)
         return self
+
     def buildAttributes(self, node, attrs, already_processed):
         pass
+
     def buildChildren(self, child_, node, nodeName_, fromsubclass_=False):
         pass
 # end class DuringTreatment
@@ -6503,9 +7901,11 @@ class OutsideTreatment(GeneratedsSuper):
     changes in any value."""
     subclass = None
     superclass = None
+
     def __init__(self, MaxMu=None):
         self.original_tagname_ = None
         self.MaxMu = MaxMu
+
     def factory(*args_, **kwargs_):
         if CurrentSubclassModule_ is not None:
             subclass = getSubclassFromModule_(
@@ -6517,8 +7917,11 @@ class OutsideTreatment(GeneratedsSuper):
         else:
             return OutsideTreatment(*args_, **kwargs_)
     factory = staticmethod(factory)
+
     def get_MaxMu(self): return self.MaxMu
+
     def set_MaxMu(self, MaxMu): self.MaxMu = MaxMu
+
     def hasContent_(self):
         if (
             self.MaxMu is not None
@@ -6526,6 +7929,7 @@ class OutsideTreatment(GeneratedsSuper):
             return True
         else:
             return False
+
     def export(self, outfile, level, namespace_='', name_='OutsideTreatment', namespacedef_='', pretty_print=True):
         if pretty_print:
             eol_ = '\n'
@@ -6534,18 +7938,23 @@ class OutsideTreatment(GeneratedsSuper):
         if self.original_tagname_ is not None:
             name_ = self.original_tagname_
         showIndent(outfile, level, pretty_print)
-        outfile.write('<%s%s%s' % (namespace_, name_, namespacedef_ and ' ' + namespacedef_ or '', ))
+        outfile.write('<%s%s%s' % (namespace_, name_,
+                                   namespacedef_ and ' ' + namespacedef_ or '', ))
         already_processed = set()
-        self.exportAttributes(outfile, level, already_processed, namespace_, name_='OutsideTreatment')
+        self.exportAttributes(outfile, level, already_processed,
+                              namespace_, name_='OutsideTreatment')
         if self.hasContent_():
             outfile.write('>%s' % (eol_, ))
-            self.exportChildren(outfile, level + 1, namespace_='', name_='OutsideTreatment', pretty_print=pretty_print)
+            self.exportChildren(outfile, level + 1, namespace_='',
+                                name_='OutsideTreatment', pretty_print=pretty_print)
             showIndent(outfile, level, pretty_print)
             outfile.write('</%s%s>%s' % (namespace_, name_, eol_))
         else:
             outfile.write('/>%s' % (eol_, ))
+
     def exportAttributes(self, outfile, level, already_processed, namespace_='', name_='OutsideTreatment'):
         pass
+
     def exportChildren(self, outfile, level, namespace_='', name_='OutsideTreatment', fromsubclass_=False, pretty_print=True):
         if pretty_print:
             eol_ = '\n'
@@ -6553,7 +7962,9 @@ class OutsideTreatment(GeneratedsSuper):
             eol_ = ''
         if self.MaxMu is not None:
             showIndent(outfile, level, pretty_print)
-            outfile.write('<%sMaxMu>%s</%sMaxMu>%s' % (namespace_, self.gds_format_double(self.MaxMu, input_name='MaxMu'), namespace_, eol_))
+            outfile.write('<%sMaxMu>%s</%sMaxMu>%s' % (namespace_,
+                                                       self.gds_format_double(self.MaxMu, input_name='MaxMu'), namespace_, eol_))
+
     def build(self, node):
         already_processed = set()
         self.buildAttributes(node, node.attrib, already_processed)
@@ -6561,8 +7972,10 @@ class OutsideTreatment(GeneratedsSuper):
             nodeName_ = Tag_pattern_.match(child.tag).groups()[-1]
             self.buildChildren(child, node, nodeName_)
         return self
+
     def buildAttributes(self, node, attrs, already_processed):
         pass
+
     def buildChildren(self, child_, node, nodeName_, fromsubclass_=False):
         if nodeName_ == 'MaxMu':
             sval_ = child_.text
@@ -6579,6 +7992,7 @@ class ImagingParameters(GeneratedsSuper):
     """Imaging parameters associated with a (super-)beam."""
     subclass = None
     superclass = None
+
     def __init__(self, DuringTreatment=None, OutsideTreatment=None, LatchBEL=True, LatchKVBEL=True, ImagingPoints=None, ImagingTolerances=None, MotionManagementParameters=None, iTools=None):
         self.original_tagname_ = None
         self.DuringTreatment = DuringTreatment
@@ -6589,6 +8003,7 @@ class ImagingParameters(GeneratedsSuper):
         self.ImagingTolerances = ImagingTolerances
         self.MotionManagementParameters = MotionManagementParameters
         self.iTools = iTools
+
     def factory(*args_, **kwargs_):
         if CurrentSubclassModule_ is not None:
             subclass = getSubclassFromModule_(
@@ -6600,22 +8015,45 @@ class ImagingParameters(GeneratedsSuper):
         else:
             return ImagingParameters(*args_, **kwargs_)
     factory = staticmethod(factory)
+
     def get_DuringTreatment(self): return self.DuringTreatment
-    def set_DuringTreatment(self, DuringTreatment): self.DuringTreatment = DuringTreatment
+
+    def set_DuringTreatment(
+        self, DuringTreatment): self.DuringTreatment = DuringTreatment
+
     def get_OutsideTreatment(self): return self.OutsideTreatment
-    def set_OutsideTreatment(self, OutsideTreatment): self.OutsideTreatment = OutsideTreatment
+
+    def set_OutsideTreatment(
+        self, OutsideTreatment): self.OutsideTreatment = OutsideTreatment
+
     def get_LatchBEL(self): return self.LatchBEL
+
     def set_LatchBEL(self, LatchBEL): self.LatchBEL = LatchBEL
+
     def get_LatchKVBEL(self): return self.LatchKVBEL
+
     def set_LatchKVBEL(self, LatchKVBEL): self.LatchKVBEL = LatchKVBEL
+
     def get_ImagingPoints(self): return self.ImagingPoints
-    def set_ImagingPoints(self, ImagingPoints): self.ImagingPoints = ImagingPoints
+
+    def set_ImagingPoints(
+        self, ImagingPoints): self.ImagingPoints = ImagingPoints
+
     def get_ImagingTolerances(self): return self.ImagingTolerances
-    def set_ImagingTolerances(self, ImagingTolerances): self.ImagingTolerances = ImagingTolerances
-    def get_MotionManagementParameters(self): return self.MotionManagementParameters
-    def set_MotionManagementParameters(self, MotionManagementParameters): self.MotionManagementParameters = MotionManagementParameters
+
+    def set_ImagingTolerances(
+        self, ImagingTolerances): self.ImagingTolerances = ImagingTolerances
+
+    def get_MotionManagementParameters(
+        self): return self.MotionManagementParameters
+
+    def set_MotionManagementParameters(
+        self, MotionManagementParameters): self.MotionManagementParameters = MotionManagementParameters
+
     def get_iTools(self): return self.iTools
+
     def set_iTools(self, iTools): self.iTools = iTools
+
     def hasContent_(self):
         if (
             self.DuringTreatment is not None or
@@ -6630,6 +8068,7 @@ class ImagingParameters(GeneratedsSuper):
             return True
         else:
             return False
+
     def export(self, outfile, level, namespace_='', name_='ImagingParameters', namespacedef_='', pretty_print=True):
         if pretty_print:
             eol_ = '\n'
@@ -6638,41 +8077,55 @@ class ImagingParameters(GeneratedsSuper):
         if self.original_tagname_ is not None:
             name_ = self.original_tagname_
         showIndent(outfile, level, pretty_print)
-        outfile.write('<%s%s%s' % (namespace_, name_, namespacedef_ and ' ' + namespacedef_ or '', ))
+        outfile.write('<%s%s%s' % (namespace_, name_,
+                                   namespacedef_ and ' ' + namespacedef_ or '', ))
         already_processed = set()
-        self.exportAttributes(outfile, level, already_processed, namespace_, name_='ImagingParameters')
+        self.exportAttributes(outfile, level, already_processed,
+                              namespace_, name_='ImagingParameters')
         if self.hasContent_():
             outfile.write('>%s' % (eol_, ))
-            self.exportChildren(outfile, level + 1, namespace_='', name_='ImagingParameters', pretty_print=pretty_print)
+            self.exportChildren(outfile, level + 1, namespace_='',
+                                name_='ImagingParameters', pretty_print=pretty_print)
             showIndent(outfile, level, pretty_print)
             outfile.write('</%s%s>%s' % (namespace_, name_, eol_))
         else:
             outfile.write('/>%s' % (eol_, ))
+
     def exportAttributes(self, outfile, level, already_processed, namespace_='', name_='ImagingParameters'):
         pass
+
     def exportChildren(self, outfile, level, namespace_='', name_='ImagingParameters', fromsubclass_=False, pretty_print=True):
         if pretty_print:
             eol_ = '\n'
         else:
             eol_ = ''
         if self.DuringTreatment is not None:
-            self.DuringTreatment.export(outfile, level, namespace_, name_='DuringTreatment', pretty_print=pretty_print)
+            self.DuringTreatment.export(
+                outfile, level, namespace_, name_='DuringTreatment', pretty_print=pretty_print)
         if self.OutsideTreatment is not None:
-            self.OutsideTreatment.export(outfile, level, namespace_, name_='OutsideTreatment', pretty_print=pretty_print)
+            self.OutsideTreatment.export(
+                outfile, level, namespace_, name_='OutsideTreatment', pretty_print=pretty_print)
         if not self.LatchBEL:
             showIndent(outfile, level, pretty_print)
-            outfile.write('<%sLatchBEL>%s</%sLatchBEL>%s' % (namespace_, self.gds_format_boolean(self.LatchBEL, input_name='LatchBEL'), namespace_, eol_))
+            outfile.write('<%sLatchBEL>%s</%sLatchBEL>%s' % (namespace_,
+                                                             self.gds_format_boolean(self.LatchBEL, input_name='LatchBEL'), namespace_, eol_))
         if not self.LatchKVBEL:
             showIndent(outfile, level, pretty_print)
-            outfile.write('<%sLatchKVBEL>%s</%sLatchKVBEL>%s' % (namespace_, self.gds_format_boolean(self.LatchKVBEL, input_name='LatchKVBEL'), namespace_, eol_))
+            outfile.write('<%sLatchKVBEL>%s</%sLatchKVBEL>%s' % (namespace_,
+                                                                 self.gds_format_boolean(self.LatchKVBEL, input_name='LatchKVBEL'), namespace_, eol_))
         if self.ImagingPoints is not None:
-            self.ImagingPoints.export(outfile, level, namespace_, name_='ImagingPoints', pretty_print=pretty_print)
+            self.ImagingPoints.export(
+                outfile, level, namespace_, name_='ImagingPoints', pretty_print=pretty_print)
         if self.ImagingTolerances is not None:
-            self.ImagingTolerances.export(outfile, level, namespace_, name_='ImagingTolerances', pretty_print=pretty_print)
+            self.ImagingTolerances.export(
+                outfile, level, namespace_, name_='ImagingTolerances', pretty_print=pretty_print)
         if self.MotionManagementParameters is not None:
-            self.MotionManagementParameters.export(outfile, level, namespace_, name_='MotionManagementParameters', pretty_print=pretty_print)
+            self.MotionManagementParameters.export(
+                outfile, level, namespace_, name_='MotionManagementParameters', pretty_print=pretty_print)
         if self.iTools is not None:
-            self.iTools.export(outfile, level, namespace_, name_='iTools', pretty_print=pretty_print)
+            self.iTools.export(outfile, level, namespace_,
+                               name_='iTools', pretty_print=pretty_print)
+
     def build(self, node):
         already_processed = set()
         self.buildAttributes(node, node.attrib, already_processed)
@@ -6680,8 +8133,10 @@ class ImagingParameters(GeneratedsSuper):
             nodeName_ = Tag_pattern_.match(child.tag).groups()[-1]
             self.buildChildren(child, node, nodeName_)
         return self
+
     def buildAttributes(self, node, attrs, already_processed):
         pass
+
     def buildChildren(self, child_, node, nodeName_, fromsubclass_=False):
         if nodeName_ == 'DuringTreatment':
             obj_ = DuringTreatment.factory()
@@ -6742,11 +8197,13 @@ class MlcPositionsType(GeneratedsSuper):
     Positions are present or "Mlc" element is missing."""
     subclass = None
     superclass = None
+
     def __init__(self, ID=None, B=None, A=None):
         self.original_tagname_ = None
         self.ID = ID
         self.B = B
         self.A = A
+
     def factory(*args_, **kwargs_):
         if CurrentSubclassModule_ is not None:
             subclass = getSubclassFromModule_(
@@ -6758,12 +8215,19 @@ class MlcPositionsType(GeneratedsSuper):
         else:
             return MlcPositionsType(*args_, **kwargs_)
     factory = staticmethod(factory)
+
     def get_ID(self): return self.ID
+
     def set_ID(self, ID): self.ID = ID
+
     def get_B(self): return self.B
+
     def set_B(self, B): self.B = B
+
     def get_A(self): return self.A
+
     def set_A(self, A): self.A = A
+
     def hasContent_(self):
         if (
             self.ID is not None or
@@ -6773,6 +8237,7 @@ class MlcPositionsType(GeneratedsSuper):
             return True
         else:
             return False
+
     def export(self, outfile, level, namespace_='', name_='MlcPositionsType', namespacedef_='', pretty_print=True):
         if pretty_print:
             eol_ = '\n'
@@ -6781,18 +8246,23 @@ class MlcPositionsType(GeneratedsSuper):
         if self.original_tagname_ is not None:
             name_ = self.original_tagname_
         showIndent(outfile, level, pretty_print)
-        outfile.write('<%s%s%s' % (namespace_, name_, namespacedef_ and ' ' + namespacedef_ or '', ))
+        outfile.write('<%s%s%s' % (namespace_, name_,
+                                   namespacedef_ and ' ' + namespacedef_ or '', ))
         already_processed = set()
-        self.exportAttributes(outfile, level, already_processed, namespace_, name_='MlcPositionsType')
+        self.exportAttributes(outfile, level, already_processed,
+                              namespace_, name_='MlcPositionsType')
         if self.hasContent_():
             outfile.write('>%s' % (eol_, ))
-            self.exportChildren(outfile, level + 1, namespace_='', name_='MlcPositionsType', pretty_print=pretty_print)
+            self.exportChildren(outfile, level + 1, namespace_='',
+                                name_='MlcPositionsType', pretty_print=pretty_print)
             showIndent(outfile, level, pretty_print)
             outfile.write('</%s%s>%s' % (namespace_, name_, eol_))
         else:
             outfile.write('/>%s' % (eol_, ))
+
     def exportAttributes(self, outfile, level, already_processed, namespace_='', name_='MlcPositionsType'):
         pass
+
     def exportChildren(self, outfile, level, namespace_='', name_='MlcPositionsType', fromsubclass_=False, pretty_print=True):
         if pretty_print:
             eol_ = '\n'
@@ -6800,13 +8270,17 @@ class MlcPositionsType(GeneratedsSuper):
             eol_ = ''
         if self.ID is not None:
             showIndent(outfile, level, pretty_print)
-            outfile.write('<%sID>%s</%sID>%s' % (namespace_, self.gds_format_integer(self.ID, input_name='ID'), namespace_, eol_))
+            outfile.write('<%sID>%s</%sID>%s' % (namespace_,
+                                                 self.gds_format_integer(self.ID, input_name='ID'), namespace_, eol_))
         if self.B is not None:
             showIndent(outfile, level, pretty_print)
-            outfile.write('<%sB>%s</%sB>%s' % (namespace_, self.gds_encode(self.gds_format_string(quote_xml(self.B), input_name='B')), namespace_, eol_))
+            outfile.write('<%sB>%s</%sB>%s' % (namespace_, self.gds_encode(
+                self.gds_format_string(quote_xml(self.B), input_name='B')), namespace_, eol_))
         if self.A is not None:
             showIndent(outfile, level, pretty_print)
-            outfile.write('<%sA>%s</%sA>%s' % (namespace_, self.gds_encode(self.gds_format_string(quote_xml(self.A), input_name='A')), namespace_, eol_))
+            outfile.write('<%sA>%s</%sA>%s' % (namespace_, self.gds_encode(
+                self.gds_format_string(quote_xml(self.A), input_name='A')), namespace_, eol_))
+
     def build(self, node):
         already_processed = set()
         self.buildAttributes(node, node.attrib, already_processed)
@@ -6814,8 +8288,10 @@ class MlcPositionsType(GeneratedsSuper):
             nodeName_ = Tag_pattern_.match(child.tag).groups()[-1]
             self.buildChildren(child, node, nodeName_)
         return self
+
     def buildAttributes(self, node, attrs, already_processed):
         pass
+
     def buildChildren(self, child_, node, nodeName_, fromsubclass_=False):
         if nodeName_ == 'ID':
             sval_ = child_.text
@@ -6837,14 +8313,14 @@ class MlcPositionsType(GeneratedsSuper):
 
 
 class SubBeamType(GeneratedsSuper):
-    """Indicates the start of a new "Sub" Beam Seq - sequence number of
-    the"Sub" Beam within the Group (0,1,2,...) Name = name of the
-    "Sub" Beam within the Group MaxRadTime = maximum radiation time
-    for this Sub beam (in seconds). The controller also calulates
-    the nominal radiation time. The smaller of the two values is
-    used."""
+    """Indicates the start of a new "Sub" Beam Seq - sequence number of the
+    "Sub" Beam within the Group (0,1,2,...) Name = name of the "Sub"
+    Beam within the Group MaxRadTime = maximum radiation time for
+    this Sub beam (in seconds). The controller also calulates the
+    nominal radiation time. The smaller of the two values is used."""
     subclass = None
     superclass = None
+
     def __init__(self, Seq=None, SubbeamGUID=None, Name=None, MaxRadTime=None, TrackingTrainingOnly=None):
         self.original_tagname_ = None
         self.Seq = Seq
@@ -6852,6 +8328,7 @@ class SubBeamType(GeneratedsSuper):
         self.Name = Name
         self.MaxRadTime = MaxRadTime
         self.TrackingTrainingOnly = TrackingTrainingOnly
+
     def factory(*args_, **kwargs_):
         if CurrentSubclassModule_ is not None:
             subclass = getSubclassFromModule_(
@@ -6863,16 +8340,28 @@ class SubBeamType(GeneratedsSuper):
         else:
             return SubBeamType(*args_, **kwargs_)
     factory = staticmethod(factory)
+
     def get_Seq(self): return self.Seq
+
     def set_Seq(self, Seq): self.Seq = Seq
+
     def get_SubbeamGUID(self): return self.SubbeamGUID
+
     def set_SubbeamGUID(self, SubbeamGUID): self.SubbeamGUID = SubbeamGUID
+
     def get_Name(self): return self.Name
+
     def set_Name(self, Name): self.Name = Name
+
     def get_MaxRadTime(self): return self.MaxRadTime
+
     def set_MaxRadTime(self, MaxRadTime): self.MaxRadTime = MaxRadTime
+
     def get_TrackingTrainingOnly(self): return self.TrackingTrainingOnly
-    def set_TrackingTrainingOnly(self, TrackingTrainingOnly): self.TrackingTrainingOnly = TrackingTrainingOnly
+
+    def set_TrackingTrainingOnly(
+        self, TrackingTrainingOnly): self.TrackingTrainingOnly = TrackingTrainingOnly
+
     def hasContent_(self):
         if (
             self.Seq is not None or
@@ -6884,6 +8373,7 @@ class SubBeamType(GeneratedsSuper):
             return True
         else:
             return False
+
     def export(self, outfile, level, namespace_='', name_='SubBeamType', namespacedef_='', pretty_print=True):
         if pretty_print:
             eol_ = '\n'
@@ -6892,18 +8382,23 @@ class SubBeamType(GeneratedsSuper):
         if self.original_tagname_ is not None:
             name_ = self.original_tagname_
         showIndent(outfile, level, pretty_print)
-        outfile.write('<%s%s%s' % (namespace_, name_, namespacedef_ and ' ' + namespacedef_ or '', ))
+        outfile.write('<%s%s%s' % (namespace_, name_,
+                                   namespacedef_ and ' ' + namespacedef_ or '', ))
         already_processed = set()
-        self.exportAttributes(outfile, level, already_processed, namespace_, name_='SubBeamType')
+        self.exportAttributes(
+            outfile, level, already_processed, namespace_, name_='SubBeamType')
         if self.hasContent_():
             outfile.write('>%s' % (eol_, ))
-            self.exportChildren(outfile, level + 1, namespace_='', name_='SubBeamType', pretty_print=pretty_print)
+            self.exportChildren(outfile, level + 1, namespace_='',
+                                name_='SubBeamType', pretty_print=pretty_print)
             showIndent(outfile, level, pretty_print)
             outfile.write('</%s%s>%s' % (namespace_, name_, eol_))
         else:
             outfile.write('/>%s' % (eol_, ))
+
     def exportAttributes(self, outfile, level, already_processed, namespace_='', name_='SubBeamType'):
         pass
+
     def exportChildren(self, outfile, level, namespace_='', name_='SubBeamType', fromsubclass_=False, pretty_print=True):
         if pretty_print:
             eol_ = '\n'
@@ -6911,19 +8406,25 @@ class SubBeamType(GeneratedsSuper):
             eol_ = ''
         if self.Seq is not None:
             showIndent(outfile, level, pretty_print)
-            outfile.write('<%sSeq>%s</%sSeq>%s' % (namespace_, self.gds_format_integer(self.Seq, input_name='Seq'), namespace_, eol_))
+            outfile.write('<%sSeq>%s</%sSeq>%s' % (namespace_,
+                                                   self.gds_format_integer(self.Seq, input_name='Seq'), namespace_, eol_))
         if self.SubbeamGUID is not None:
             showIndent(outfile, level, pretty_print)
-            outfile.write('<%sSubbeamGUID>%s</%sSubbeamGUID>%s' % (namespace_, self.gds_encode(self.gds_format_string(quote_xml(self.SubbeamGUID), input_name='SubbeamGUID')), namespace_, eol_))
+            outfile.write('<%sSubbeamGUID>%s</%sSubbeamGUID>%s' % (namespace_, self.gds_encode(
+                self.gds_format_string(quote_xml(self.SubbeamGUID), input_name='SubbeamGUID')), namespace_, eol_))
         if self.Name is not None:
             showIndent(outfile, level, pretty_print)
-            outfile.write('<%sName>%s</%sName>%s' % (namespace_, self.gds_encode(self.gds_format_string(quote_xml(self.Name), input_name='Name')), namespace_, eol_))
+            outfile.write('<%sName>%s</%sName>%s' % (namespace_, self.gds_encode(
+                self.gds_format_string(quote_xml(self.Name), input_name='Name')), namespace_, eol_))
         if self.MaxRadTime is not None:
             showIndent(outfile, level, pretty_print)
-            outfile.write('<%sMaxRadTime>%s</%sMaxRadTime>%s' % (namespace_, self.gds_format_double(self.MaxRadTime, input_name='MaxRadTime'), namespace_, eol_))
+            outfile.write('<%sMaxRadTime>%s</%sMaxRadTime>%s' % (namespace_,
+                                                                 self.gds_format_double(self.MaxRadTime, input_name='MaxRadTime'), namespace_, eol_))
         if self.TrackingTrainingOnly is not None:
             showIndent(outfile, level, pretty_print)
-            outfile.write('<%sTrackingTrainingOnly>%s</%sTrackingTrainingOnly>%s' % (namespace_, self.gds_format_boolean(self.TrackingTrainingOnly, input_name='TrackingTrainingOnly'), namespace_, eol_))
+            outfile.write('<%sTrackingTrainingOnly>%s</%sTrackingTrainingOnly>%s' % (namespace_,
+                                                                                     self.gds_format_boolean(self.TrackingTrainingOnly, input_name='TrackingTrainingOnly'), namespace_, eol_))
+
     def build(self, node):
         already_processed = set()
         self.buildAttributes(node, node.attrib, already_processed)
@@ -6931,8 +8432,10 @@ class SubBeamType(GeneratedsSuper):
             nodeName_ = Tag_pattern_.match(child.tag).groups()[-1]
             self.buildChildren(child, node, nodeName_)
         return self
+
     def buildAttributes(self, node, attrs, already_processed):
         pass
+
     def buildChildren(self, child_, node, nodeName_, fromsubclass_=False):
         if nodeName_ == 'Seq':
             sval_ = child_.text
@@ -6944,7 +8447,8 @@ class SubBeamType(GeneratedsSuper):
             self.Seq = ival_
         elif nodeName_ == 'SubbeamGUID':
             SubbeamGUID_ = child_.text
-            SubbeamGUID_ = self.gds_validate_string(SubbeamGUID_, node, 'SubbeamGUID')
+            SubbeamGUID_ = self.gds_validate_string(
+                SubbeamGUID_, node, 'SubbeamGUID')
             self.SubbeamGUID = SubbeamGUID_
         elif nodeName_ == 'Name':
             Name_ = child_.text
@@ -6966,55 +8470,94 @@ class SubBeamType(GeneratedsSuper):
                 ival_ = False
             else:
                 raise_parse_error(child_, 'requires boolean')
-            ival_ = self.gds_validate_boolean(ival_, node, 'TrackingTrainingOnly')
+            ival_ = self.gds_validate_boolean(
+                ival_, node, 'TrackingTrainingOnly')
             self.TrackingTrainingOnly = ival_
 # end class SubBeamType
 
 
 class Cp(GeneratedsSuper):
-    """A single ControlPoint General Control Point Rules: 1) Unspecified
-    (i.e. unplanned) STATIC Axes, should NOT APPEAR in ANY Control
-    Point. The Control System will not enforce any tolerance
-    restrictions on such axes. However, te Control System still will
-    ensure that these axes do not move from wherever they are placed
-    once it goes to READY. NOTE: MLC may be unspecified STATIC by
-    this rule. 2) Specified STATIC Axes, whose initial positions are
-    contained in the Beam need only appear in the First Control
-    Point. The controller will ensure that they do not move from
-    wherever they are placed once it goes to READY. 3) Specified
-    DYNAMIC Axes, whose position "program" is contained in the Beam
-    need only appear in the First Control Point and any subsequent
-    Control Point where there is a change in their position. The
-    controller will ensure that they follow their position "program"
-    during the treatment). 4) Only one independent jaw of a pair may
-    be appear in a Control Point. It is not necessary for both to
-    appear. This could occur if only one jaw is dynamic. 5) MU is
-    cumulative. From one control point to the next, it can only go
-    up or stay the same. It cannot decrease. Units: 1) Energy - A
-    unique signature for the energy of the form "dds" where dd =
-    0-99, and s = 'x', 'e', or 'h', where x -- MV X-Rays e -- MeV
-    electrons h -- Mev HDTSe- electons. k -- KV beams Examples: "6x"
-    (6 MV X-Rays) and "12e" (12 Mev electrons) and "0k" (kv beam) 2)
-    Mu - 1 MU 3) Axis Positions - 1 deg and 1 cm in Varian Internal
-    Scale 4) Dose Rate - 1 MU/min (max dose rate) First Control
-    Point Rules: 1) Must contain "Energy". 2) Must contain "Mu" = 0.
-    3) Must contain "DRate". 4) Must contain "SubBeam" Subsequent
-    Control Points: 1) Must contain "Energy" only if it is changing
-    2) Must contain "Mu" only if it is changing (i.e. not a "no
-    dose" segment). 3) Must contain "DRate" only if it is changing
-    4) Must contain axes whose positions are changing (dynamic
-    axes). 5) May not contain axes (including MLC) which were not
-    contained in the first Control Point. Name Attribute: The Name
-    Attribute is the name of an Individual Beam with a Group of
-    Beams. The presence of a name attribute indicates the start of a
-    new Individual Beam. If there is only one Beam in the Group,
+    """A single ControlPoint General Control Point Rules:
+
+    1) Unspecified (i.e. unplanned) STATIC Axes, should NOT APPEAR in
+    ANY Control Point. The Control System will not enforce any
+    tolerance restrictions on such axes. However, te Control System
+    still will ensure that these axes do not move from wherever they
+    are placed once it goes to READY. NOTE: MLC may be unspecified
+    STATIC by this rule.
+
+    2) Specified STATIC Axes, whose initial positions are contained in
+    the Beam need only appear in the First Control Point. The
+    controller will ensure that they do not move from wherever they
+    are placed once it goes to READY.
+
+    3) Specified DYNAMIC Axes, whose position "program" is contained
+    in the Beam need only appear in the First Control Point and any
+    subsequent Control Point where there is a change in their
+    position. The controller will ensure that they follow their
+    position "program" during the treatment).
+
+    4) Only one independent jaw of a pair may be appear in a Control
+    Point. It is not necessary for both to appear. This could occur if
+    only one jaw is dynamic.
+
+    5) MU is cumulative. From one control point to the next, it can
+    only go up or stay the same. It cannot decrease.
+
+    Units:
+
+    1) Energy - A unique signature for the energy of the form "dds"
+    where dd = 0-99, and s = 'x', 'e', or 'h', where x -- MV X-Rays e
+    -- MeV electrons h -- Mev HDTSe- electons. k -- KV beams Examples:
+    "6x" (6 MV X-Rays) and "12e" (12 Mev electrons) and "0k" (kv beam)
+
+    2) Mu - 1 MU
+
+    3) Axis Positions - 1 deg and 1 cm in Varian Internal Scale
+
+    4) Dose Rate - 1 MU/min (max dose rate)
+
+    First Control Point Rules:
+
+    1) Must contain "Energy".
+
+    2) Must contain "Mu" = 0.
+
+    3) Must contain "DRate".
+
+    4) Must contain "SubBeam"
+
+    Subsequent Control Points:
+
+    1) Must contain "Energy" only if it is changing
+
+    2) Must contain "Mu" only if it is changing (i.e. not a "no dose"
+    segment).
+
+    3) Must contain "DRate" only if it is changing
+
+    4) Must contain axes whose positions are changing (dynamic axes).
+
+    5) May not contain axes (including MLC) which were not contained
+    in the first Control Point.
+
+    Name Attribute:
+
+    The Name Attribute is the name of an Individual Beam with a Group
+    of Beams. The presence of a name attribute indicates the start of
+    a new Individual Beam. If there is only one Beam in the Group,
     only the 1st Cp will have the Name Attribute.
-    TreatProgressEvent: Any Control Point which is marked with a
-    "TreatProgressEvent" element causes the Control System to
-    broadcast a "TreatProgress" event. (See schema for
-    "TreatProgress" event for more details.)"""
+
+    TreatProgressEvent:
+
+    Any Control Point which is marked with a "TreatProgressEvent"
+    element causes the Control System to broadcast a "TreatProgress"
+    event. (See schema for "TreatProgress" event for more details.)
+
+    """
     subclass = None
     superclass = None
+
     def __init__(self, TreatProgressEvent=None, SubBeam=None, Energy=None, Mu=None, DRate=None, GantryRtn=None, CollRtn=None, CouchVrt=None, CouchLat=None, CouchLng=None, CouchRtn=None, CouchPit=None, CouchRol=None, Y1=None, Y2=None, X1=None, X2=None, Mlc=None, Phase=None):
         self.original_tagname_ = None
         self.TreatProgressEvent = TreatProgressEvent
@@ -7042,6 +8585,7 @@ class Cp(GeneratedsSuper):
             self.Mlc = Mlc
         self.Phase = Phase
         self.validate_doublePhase(self.Phase)
+
     def factory(*args_, **kwargs_):
         if CurrentSubclassModule_ is not None:
             subclass = getSubclassFromModule_(
@@ -7053,59 +8597,107 @@ class Cp(GeneratedsSuper):
         else:
             return Cp(*args_, **kwargs_)
     factory = staticmethod(factory)
+
     def get_TreatProgressEvent(self): return self.TreatProgressEvent
-    def set_TreatProgressEvent(self, TreatProgressEvent): self.TreatProgressEvent = TreatProgressEvent
+
+    def set_TreatProgressEvent(
+        self, TreatProgressEvent): self.TreatProgressEvent = TreatProgressEvent
+
     def get_SubBeam(self): return self.SubBeam
+
     def set_SubBeam(self, SubBeam): self.SubBeam = SubBeam
+
     def get_Energy(self): return self.Energy
+
     def set_Energy(self, Energy): self.Energy = Energy
+
     def get_Mu(self): return self.Mu
+
     def set_Mu(self, Mu): self.Mu = Mu
+
     def get_DRate(self): return self.DRate
+
     def set_DRate(self, DRate): self.DRate = DRate
+
     def get_GantryRtn(self): return self.GantryRtn
+
     def set_GantryRtn(self, GantryRtn): self.GantryRtn = GantryRtn
+
     def get_CollRtn(self): return self.CollRtn
+
     def set_CollRtn(self, CollRtn): self.CollRtn = CollRtn
+
     def get_CouchVrt(self): return self.CouchVrt
+
     def set_CouchVrt(self, CouchVrt): self.CouchVrt = CouchVrt
+
     def get_CouchLat(self): return self.CouchLat
+
     def set_CouchLat(self, CouchLat): self.CouchLat = CouchLat
+
     def get_CouchLng(self): return self.CouchLng
+
     def set_CouchLng(self, CouchLng): self.CouchLng = CouchLng
+
     def get_CouchRtn(self): return self.CouchRtn
+
     def set_CouchRtn(self, CouchRtn): self.CouchRtn = CouchRtn
+
     def get_CouchPit(self): return self.CouchPit
+
     def set_CouchPit(self, CouchPit): self.CouchPit = CouchPit
+
     def get_CouchRol(self): return self.CouchRol
+
     def set_CouchRol(self, CouchRol): self.CouchRol = CouchRol
+
     def get_Y1(self): return self.Y1
+
     def set_Y1(self, Y1): self.Y1 = Y1
+
     def get_Y2(self): return self.Y2
+
     def set_Y2(self, Y2): self.Y2 = Y2
+
     def get_X1(self): return self.X1
+
     def set_X1(self, X1): self.X1 = X1
+
     def get_X2(self): return self.X2
+
     def set_X2(self, X2): self.X2 = X2
+
     def get_Mlc(self): return self.Mlc
+
     def set_Mlc(self, Mlc): self.Mlc = Mlc
+
     def add_Mlc(self, value): self.Mlc.append(value)
+
     def insert_Mlc_at(self, index, value): self.Mlc.insert(index, value)
+
     def replace_Mlc_at(self, index, value): self.Mlc[index] = value
+
     def get_Phase(self): return self.Phase
+
     def set_Phase(self, Phase): self.Phase = Phase
+
     def validate_unsignedDouble(self, value):
         # Validate type unsignedDouble, a restriction on xs:double.
         if value is not None and Validate_simpletypes_:
             if value < 0:
-                warnings_.warn('Value "%(value)s" does not match xsd minInclusive restriction on unsignedDouble' % {"value" : value} )
+                warnings_.warn('Value "%(value)s" does not match xsd minInclusive restriction on unsignedDouble' % {
+                               "value": value})
+
     def validate_doublePhase(self, value):
         # Validate type doublePhase, a restriction on xs:double.
         if value is not None and Validate_simpletypes_:
             if value < 0:
-                warnings_.warn('Value "%(value)s" does not match xsd minInclusive restriction on doublePhase' % {"value" : value} )
+                warnings_.warn('Value "%(value)s" does not match xsd minInclusive restriction on doublePhase' % {
+                               "value": value})
             if value >= 360:
-                warnings_.warn('Value "%(value)s" does not match xsd maxExclusive restriction on doublePhase' % {"value" : value} )
+                warnings_.warn('Value "%(value)s" does not match xsd maxExclusive restriction on doublePhase' % {
+                               "value": value})
+
     def hasContent_(self):
         if (
             self.TreatProgressEvent is not None or
@@ -7131,6 +8723,7 @@ class Cp(GeneratedsSuper):
             return True
         else:
             return False
+
     def export(self, outfile, level, namespace_='', name_='Cp', namespacedef_='', pretty_print=True):
         if pretty_print:
             eol_ = '\n'
@@ -7139,18 +8732,23 @@ class Cp(GeneratedsSuper):
         if self.original_tagname_ is not None:
             name_ = self.original_tagname_
         showIndent(outfile, level, pretty_print)
-        outfile.write('<%s%s%s' % (namespace_, name_, namespacedef_ and ' ' + namespacedef_ or '', ))
+        outfile.write('<%s%s%s' % (namespace_, name_,
+                                   namespacedef_ and ' ' + namespacedef_ or '', ))
         already_processed = set()
-        self.exportAttributes(outfile, level, already_processed, namespace_, name_='Cp')
+        self.exportAttributes(
+            outfile, level, already_processed, namespace_, name_='Cp')
         if self.hasContent_():
             outfile.write('>%s' % (eol_, ))
-            self.exportChildren(outfile, level + 1, namespace_='', name_='Cp', pretty_print=pretty_print)
+            self.exportChildren(outfile, level + 1, namespace_='',
+                                name_='Cp', pretty_print=pretty_print)
             showIndent(outfile, level, pretty_print)
             outfile.write('</%s%s>%s' % (namespace_, name_, eol_))
         else:
             outfile.write('/>%s' % (eol_, ))
+
     def exportAttributes(self, outfile, level, already_processed, namespace_='', name_='Cp'):
         pass
+
     def exportChildren(self, outfile, level, namespace_='', name_='Cp', fromsubclass_=False, pretty_print=True):
         if pretty_print:
             eol_ = '\n'
@@ -7158,59 +8756,79 @@ class Cp(GeneratedsSuper):
             eol_ = ''
         if self.TreatProgressEvent is not None:
             showIndent(outfile, level, pretty_print)
-            outfile.write('<%sTreatProgressEvent>%s</%sTreatProgressEvent>%s' % (namespace_, self.gds_encode(self.gds_format_string(quote_xml(self.TreatProgressEvent), input_name='TreatProgressEvent')), namespace_, eol_))
+            outfile.write('<%sTreatProgressEvent>%s</%sTreatProgressEvent>%s' % (namespace_, self.gds_encode(
+                self.gds_format_string(quote_xml(self.TreatProgressEvent), input_name='TreatProgressEvent')), namespace_, eol_))
         if self.SubBeam is not None:
-            self.SubBeam.export(outfile, level, namespace_, name_='SubBeam', pretty_print=pretty_print)
+            self.SubBeam.export(outfile, level, namespace_,
+                                name_='SubBeam', pretty_print=pretty_print)
         if self.Energy is not None:
             showIndent(outfile, level, pretty_print)
-            outfile.write('<%sEnergy>%s</%sEnergy>%s' % (namespace_, self.gds_encode(self.gds_format_string(quote_xml(self.Energy), input_name='Energy')), namespace_, eol_))
+            outfile.write('<%sEnergy>%s</%sEnergy>%s' % (namespace_, self.gds_encode(
+                self.gds_format_string(quote_xml(self.Energy), input_name='Energy')), namespace_, eol_))
         if self.Mu is not None:
             showIndent(outfile, level, pretty_print)
-            outfile.write('<%sMu>%s</%sMu>%s' % (namespace_, self.gds_format_double(self.Mu, input_name='Mu'), namespace_, eol_))
+            outfile.write('<%sMu>%s</%sMu>%s' % (namespace_,
+                                                 self.gds_format_double(self.Mu, input_name='Mu'), namespace_, eol_))
         if self.DRate is not None:
             showIndent(outfile, level, pretty_print)
-            outfile.write('<%sDRate>%s</%sDRate>%s' % (namespace_, self.gds_format_double(self.DRate, input_name='DRate'), namespace_, eol_))
+            outfile.write('<%sDRate>%s</%sDRate>%s' % (namespace_,
+                                                       self.gds_format_double(self.DRate, input_name='DRate'), namespace_, eol_))
         if self.GantryRtn is not None:
             showIndent(outfile, level, pretty_print)
-            outfile.write('<%sGantryRtn>%s</%sGantryRtn>%s' % (namespace_, self.gds_format_double(self.GantryRtn, input_name='GantryRtn'), namespace_, eol_))
+            outfile.write('<%sGantryRtn>%s</%sGantryRtn>%s' % (namespace_,
+                                                               self.gds_format_double(self.GantryRtn, input_name='GantryRtn'), namespace_, eol_))
         if self.CollRtn is not None:
             showIndent(outfile, level, pretty_print)
-            outfile.write('<%sCollRtn>%s</%sCollRtn>%s' % (namespace_, self.gds_format_double(self.CollRtn, input_name='CollRtn'), namespace_, eol_))
+            outfile.write('<%sCollRtn>%s</%sCollRtn>%s' % (namespace_,
+                                                           self.gds_format_double(self.CollRtn, input_name='CollRtn'), namespace_, eol_))
         if self.CouchVrt is not None:
             showIndent(outfile, level, pretty_print)
-            outfile.write('<%sCouchVrt>%s</%sCouchVrt>%s' % (namespace_, self.gds_format_double(self.CouchVrt, input_name='CouchVrt'), namespace_, eol_))
+            outfile.write('<%sCouchVrt>%s</%sCouchVrt>%s' % (namespace_,
+                                                             self.gds_format_double(self.CouchVrt, input_name='CouchVrt'), namespace_, eol_))
         if self.CouchLat is not None:
             showIndent(outfile, level, pretty_print)
-            outfile.write('<%sCouchLat>%s</%sCouchLat>%s' % (namespace_, self.gds_format_double(self.CouchLat, input_name='CouchLat'), namespace_, eol_))
+            outfile.write('<%sCouchLat>%s</%sCouchLat>%s' % (namespace_,
+                                                             self.gds_format_double(self.CouchLat, input_name='CouchLat'), namespace_, eol_))
         if self.CouchLng is not None:
             showIndent(outfile, level, pretty_print)
-            outfile.write('<%sCouchLng>%s</%sCouchLng>%s' % (namespace_, self.gds_format_double(self.CouchLng, input_name='CouchLng'), namespace_, eol_))
+            outfile.write('<%sCouchLng>%s</%sCouchLng>%s' % (namespace_,
+                                                             self.gds_format_double(self.CouchLng, input_name='CouchLng'), namespace_, eol_))
         if self.CouchRtn is not None:
             showIndent(outfile, level, pretty_print)
-            outfile.write('<%sCouchRtn>%s</%sCouchRtn>%s' % (namespace_, self.gds_format_double(self.CouchRtn, input_name='CouchRtn'), namespace_, eol_))
+            outfile.write('<%sCouchRtn>%s</%sCouchRtn>%s' % (namespace_,
+                                                             self.gds_format_double(self.CouchRtn, input_name='CouchRtn'), namespace_, eol_))
         if self.CouchPit is not None:
             showIndent(outfile, level, pretty_print)
-            outfile.write('<%sCouchPit>%s</%sCouchPit>%s' % (namespace_, self.gds_format_double(self.CouchPit, input_name='CouchPit'), namespace_, eol_))
+            outfile.write('<%sCouchPit>%s</%sCouchPit>%s' % (namespace_,
+                                                             self.gds_format_double(self.CouchPit, input_name='CouchPit'), namespace_, eol_))
         if self.CouchRol is not None:
             showIndent(outfile, level, pretty_print)
-            outfile.write('<%sCouchRol>%s</%sCouchRol>%s' % (namespace_, self.gds_format_double(self.CouchRol, input_name='CouchRol'), namespace_, eol_))
+            outfile.write('<%sCouchRol>%s</%sCouchRol>%s' % (namespace_,
+                                                             self.gds_format_double(self.CouchRol, input_name='CouchRol'), namespace_, eol_))
         if self.Y1 is not None:
             showIndent(outfile, level, pretty_print)
-            outfile.write('<%sY1>%s</%sY1>%s' % (namespace_, self.gds_format_double(self.Y1, input_name='Y1'), namespace_, eol_))
+            outfile.write('<%sY1>%s</%sY1>%s' % (namespace_,
+                                                 self.gds_format_double(self.Y1, input_name='Y1'), namespace_, eol_))
         if self.Y2 is not None:
             showIndent(outfile, level, pretty_print)
-            outfile.write('<%sY2>%s</%sY2>%s' % (namespace_, self.gds_format_double(self.Y2, input_name='Y2'), namespace_, eol_))
+            outfile.write('<%sY2>%s</%sY2>%s' % (namespace_,
+                                                 self.gds_format_double(self.Y2, input_name='Y2'), namespace_, eol_))
         if self.X1 is not None:
             showIndent(outfile, level, pretty_print)
-            outfile.write('<%sX1>%s</%sX1>%s' % (namespace_, self.gds_format_double(self.X1, input_name='X1'), namespace_, eol_))
+            outfile.write('<%sX1>%s</%sX1>%s' % (namespace_,
+                                                 self.gds_format_double(self.X1, input_name='X1'), namespace_, eol_))
         if self.X2 is not None:
             showIndent(outfile, level, pretty_print)
-            outfile.write('<%sX2>%s</%sX2>%s' % (namespace_, self.gds_format_double(self.X2, input_name='X2'), namespace_, eol_))
+            outfile.write('<%sX2>%s</%sX2>%s' % (namespace_,
+                                                 self.gds_format_double(self.X2, input_name='X2'), namespace_, eol_))
         for Mlc_ in self.Mlc:
-            Mlc_.export(outfile, level, namespace_, name_='Mlc', pretty_print=pretty_print)
+            Mlc_.export(outfile, level, namespace_,
+                        name_='Mlc', pretty_print=pretty_print)
         if self.Phase is not None:
             showIndent(outfile, level, pretty_print)
-            outfile.write('<%sPhase>%s</%sPhase>%s' % (namespace_, self.gds_format_double(self.Phase, input_name='Phase'), namespace_, eol_))
+            outfile.write('<%sPhase>%s</%sPhase>%s' % (namespace_,
+                                                       self.gds_format_double(self.Phase, input_name='Phase'), namespace_, eol_))
+
     def build(self, node):
         already_processed = set()
         self.buildAttributes(node, node.attrib, already_processed)
@@ -7218,12 +8836,15 @@ class Cp(GeneratedsSuper):
             nodeName_ = Tag_pattern_.match(child.tag).groups()[-1]
             self.buildChildren(child, node, nodeName_)
         return self
+
     def buildAttributes(self, node, attrs, already_processed):
         pass
+
     def buildChildren(self, child_, node, nodeName_, fromsubclass_=False):
         if nodeName_ == 'TreatProgressEvent':
             TreatProgressEvent_ = child_.text
-            TreatProgressEvent_ = self.gds_validate_string(TreatProgressEvent_, node, 'TreatProgressEvent')
+            TreatProgressEvent_ = self.gds_validate_string(
+                TreatProgressEvent_, node, 'TreatProgressEvent')
             self.TreatProgressEvent = TreatProgressEvent_
         elif nodeName_ == 'SubBeam':
             obj_ = SubBeamType.factory()
@@ -7372,12 +8993,14 @@ class ControlPoints(GeneratedsSuper):
     """Segment Treatment Table Cp - A single control point"""
     subclass = None
     superclass = None
+
     def __init__(self, Cp=None):
         self.original_tagname_ = None
         if Cp is None:
             self.Cp = []
         else:
             self.Cp = Cp
+
     def factory(*args_, **kwargs_):
         if CurrentSubclassModule_ is not None:
             subclass = getSubclassFromModule_(
@@ -7389,11 +9012,17 @@ class ControlPoints(GeneratedsSuper):
         else:
             return ControlPoints(*args_, **kwargs_)
     factory = staticmethod(factory)
+
     def get_Cp(self): return self.Cp
+
     def set_Cp(self, Cp): self.Cp = Cp
+
     def add_Cp(self, value): self.Cp.append(value)
+
     def insert_Cp_at(self, index, value): self.Cp.insert(index, value)
+
     def replace_Cp_at(self, index, value): self.Cp[index] = value
+
     def hasContent_(self):
         if (
             self.Cp
@@ -7401,6 +9030,7 @@ class ControlPoints(GeneratedsSuper):
             return True
         else:
             return False
+
     def export(self, outfile, level, namespace_='', name_='ControlPoints', namespacedef_='', pretty_print=True):
         if pretty_print:
             eol_ = '\n'
@@ -7409,25 +9039,32 @@ class ControlPoints(GeneratedsSuper):
         if self.original_tagname_ is not None:
             name_ = self.original_tagname_
         showIndent(outfile, level, pretty_print)
-        outfile.write('<%s%s%s' % (namespace_, name_, namespacedef_ and ' ' + namespacedef_ or '', ))
+        outfile.write('<%s%s%s' % (namespace_, name_,
+                                   namespacedef_ and ' ' + namespacedef_ or '', ))
         already_processed = set()
-        self.exportAttributes(outfile, level, already_processed, namespace_, name_='ControlPoints')
+        self.exportAttributes(outfile, level, already_processed,
+                              namespace_, name_='ControlPoints')
         if self.hasContent_():
             outfile.write('>%s' % (eol_, ))
-            self.exportChildren(outfile, level + 1, namespace_='', name_='ControlPoints', pretty_print=pretty_print)
+            self.exportChildren(outfile, level + 1, namespace_='',
+                                name_='ControlPoints', pretty_print=pretty_print)
             showIndent(outfile, level, pretty_print)
             outfile.write('</%s%s>%s' % (namespace_, name_, eol_))
         else:
             outfile.write('/>%s' % (eol_, ))
+
     def exportAttributes(self, outfile, level, already_processed, namespace_='', name_='ControlPoints'):
         pass
+
     def exportChildren(self, outfile, level, namespace_='', name_='ControlPoints', fromsubclass_=False, pretty_print=True):
         if pretty_print:
             eol_ = '\n'
         else:
             eol_ = ''
         for Cp_ in self.Cp:
-            Cp_.export(outfile, level, namespace_, name_='Cp', pretty_print=pretty_print)
+            Cp_.export(outfile, level, namespace_,
+                       name_='Cp', pretty_print=pretty_print)
+
     def build(self, node):
         already_processed = set()
         self.buildAttributes(node, node.attrib, already_processed)
@@ -7435,8 +9072,10 @@ class ControlPoints(GeneratedsSuper):
             nodeName_ = Tag_pattern_.match(child.tag).groups()[-1]
             self.buildChildren(child, node, nodeName_)
         return self
+
     def buildAttributes(self, node, attrs, already_processed):
         pass
+
     def buildChildren(self, child_, node, nodeName_, fromsubclass_=False):
         if nodeName_ == 'Cp':
             obj_ = Cp.factory()
@@ -7451,12 +9090,14 @@ class ConformityType(GeneratedsSuper):
     measure."""
     subclass = None
     superclass = None
+
     def __init__(self, OverExposure=None, UnderExposure=None):
         self.original_tagname_ = None
         self.OverExposure = OverExposure
         self.validate_unsignedDouble(self.OverExposure)
         self.UnderExposure = UnderExposure
         self.validate_unsignedDouble(self.UnderExposure)
+
     def factory(*args_, **kwargs_):
         if CurrentSubclassModule_ is not None:
             subclass = getSubclassFromModule_(
@@ -7468,15 +9109,23 @@ class ConformityType(GeneratedsSuper):
         else:
             return ConformityType(*args_, **kwargs_)
     factory = staticmethod(factory)
+
     def get_OverExposure(self): return self.OverExposure
+
     def set_OverExposure(self, OverExposure): self.OverExposure = OverExposure
+
     def get_UnderExposure(self): return self.UnderExposure
-    def set_UnderExposure(self, UnderExposure): self.UnderExposure = UnderExposure
+
+    def set_UnderExposure(
+        self, UnderExposure): self.UnderExposure = UnderExposure
+
     def validate_unsignedDouble(self, value):
         # Validate type unsignedDouble, a restriction on xs:double.
         if value is not None and Validate_simpletypes_:
             if value < 0:
-                warnings_.warn('Value "%(value)s" does not match xsd minInclusive restriction on unsignedDouble' % {"value" : value} )
+                warnings_.warn('Value "%(value)s" does not match xsd minInclusive restriction on unsignedDouble' % {
+                               "value": value})
+
     def hasContent_(self):
         if (
             self.OverExposure is not None or
@@ -7485,6 +9134,7 @@ class ConformityType(GeneratedsSuper):
             return True
         else:
             return False
+
     def export(self, outfile, level, namespace_='', name_='ConformityType', namespacedef_='', pretty_print=True):
         if pretty_print:
             eol_ = '\n'
@@ -7493,18 +9143,23 @@ class ConformityType(GeneratedsSuper):
         if self.original_tagname_ is not None:
             name_ = self.original_tagname_
         showIndent(outfile, level, pretty_print)
-        outfile.write('<%s%s%s' % (namespace_, name_, namespacedef_ and ' ' + namespacedef_ or '', ))
+        outfile.write('<%s%s%s' % (namespace_, name_,
+                                   namespacedef_ and ' ' + namespacedef_ or '', ))
         already_processed = set()
-        self.exportAttributes(outfile, level, already_processed, namespace_, name_='ConformityType')
+        self.exportAttributes(outfile, level, already_processed,
+                              namespace_, name_='ConformityType')
         if self.hasContent_():
             outfile.write('>%s' % (eol_, ))
-            self.exportChildren(outfile, level + 1, namespace_='', name_='ConformityType', pretty_print=pretty_print)
+            self.exportChildren(outfile, level + 1, namespace_='',
+                                name_='ConformityType', pretty_print=pretty_print)
             showIndent(outfile, level, pretty_print)
             outfile.write('</%s%s>%s' % (namespace_, name_, eol_))
         else:
             outfile.write('/>%s' % (eol_, ))
+
     def exportAttributes(self, outfile, level, already_processed, namespace_='', name_='ConformityType'):
         pass
+
     def exportChildren(self, outfile, level, namespace_='', name_='ConformityType', fromsubclass_=False, pretty_print=True):
         if pretty_print:
             eol_ = '\n'
@@ -7512,10 +9167,13 @@ class ConformityType(GeneratedsSuper):
             eol_ = ''
         if self.OverExposure is not None:
             showIndent(outfile, level, pretty_print)
-            outfile.write('<%sOverExposure>%s</%sOverExposure>%s' % (namespace_, self.gds_format_double(self.OverExposure, input_name='OverExposure'), namespace_, eol_))
+            outfile.write('<%sOverExposure>%s</%sOverExposure>%s' % (namespace_,
+                                                                     self.gds_format_double(self.OverExposure, input_name='OverExposure'), namespace_, eol_))
         if self.UnderExposure is not None:
             showIndent(outfile, level, pretty_print)
-            outfile.write('<%sUnderExposure>%s</%sUnderExposure>%s' % (namespace_, self.gds_format_double(self.UnderExposure, input_name='UnderExposure'), namespace_, eol_))
+            outfile.write('<%sUnderExposure>%s</%sUnderExposure>%s' % (namespace_,
+                                                                       self.gds_format_double(self.UnderExposure, input_name='UnderExposure'), namespace_, eol_))
+
     def build(self, node):
         already_processed = set()
         self.buildAttributes(node, node.attrib, already_processed)
@@ -7523,8 +9181,10 @@ class ConformityType(GeneratedsSuper):
             nodeName_ = Tag_pattern_.match(child.tag).groups()[-1]
             self.buildChildren(child, node, nodeName_)
         return self
+
     def buildAttributes(self, node, attrs, already_processed):
         pass
+
     def buildChildren(self, child_, node, nodeName_, fromsubclass_=False):
         if nodeName_ == 'OverExposure':
             sval_ = child_.text
@@ -7553,10 +9213,12 @@ class TrackingAxis(GeneratedsSuper):
     """Define the axis that is allowed to track."""
     subclass = None
     superclass = None
+
     def __init__(self, Tol=None, MotionType=None):
         self.original_tagname_ = None
         self.Tol = _cast(None, Tol)
         self.MotionType = _cast(None, MotionType)
+
     def factory(*args_, **kwargs_):
         if CurrentSubclassModule_ is not None:
             subclass = getSubclassFromModule_(
@@ -7568,15 +9230,22 @@ class TrackingAxis(GeneratedsSuper):
         else:
             return TrackingAxis(*args_, **kwargs_)
     factory = staticmethod(factory)
+
     def get_Tol(self): return self.Tol
+
     def set_Tol(self, Tol): self.Tol = Tol
+
     def get_MotionType(self): return self.MotionType
+
     def set_MotionType(self, MotionType): self.MotionType = MotionType
+
     def validate_unsignedDouble(self, value):
         # Validate type unsignedDouble, a restriction on xs:double.
         if value is not None and Validate_simpletypes_:
             if value < 0:
-                warnings_.warn('Value "%(value)s" does not match xsd minInclusive restriction on unsignedDouble' % {"value" : value} )
+                warnings_.warn('Value "%(value)s" does not match xsd minInclusive restriction on unsignedDouble' % {
+                               "value": value})
+
     def validate_TrackingMotionType(self, value):
         # Validate type TrackingMotionType, a restriction on xs:string.
         if value is not None and Validate_simpletypes_:
@@ -7588,7 +9257,9 @@ class TrackingAxis(GeneratedsSuper):
                     enumeration_respectee = True
                     break
             if not enumeration_respectee:
-                warnings_.warn('Value "%(value)s" does not match xsd enumeration restriction on TrackingMotionType' % {"value" : value.encode("utf-8")} )
+                warnings_.warn('Value "%(value)s" does not match xsd enumeration restriction on TrackingMotionType' % {
+                               "value": value.encode("utf-8")})
+
     def hasContent_(self):
         if (
 
@@ -7596,6 +9267,7 @@ class TrackingAxis(GeneratedsSuper):
             return True
         else:
             return False
+
     def export(self, outfile, level, namespace_='', name_='TrackingAxis', namespacedef_='', pretty_print=True):
         if pretty_print:
             eol_ = '\n'
@@ -7604,15 +9276,19 @@ class TrackingAxis(GeneratedsSuper):
         if self.original_tagname_ is not None:
             name_ = self.original_tagname_
         showIndent(outfile, level, pretty_print)
-        outfile.write('<%s%s%s' % (namespace_, name_, namespacedef_ and ' ' + namespacedef_ or '', ))
+        outfile.write('<%s%s%s' % (namespace_, name_,
+                                   namespacedef_ and ' ' + namespacedef_ or '', ))
         already_processed = set()
-        self.exportAttributes(outfile, level, already_processed, namespace_, name_='TrackingAxis')
+        self.exportAttributes(outfile, level, already_processed,
+                              namespace_, name_='TrackingAxis')
         if self.hasContent_():
             outfile.write('>%s' % (eol_, ))
-            self.exportChildren(outfile, level + 1, namespace_='', name_='TrackingAxis', pretty_print=pretty_print)
+            self.exportChildren(outfile, level + 1, namespace_='',
+                                name_='TrackingAxis', pretty_print=pretty_print)
             outfile.write('</%s%s>%s' % (namespace_, name_, eol_))
         else:
             outfile.write('/>%s' % (eol_, ))
+
     def exportAttributes(self, outfile, level, already_processed, namespace_='', name_='TrackingAxis'):
         if self.Tol is not None and 'Tol' not in already_processed:
             already_processed.add('Tol')
@@ -7620,8 +9296,10 @@ class TrackingAxis(GeneratedsSuper):
         if self.MotionType is not None and 'MotionType' not in already_processed:
             already_processed.add('MotionType')
             outfile.write(' MotionType=%s' % (quote_attrib(self.MotionType), ))
+
     def exportChildren(self, outfile, level, namespace_='', name_='TrackingAxis', fromsubclass_=False, pretty_print=True):
         pass
+
     def build(self, node):
         already_processed = set()
         self.buildAttributes(node, node.attrib, already_processed)
@@ -7629,6 +9307,7 @@ class TrackingAxis(GeneratedsSuper):
             nodeName_ = Tag_pattern_.match(child.tag).groups()[-1]
             self.buildChildren(child, node, nodeName_)
         return self
+
     def buildAttributes(self, node, attrs, already_processed):
         value = find_attr_value_('Tol', node)
         if value is not None and 'Tol' not in already_processed:
@@ -7637,12 +9316,15 @@ class TrackingAxis(GeneratedsSuper):
                 self.Tol = float(value)
             except ValueError as exp:
                 raise ValueError('Bad float/double attribute (Tol): %s' % exp)
-            self.validate_unsignedDouble(self.Tol)    # validate type unsignedDouble
+            # validate type unsignedDouble
+            self.validate_unsignedDouble(self.Tol)
         value = find_attr_value_('MotionType', node)
         if value is not None and 'MotionType' not in already_processed:
             already_processed.add('MotionType')
             self.MotionType = value
-            self.validate_TrackingMotionType(self.MotionType)    # validate type TrackingMotionType
+            # validate type TrackingMotionType
+            self.validate_TrackingMotionType(self.MotionType)
+
     def buildChildren(self, child_, node, nodeName_, fromsubclass_=False):
         pass
 # end class TrackingAxis
@@ -7656,6 +9338,7 @@ class TrackingMLC(GeneratedsSuper):
     up to the given range in Y direction."""
     subclass = None
     superclass = None
+
     def __init__(self, MotionType=None, ID=None, OpenUpCarriages=None, ExpectedTargetSpeed=None, YTargetRange=None):
         self.original_tagname_ = None
         self.MotionType = _cast(None, MotionType)
@@ -7663,6 +9346,7 @@ class TrackingMLC(GeneratedsSuper):
         self.OpenUpCarriages = _cast(None, OpenUpCarriages)
         self.ExpectedTargetSpeed = _cast(None, ExpectedTargetSpeed)
         self.YTargetRange = _cast(None, YTargetRange)
+
     def factory(*args_, **kwargs_):
         if CurrentSubclassModule_ is not None:
             subclass = getSubclassFromModule_(
@@ -7674,16 +9358,29 @@ class TrackingMLC(GeneratedsSuper):
         else:
             return TrackingMLC(*args_, **kwargs_)
     factory = staticmethod(factory)
+
     def get_MotionType(self): return self.MotionType
+
     def set_MotionType(self, MotionType): self.MotionType = MotionType
+
     def get_ID(self): return self.ID
+
     def set_ID(self, ID): self.ID = ID
+
     def get_OpenUpCarriages(self): return self.OpenUpCarriages
-    def set_OpenUpCarriages(self, OpenUpCarriages): self.OpenUpCarriages = OpenUpCarriages
+
+    def set_OpenUpCarriages(
+        self, OpenUpCarriages): self.OpenUpCarriages = OpenUpCarriages
+
     def get_ExpectedTargetSpeed(self): return self.ExpectedTargetSpeed
-    def set_ExpectedTargetSpeed(self, ExpectedTargetSpeed): self.ExpectedTargetSpeed = ExpectedTargetSpeed
+
+    def set_ExpectedTargetSpeed(
+        self, ExpectedTargetSpeed): self.ExpectedTargetSpeed = ExpectedTargetSpeed
+
     def get_YTargetRange(self): return self.YTargetRange
+
     def set_YTargetRange(self, YTargetRange): self.YTargetRange = YTargetRange
+
     def validate_TrackingMotionType(self, value):
         # Validate type TrackingMotionType, a restriction on xs:string.
         if value is not None and Validate_simpletypes_:
@@ -7695,12 +9392,16 @@ class TrackingMLC(GeneratedsSuper):
                     enumeration_respectee = True
                     break
             if not enumeration_respectee:
-                warnings_.warn('Value "%(value)s" does not match xsd enumeration restriction on TrackingMotionType' % {"value" : value.encode("utf-8")} )
+                warnings_.warn('Value "%(value)s" does not match xsd enumeration restriction on TrackingMotionType' % {
+                               "value": value.encode("utf-8")})
+
     def validate_unsignedDouble(self, value):
         # Validate type unsignedDouble, a restriction on xs:double.
         if value is not None and Validate_simpletypes_:
             if value < 0:
-                warnings_.warn('Value "%(value)s" does not match xsd minInclusive restriction on unsignedDouble' % {"value" : value} )
+                warnings_.warn('Value "%(value)s" does not match xsd minInclusive restriction on unsignedDouble' % {
+                               "value": value})
+
     def hasContent_(self):
         if (
 
@@ -7708,6 +9409,7 @@ class TrackingMLC(GeneratedsSuper):
             return True
         else:
             return False
+
     def export(self, outfile, level, namespace_='', name_='TrackingMLC', namespacedef_='', pretty_print=True):
         if pretty_print:
             eol_ = '\n'
@@ -7716,33 +9418,43 @@ class TrackingMLC(GeneratedsSuper):
         if self.original_tagname_ is not None:
             name_ = self.original_tagname_
         showIndent(outfile, level, pretty_print)
-        outfile.write('<%s%s%s' % (namespace_, name_, namespacedef_ and ' ' + namespacedef_ or '', ))
+        outfile.write('<%s%s%s' % (namespace_, name_,
+                                   namespacedef_ and ' ' + namespacedef_ or '', ))
         already_processed = set()
-        self.exportAttributes(outfile, level, already_processed, namespace_, name_='TrackingMLC')
+        self.exportAttributes(
+            outfile, level, already_processed, namespace_, name_='TrackingMLC')
         if self.hasContent_():
             outfile.write('>%s' % (eol_, ))
-            self.exportChildren(outfile, level + 1, namespace_='', name_='TrackingMLC', pretty_print=pretty_print)
+            self.exportChildren(outfile, level + 1, namespace_='',
+                                name_='TrackingMLC', pretty_print=pretty_print)
             outfile.write('</%s%s>%s' % (namespace_, name_, eol_))
         else:
             outfile.write('/>%s' % (eol_, ))
+
     def exportAttributes(self, outfile, level, already_processed, namespace_='', name_='TrackingMLC'):
         if self.MotionType is not None and 'MotionType' not in already_processed:
             already_processed.add('MotionType')
             outfile.write(' MotionType=%s' % (quote_attrib(self.MotionType), ))
         if self.ID is not None and 'ID' not in already_processed:
             already_processed.add('ID')
-            outfile.write(' ID="%s"' % self.gds_format_integer(self.ID, input_name='ID'))
+            outfile.write(' ID="%s"' %
+                          self.gds_format_integer(self.ID, input_name='ID'))
         if self.OpenUpCarriages is not None and 'OpenUpCarriages' not in already_processed:
             already_processed.add('OpenUpCarriages')
-            outfile.write(' OpenUpCarriages=%s' % (quote_attrib(self.OpenUpCarriages), ))
+            outfile.write(' OpenUpCarriages=%s' %
+                          (quote_attrib(self.OpenUpCarriages), ))
         if self.ExpectedTargetSpeed is not None and 'ExpectedTargetSpeed' not in already_processed:
             already_processed.add('ExpectedTargetSpeed')
-            outfile.write(' ExpectedTargetSpeed=%s' % (quote_attrib(self.ExpectedTargetSpeed), ))
+            outfile.write(' ExpectedTargetSpeed=%s' %
+                          (quote_attrib(self.ExpectedTargetSpeed), ))
         if self.YTargetRange is not None and 'YTargetRange' not in already_processed:
             already_processed.add('YTargetRange')
-            outfile.write(' YTargetRange=%s' % (quote_attrib(self.YTargetRange), ))
+            outfile.write(' YTargetRange=%s' %
+                          (quote_attrib(self.YTargetRange), ))
+
     def exportChildren(self, outfile, level, namespace_='', name_='TrackingMLC', fromsubclass_=False, pretty_print=True):
         pass
+
     def build(self, node):
         already_processed = set()
         self.buildAttributes(node, node.attrib, already_processed)
@@ -7750,12 +9462,14 @@ class TrackingMLC(GeneratedsSuper):
             nodeName_ = Tag_pattern_.match(child.tag).groups()[-1]
             self.buildChildren(child, node, nodeName_)
         return self
+
     def buildAttributes(self, node, attrs, already_processed):
         value = find_attr_value_('MotionType', node)
         if value is not None and 'MotionType' not in already_processed:
             already_processed.add('MotionType')
             self.MotionType = value
-            self.validate_TrackingMotionType(self.MotionType)    # validate type TrackingMotionType
+            # validate type TrackingMotionType
+            self.validate_TrackingMotionType(self.MotionType)
         value = find_attr_value_('ID', node)
         if value is not None and 'ID' not in already_processed:
             already_processed.add('ID')
@@ -7769,24 +9483,31 @@ class TrackingMLC(GeneratedsSuper):
             try:
                 self.OpenUpCarriages = float(value)
             except ValueError as exp:
-                raise ValueError('Bad float/double attribute (OpenUpCarriages): %s' % exp)
-            self.validate_unsignedDouble(self.OpenUpCarriages)    # validate type unsignedDouble
+                raise ValueError(
+                    'Bad float/double attribute (OpenUpCarriages): %s' % exp)
+            # validate type unsignedDouble
+            self.validate_unsignedDouble(self.OpenUpCarriages)
         value = find_attr_value_('ExpectedTargetSpeed', node)
         if value is not None and 'ExpectedTargetSpeed' not in already_processed:
             already_processed.add('ExpectedTargetSpeed')
             try:
                 self.ExpectedTargetSpeed = float(value)
             except ValueError as exp:
-                raise ValueError('Bad float/double attribute (ExpectedTargetSpeed): %s' % exp)
-            self.validate_unsignedDouble(self.ExpectedTargetSpeed)    # validate type unsignedDouble
+                raise ValueError(
+                    'Bad float/double attribute (ExpectedTargetSpeed): %s' % exp)
+            # validate type unsignedDouble
+            self.validate_unsignedDouble(self.ExpectedTargetSpeed)
         value = find_attr_value_('YTargetRange', node)
         if value is not None and 'YTargetRange' not in already_processed:
             already_processed.add('YTargetRange')
             try:
                 self.YTargetRange = float(value)
             except ValueError as exp:
-                raise ValueError('Bad float/double attribute (YTargetRange): %s' % exp)
-            self.validate_unsignedDouble(self.YTargetRange)    # validate type unsignedDouble
+                raise ValueError(
+                    'Bad float/double attribute (YTargetRange): %s' % exp)
+            # validate type unsignedDouble
+            self.validate_unsignedDouble(self.YTargetRange)
+
     def buildChildren(self, child_, node, nodeName_, fromsubclass_=False):
         pass
 # end class TrackingMLC
@@ -7802,9 +9523,11 @@ class TrackingPhase(GeneratedsSuper):
     will hold and wait for the next breathing phase."""
     subclass = None
     superclass = None
+
     def __init__(self, MaxPhaseLag=None):
         self.original_tagname_ = None
         self.MaxPhaseLag = _cast(None, MaxPhaseLag)
+
     def factory(*args_, **kwargs_):
         if CurrentSubclassModule_ is not None:
             subclass = getSubclassFromModule_(
@@ -7816,15 +9539,21 @@ class TrackingPhase(GeneratedsSuper):
         else:
             return TrackingPhase(*args_, **kwargs_)
     factory = staticmethod(factory)
+
     def get_MaxPhaseLag(self): return self.MaxPhaseLag
+
     def set_MaxPhaseLag(self, MaxPhaseLag): self.MaxPhaseLag = MaxPhaseLag
+
     def validate_doublePhase(self, value):
         # Validate type doublePhase, a restriction on xs:double.
         if value is not None and Validate_simpletypes_:
             if value < 0:
-                warnings_.warn('Value "%(value)s" does not match xsd minInclusive restriction on doublePhase' % {"value" : value} )
+                warnings_.warn('Value "%(value)s" does not match xsd minInclusive restriction on doublePhase' % {
+                               "value": value})
             if value >= 360:
-                warnings_.warn('Value "%(value)s" does not match xsd maxExclusive restriction on doublePhase' % {"value" : value} )
+                warnings_.warn('Value "%(value)s" does not match xsd maxExclusive restriction on doublePhase' % {
+                               "value": value})
+
     def hasContent_(self):
         if (
 
@@ -7832,6 +9561,7 @@ class TrackingPhase(GeneratedsSuper):
             return True
         else:
             return False
+
     def export(self, outfile, level, namespace_='', name_='TrackingPhase', namespacedef_='', pretty_print=True):
         if pretty_print:
             eol_ = '\n'
@@ -7840,21 +9570,28 @@ class TrackingPhase(GeneratedsSuper):
         if self.original_tagname_ is not None:
             name_ = self.original_tagname_
         showIndent(outfile, level, pretty_print)
-        outfile.write('<%s%s%s' % (namespace_, name_, namespacedef_ and ' ' + namespacedef_ or '', ))
+        outfile.write('<%s%s%s' % (namespace_, name_,
+                                   namespacedef_ and ' ' + namespacedef_ or '', ))
         already_processed = set()
-        self.exportAttributes(outfile, level, already_processed, namespace_, name_='TrackingPhase')
+        self.exportAttributes(outfile, level, already_processed,
+                              namespace_, name_='TrackingPhase')
         if self.hasContent_():
             outfile.write('>%s' % (eol_, ))
-            self.exportChildren(outfile, level + 1, namespace_='', name_='TrackingPhase', pretty_print=pretty_print)
+            self.exportChildren(outfile, level + 1, namespace_='',
+                                name_='TrackingPhase', pretty_print=pretty_print)
             outfile.write('</%s%s>%s' % (namespace_, name_, eol_))
         else:
             outfile.write('/>%s' % (eol_, ))
+
     def exportAttributes(self, outfile, level, already_processed, namespace_='', name_='TrackingPhase'):
         if self.MaxPhaseLag is not None and 'MaxPhaseLag' not in already_processed:
             already_processed.add('MaxPhaseLag')
-            outfile.write(' MaxPhaseLag=%s' % (quote_attrib(self.MaxPhaseLag), ))
+            outfile.write(' MaxPhaseLag=%s' %
+                          (quote_attrib(self.MaxPhaseLag), ))
+
     def exportChildren(self, outfile, level, namespace_='', name_='TrackingPhase', fromsubclass_=False, pretty_print=True):
         pass
+
     def build(self, node):
         already_processed = set()
         self.buildAttributes(node, node.attrib, already_processed)
@@ -7862,6 +9599,7 @@ class TrackingPhase(GeneratedsSuper):
             nodeName_ = Tag_pattern_.match(child.tag).groups()[-1]
             self.buildChildren(child, node, nodeName_)
         return self
+
     def buildAttributes(self, node, attrs, already_processed):
         value = find_attr_value_('MaxPhaseLag', node)
         if value is not None and 'MaxPhaseLag' not in already_processed:
@@ -7869,8 +9607,11 @@ class TrackingPhase(GeneratedsSuper):
             try:
                 self.MaxPhaseLag = float(value)
             except ValueError as exp:
-                raise ValueError('Bad float/double attribute (MaxPhaseLag): %s' % exp)
-            self.validate_doublePhase(self.MaxPhaseLag)    # validate type doublePhase
+                raise ValueError(
+                    'Bad float/double attribute (MaxPhaseLag): %s' % exp)
+            # validate type doublePhase
+            self.validate_doublePhase(self.MaxPhaseLag)
+
     def buildChildren(self, child_, node, nodeName_, fromsubclass_=False):
         pass
 # end class TrackingPhase
@@ -7880,6 +9621,7 @@ class TrackingAxisList(GeneratedsSuper):
     """Define the motion axes that are allowed to track."""
     subclass = None
     superclass = None
+
     def __init__(self, CouchVrt=None, CouchLat=None, CouchLng=None, Y12=None, X12=None, Mlc=None, Phase=None):
         self.original_tagname_ = None
         self.CouchVrt = CouchVrt
@@ -7889,6 +9631,7 @@ class TrackingAxisList(GeneratedsSuper):
         self.X12 = X12
         self.Mlc = Mlc
         self.Phase = Phase
+
     def factory(*args_, **kwargs_):
         if CurrentSubclassModule_ is not None:
             subclass = getSubclassFromModule_(
@@ -7900,20 +9643,35 @@ class TrackingAxisList(GeneratedsSuper):
         else:
             return TrackingAxisList(*args_, **kwargs_)
     factory = staticmethod(factory)
+
     def get_CouchVrt(self): return self.CouchVrt
+
     def set_CouchVrt(self, CouchVrt): self.CouchVrt = CouchVrt
+
     def get_CouchLat(self): return self.CouchLat
+
     def set_CouchLat(self, CouchLat): self.CouchLat = CouchLat
+
     def get_CouchLng(self): return self.CouchLng
+
     def set_CouchLng(self, CouchLng): self.CouchLng = CouchLng
+
     def get_Y12(self): return self.Y12
+
     def set_Y12(self, Y12): self.Y12 = Y12
+
     def get_X12(self): return self.X12
+
     def set_X12(self, X12): self.X12 = X12
+
     def get_Mlc(self): return self.Mlc
+
     def set_Mlc(self, Mlc): self.Mlc = Mlc
+
     def get_Phase(self): return self.Phase
+
     def set_Phase(self, Phase): self.Phase = Phase
+
     def hasContent_(self):
         if (
             self.CouchVrt is not None or
@@ -7927,6 +9685,7 @@ class TrackingAxisList(GeneratedsSuper):
             return True
         else:
             return False
+
     def export(self, outfile, level, namespace_='', name_='TrackingAxisList', namespacedef_='', pretty_print=True):
         if pretty_print:
             eol_ = '\n'
@@ -7935,37 +9694,50 @@ class TrackingAxisList(GeneratedsSuper):
         if self.original_tagname_ is not None:
             name_ = self.original_tagname_
         showIndent(outfile, level, pretty_print)
-        outfile.write('<%s%s%s' % (namespace_, name_, namespacedef_ and ' ' + namespacedef_ or '', ))
+        outfile.write('<%s%s%s' % (namespace_, name_,
+                                   namespacedef_ and ' ' + namespacedef_ or '', ))
         already_processed = set()
-        self.exportAttributes(outfile, level, already_processed, namespace_, name_='TrackingAxisList')
+        self.exportAttributes(outfile, level, already_processed,
+                              namespace_, name_='TrackingAxisList')
         if self.hasContent_():
             outfile.write('>%s' % (eol_, ))
-            self.exportChildren(outfile, level + 1, namespace_='', name_='TrackingAxisList', pretty_print=pretty_print)
+            self.exportChildren(outfile, level + 1, namespace_='',
+                                name_='TrackingAxisList', pretty_print=pretty_print)
             showIndent(outfile, level, pretty_print)
             outfile.write('</%s%s>%s' % (namespace_, name_, eol_))
         else:
             outfile.write('/>%s' % (eol_, ))
+
     def exportAttributes(self, outfile, level, already_processed, namespace_='', name_='TrackingAxisList'):
         pass
+
     def exportChildren(self, outfile, level, namespace_='', name_='TrackingAxisList', fromsubclass_=False, pretty_print=True):
         if pretty_print:
             eol_ = '\n'
         else:
             eol_ = ''
         if self.CouchVrt is not None:
-            self.CouchVrt.export(outfile, level, namespace_, name_='CouchVrt', pretty_print=pretty_print)
+            self.CouchVrt.export(outfile, level, namespace_,
+                                 name_='CouchVrt', pretty_print=pretty_print)
         if self.CouchLat is not None:
-            self.CouchLat.export(outfile, level, namespace_, name_='CouchLat', pretty_print=pretty_print)
+            self.CouchLat.export(outfile, level, namespace_,
+                                 name_='CouchLat', pretty_print=pretty_print)
         if self.CouchLng is not None:
-            self.CouchLng.export(outfile, level, namespace_, name_='CouchLng', pretty_print=pretty_print)
+            self.CouchLng.export(outfile, level, namespace_,
+                                 name_='CouchLng', pretty_print=pretty_print)
         if self.Y12 is not None:
-            self.Y12.export(outfile, level, namespace_, name_='Y12', pretty_print=pretty_print)
+            self.Y12.export(outfile, level, namespace_,
+                            name_='Y12', pretty_print=pretty_print)
         if self.X12 is not None:
-            self.X12.export(outfile, level, namespace_, name_='X12', pretty_print=pretty_print)
+            self.X12.export(outfile, level, namespace_,
+                            name_='X12', pretty_print=pretty_print)
         if self.Mlc is not None:
-            self.Mlc.export(outfile, level, namespace_, name_='Mlc', pretty_print=pretty_print)
+            self.Mlc.export(outfile, level, namespace_,
+                            name_='Mlc', pretty_print=pretty_print)
         if self.Phase is not None:
-            self.Phase.export(outfile, level, namespace_, name_='Phase', pretty_print=pretty_print)
+            self.Phase.export(outfile, level, namespace_,
+                              name_='Phase', pretty_print=pretty_print)
+
     def build(self, node):
         already_processed = set()
         self.buildAttributes(node, node.attrib, already_processed)
@@ -7973,8 +9745,10 @@ class TrackingAxisList(GeneratedsSuper):
             nodeName_ = Tag_pattern_.match(child.tag).groups()[-1]
             self.buildChildren(child, node, nodeName_)
         return self
+
     def buildAttributes(self, node, attrs, already_processed):
         pass
+
     def buildChildren(self, child_, node, nodeName_, fromsubclass_=False):
         if nodeName_ == 'CouchVrt':
             obj_ = TrackingAxis.factory()
@@ -8027,12 +9801,14 @@ class Tracking(GeneratedsSuper):
     generated with full capabilities of axes."""
     subclass = None
     superclass = None
+
     def __init__(self, Axes=None, ConformityTol=None, InitialCapabilityRatio=None):
         self.original_tagname_ = None
         self.Axes = Axes
         self.ConformityTol = ConformityTol
         self.InitialCapabilityRatio = InitialCapabilityRatio
         self.validate_doubleRatio(self.InitialCapabilityRatio)
+
     def factory(*args_, **kwargs_):
         if CurrentSubclassModule_ is not None:
             subclass = getSubclassFromModule_(
@@ -8044,19 +9820,31 @@ class Tracking(GeneratedsSuper):
         else:
             return Tracking(*args_, **kwargs_)
     factory = staticmethod(factory)
+
     def get_Axes(self): return self.Axes
+
     def set_Axes(self, Axes): self.Axes = Axes
+
     def get_ConformityTol(self): return self.ConformityTol
-    def set_ConformityTol(self, ConformityTol): self.ConformityTol = ConformityTol
+
+    def set_ConformityTol(
+        self, ConformityTol): self.ConformityTol = ConformityTol
+
     def get_InitialCapabilityRatio(self): return self.InitialCapabilityRatio
-    def set_InitialCapabilityRatio(self, InitialCapabilityRatio): self.InitialCapabilityRatio = InitialCapabilityRatio
+
+    def set_InitialCapabilityRatio(
+        self, InitialCapabilityRatio): self.InitialCapabilityRatio = InitialCapabilityRatio
+
     def validate_doubleRatio(self, value):
         # Validate type doubleRatio, a restriction on xs:double.
         if value is not None and Validate_simpletypes_:
             if value < 0:
-                warnings_.warn('Value "%(value)s" does not match xsd minInclusive restriction on doubleRatio' % {"value" : value} )
+                warnings_.warn('Value "%(value)s" does not match xsd minInclusive restriction on doubleRatio' % {
+                               "value": value})
             if value > 1:
-                warnings_.warn('Value "%(value)s" does not match xsd maxInclusive restriction on doubleRatio' % {"value" : value} )
+                warnings_.warn('Value "%(value)s" does not match xsd maxInclusive restriction on doubleRatio' % {
+                               "value": value})
+
     def hasContent_(self):
         if (
             self.Axes is not None or
@@ -8066,6 +9854,7 @@ class Tracking(GeneratedsSuper):
             return True
         else:
             return False
+
     def export(self, outfile, level, namespace_='', name_='Tracking', namespacedef_='', pretty_print=True):
         if pretty_print:
             eol_ = '\n'
@@ -8074,30 +9863,39 @@ class Tracking(GeneratedsSuper):
         if self.original_tagname_ is not None:
             name_ = self.original_tagname_
         showIndent(outfile, level, pretty_print)
-        outfile.write('<%s%s%s' % (namespace_, name_, namespacedef_ and ' ' + namespacedef_ or '', ))
+        outfile.write('<%s%s%s' % (namespace_, name_,
+                                   namespacedef_ and ' ' + namespacedef_ or '', ))
         already_processed = set()
-        self.exportAttributes(outfile, level, already_processed, namespace_, name_='Tracking')
+        self.exportAttributes(
+            outfile, level, already_processed, namespace_, name_='Tracking')
         if self.hasContent_():
             outfile.write('>%s' % (eol_, ))
-            self.exportChildren(outfile, level + 1, namespace_='', name_='Tracking', pretty_print=pretty_print)
+            self.exportChildren(outfile, level + 1, namespace_='',
+                                name_='Tracking', pretty_print=pretty_print)
             showIndent(outfile, level, pretty_print)
             outfile.write('</%s%s>%s' % (namespace_, name_, eol_))
         else:
             outfile.write('/>%s' % (eol_, ))
+
     def exportAttributes(self, outfile, level, already_processed, namespace_='', name_='Tracking'):
         pass
+
     def exportChildren(self, outfile, level, namespace_='', name_='Tracking', fromsubclass_=False, pretty_print=True):
         if pretty_print:
             eol_ = '\n'
         else:
             eol_ = ''
         if self.Axes is not None:
-            self.Axes.export(outfile, level, namespace_, name_='Axes', pretty_print=pretty_print)
+            self.Axes.export(outfile, level, namespace_,
+                             name_='Axes', pretty_print=pretty_print)
         if self.ConformityTol is not None:
-            self.ConformityTol.export(outfile, level, namespace_, name_='ConformityTol', pretty_print=pretty_print)
+            self.ConformityTol.export(
+                outfile, level, namespace_, name_='ConformityTol', pretty_print=pretty_print)
         if self.InitialCapabilityRatio is not None:
             showIndent(outfile, level, pretty_print)
-            outfile.write('<%sInitialCapabilityRatio>%s</%sInitialCapabilityRatio>%s' % (namespace_, self.gds_format_double(self.InitialCapabilityRatio, input_name='InitialCapabilityRatio'), namespace_, eol_))
+            outfile.write('<%sInitialCapabilityRatio>%s</%sInitialCapabilityRatio>%s' % (namespace_,
+                                                                                         self.gds_format_double(self.InitialCapabilityRatio, input_name='InitialCapabilityRatio'), namespace_, eol_))
+
     def build(self, node):
         already_processed = set()
         self.buildAttributes(node, node.attrib, already_processed)
@@ -8105,8 +9903,10 @@ class Tracking(GeneratedsSuper):
             nodeName_ = Tag_pattern_.match(child.tag).groups()[-1]
             self.buildChildren(child, node, nodeName_)
         return self
+
     def buildAttributes(self, node, attrs, already_processed):
         pass
+
     def buildChildren(self, child_, node, nodeName_, fromsubclass_=False):
         if nodeName_ == 'Axes':
             obj_ = TrackingAxisList.factory()
@@ -8124,7 +9924,8 @@ class Tracking(GeneratedsSuper):
                 fval_ = float(sval_)
             except (TypeError, ValueError) as exp:
                 raise_parse_error(child_, 'requires float or double: %s' % exp)
-            fval_ = self.gds_validate_float(fval_, node, 'InitialCapabilityRatio')
+            fval_ = self.gds_validate_float(
+                fval_, node, 'InitialCapabilityRatio')
             self.InitialCapabilityRatio = fval_
             # validate type doubleRatio
             self.validate_doubleRatio(self.InitialCapabilityRatio)
@@ -8139,6 +9940,7 @@ class TolTable(GeneratedsSuper):
     will impose its tight internal tolerance on all axes."""
     subclass = None
     superclass = None
+
     def __init__(self, GantryRtn=None, CollRtn=None, CouchVrt=None, CouchLat=None, CouchLng=None, CouchRtn=None, CouchPit=None, CouchRol=None, Y12=None, X12=None):
         self.original_tagname_ = None
         self.GantryRtn = GantryRtn
@@ -8151,6 +9953,7 @@ class TolTable(GeneratedsSuper):
         self.CouchRol = CouchRol
         self.Y12 = Y12
         self.X12 = X12
+
     def factory(*args_, **kwargs_):
         if CurrentSubclassModule_ is not None:
             subclass = getSubclassFromModule_(
@@ -8162,26 +9965,47 @@ class TolTable(GeneratedsSuper):
         else:
             return TolTable(*args_, **kwargs_)
     factory = staticmethod(factory)
+
     def get_GantryRtn(self): return self.GantryRtn
+
     def set_GantryRtn(self, GantryRtn): self.GantryRtn = GantryRtn
+
     def get_CollRtn(self): return self.CollRtn
+
     def set_CollRtn(self, CollRtn): self.CollRtn = CollRtn
+
     def get_CouchVrt(self): return self.CouchVrt
+
     def set_CouchVrt(self, CouchVrt): self.CouchVrt = CouchVrt
+
     def get_CouchLat(self): return self.CouchLat
+
     def set_CouchLat(self, CouchLat): self.CouchLat = CouchLat
+
     def get_CouchLng(self): return self.CouchLng
+
     def set_CouchLng(self, CouchLng): self.CouchLng = CouchLng
+
     def get_CouchRtn(self): return self.CouchRtn
+
     def set_CouchRtn(self, CouchRtn): self.CouchRtn = CouchRtn
+
     def get_CouchPit(self): return self.CouchPit
+
     def set_CouchPit(self, CouchPit): self.CouchPit = CouchPit
+
     def get_CouchRol(self): return self.CouchRol
+
     def set_CouchRol(self, CouchRol): self.CouchRol = CouchRol
+
     def get_Y12(self): return self.Y12
+
     def set_Y12(self, Y12): self.Y12 = Y12
+
     def get_X12(self): return self.X12
+
     def set_X12(self, X12): self.X12 = X12
+
     def hasContent_(self):
         if (
             self.GantryRtn is not None or
@@ -8198,6 +10022,7 @@ class TolTable(GeneratedsSuper):
             return True
         else:
             return False
+
     def export(self, outfile, level, namespace_='', name_='TolTable', namespacedef_='', pretty_print=True):
         if pretty_print:
             eol_ = '\n'
@@ -8206,18 +10031,23 @@ class TolTable(GeneratedsSuper):
         if self.original_tagname_ is not None:
             name_ = self.original_tagname_
         showIndent(outfile, level, pretty_print)
-        outfile.write('<%s%s%s' % (namespace_, name_, namespacedef_ and ' ' + namespacedef_ or '', ))
+        outfile.write('<%s%s%s' % (namespace_, name_,
+                                   namespacedef_ and ' ' + namespacedef_ or '', ))
         already_processed = set()
-        self.exportAttributes(outfile, level, already_processed, namespace_, name_='TolTable')
+        self.exportAttributes(
+            outfile, level, already_processed, namespace_, name_='TolTable')
         if self.hasContent_():
             outfile.write('>%s' % (eol_, ))
-            self.exportChildren(outfile, level + 1, namespace_='', name_='TolTable', pretty_print=pretty_print)
+            self.exportChildren(outfile, level + 1, namespace_='',
+                                name_='TolTable', pretty_print=pretty_print)
             showIndent(outfile, level, pretty_print)
             outfile.write('</%s%s>%s' % (namespace_, name_, eol_))
         else:
             outfile.write('/>%s' % (eol_, ))
+
     def exportAttributes(self, outfile, level, already_processed, namespace_='', name_='TolTable'):
         pass
+
     def exportChildren(self, outfile, level, namespace_='', name_='TolTable', fromsubclass_=False, pretty_print=True):
         if pretty_print:
             eol_ = '\n'
@@ -8225,34 +10055,45 @@ class TolTable(GeneratedsSuper):
             eol_ = ''
         if self.GantryRtn is not None:
             showIndent(outfile, level, pretty_print)
-            outfile.write('<%sGantryRtn>%s</%sGantryRtn>%s' % (namespace_, self.gds_format_double(self.GantryRtn, input_name='GantryRtn'), namespace_, eol_))
+            outfile.write('<%sGantryRtn>%s</%sGantryRtn>%s' % (namespace_,
+                                                               self.gds_format_double(self.GantryRtn, input_name='GantryRtn'), namespace_, eol_))
         if self.CollRtn is not None:
             showIndent(outfile, level, pretty_print)
-            outfile.write('<%sCollRtn>%s</%sCollRtn>%s' % (namespace_, self.gds_format_double(self.CollRtn, input_name='CollRtn'), namespace_, eol_))
+            outfile.write('<%sCollRtn>%s</%sCollRtn>%s' % (namespace_,
+                                                           self.gds_format_double(self.CollRtn, input_name='CollRtn'), namespace_, eol_))
         if self.CouchVrt is not None:
             showIndent(outfile, level, pretty_print)
-            outfile.write('<%sCouchVrt>%s</%sCouchVrt>%s' % (namespace_, self.gds_format_double(self.CouchVrt, input_name='CouchVrt'), namespace_, eol_))
+            outfile.write('<%sCouchVrt>%s</%sCouchVrt>%s' % (namespace_,
+                                                             self.gds_format_double(self.CouchVrt, input_name='CouchVrt'), namespace_, eol_))
         if self.CouchLat is not None:
             showIndent(outfile, level, pretty_print)
-            outfile.write('<%sCouchLat>%s</%sCouchLat>%s' % (namespace_, self.gds_format_double(self.CouchLat, input_name='CouchLat'), namespace_, eol_))
+            outfile.write('<%sCouchLat>%s</%sCouchLat>%s' % (namespace_,
+                                                             self.gds_format_double(self.CouchLat, input_name='CouchLat'), namespace_, eol_))
         if self.CouchLng is not None:
             showIndent(outfile, level, pretty_print)
-            outfile.write('<%sCouchLng>%s</%sCouchLng>%s' % (namespace_, self.gds_format_double(self.CouchLng, input_name='CouchLng'), namespace_, eol_))
+            outfile.write('<%sCouchLng>%s</%sCouchLng>%s' % (namespace_,
+                                                             self.gds_format_double(self.CouchLng, input_name='CouchLng'), namespace_, eol_))
         if self.CouchRtn is not None:
             showIndent(outfile, level, pretty_print)
-            outfile.write('<%sCouchRtn>%s</%sCouchRtn>%s' % (namespace_, self.gds_format_double(self.CouchRtn, input_name='CouchRtn'), namespace_, eol_))
+            outfile.write('<%sCouchRtn>%s</%sCouchRtn>%s' % (namespace_,
+                                                             self.gds_format_double(self.CouchRtn, input_name='CouchRtn'), namespace_, eol_))
         if self.CouchPit is not None:
             showIndent(outfile, level, pretty_print)
-            outfile.write('<%sCouchPit>%s</%sCouchPit>%s' % (namespace_, self.gds_format_double(self.CouchPit, input_name='CouchPit'), namespace_, eol_))
+            outfile.write('<%sCouchPit>%s</%sCouchPit>%s' % (namespace_,
+                                                             self.gds_format_double(self.CouchPit, input_name='CouchPit'), namespace_, eol_))
         if self.CouchRol is not None:
             showIndent(outfile, level, pretty_print)
-            outfile.write('<%sCouchRol>%s</%sCouchRol>%s' % (namespace_, self.gds_format_double(self.CouchRol, input_name='CouchRol'), namespace_, eol_))
+            outfile.write('<%sCouchRol>%s</%sCouchRol>%s' % (namespace_,
+                                                             self.gds_format_double(self.CouchRol, input_name='CouchRol'), namespace_, eol_))
         if self.Y12 is not None:
             showIndent(outfile, level, pretty_print)
-            outfile.write('<%sY12>%s</%sY12>%s' % (namespace_, self.gds_format_double(self.Y12, input_name='Y12'), namespace_, eol_))
+            outfile.write('<%sY12>%s</%sY12>%s' % (namespace_,
+                                                   self.gds_format_double(self.Y12, input_name='Y12'), namespace_, eol_))
         if self.X12 is not None:
             showIndent(outfile, level, pretty_print)
-            outfile.write('<%sX12>%s</%sX12>%s' % (namespace_, self.gds_format_double(self.X12, input_name='X12'), namespace_, eol_))
+            outfile.write('<%sX12>%s</%sX12>%s' % (namespace_,
+                                                   self.gds_format_double(self.X12, input_name='X12'), namespace_, eol_))
+
     def build(self, node):
         already_processed = set()
         self.buildAttributes(node, node.attrib, already_processed)
@@ -8260,8 +10101,10 @@ class TolTable(GeneratedsSuper):
             nodeName_ = Tag_pattern_.match(child.tag).groups()[-1]
             self.buildChildren(child, node, nodeName_)
         return self
+
     def buildAttributes(self, node, attrs, already_processed):
         pass
+
     def buildChildren(self, child_, node, nodeName_, fromsubclass_=False):
         if nodeName_ == 'GantryRtn':
             sval_ = child_.text
@@ -8354,6 +10197,7 @@ class VelTable(GeneratedsSuper):
     maximum supported max velocity of that axis."""
     subclass = None
     superclass = None
+
     def __init__(self, GantryRtn=None, CollRtn=None, CouchVrt=None, CouchLat=None, CouchLng=None, CouchRtn=None, CouchPit=None, CouchRol=None, X1=None, X2=None, Y1=None, Y2=None):
         self.original_tagname_ = None
         self.GantryRtn = GantryRtn
@@ -8368,6 +10212,7 @@ class VelTable(GeneratedsSuper):
         self.X2 = X2
         self.Y1 = Y1
         self.Y2 = Y2
+
     def factory(*args_, **kwargs_):
         if CurrentSubclassModule_ is not None:
             subclass = getSubclassFromModule_(
@@ -8379,30 +10224,55 @@ class VelTable(GeneratedsSuper):
         else:
             return VelTable(*args_, **kwargs_)
     factory = staticmethod(factory)
+
     def get_GantryRtn(self): return self.GantryRtn
+
     def set_GantryRtn(self, GantryRtn): self.GantryRtn = GantryRtn
+
     def get_CollRtn(self): return self.CollRtn
+
     def set_CollRtn(self, CollRtn): self.CollRtn = CollRtn
+
     def get_CouchVrt(self): return self.CouchVrt
+
     def set_CouchVrt(self, CouchVrt): self.CouchVrt = CouchVrt
+
     def get_CouchLat(self): return self.CouchLat
+
     def set_CouchLat(self, CouchLat): self.CouchLat = CouchLat
+
     def get_CouchLng(self): return self.CouchLng
+
     def set_CouchLng(self, CouchLng): self.CouchLng = CouchLng
+
     def get_CouchRtn(self): return self.CouchRtn
+
     def set_CouchRtn(self, CouchRtn): self.CouchRtn = CouchRtn
+
     def get_CouchPit(self): return self.CouchPit
+
     def set_CouchPit(self, CouchPit): self.CouchPit = CouchPit
+
     def get_CouchRol(self): return self.CouchRol
+
     def set_CouchRol(self, CouchRol): self.CouchRol = CouchRol
+
     def get_X1(self): return self.X1
+
     def set_X1(self, X1): self.X1 = X1
+
     def get_X2(self): return self.X2
+
     def set_X2(self, X2): self.X2 = X2
+
     def get_Y1(self): return self.Y1
+
     def set_Y1(self, Y1): self.Y1 = Y1
+
     def get_Y2(self): return self.Y2
+
     def set_Y2(self, Y2): self.Y2 = Y2
+
     def hasContent_(self):
         if (
             self.GantryRtn is not None or
@@ -8421,6 +10291,7 @@ class VelTable(GeneratedsSuper):
             return True
         else:
             return False
+
     def export(self, outfile, level, namespace_='', name_='VelTable', namespacedef_='', pretty_print=True):
         if pretty_print:
             eol_ = '\n'
@@ -8429,18 +10300,23 @@ class VelTable(GeneratedsSuper):
         if self.original_tagname_ is not None:
             name_ = self.original_tagname_
         showIndent(outfile, level, pretty_print)
-        outfile.write('<%s%s%s' % (namespace_, name_, namespacedef_ and ' ' + namespacedef_ or '', ))
+        outfile.write('<%s%s%s' % (namespace_, name_,
+                                   namespacedef_ and ' ' + namespacedef_ or '', ))
         already_processed = set()
-        self.exportAttributes(outfile, level, already_processed, namespace_, name_='VelTable')
+        self.exportAttributes(
+            outfile, level, already_processed, namespace_, name_='VelTable')
         if self.hasContent_():
             outfile.write('>%s' % (eol_, ))
-            self.exportChildren(outfile, level + 1, namespace_='', name_='VelTable', pretty_print=pretty_print)
+            self.exportChildren(outfile, level + 1, namespace_='',
+                                name_='VelTable', pretty_print=pretty_print)
             showIndent(outfile, level, pretty_print)
             outfile.write('</%s%s>%s' % (namespace_, name_, eol_))
         else:
             outfile.write('/>%s' % (eol_, ))
+
     def exportAttributes(self, outfile, level, already_processed, namespace_='', name_='VelTable'):
         pass
+
     def exportChildren(self, outfile, level, namespace_='', name_='VelTable', fromsubclass_=False, pretty_print=True):
         if pretty_print:
             eol_ = '\n'
@@ -8448,40 +10324,53 @@ class VelTable(GeneratedsSuper):
             eol_ = ''
         if self.GantryRtn is not None:
             showIndent(outfile, level, pretty_print)
-            outfile.write('<%sGantryRtn>%s</%sGantryRtn>%s' % (namespace_, self.gds_format_double(self.GantryRtn, input_name='GantryRtn'), namespace_, eol_))
+            outfile.write('<%sGantryRtn>%s</%sGantryRtn>%s' % (namespace_,
+                                                               self.gds_format_double(self.GantryRtn, input_name='GantryRtn'), namespace_, eol_))
         if self.CollRtn is not None:
             showIndent(outfile, level, pretty_print)
-            outfile.write('<%sCollRtn>%s</%sCollRtn>%s' % (namespace_, self.gds_format_double(self.CollRtn, input_name='CollRtn'), namespace_, eol_))
+            outfile.write('<%sCollRtn>%s</%sCollRtn>%s' % (namespace_,
+                                                           self.gds_format_double(self.CollRtn, input_name='CollRtn'), namespace_, eol_))
         if self.CouchVrt is not None:
             showIndent(outfile, level, pretty_print)
-            outfile.write('<%sCouchVrt>%s</%sCouchVrt>%s' % (namespace_, self.gds_format_double(self.CouchVrt, input_name='CouchVrt'), namespace_, eol_))
+            outfile.write('<%sCouchVrt>%s</%sCouchVrt>%s' % (namespace_,
+                                                             self.gds_format_double(self.CouchVrt, input_name='CouchVrt'), namespace_, eol_))
         if self.CouchLat is not None:
             showIndent(outfile, level, pretty_print)
-            outfile.write('<%sCouchLat>%s</%sCouchLat>%s' % (namespace_, self.gds_format_double(self.CouchLat, input_name='CouchLat'), namespace_, eol_))
+            outfile.write('<%sCouchLat>%s</%sCouchLat>%s' % (namespace_,
+                                                             self.gds_format_double(self.CouchLat, input_name='CouchLat'), namespace_, eol_))
         if self.CouchLng is not None:
             showIndent(outfile, level, pretty_print)
-            outfile.write('<%sCouchLng>%s</%sCouchLng>%s' % (namespace_, self.gds_format_double(self.CouchLng, input_name='CouchLng'), namespace_, eol_))
+            outfile.write('<%sCouchLng>%s</%sCouchLng>%s' % (namespace_,
+                                                             self.gds_format_double(self.CouchLng, input_name='CouchLng'), namespace_, eol_))
         if self.CouchRtn is not None:
             showIndent(outfile, level, pretty_print)
-            outfile.write('<%sCouchRtn>%s</%sCouchRtn>%s' % (namespace_, self.gds_format_double(self.CouchRtn, input_name='CouchRtn'), namespace_, eol_))
+            outfile.write('<%sCouchRtn>%s</%sCouchRtn>%s' % (namespace_,
+                                                             self.gds_format_double(self.CouchRtn, input_name='CouchRtn'), namespace_, eol_))
         if self.CouchPit is not None:
             showIndent(outfile, level, pretty_print)
-            outfile.write('<%sCouchPit>%s</%sCouchPit>%s' % (namespace_, self.gds_format_double(self.CouchPit, input_name='CouchPit'), namespace_, eol_))
+            outfile.write('<%sCouchPit>%s</%sCouchPit>%s' % (namespace_,
+                                                             self.gds_format_double(self.CouchPit, input_name='CouchPit'), namespace_, eol_))
         if self.CouchRol is not None:
             showIndent(outfile, level, pretty_print)
-            outfile.write('<%sCouchRol>%s</%sCouchRol>%s' % (namespace_, self.gds_format_double(self.CouchRol, input_name='CouchRol'), namespace_, eol_))
+            outfile.write('<%sCouchRol>%s</%sCouchRol>%s' % (namespace_,
+                                                             self.gds_format_double(self.CouchRol, input_name='CouchRol'), namespace_, eol_))
         if self.X1 is not None:
             showIndent(outfile, level, pretty_print)
-            outfile.write('<%sX1>%s</%sX1>%s' % (namespace_, self.gds_format_double(self.X1, input_name='X1'), namespace_, eol_))
+            outfile.write('<%sX1>%s</%sX1>%s' % (namespace_,
+                                                 self.gds_format_double(self.X1, input_name='X1'), namespace_, eol_))
         if self.X2 is not None:
             showIndent(outfile, level, pretty_print)
-            outfile.write('<%sX2>%s</%sX2>%s' % (namespace_, self.gds_format_double(self.X2, input_name='X2'), namespace_, eol_))
+            outfile.write('<%sX2>%s</%sX2>%s' % (namespace_,
+                                                 self.gds_format_double(self.X2, input_name='X2'), namespace_, eol_))
         if self.Y1 is not None:
             showIndent(outfile, level, pretty_print)
-            outfile.write('<%sY1>%s</%sY1>%s' % (namespace_, self.gds_format_double(self.Y1, input_name='Y1'), namespace_, eol_))
+            outfile.write('<%sY1>%s</%sY1>%s' % (namespace_,
+                                                 self.gds_format_double(self.Y1, input_name='Y1'), namespace_, eol_))
         if self.Y2 is not None:
             showIndent(outfile, level, pretty_print)
-            outfile.write('<%sY2>%s</%sY2>%s' % (namespace_, self.gds_format_double(self.Y2, input_name='Y2'), namespace_, eol_))
+            outfile.write('<%sY2>%s</%sY2>%s' % (namespace_,
+                                                 self.gds_format_double(self.Y2, input_name='Y2'), namespace_, eol_))
+
     def build(self, node):
         already_processed = set()
         self.buildAttributes(node, node.attrib, already_processed)
@@ -8489,8 +10378,10 @@ class VelTable(GeneratedsSuper):
             nodeName_ = Tag_pattern_.match(child.tag).groups()[-1]
             self.buildChildren(child, node, nodeName_)
         return self
+
     def buildAttributes(self, node, attrs, already_processed):
         pass
+
     def buildChildren(self, child_, node, nodeName_, fromsubclass_=False):
         if nodeName_ == 'GantryRtn':
             sval_ = child_.text
@@ -8601,12 +10492,14 @@ class Accs(GeneratedsSuper):
     installed in that slot."""
     subclass = None
     superclass = None
+
     def __init__(self, Acc1=None, Acc2=None, Acc3=None, Acc4=None):
         self.original_tagname_ = None
         self.Acc1 = Acc1
         self.Acc2 = Acc2
         self.Acc3 = Acc3
         self.Acc4 = Acc4
+
     def factory(*args_, **kwargs_):
         if CurrentSubclassModule_ is not None:
             subclass = getSubclassFromModule_(
@@ -8618,14 +10511,23 @@ class Accs(GeneratedsSuper):
         else:
             return Accs(*args_, **kwargs_)
     factory = staticmethod(factory)
+
     def get_Acc1(self): return self.Acc1
+
     def set_Acc1(self, Acc1): self.Acc1 = Acc1
+
     def get_Acc2(self): return self.Acc2
+
     def set_Acc2(self, Acc2): self.Acc2 = Acc2
+
     def get_Acc3(self): return self.Acc3
+
     def set_Acc3(self, Acc3): self.Acc3 = Acc3
+
     def get_Acc4(self): return self.Acc4
+
     def set_Acc4(self, Acc4): self.Acc4 = Acc4
+
     def hasContent_(self):
         if (
             self.Acc1 is not None or
@@ -8636,6 +10538,7 @@ class Accs(GeneratedsSuper):
             return True
         else:
             return False
+
     def export(self, outfile, level, namespace_='', name_='Accs', namespacedef_='', pretty_print=True):
         if pretty_print:
             eol_ = '\n'
@@ -8644,18 +10547,23 @@ class Accs(GeneratedsSuper):
         if self.original_tagname_ is not None:
             name_ = self.original_tagname_
         showIndent(outfile, level, pretty_print)
-        outfile.write('<%s%s%s' % (namespace_, name_, namespacedef_ and ' ' + namespacedef_ or '', ))
+        outfile.write('<%s%s%s' % (namespace_, name_,
+                                   namespacedef_ and ' ' + namespacedef_ or '', ))
         already_processed = set()
-        self.exportAttributes(outfile, level, already_processed, namespace_, name_='Accs')
+        self.exportAttributes(
+            outfile, level, already_processed, namespace_, name_='Accs')
         if self.hasContent_():
             outfile.write('>%s' % (eol_, ))
-            self.exportChildren(outfile, level + 1, namespace_='', name_='Accs', pretty_print=pretty_print)
+            self.exportChildren(outfile, level + 1, namespace_='',
+                                name_='Accs', pretty_print=pretty_print)
             showIndent(outfile, level, pretty_print)
             outfile.write('</%s%s>%s' % (namespace_, name_, eol_))
         else:
             outfile.write('/>%s' % (eol_, ))
+
     def exportAttributes(self, outfile, level, already_processed, namespace_='', name_='Accs'):
         pass
+
     def exportChildren(self, outfile, level, namespace_='', name_='Accs', fromsubclass_=False, pretty_print=True):
         if pretty_print:
             eol_ = '\n'
@@ -8663,16 +10571,21 @@ class Accs(GeneratedsSuper):
             eol_ = ''
         if self.Acc1 is not None:
             showIndent(outfile, level, pretty_print)
-            outfile.write('<%sAcc1>%s</%sAcc1>%s' % (namespace_, self.gds_format_integer(self.Acc1, input_name='Acc1'), namespace_, eol_))
+            outfile.write('<%sAcc1>%s</%sAcc1>%s' % (namespace_,
+                                                     self.gds_format_integer(self.Acc1, input_name='Acc1'), namespace_, eol_))
         if self.Acc2 is not None:
             showIndent(outfile, level, pretty_print)
-            outfile.write('<%sAcc2>%s</%sAcc2>%s' % (namespace_, self.gds_format_integer(self.Acc2, input_name='Acc2'), namespace_, eol_))
+            outfile.write('<%sAcc2>%s</%sAcc2>%s' % (namespace_,
+                                                     self.gds_format_integer(self.Acc2, input_name='Acc2'), namespace_, eol_))
         if self.Acc3 is not None:
             showIndent(outfile, level, pretty_print)
-            outfile.write('<%sAcc3>%s</%sAcc3>%s' % (namespace_, self.gds_format_integer(self.Acc3, input_name='Acc3'), namespace_, eol_))
+            outfile.write('<%sAcc3>%s</%sAcc3>%s' % (namespace_,
+                                                     self.gds_format_integer(self.Acc3, input_name='Acc3'), namespace_, eol_))
         if self.Acc4 is not None:
             showIndent(outfile, level, pretty_print)
-            outfile.write('<%sAcc4>%s</%sAcc4>%s' % (namespace_, self.gds_format_integer(self.Acc4, input_name='Acc4'), namespace_, eol_))
+            outfile.write('<%sAcc4>%s</%sAcc4>%s' % (namespace_,
+                                                     self.gds_format_integer(self.Acc4, input_name='Acc4'), namespace_, eol_))
+
     def build(self, node):
         already_processed = set()
         self.buildAttributes(node, node.attrib, already_processed)
@@ -8680,8 +10593,10 @@ class Accs(GeneratedsSuper):
             nodeName_ = Tag_pattern_.match(child.tag).groups()[-1]
             self.buildChildren(child, node, nodeName_)
         return self
+
     def buildAttributes(self, node, attrs, already_processed):
         pass
+
     def buildChildren(self, child_, node, nodeName_, fromsubclass_=False):
         if nodeName_ == 'Acc1':
             sval_ = child_.text
@@ -8727,8 +10642,8 @@ class Dev(GeneratedsSuper):
     MotionImpactFlag : This beam hold device does stop motion if
     true. Table of possible combinations : ¦ MV Beam Impact ¦ Motion
     Impact ---------------------------------------------------
-    Outside Treatment ¦ False ¦ False ¦ True¦ False ¦ False¦ True ¦
-    True¦ True
+    Outside Treatment ¦ False ¦ False ¦ True ¦ False ¦ False ¦ True
+    ¦ True ¦ True
     -----------------------------------------------------------
     During Treatment ¦ False ¦ False ¦ True ¦ True | True | False If
     MVBeamImapct or MotionImpact are not present, then they default
@@ -8738,12 +10653,14 @@ class Dev(GeneratedsSuper):
     hold until told by SPV), and MotionImpact=true."""
     subclass = None
     superclass = None
+
     def __init__(self, Id=None, MVBeamImpact=None, MotionImpact=None, SyncStop=None):
         self.original_tagname_ = None
         self.Id = _cast(int, Id)
         self.MVBeamImpact = _cast(bool, MVBeamImpact)
         self.MotionImpact = _cast(bool, MotionImpact)
         self.SyncStop = _cast(bool, SyncStop)
+
     def factory(*args_, **kwargs_):
         if CurrentSubclassModule_ is not None:
             subclass = getSubclassFromModule_(
@@ -8755,14 +10672,23 @@ class Dev(GeneratedsSuper):
         else:
             return Dev(*args_, **kwargs_)
     factory = staticmethod(factory)
+
     def get_Id(self): return self.Id
+
     def set_Id(self, Id): self.Id = Id
+
     def get_MVBeamImpact(self): return self.MVBeamImpact
+
     def set_MVBeamImpact(self, MVBeamImpact): self.MVBeamImpact = MVBeamImpact
+
     def get_MotionImpact(self): return self.MotionImpact
+
     def set_MotionImpact(self, MotionImpact): self.MotionImpact = MotionImpact
+
     def get_SyncStop(self): return self.SyncStop
+
     def set_SyncStop(self, SyncStop): self.SyncStop = SyncStop
+
     def hasContent_(self):
         if (
 
@@ -8770,6 +10696,7 @@ class Dev(GeneratedsSuper):
             return True
         else:
             return False
+
     def export(self, outfile, level, namespace_='', name_='Dev', namespacedef_='', pretty_print=True):
         if pretty_print:
             eol_ = '\n'
@@ -8778,30 +10705,40 @@ class Dev(GeneratedsSuper):
         if self.original_tagname_ is not None:
             name_ = self.original_tagname_
         showIndent(outfile, level, pretty_print)
-        outfile.write('<%s%s%s' % (namespace_, name_, namespacedef_ and ' ' + namespacedef_ or '', ))
+        outfile.write('<%s%s%s' % (namespace_, name_,
+                                   namespacedef_ and ' ' + namespacedef_ or '', ))
         already_processed = set()
-        self.exportAttributes(outfile, level, already_processed, namespace_, name_='Dev')
+        self.exportAttributes(
+            outfile, level, already_processed, namespace_, name_='Dev')
         if self.hasContent_():
             outfile.write('>%s' % (eol_, ))
-            self.exportChildren(outfile, level + 1, namespace_='', name_='Dev', pretty_print=pretty_print)
+            self.exportChildren(outfile, level + 1, namespace_='',
+                                name_='Dev', pretty_print=pretty_print)
             outfile.write('</%s%s>%s' % (namespace_, name_, eol_))
         else:
             outfile.write('/>%s' % (eol_, ))
+
     def exportAttributes(self, outfile, level, already_processed, namespace_='', name_='Dev'):
         if self.Id is not None and 'Id' not in already_processed:
             already_processed.add('Id')
-            outfile.write(' Id="%s"' % self.gds_format_integer(self.Id, input_name='Id'))
+            outfile.write(' Id="%s"' %
+                          self.gds_format_integer(self.Id, input_name='Id'))
         if self.MVBeamImpact is not None and 'MVBeamImpact' not in already_processed:
             already_processed.add('MVBeamImpact')
-            outfile.write(' MVBeamImpact="%s"' % self.gds_format_boolean(self.MVBeamImpact, input_name='MVBeamImpact'))
+            outfile.write(' MVBeamImpact="%s"' % self.gds_format_boolean(
+                self.MVBeamImpact, input_name='MVBeamImpact'))
         if self.MotionImpact is not None and 'MotionImpact' not in already_processed:
             already_processed.add('MotionImpact')
-            outfile.write(' MotionImpact="%s"' % self.gds_format_boolean(self.MotionImpact, input_name='MotionImpact'))
+            outfile.write(' MotionImpact="%s"' % self.gds_format_boolean(
+                self.MotionImpact, input_name='MotionImpact'))
         if self.SyncStop is not None and 'SyncStop' not in already_processed:
             already_processed.add('SyncStop')
-            outfile.write(' SyncStop="%s"' % self.gds_format_boolean(self.SyncStop, input_name='SyncStop'))
+            outfile.write(' SyncStop="%s"' % self.gds_format_boolean(
+                self.SyncStop, input_name='SyncStop'))
+
     def exportChildren(self, outfile, level, namespace_='', name_='Dev', fromsubclass_=False, pretty_print=True):
         pass
+
     def build(self, node):
         already_processed = set()
         self.buildAttributes(node, node.attrib, already_processed)
@@ -8809,6 +10746,7 @@ class Dev(GeneratedsSuper):
             nodeName_ = Tag_pattern_.match(child.tag).groups()[-1]
             self.buildChildren(child, node, nodeName_)
         return self
+
     def buildAttributes(self, node, attrs, already_processed):
         value = find_attr_value_('Id', node)
         if value is not None and 'Id' not in already_processed:
@@ -8844,6 +10782,7 @@ class Dev(GeneratedsSuper):
                 self.SyncStop = False
             else:
                 raise_parse_error(node, 'Bad boolean attribute')
+
     def buildChildren(self, child_, node, nodeName_, fromsubclass_=False):
         pass
 # end class Dev
@@ -8858,12 +10797,14 @@ class BeamHoldDevices(GeneratedsSuper):
     15)"""
     subclass = None
     superclass = None
+
     def __init__(self, Dev=None):
         self.original_tagname_ = None
         if Dev is None:
             self.Dev = []
         else:
             self.Dev = Dev
+
     def factory(*args_, **kwargs_):
         if CurrentSubclassModule_ is not None:
             subclass = getSubclassFromModule_(
@@ -8875,11 +10816,17 @@ class BeamHoldDevices(GeneratedsSuper):
         else:
             return BeamHoldDevices(*args_, **kwargs_)
     factory = staticmethod(factory)
+
     def get_Dev(self): return self.Dev
+
     def set_Dev(self, Dev): self.Dev = Dev
+
     def add_Dev(self, value): self.Dev.append(value)
+
     def insert_Dev_at(self, index, value): self.Dev.insert(index, value)
+
     def replace_Dev_at(self, index, value): self.Dev[index] = value
+
     def hasContent_(self):
         if (
             self.Dev
@@ -8887,6 +10834,7 @@ class BeamHoldDevices(GeneratedsSuper):
             return True
         else:
             return False
+
     def export(self, outfile, level, namespace_='', name_='BeamHoldDevices', namespacedef_='', pretty_print=True):
         if pretty_print:
             eol_ = '\n'
@@ -8895,25 +10843,32 @@ class BeamHoldDevices(GeneratedsSuper):
         if self.original_tagname_ is not None:
             name_ = self.original_tagname_
         showIndent(outfile, level, pretty_print)
-        outfile.write('<%s%s%s' % (namespace_, name_, namespacedef_ and ' ' + namespacedef_ or '', ))
+        outfile.write('<%s%s%s' % (namespace_, name_,
+                                   namespacedef_ and ' ' + namespacedef_ or '', ))
         already_processed = set()
-        self.exportAttributes(outfile, level, already_processed, namespace_, name_='BeamHoldDevices')
+        self.exportAttributes(outfile, level, already_processed,
+                              namespace_, name_='BeamHoldDevices')
         if self.hasContent_():
             outfile.write('>%s' % (eol_, ))
-            self.exportChildren(outfile, level + 1, namespace_='', name_='BeamHoldDevices', pretty_print=pretty_print)
+            self.exportChildren(outfile, level + 1, namespace_='',
+                                name_='BeamHoldDevices', pretty_print=pretty_print)
             showIndent(outfile, level, pretty_print)
             outfile.write('</%s%s>%s' % (namespace_, name_, eol_))
         else:
             outfile.write('/>%s' % (eol_, ))
+
     def exportAttributes(self, outfile, level, already_processed, namespace_='', name_='BeamHoldDevices'):
         pass
+
     def exportChildren(self, outfile, level, namespace_='', name_='BeamHoldDevices', fromsubclass_=False, pretty_print=True):
         if pretty_print:
             eol_ = '\n'
         else:
             eol_ = ''
         for Dev_ in self.Dev:
-            Dev_.export(outfile, level, namespace_, name_='Dev', pretty_print=pretty_print)
+            Dev_.export(outfile, level, namespace_,
+                        name_='Dev', pretty_print=pretty_print)
+
     def build(self, node):
         already_processed = set()
         self.buildAttributes(node, node.attrib, already_processed)
@@ -8921,8 +10876,10 @@ class BeamHoldDevices(GeneratedsSuper):
             nodeName_ = Tag_pattern_.match(child.tag).groups()[-1]
             self.buildChildren(child, node, nodeName_)
         return self
+
     def buildAttributes(self, node, attrs, already_processed):
         pass
+
     def buildChildren(self, child_, node, nodeName_, fromsubclass_=False):
         if nodeName_ == 'Dev':
             obj_ = Dev.factory()
@@ -8938,6 +10895,7 @@ class SetBeam(GeneratedsSuper):
     control points for the beam"""
     subclass = None
     superclass = None
+
     def __init__(self, SchemaVersion=None, Id=None, GUID=None, TrajectoryUploadInfo=None, TreatmentMode=None, MLCModel=None, TolTable=None, VelTable=None, Accs=None, ControlPoints=None, ImagingParameters=None, BeamHoldDevices=None, Tracking=None):
         self.original_tagname_ = None
         self.SchemaVersion = SchemaVersion
@@ -8955,6 +10913,7 @@ class SetBeam(GeneratedsSuper):
         self.ImagingParameters = ImagingParameters
         self.BeamHoldDevices = BeamHoldDevices
         self.Tracking = Tracking
+
     def factory(*args_, **kwargs_):
         if CurrentSubclassModule_ is not None:
             subclass = getSubclassFromModule_(
@@ -8966,32 +10925,65 @@ class SetBeam(GeneratedsSuper):
         else:
             return SetBeam(*args_, **kwargs_)
     factory = staticmethod(factory)
+
     def get_SchemaVersion(self): return self.SchemaVersion
-    def set_SchemaVersion(self, SchemaVersion): self.SchemaVersion = SchemaVersion
+
+    def set_SchemaVersion(
+        self, SchemaVersion): self.SchemaVersion = SchemaVersion
+
     def get_Id(self): return self.Id
+
     def set_Id(self, Id): self.Id = Id
+
     def get_GUID(self): return self.GUID
+
     def set_GUID(self, GUID): self.GUID = GUID
+
     def get_TrajectoryUploadInfo(self): return self.TrajectoryUploadInfo
-    def set_TrajectoryUploadInfo(self, TrajectoryUploadInfo): self.TrajectoryUploadInfo = TrajectoryUploadInfo
+
+    def set_TrajectoryUploadInfo(
+        self, TrajectoryUploadInfo): self.TrajectoryUploadInfo = TrajectoryUploadInfo
+
     def get_TreatmentMode(self): return self.TreatmentMode
-    def set_TreatmentMode(self, TreatmentMode): self.TreatmentMode = TreatmentMode
+
+    def set_TreatmentMode(
+        self, TreatmentMode): self.TreatmentMode = TreatmentMode
+
     def get_MLCModel(self): return self.MLCModel
+
     def set_MLCModel(self, MLCModel): self.MLCModel = MLCModel
+
     def get_TolTable(self): return self.TolTable
+
     def set_TolTable(self, TolTable): self.TolTable = TolTable
+
     def get_VelTable(self): return self.VelTable
+
     def set_VelTable(self, VelTable): self.VelTable = VelTable
+
     def get_Accs(self): return self.Accs
+
     def set_Accs(self, Accs): self.Accs = Accs
+
     def get_ControlPoints(self): return self.ControlPoints
-    def set_ControlPoints(self, ControlPoints): self.ControlPoints = ControlPoints
+
+    def set_ControlPoints(
+        self, ControlPoints): self.ControlPoints = ControlPoints
+
     def get_ImagingParameters(self): return self.ImagingParameters
-    def set_ImagingParameters(self, ImagingParameters): self.ImagingParameters = ImagingParameters
+
+    def set_ImagingParameters(
+        self, ImagingParameters): self.ImagingParameters = ImagingParameters
+
     def get_BeamHoldDevices(self): return self.BeamHoldDevices
-    def set_BeamHoldDevices(self, BeamHoldDevices): self.BeamHoldDevices = BeamHoldDevices
+
+    def set_BeamHoldDevices(
+        self, BeamHoldDevices): self.BeamHoldDevices = BeamHoldDevices
+
     def get_Tracking(self): return self.Tracking
+
     def set_Tracking(self, Tracking): self.Tracking = Tracking
+
     def validate_TreatmentModeType(self, value):
         # Validate type TreatmentModeType, a restriction on xs:string.
         if value is not None and Validate_simpletypes_:
@@ -9003,7 +10995,9 @@ class SetBeam(GeneratedsSuper):
                     enumeration_respectee = True
                     break
             if not enumeration_respectee:
-                warnings_.warn('Value "%(value)s" does not match xsd enumeration restriction on TreatmentModeType' % {"value" : value.encode("utf-8")} )
+                warnings_.warn('Value "%(value)s" does not match xsd enumeration restriction on TreatmentModeType' % {
+                               "value": value.encode("utf-8")})
+
     def validate_MLCModelType(self, value):
         # Validate type MLCModelType, a restriction on xs:string.
         if value is not None and Validate_simpletypes_:
@@ -9015,7 +11009,9 @@ class SetBeam(GeneratedsSuper):
                     enumeration_respectee = True
                     break
             if not enumeration_respectee:
-                warnings_.warn('Value "%(value)s" does not match xsd enumeration restriction on MLCModelType' % {"value" : value.encode("utf-8")} )
+                warnings_.warn('Value "%(value)s" does not match xsd enumeration restriction on MLCModelType' % {
+                               "value": value.encode("utf-8")})
+
     def hasContent_(self):
         if (
             self.SchemaVersion is not None or
@@ -9035,6 +11031,7 @@ class SetBeam(GeneratedsSuper):
             return True
         else:
             return False
+
     def export(self, outfile, level, namespace_='', name_='SetBeam', namespacedef_='', pretty_print=True):
         if pretty_print:
             eol_ = '\n'
@@ -9043,18 +11040,23 @@ class SetBeam(GeneratedsSuper):
         if self.original_tagname_ is not None:
             name_ = self.original_tagname_
         showIndent(outfile, level, pretty_print)
-        outfile.write('<%s%s%s' % (namespace_, name_, namespacedef_ and ' ' + namespacedef_ or '', ))
+        outfile.write('<%s%s%s' % (namespace_, name_,
+                                   namespacedef_ and ' ' + namespacedef_ or '', ))
         already_processed = set()
-        self.exportAttributes(outfile, level, already_processed, namespace_, name_='SetBeam')
+        self.exportAttributes(
+            outfile, level, already_processed, namespace_, name_='SetBeam')
         if self.hasContent_():
             outfile.write('>%s' % (eol_, ))
-            self.exportChildren(outfile, level + 1, namespace_='', name_='SetBeam', pretty_print=pretty_print)
+            self.exportChildren(outfile, level + 1, namespace_='',
+                                name_='SetBeam', pretty_print=pretty_print)
             showIndent(outfile, level, pretty_print)
             outfile.write('</%s%s>%s' % (namespace_, name_, eol_))
         else:
             outfile.write('/>%s' % (eol_, ))
+
     def exportAttributes(self, outfile, level, already_processed, namespace_='', name_='SetBeam'):
         pass
+
     def exportChildren(self, outfile, level, namespace_='', name_='SetBeam', fromsubclass_=False, pretty_print=True):
         if pretty_print:
             eol_ = '\n'
@@ -9062,36 +11064,50 @@ class SetBeam(GeneratedsSuper):
             eol_ = ''
         if self.SchemaVersion is not None:
             showIndent(outfile, level, pretty_print)
-            outfile.write('<%sSchemaVersion>%s</%sSchemaVersion>%s' % (namespace_, self.gds_encode(self.gds_format_string(quote_xml(self.SchemaVersion), input_name='SchemaVersion')), namespace_, eol_))
+            outfile.write('<%sSchemaVersion>%s</%sSchemaVersion>%s' % (namespace_, self.gds_encode(
+                self.gds_format_string(quote_xml(self.SchemaVersion), input_name='SchemaVersion')), namespace_, eol_))
         if self.Id is not None:
             showIndent(outfile, level, pretty_print)
-            outfile.write('<%sId>%s</%sId>%s' % (namespace_, self.gds_format_integer(self.Id, input_name='Id'), namespace_, eol_))
+            outfile.write('<%sId>%s</%sId>%s' % (namespace_,
+                                                 self.gds_format_integer(self.Id, input_name='Id'), namespace_, eol_))
         if self.GUID is not None:
             showIndent(outfile, level, pretty_print)
-            outfile.write('<%sGUID>%s</%sGUID>%s' % (namespace_, self.gds_encode(self.gds_format_string(quote_xml(self.GUID), input_name='GUID')), namespace_, eol_))
+            outfile.write('<%sGUID>%s</%sGUID>%s' % (namespace_, self.gds_encode(
+                self.gds_format_string(quote_xml(self.GUID), input_name='GUID')), namespace_, eol_))
         if self.TrajectoryUploadInfo is not None:
             showIndent(outfile, level, pretty_print)
-            outfile.write('<%sTrajectoryUploadInfo>%s</%sTrajectoryUploadInfo>%s' % (namespace_, self.gds_encode(self.gds_format_string(quote_xml(self.TrajectoryUploadInfo), input_name='TrajectoryUploadInfo')), namespace_, eol_))
+            outfile.write('<%sTrajectoryUploadInfo>%s</%sTrajectoryUploadInfo>%s' % (namespace_, self.gds_encode(
+                self.gds_format_string(quote_xml(self.TrajectoryUploadInfo), input_name='TrajectoryUploadInfo')), namespace_, eol_))
         if self.TreatmentMode is not None:
             showIndent(outfile, level, pretty_print)
-            outfile.write('<%sTreatmentMode>%s</%sTreatmentMode>%s' % (namespace_, self.gds_encode(self.gds_format_string(quote_xml(self.TreatmentMode), input_name='TreatmentMode')), namespace_, eol_))
+            outfile.write('<%sTreatmentMode>%s</%sTreatmentMode>%s' % (namespace_, self.gds_encode(
+                self.gds_format_string(quote_xml(self.TreatmentMode), input_name='TreatmentMode')), namespace_, eol_))
         if self.MLCModel is not None:
             showIndent(outfile, level, pretty_print)
-            outfile.write('<%sMLCModel>%s</%sMLCModel>%s' % (namespace_, self.gds_encode(self.gds_format_string(quote_xml(self.MLCModel), input_name='MLCModel')), namespace_, eol_))
+            outfile.write('<%sMLCModel>%s</%sMLCModel>%s' % (namespace_, self.gds_encode(
+                self.gds_format_string(quote_xml(self.MLCModel), input_name='MLCModel')), namespace_, eol_))
         if self.TolTable is not None:
-            self.TolTable.export(outfile, level, namespace_, name_='TolTable', pretty_print=pretty_print)
+            self.TolTable.export(outfile, level, namespace_,
+                                 name_='TolTable', pretty_print=pretty_print)
         if self.VelTable is not None:
-            self.VelTable.export(outfile, level, namespace_, name_='VelTable', pretty_print=pretty_print)
+            self.VelTable.export(outfile, level, namespace_,
+                                 name_='VelTable', pretty_print=pretty_print)
         if self.Accs is not None:
-            self.Accs.export(outfile, level, namespace_, name_='Accs', pretty_print=pretty_print)
+            self.Accs.export(outfile, level, namespace_,
+                             name_='Accs', pretty_print=pretty_print)
         if self.ControlPoints is not None:
-            self.ControlPoints.export(outfile, level, namespace_, name_='ControlPoints', pretty_print=pretty_print)
+            self.ControlPoints.export(
+                outfile, level, namespace_, name_='ControlPoints', pretty_print=pretty_print)
         if self.ImagingParameters is not None:
-            self.ImagingParameters.export(outfile, level, namespace_, name_='ImagingParameters', pretty_print=pretty_print)
+            self.ImagingParameters.export(
+                outfile, level, namespace_, name_='ImagingParameters', pretty_print=pretty_print)
         if self.BeamHoldDevices is not None:
-            self.BeamHoldDevices.export(outfile, level, namespace_, name_='BeamHoldDevices', pretty_print=pretty_print)
+            self.BeamHoldDevices.export(
+                outfile, level, namespace_, name_='BeamHoldDevices', pretty_print=pretty_print)
         if self.Tracking is not None:
-            self.Tracking.export(outfile, level, namespace_, name_='Tracking', pretty_print=pretty_print)
+            self.Tracking.export(outfile, level, namespace_,
+                                 name_='Tracking', pretty_print=pretty_print)
+
     def build(self, node):
         already_processed = set()
         self.buildAttributes(node, node.attrib, already_processed)
@@ -9099,12 +11115,15 @@ class SetBeam(GeneratedsSuper):
             nodeName_ = Tag_pattern_.match(child.tag).groups()[-1]
             self.buildChildren(child, node, nodeName_)
         return self
+
     def buildAttributes(self, node, attrs, already_processed):
         pass
+
     def buildChildren(self, child_, node, nodeName_, fromsubclass_=False):
         if nodeName_ == 'SchemaVersion':
             SchemaVersion_ = child_.text
-            SchemaVersion_ = self.gds_validate_string(SchemaVersion_, node, 'SchemaVersion')
+            SchemaVersion_ = self.gds_validate_string(
+                SchemaVersion_, node, 'SchemaVersion')
             self.SchemaVersion = SchemaVersion_
         elif nodeName_ == 'Id':
             sval_ = child_.text
@@ -9120,11 +11139,13 @@ class SetBeam(GeneratedsSuper):
             self.GUID = GUID_
         elif nodeName_ == 'TrajectoryUploadInfo':
             TrajectoryUploadInfo_ = child_.text
-            TrajectoryUploadInfo_ = self.gds_validate_string(TrajectoryUploadInfo_, node, 'TrajectoryUploadInfo')
+            TrajectoryUploadInfo_ = self.gds_validate_string(
+                TrajectoryUploadInfo_, node, 'TrajectoryUploadInfo')
             self.TrajectoryUploadInfo = TrajectoryUploadInfo_
         elif nodeName_ == 'TreatmentMode':
             TreatmentMode_ = child_.text
-            TreatmentMode_ = self.gds_validate_string(TreatmentMode_, node, 'TreatmentMode')
+            TreatmentMode_ = self.gds_validate_string(
+                TreatmentMode_, node, 'TreatmentMode')
             self.TreatmentMode = TreatmentMode_
             # validate type TreatmentModeType
             self.validate_TreatmentModeType(self.TreatmentMode)

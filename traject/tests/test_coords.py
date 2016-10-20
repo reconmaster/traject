@@ -1,7 +1,9 @@
+# -*- coding: utf-8 -*-
 import unittest
+
 import numpy as np
 
-from ..coords import *
+from traject.coords import Coords
 
 
 class TestCoords(unittest.TestCase):
@@ -10,7 +12,7 @@ class TestCoords(unittest.TestCase):
         """ Setup the coordinate system class
         """
         # pseudo random seed
-        self.seed = int(np.random.randint(2**31-1))
+        self.seed = int(np.random.randint(2**31 - 1))
         np.random.seed(self.seed)
         print('Random seed for the tests:', self.seed)
 
@@ -51,7 +53,7 @@ class TestCoords(unittest.TestCase):
         np.testing.assert_array_equal(self.dicom.get_traj()[:, 0],
                                       self.dicom._lat)
         np.testing.assert_array_equal(self.dicom.get_traj()[:, 1],
-                                      -1*self.dicom._vrt)
+                                      -1 * self.dicom._vrt)
         np.testing.assert_array_equal(self.dicom.get_traj()[:, 2],
                                       self.dicom._lng)
 
