@@ -35,7 +35,8 @@ class BeamXML(object):
 
         # populate the beamxml object from the template
         if template is None:
-            self.scan = dm.parse(self.package_directory + 'lo_fps.xml')
+            self.scan = dm.parse(self.package_directory +
+                                 'templates/hi_fps.xml')
         else:
             self.scan = dm.parse(template)
 
