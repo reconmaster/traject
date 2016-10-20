@@ -8,6 +8,11 @@ import numpy as np
 
 import developer_mode as dm
 
+# import control_points
+# for debugging, place debug_here() whenever needed
+from IPython.core.debugger import Tracer
+debug_here = Tracer()
+
 
 class BeamXML(object):
     """General trajectory object
