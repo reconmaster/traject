@@ -81,5 +81,14 @@ folder:
 ln -sf ResearchBeam_HE20.xsd schema/ResearchBeam.xsd
 generateDS.py --export="write" -o "developer_mode.py" -s "developer_modes_subs.py" schema/VarianResearchBeam.xsd
 #+END_SRC
+** TODO packaging
+   :PROPERTIES:
+   :ID:       2934AD27-2AB9-486C-8D3B-59B5B0DADDB4
+   :END:
+I need to modify the setup so that the correct class is generated for
+the schema of interest. As I needed to modify the generated class by
+hand to fix some of the documentation, it may be better to have
+different classes generated for different versions and then select
+based on the version number.
 
-#+RESULTS:
+- [[https://pythonhosted.org/generateDS/#packaging-your-code][generateDS packaging your code]]

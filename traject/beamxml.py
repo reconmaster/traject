@@ -104,8 +104,6 @@ class BeamXML(object):
 
         num_pts = max([len(v) for v in cpts.itervalues()])
 
-        debug_here()
-
         # index for imaging points that change
         img_index = 0
 
@@ -115,7 +113,7 @@ class BeamXML(object):
         for i in np.arange(1, num_pts):
 
             # one less control point in the template
-            self.scan.SetBeam.ControlPoints.add_Cp(dm.CpType())
+            self.scan.SetBeam.ControlPoints.add_Cp(dm.Cp())
 
             # if any of the imager parameters change then set the arms
             # and control point
@@ -130,10 +128,11 @@ class BeamXML(object):
                 img_index += 1
 
                 self.scan.SetBeam.ImagingParameters.ImagingPoints.\
-                    add_ImagingPoint(dm.ImagingPointType(Cp=i,
-                                                         Kvd=dm.ArmPositionsType(
-                                                             Positions=dm.PositionsType3()),
-                                                         Kvs=dm.ArmPositionsType(Positions=dm.PositionsType3())))
+                    add_ImagingPoint(dm.ImagingPoint(Cp=i,
+                                                     Kvd=dm.ArmPositionsType(
+                                                         Positions=dm.ArmAxesType()),
+                                                     Kvs=dm.ArmPositionsType(
+                                                         Positions=dm.ArmAxesType())))
 
                 # now popoulate the imaging point with the parameters
                 # all of which are needed
@@ -164,13 +163,13 @@ class BeamXML(object):
 
         # set the acquisition stop for the last imaging point
         # TODO: may be worth having multiple acquisitions in a scan?
-        # Think of possible benefits
         self.scan.SetBeam.ImagingParameters.ImagingPoints.\
-            add_ImagingPoint(dm.ImagingPointType(Cp=num_pts - 1))
+            add_ImagingPoint(dm.ImagingPoint(Cp=num_pts - 1))
 
         self.scan.SetBeam.ImagingParameters.ImagingPoints.ImagingPoint[-1].\
             set_AcquisitionStop(
-                [dm.Acquisition(AcquisitionId=1, AcquisitionSpecs=dm.AcquisitionSpecsType())])
+                [dm.Acquisition(AcquisitionId=1,
+                                AcquisitionSpecs=dm.AcquisitionSpecs())])
 
         # use first control point to initialize starting values of the
         # configuration

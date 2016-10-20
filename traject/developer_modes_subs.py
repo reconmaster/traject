@@ -21,7 +21,7 @@
 import sys
 from lxml import etree as etree_
 
-import developer_mode supermod
+import developer_mode as supermod
 
 
 def parsexml_(infile, parser=None, **kwargs):
