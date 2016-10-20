@@ -10,8 +10,8 @@ import developer_mode as dm
 
 # import control_points
 # for debugging, place debug_here() whenever needed
-from IPython.core.debugger import Tracer
-debug_here = Tracer()
+import ipdb
+debug_here = ipdb.set_trace
 
 
 class BeamXML(object):
@@ -102,7 +102,9 @@ class BeamXML(object):
         # only set values for which control points have changed
         cpts = trj.cpts.get_pts()
 
-        num_pts = [len(v) for v in cpts.itervalues()][0]
+        num_pts = max([len(v) for v in cpts.itervalues()])
+
+        debug_here()
 
         # index for imaging points that change
         img_index = 0

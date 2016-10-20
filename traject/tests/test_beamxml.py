@@ -9,8 +9,8 @@ from traject.beamxml import BeamXML
 from traject.trajects import Trajectory
 
 # for debugging, place debug_here() whenever needed
-from IPython.core.debugger import Tracer
-debug_here = Tracer()
+import ipdb
+debug_here = ipdb.set_trace
 
 
 class TestBeamXML(unittest.TestCase):

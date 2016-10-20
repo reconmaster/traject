@@ -131,16 +131,14 @@ class Trajectory(object):
         # this part isn't right, it already assumes a basis when I
         # read in the frame vectors
         if basis == 'iec':
-            self.r_src = coords.Coords(self.fvecs[:, 0], self.fvecs[:,
-                                                                    1],
-                                       self.fvecs[:,
-                                                  2],
+            self.r_src = coords.Coords(self.fvecs[:, 0],
+                                       self.fvecs[:, 1],
+                                       self.fvecs[:, 2],
                                        basis)
         elif basis == 'dicom':
-            self.r_src = coords.Coords(self.fvecs[:, 0], self.fvecs[:,
-                                                                    2],
-                                       self.fvecs[:,
-                                                  1],
+            self.r_src = coords.Coords(self.fvecs[:, 0],
+                                       self.fvecs[:, 2],
+                                       self.fvecs[:, 1],
                                        basis)
         else:
             raise Exception('Unsupported basis.')
