@@ -38,16 +38,16 @@
                                 <KiloVolts>1.250000e+02</KiloVolts>
                                 <MilliAmperes>4.000000e+01</MilliAmperes>
                                 <MilliSeconds>1.500000e+01</MilliSeconds>
-                                <eFocalSpot>Large</eFocalSpot>
-                                <eFluoroLevelControl>None</eFluoroLevelControl>
+                                <FocalSpot>Large</FocalSpot>
+                                <FluoroLevelControl>None</FluoroLevelControl>
                                 <AutoBrightnessControl>false</AutoBrightnessControl>
                             </KV>
                         </AcquisitionParameters>
                     </AcquisitionStart>
                     <KvBlades>  <!--Place holders, need to be set-->
                         <Positions>
-                            <KVX1>13.3</KVX1>
-                            <KVX2>24</KVX2>
+                            <KVX1>25.0</KVX1>
+                            <KVX2>5.</KVX2>
                             <KVY1>10.0</KVY1>
                             <KVY2>10.0</KVY2>
                         </Positions>
