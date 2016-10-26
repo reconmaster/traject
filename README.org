@@ -1,7 +1,7 @@
 #+OPTIONS: ':nil *:t -:t ::t <:t H:3 \n:nil ^:t arch:headline
 #+OPTIONS: author:t c:nil creator:nil d:(not "LOGBOOK") date:t e:t
 #+OPTIONS: email:nil f:t inline:t num:nil p:nil pri:nil prop:nil stat:t
-#+OPTIONS: tags:t tasks:t tex:t timestamp:t title:t toc:nil todo:t |:t
+#+OPTIONS: tags:t tasks:t tex:t timestamp:nil title:t toc:nil todo:t |:t
 #+TITLE: traject: generate Developer Mode 2.0 trajectories
 #+DATE:
 #+AUTHOR: Andrew M. Davis
@@ -14,11 +14,15 @@
   :PROPERTIES:
   :ID:       c0e0603e-7d7d-4b09-8c21-3621789af4a7
   :END:
-General software for managing trajectories and the interface with
-TrueBeam's Developer Mode. Control points as used with developer mode
-are implemented here with python interface. The xml schema used to
-build the xml data structure that is used for writing the new xml
+General python interface for managing trajectories and the interface
+with TrueBeam's Developer Mode. Control points as used with developer
+mode are implemented here with python interface. The xml schema used
+to build the xml data structure that is used for writing the new xml
 control scripts.
+
+Mechanical control points can be generated with python scripting. The
+trajectory object can then be written to the Developer Mode schema
+using this library.
 * Installation
   :PROPERTIES:
   :ID:       eaccc350-7cc4-44ca-8974-55cf0e146246
