@@ -143,24 +143,19 @@ class Trajectory(object):
         else:
             raise Exception('Unsupported basis.')
 
-    def visualize(self, label, r_traj, txt_width=470, frac_width=1):
-        """
-        Keyword Arguments:
-        label      -- name of plot
-        r_traj     -- trajectory to plot
-        txt_width  -- (default 470) width in pts of document
-        frac_width -- (default 1) fraction of page width
+    def visualize(self):
+        """Show 3D plot of source trajectory
+
+        :todo: show both source and detector
         """
 
         if self.vis_traj is None:
-            self.vis_traj = plots.Plot(txt_width, frac_width)
+            self.vis_traj = plt.figure()
 
-        self.vis_traj.new_figure(label)
+        ax = self.vis_traj.add_subplot(121, projection='3d')
 
-        ax = self.vis_traj.figs[label].add_subplot(111, projection='3d')
-
-        r = r_traj.get_traj()
-        basis = r_traj.get_basis()
+        r = self.r_src.get_traj()
+        basis = self.r_src.get_basis()
 
         # ax.plot(r[:, 0], r[:, 1], r[:, 2])
 
@@ -187,7 +182,7 @@ class Trajectory(object):
         cNorm = mpl.colors.Normalize(vmin=0, vmax=N)
         scalarMap = mpl.cm.ScalarMappable(norm=cNorm, cmap=cm)
         scalarMap.set_array(np.arange(N))
-        cb = self.vis_traj.figs[label].colorbar(scalarMap)
+        cb = self.vis_traj.colorbar(scalarMap)
         cb.set_label('View number')
 
 # def _test():
