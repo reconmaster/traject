@@ -73,6 +73,15 @@ mkvirtualenv -p /usr/bin/python2 traject && pip install -U pip
 pip install matplotlib
 pip install git+https://github.com/PySide/pyside-setup.git
 #+END_SRC
+* [[file:examples][Examples]]
+  :PROPERTIES:
+  :ID:       fbd76d00-1be7-4a52-a53a-f90fe80dd69e
+  :END:
+As the user interface is rather sparse, a few examples of how to use
+the trajectory class are included
+
+- [[file:examples/virtiso.py][virtual isocenter]]
+
 * Change Schema Version
   :PROPERTIES:
   :ID:       3dd7aaaf-8ca6-49af-9b34-aebb0d148d38
@@ -96,3 +105,10 @@ different classes generated for different versions and then select
 based on the version number.
 
 - [[https://pythonhosted.org/generateDS/#packaging-your-code][generateDS packaging your code]]
+
+After having to manually modify the class calls in the code after
+generating from the new schema, it may not be pragmatic to have this
+be generated on the fly. Probably better to have the schema class be
+generated and tested within the version control framework as it is
+now. A separate class could be used depending on the users preferred
+version number.
