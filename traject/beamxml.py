@@ -186,12 +186,12 @@ class BeamXML(object):
             elif key == 'couch_rtn':
                 self.scan.SetBeam.ControlPoints.Cp[0].\
                     set_CouchRtn(value)
-            # elif key == 'couch_lat':
-            #     self.scan.SetBeam.ControlPoints.Cp[0].\
-            #         set_CouchLat(value)
-            # elif key == 'couch_vrt':
-            #     self.scan.SetBeam.ControlPoints.Cp[0].\
-            #         set_CouchVrt(value)
+            elif key == 'couch_lat':
+                self.scan.SetBeam.ControlPoints.Cp[0].\
+                    set_CouchLat(value)
+            elif key == 'couch_vrt':
+                self.scan.SetBeam.ControlPoints.Cp[0].\
+                    set_CouchVrt(value)
             elif key == 'couch_lng':
                 self.scan.SetBeam.ControlPoints.Cp[0].\
                     set_CouchLng(value)

@@ -38,8 +38,8 @@
                                 <KiloVolts>1.250000e+02</KiloVolts>
                                 <MilliAmperes>4.000000e+01</MilliAmperes>
                                 <MilliSeconds>1.500000e+01</MilliSeconds>
-                                <eFocalSpot>Large</eFocalSpot>
-                                <eFluoroLevelControl>None</eFluoroLevelControl>
+                                <FocalSpot>Large</FocalSpot>
+                                <FluoroLevelControl>None</FluoroLevelControl>
                                 <AutoBrightnessControl>false</AutoBrightnessControl>
                             </KV>
                         </AcquisitionParameters>
