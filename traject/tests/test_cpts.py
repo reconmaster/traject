@@ -1,9 +1,11 @@
+# -*- coding: utf-8 -*-
 """Tests for traject.control_points module
-"""
 
+"""
 import unittest
-from ..control_points import *
-from ..system_config import *
+
+from traject.control_points import ControlPoints
+from traject.system_config import TrueBeam
 
 
 class TestControlPoints(unittest.TestCase):

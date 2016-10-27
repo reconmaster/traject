@@ -1,3 +1,4 @@
+# -*- coding: utf-8 -*-
 """class for managing control points.
 
 General idea is a class for maintaining a numpy array of control
@@ -44,6 +45,7 @@ import numpy as np
 class ControlPoints(object):
     """Class for controls points that define a trajectory.
     """
+
     def __init__(self, sys_config):
         """Initialze the control point class with a system config
         """
@@ -93,7 +95,6 @@ class ControlPoints(object):
         point for the beamxml files
         """
         return self.cpts[0]
-
 
     def add_cp(self, cp):
         """Add a new control point
@@ -174,9 +175,9 @@ class ControlPoints(object):
 
         for j in np.arange(1, len(value)):
             # first check velocity direction
-            if value[j] > value[j-1]:
+            if value[j] > value[j - 1]:
                 sign = 1        # positive velocity
-            elif value[j] < value[j-1]:
+            elif value[j] < value[j - 1]:
                 sign = -1       # negative velocity
             else:
                 sign = 0        # no change
@@ -191,7 +192,7 @@ class ControlPoints(object):
             if vel == 0:
                 t.append(0.)
             else:
-                t.append(float(value[j]-value[j-1])/vel)
+                t.append(float(value[j] - value[j - 1]) / vel)
 
         return t, v
 
@@ -216,7 +217,7 @@ class ControlPoints(object):
 
         times = self.time_steps[key]
 
-        def add_piece(self, cp0, t0, t1, vel, end = False):
+        def add_piece(self, cp0, t0, t1, vel, end=False):
             """Construct string piece to add to function string
 
             Keyword Arguments:
@@ -246,26 +247,26 @@ class ControlPoints(object):
             t0 = np.sum(self.max_t[:j])
 
             # check if last control point
-            if j+1 == len(self.max_t):
+            if j + 1 == len(self.max_t):
                 end = True
             else:
                 end = False
 
             if times[j] == 0.:  # no change
                 func_str = func_str + add_piece(func_str, cpts[j], t0,
-                                                t0+self.max_t[j], 0., end)
+                                                t0 + self.max_t[j], 0., end)
             else:               # there is a velocity change
                 func_str = func_str + add_piece(func_str, cpts[j], t0,
-                                                t0+times[j],
+                                                t0 + times[j],
                                                 self.vel_steps[key][j],
                                                 end)
                 if times[j] < self.max_t[j]:
                     func_str = func_str + add_piece(func_str, cpts[j],
-                                                    t0+times[j],
-                                                    t0+self.max_t[j], 0.,
-                                                    #self.vel_steps[key][j],
+                                                    t0 + times[j],
+                                                    t0 + self.max_t[j], 0.,
+                                                    # self.vel_steps[key][j],
                                                     end)
 
         return func_str
-        #parse_expr(func_str)
-        #print func_str
+        # parse_expr(func_str)
+        # print func_str

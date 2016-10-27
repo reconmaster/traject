@@ -107,6 +107,11 @@ class TrueBeam(SysConfig):
         self.frame_rate = {'dynamic_gain_fluoro': 11.0,
                            'dyanmic_gain_low_framerate_fluoro': 7.0}
 
+        # kV tube settings
+        self.kv_tube_settings = {'kilovolts': 125,
+                                 'milliamperes': 80,
+                                 'milliseconds': 15}
+
         # typical initial configuration
 
         # couch lng retracted (50 cm)

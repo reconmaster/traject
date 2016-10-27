@@ -6,13 +6,14 @@ included to interface with the Developer Mode scans on TrueBeam
 """
 
 import numpy as np
+
+import matplotlib as mpl
 import matplotlib.pyplot as plt
+from mpl_toolkits.mplot3d import Axes3D
 
 import control_points
 import coords
 import system_config
-
-import plots
 
 
 ###################################
@@ -24,10 +25,6 @@ class Trajectory(object):
     Parent class should hold general parameters relating to trajectory
     parameterization. This can include the frame vector array and
     anything else that is used in all of the trajectories.
-
-    .. todo:: First develop code for just the source. Then modify so
-              that the detector position can be described too (i.e. as
-              a position of the detector's center).
 
     .. todo:: General trajectory should be expressed as a piecewise
               function over time where the components are compiled
@@ -134,41 +131,31 @@ class Trajectory(object):
         # this part isn't right, it already assumes a basis when I
         # read in the frame vectors
         if basis == 'iec':
-            self.r_src = coords.Coords(self.fvecs[:, 0], self.fvecs[:,
-                                                                    1],
-                                       self.fvecs[:,
-                                                  2],
+            self.r_src = coords.Coords(self.fvecs[:, 0],
+                                       self.fvecs[:, 1],
+                                       self.fvecs[:, 2],
                                        basis)
         elif basis == 'dicom':
-            self.r_src = coords.Coords(self.fvecs[:, 0], self.fvecs[:,
-                                                                    2],
-                                       self.fvecs[:,
-                                                  1],
+            self.r_src = coords.Coords(self.fvecs[:, 0],
+                                       self.fvecs[:, 2],
+                                       self.fvecs[:, 1],
                                        basis)
         else:
             raise Exception('Unsupported basis.')
 
-    def visualize(self, label, r_traj, txt_width=470, frac_width=1):
-        """
-        Keyword Arguments:
-        label      -- name of plot
-        r_traj     -- trajectory to plot
-        txt_width  -- (default 470) width in pts of document
-        frac_width -- (default 1) fraction of page width
-        """
-        from mpl_toolkits.mplot3d import Axes3D
+    def visualize(self):
+        """Show 3D plot of source trajectory
 
-        import matplotlib as mpl
+        :todo: show both source and detector
+        """
 
         if self.vis_traj is None:
-            self.vis_traj = plots.Plot(txt_width, frac_width)
+            self.vis_traj = plt.figure()
 
-        self.vis_traj.new_figure(label)
+        ax = self.vis_traj.add_subplot(121, projection='3d')
 
-        ax = self.vis_traj.figs[label].add_subplot(111, projection='3d')
-
-        r = r_traj.get_traj()
-        basis = r_traj.get_basis()
+        r = self.r_src.get_traj()
+        basis = self.r_src.get_basis()
 
         # ax.plot(r[:, 0], r[:, 1], r[:, 2])
 
@@ -176,8 +163,8 @@ class Trajectory(object):
         # TODO use time or velocity to map color
         N = r.shape[0]
         cn = mpl.colors.Normalize(0, N)
-        for j in xrange(N-1):
-            ax.plot(r[j:j+2, 0], r[j:j+2, 1], r[j:j+2, 2],
+        for j in xrange(N - 1):
+            ax.plot(r[j:j + 2, 0], r[j:j + 2, 1], r[j:j + 2, 2],
                     color=plt.cm.cool(cn(j)), linewidth=3.0)
 
         if basis == 'iec':
@@ -195,7 +182,7 @@ class Trajectory(object):
         cNorm = mpl.colors.Normalize(vmin=0, vmax=N)
         scalarMap = mpl.cm.ScalarMappable(norm=cNorm, cmap=cm)
         scalarMap.set_array(np.arange(N))
-        cb = self.vis_traj.figs[label].colorbar(scalarMap)
+        cb = self.vis_traj.colorbar(scalarMap)
         cb.set_label('View number')
 
 # def _test():

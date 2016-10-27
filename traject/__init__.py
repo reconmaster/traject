@@ -1,6 +1,6 @@
 # Traject, the CBCT Trajectory Library
 
-# Copyright (c) 2014, Andrew Davis
+# Copyright (c) 2014, Andrew M. Davis
 # Produced at the University of Chicago
 # All rights reserved.
 #
@@ -82,12 +82,14 @@ TODO
 :Organization:
   University of Chicago
 
-:Version: 2014.11.05
+:Version: 2016.10.01
 
 Requirements
 ============
-* `Numpy 1.8.2 <http://www.numpy.org>`_
-* `Transformations.py 2013.06.29 <http://www.lfd.uci.edu/~gohlke/>`_
+* `lxml 3.6.4 <http://lxml.de/>`_
+* `matplotlib 1.5.3 <http://www.matplotlib.org>`_
+* `numpy 1.11.2 <http://www.numpy.org>`_
+* `sympy 1.0 <http://www.sympy.org>`_
 
 Examples
 ========
@@ -95,7 +97,7 @@ Add some doctests here
 
 """
 
-__version__ = '2014.11.05'
+__version__ = '2016.10.01'
 __docformat__ = 'restructuredtext en'
 __all__ = []
 

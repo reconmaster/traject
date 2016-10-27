@@ -1,222 +1,114 @@
-* Summary
-General software for managing trajectories and the interface with
-TrueBeam's Developer Mode. Most of the functionality of the code,
-classes, and methods are tracked within the docstrings of the
-code. This file is mainly to keep track of the overall code design and
-ideas that remain to be implemented.
-* TODO UML
-As the object oriented nature of this project would benefit from good
-design, I will use this to both learn how to implement UML using the
-4+1 design method.
-** TODO Use Cases
-- Heart of the design that affects all other aspects of the
-  software. This is the level that describes the requirements
-  of the end user.
-- Priority is assigned to determine which parts of the code that
-  should be developed first.
-- The use cases should define what the system should do.
+#+OPTIONS: ':nil *:t -:t ::t <:t H:3 \n:nil ^:t arch:headline
+#+OPTIONS: author:t c:nil creator:nil d:(not "LOGBOOK") date:t e:t
+#+OPTIONS: email:nil f:t inline:t num:nil p:nil pri:nil prop:nil stat:t
+#+OPTIONS: tags:t tasks:t tex:t timestamp:nil title:t toc:nil todo:t |:t
+#+TITLE: traject: generate Developer Mode 2.0 trajectories
+#+DATE:
+#+AUTHOR: Andrew M. Davis
+#+EMAIL: amdavis@uchicago.edu
+#+LANGUAGE: en
+#+SELECT_TAGS: export
+#+EXCLUDE_TAGS: noexport
 
-*** Requirements
-Here the requirements are broken into major categories and assigned
-priority.
+* Overview
+  :PROPERTIES:
+  :ID:       c0e0603e-7d7d-4b09-8c21-3621789af4a7
+  :END:
+General python interface for managing trajectories and the interface
+with TrueBeam's Developer Mode. Control points as used with developer
+mode are implemented here with python interface. The xml schema used
+to build the xml data structure that is used for writing the new xml
+control scripts.
 
-**** [#A] A. Parametric trajectory
-The code shall generate a list of the view locations for different
-scanning trajectories.
+Mechanical control points can be generated with python scripting. The
+trajectory object can then be written to the Developer Mode schema
+using this library.
+* Installation
+  :PROPERTIES:
+  :ID:       eaccc350-7cc4-44ca-8974-55cf0e146246
+  :END:
+** Dependencies
+   :PROPERTIES:
+   :ID:       e0162040-8f2b-4e2a-90eb-a9ae6e6fcc89
+   :END:
+#+BEGIN_SRC sh
+pip install lxml matplotlib sympy
+#+END_SRC
+*** [[https://pythonhosted.org/generateDS/][generateDS]]
+    :PROPERTIES:
+    :ID:       b98d38c7-f2ed-4f43-9338-084112d96aba
+    :END:
+This package is used to update the developer mode python class from
+the xml schema.
+*** [[http://lxml.de/][lxml]]
+    :PROPERTIES:
+    :ID:       06b1900a-21e8-4f57-83a9-3f86d7cd4c9e
+    :END:
+Library for using xml files in python
+*** [[http://matplotlib.org/][matplotlib]]
+    :PROPERTIES:
+    :ID:       9f27f93c-4c34-4a7f-bac0-ad3d2b0eaa50
+    :END:
+Used for visualization
+*** [[http://www.numpy.org/][numpy]]
+    :PROPERTIES:
+    :ID:       a076b858-f81f-412e-87e9-edec0026e328
+    :END:
+The heavy lifting.
+*** [[http://www.sympy.org/en/index.html][sympy]]
+    :PROPERTIES:
+    :ID:       76e7c495-9d2e-459e-8bdc-da76508b5400
+    :END:
+Symbolic math package
+** Virtual Environment
+   :PROPERTIES:
+   :ID:       0a2d9ed1-7b8d-4b22-be7b-ca41f0f5bfcd
+   :END:
+I develop/run this in a virtual environment. If not using, just make
+sure you have numpy and matplotlib available to your environment.
 
-***** DONE [#A] A.1 Create a trajectory
-CLOSED: [2014-12-04 Thu 00:56]
-- The package shall allow the user to generate a scanning trajectory
-  based on a series of control points.
+#+BEGIN_SRC sh
+mkvirtualenv -p /usr/bin/python2 traject && pip install -U pip
 
-- [ ] The trajectory should be defined as a continuous piecewise
-  function of time.
+pip install matplotlib
+pip install git+https://github.com/PySide/pyside-setup.git
+#+END_SRC
+* [[file:examples][Examples]]
+  :PROPERTIES:
+  :ID:       fbd76d00-1be7-4a52-a53a-f90fe80dd69e
+  :END:
+As the user interface is rather sparse, a few examples of how to use
+the trajectory class are included
 
-- These rate of change for the components of these sections should be
-  calculated from the limiting velocities of the physical system.
+- [[file:examples/virtiso.py][virtual isocenter]]
 
-****** TODO Fix piecewise code
-- [ ] Currently bug in SymPy code for evaluating multiple piecewise
-  conditions. In discussion with SymPy team to rectify this.
+* Change Schema Version
+  :PROPERTIES:
+  :ID:       3dd7aaaf-8ca6-49af-9b34-aebb0d148d38
+  :END:
+When building the Developer Mode class from a new scheam, the class
+can be (re-)generated using the following in the traject/traject
+folder:
 
-***** TODO [#A] A.2 Generate view locations
-- Given the continuous piecewise function of the trajectory, the
-  package shall sample trajectory positions based on the specified
-  frame rate.
+#+BEGIN_SRC sh :dir traject :output raw
+ln -sf ResearchBeam_HE20.xsd schema/ResearchBeam.xsd
+generateDS.py --export="write" -o "developer_mode.py" -s "developer_modes_subs.py" schema/VarianResearchBeam.xsd
+#+END_SRC
+** TODO packaging
+   :PROPERTIES:
+   :ID:       2934AD27-2AB9-486C-8D3B-59B5B0DADDB4
+   :END:
+I need to modify the setup so that the correct class is generated for
+the schema of interest. As I needed to modify the generated class by
+hand to fix some of the documentation, it may be better to have
+different classes generated for different versions and then select
+based on the version number.
 
-- At these sampled time points, the package should generate a frame
-  vector for the source and detector.
+- [[https://pythonhosted.org/generateDS/#packaging-your-code][generateDS packaging your code]]
 
-***** DONE [#B] A.3 Load a trajectory
-CLOSED: [2014-12-04 Thu 00:58]
-- Given a list of frame vectors, the package should be able to
-  initialize an instance of the trajectory object.
-
-***** TODO [#C] Wish list
-- [ ] Direct frame vector access from within the reconstruction scripts
-  would be useful...
-
-**** [#B] B. Trajectory visualization
-***** DONE [#B] B.1 Plot source trajectory
-CLOSED: [2014-12-04 Thu 01:00]
-- For a given trajectory, the package should be able to generate a 3D
-  plot of the source position in space.
-
-- It should also be able to generate plots along each basis of the
-  trajectories position and velocity as a function of time. This
-  should also include the angular information in addition to the
-  spatial coordinates.
-
-***** DONE [#C] B.2 Plot detector trajectory
-CLOSED: [2014-12-04 Thu 01:00]
-- The package should have the exact same plotting capability for the
-  detector center as the source.
-
-***** TODO [#B]  Wish list
-- [ ] The package should also be able to plot the detector tilt along
-  it's three degrees of freedom.
-
-- [ ] Need to determine best way to represent relative motion around
-  imaging isocenter in reconstruction. Currently only experimented
-  with couch longitudinal translation and this relative translation is
-  implemented as source and detector motion in the reconstruction.
-
-**** [#B] C. BeamXML interface
-***** DONE [#A] C.1 Generate a beamxml file for a given trajectory
-CLOSED: [2014-12-04 Thu 00:54]
-- The package shall be able to populate a beamxml file as a series of
-  control points for imaging.
-
-***** DONE [#C] C.2 Generate a trajectory from a beamxml file
-CLOSED: [2014-12-04 Thu 00:55]
-- The package should be able to populate a trajectory based on the
-  control in the beamxml file.
-
-***** DONE [#C] C.3 Use beamxml schema to manage xml interface
-CLOSED: [2014-12-04 Thu 00:55]
-
-***** TODO [#C] Wish list
-- [ ] For detector offsets, make sure the collimator blades are
-  correctly moved in the xml file as well.
-
-  + This is currently implemented via different initial configuration
-    templates. This needs to be dynamically calculated.
-
-  + Dynamic blade motion will be necessary if shifting detector offset
-    within the trajectory.
-
-*** TODO Descriptions
-#+NAME: uc_create_trajectory
-|--------------------------+------------------------------------------+-----------------------------------------------------------------|
-|                          | <40>                                     |                                                                 |
-| Use case name            | Create trajectory                        |                                                                 |
-|--------------------------+------------------------------------------+-----------------------------------------------------------------|
-| Use case description     | Generates a trajectory of interest.      |                                                                 |
-|--------------------------+------------------------------------------+-----------------------------------------------------------------|
-| Related Requirements     | A.1                                      |                                                                 |
-|--------------------------+------------------------------------------+-----------------------------------------------------------------|
-| Goal in Context          | The code is designed for studying source and detector trajectories which this use case creates |                                                                 |
-|--------------------------+------------------------------------------+-----------------------------------------------------------------|
-| Preconditions            | A list of control points must be given that describe the trajectory. |                                                                 |
-|--------------------------+------------------------------------------+-----------------------------------------------------------------|
-| Successful End Condition | A trajectory object should be created.   |                                                                 |
-|--------------------------+------------------------------------------+-----------------------------------------------------------------|
-| Failed End Condition     | No trajectory is created and user is alerted |                                                                 |
-|--------------------------+------------------------------------------+-----------------------------------------------------------------|
-| Primary Actors           | User                                     |                                                                 |
-|--------------------------+------------------------------------------+-----------------------------------------------------------------|
-|                          | Secondary Actors                         | Load frame vectors                                              |
-|                          |                                          | Load beamxml                                                    |
-|--------------------------+------------------------------------------+-----------------------------------------------------------------|
-|                          | Trigger                                  | Initialize new trajectory object                                |
-|--------------------------+------------------------------------------+-----------------------------------------------------------------|
-| Included Cases           | Create coordinate system.                |                                                                 |
-|--------------------------+------------------------------------------+-----------------------------------------------------------------|
-| Main Flow                | Step                                     | Action                                                          |
-|--------------------------+------------------------------------------+-----------------------------------------------------------------|
-|                          | 1.                                       | Load control points                                             |
-|                          | 2.                                       | Create symbolic piecewise function based on limiting velocities |
-|                          | 3.                                       | Calculate frame vectors                                         |
-|--------------------------+------------------------------------------+-----------------------------------------------------------------|
-| Extension                | Step                                     | Branching Action                                                |
-|--------------------------+------------------------------------------+-----------------------------------------------------------------|
-|                          | 3.1                                      | Populate frame vectors with detector tilt if specified.         |
-|--------------------------+------------------------------------------+-----------------------------------------------------------------|
-#+TBLFM:
-
-#+NAME: uc_plot_trajectory
-|--------------------------+------------------------------------------+-------------------------------------------------|
-|                          | <40>                                     |                                                 |
-| Use case name            | Plot trajectory                          |                                                 |
-|--------------------------+------------------------------------------+-------------------------------------------------|
-| Use case description     | Creates a plot of a given trajectory     |                                                 |
-|--------------------------+------------------------------------------+-------------------------------------------------|
-| Related Requirements     | B.1                                      |                                                 |
-|--------------------------+------------------------------------------+-------------------------------------------------|
-| Goal in Context          | Visualize the trajectory of the trajectory object |                                                 |
-|--------------------------+------------------------------------------+-------------------------------------------------|
-| Preconditions            | Trajectory must be successfully created  |                                                 |
-|--------------------------+------------------------------------------+-------------------------------------------------|
-| Successful End Condition | Plot object should be created            |                                                 |
-|--------------------------+------------------------------------------+-------------------------------------------------|
-| Failed End Condition     | No plot should be generated and the user should be alerted |                                                 |
-|--------------------------+------------------------------------------+-------------------------------------------------|
-| Primary Actors           | User                                     |                                                 |
-|--------------------------+------------------------------------------+-------------------------------------------------|
-|                          | Secondary Actors                         | None                                            |
-|--------------------------+------------------------------------------+-------------------------------------------------|
-|                          | Trigger                                  | User requests a trajectory plot                 |
-|--------------------------+------------------------------------------+-------------------------------------------------|
-| Included Cases           | None                                     |                                                 |
-|--------------------------+------------------------------------------+-------------------------------------------------|
-| Main Flow                | Step                                     | Action                                          |
-|--------------------------+------------------------------------------+-------------------------------------------------|
-|                          | 1.                                       | Initialize the plotting environment             |
-|                          | 2.                                       | Plot the trajectory in the 3D coordinate system |
-|--------------------------+------------------------------------------+-------------------------------------------------|
-| Extension                | Step                                     | Branching Action                                |
-|--------------------------+------------------------------------------+-------------------------------------------------|
-|                          | 1.1                                      | Generate 2D plot of selected components         |
-|                          | 2.1                                      | Write plot to file.                             |
-|--------------------------+------------------------------------------+-------------------------------------------------|
-
-*** UML Use Case Overview                                        :noexport:
-The use case overview should actually not contain any use cases, it
-should merely show how the system is designed.
-#+begin_src plantuml :file uml/use_cases.png
-  @startuml
-  User -> (Create trajectory)
-  User -> (Plot trajectory)
-  @enduml
-#+end_src
-
-#+RESULTS:
-[[file:uml/use_cases.png]]
-
-** Process View                                                   :noexport:
-The process view shows how the system accomplishes the requirements
-laid out by the use cases. This is where the actual UML diagrams
-showing the use case interaction should go.
-
-*** TODO UML Diagram
-- [ ] Create UML activity diagrams for each use case
-
-**** create trajectory
-
-#+begin_src plantuml :file uml/activity_create_trajectory.png
-  @startuml
-  start
-  :Input control points;
-
-  :Use system config velocities to create
-  symbolic vector function of time;
-
-  :Sample position information from these
-  functions based on frame rate;
-
-  stop
-  @enduml
-#+end_src
-
-#+RESULTS:
-[[file:uml/activity_create_trajectory.png]]
+After having to manually modify the class calls in the code after
+generating from the new schema, it may not be pragmatic to have this
+be generated on the fly. Probably better to have the schema class be
+generated and tested within the version control framework as it is
+now. A separate class could be used depending on the users preferred
+version number.

@@ -1,10 +1,16 @@
+# -*- coding: utf-8 -*-
 """Tests for traject.beamxml module
+
 """
 
-import os
 import unittest
-from ..beamxml import *
-from ..trajects import *
+
+from traject.beamxml import BeamXML
+from traject.trajects import Trajectory
+
+# for debugging, place debug_here() whenever needed
+import ipdb
+debug_here = ipdb.set_trace
 
 
 class TestBeamXML(unittest.TestCase):
@@ -55,7 +61,7 @@ class TestBeamXML(unittest.TestCase):
                          get_Lng(), -5.)
 
         # write test xml file for verification
-        #self.bxml.write_xml()
+        # self.bxml.write_xml()
 
 
 if __name__ == '__main__':
