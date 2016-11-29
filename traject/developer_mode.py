@@ -8058,8 +8058,8 @@ class ImagingParameters(GeneratedsSuper):
         if (
             self.DuringTreatment is not None or
             self.OutsideTreatment is not None or
-            not self.LatchBEL or
-            not self.LatchKVBEL or
+            self.LatchBEL is not None or
+            self.LatchKVBEL is not None or
             self.ImagingPoints is not None or
             self.ImagingTolerances is not None or
             self.MotionManagementParameters is not None or
@@ -8105,11 +8105,11 @@ class ImagingParameters(GeneratedsSuper):
         if self.OutsideTreatment is not None:
             self.OutsideTreatment.export(
                 outfile, level, namespace_, name_='OutsideTreatment', pretty_print=pretty_print)
-        if not self.LatchBEL:
+        if self.LatchBEL is not None:
             showIndent(outfile, level, pretty_print)
             outfile.write('<%sLatchBEL>%s</%sLatchBEL>%s' % (namespace_,
                                                              self.gds_format_boolean(self.LatchBEL, input_name='LatchBEL'), namespace_, eol_))
-        if not self.LatchKVBEL:
+        if self.LatchKVBEL is not None:
             showIndent(outfile, level, pretty_print)
             outfile.write('<%sLatchKVBEL>%s</%sLatchKVBEL>%s' % (namespace_,
                                                                  self.gds_format_boolean(self.LatchKVBEL, input_name='LatchKVBEL'), namespace_, eol_))
