@@ -72,6 +72,8 @@ mkvirtualenv -p /usr/bin/python2 traject && pip install -U pip
 
 pip install matplotlib
 pip install git+https://github.com/PySide/pyside-setup.git
+
+pip install -e traject
 #+END_SRC
 * [[file:examples][Examples]]
   :PROPERTIES:
