@@ -60,21 +60,6 @@ The heavy lifting.
     :ID:       76e7c495-9d2e-459e-8bdc-da76508b5400
     :END:
 Symbolic math package
-** Virtual Environment
-   :PROPERTIES:
-   :ID:       0a2d9ed1-7b8d-4b22-be7b-ca41f0f5bfcd
-   :END:
-I develop/run this in a virtual environment. If not using, just make
-sure you have numpy and matplotlib available to your environment.
-
-#+BEGIN_SRC sh
-mkvirtualenv -p /usr/bin/python2 traject && pip install -U pip
-
-pip install matplotlib
-pip install git+https://github.com/PySide/pyside-setup.git
-
-pip install -e traject
-#+END_SRC
 * [[file:examples][Examples]]
   :PROPERTIES:
   :ID:       fbd76d00-1be7-4a52-a53a-f90fe80dd69e

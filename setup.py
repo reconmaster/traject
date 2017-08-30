@@ -4,7 +4,8 @@ setup(name='traject',
       version='1.0.0',
       packages=find_packages(),
 
-      # install_requires=['matplotlib>=1.5'],
+      install_requires=['matplotlib>=2.0',
+                        'numpy>=1.13'],
 
       # entry_points={
       #     'console_scripts': [

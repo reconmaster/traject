@@ -152,7 +152,7 @@ class Trajectory(object):
         if self.vis_traj is None:
             self.vis_traj = plt.figure()
 
-        ax = self.vis_traj.add_subplot(121, projection='3d')
+        ax = self.vis_traj.add_subplot(111, projection='3d')
 
         r = self.r_src.get_traj()
         basis = self.r_src.get_basis()
